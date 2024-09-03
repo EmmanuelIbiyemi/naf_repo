@@ -1,0 +1,19 @@
+:root {
+  --border-radius: 7px;
+}
+
+.has_bg_image {
+  position: relative;
+
+  .bg {
+    height: 100%;
+    object-fit: cover;
+    position: absolute;
+    width: 100%;
+  }
+}
+
+.MuiInputBase-root,
+button {
+  border-radius: var(--border-radius) !important;
+}
