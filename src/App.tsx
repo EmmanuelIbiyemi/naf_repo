@@ -1,12 +1,29 @@
+import { Box, SxProps } from "@mui/material";
 import "./App.scss";
+import SideBar from "./components/layout/SideBar";
+import Header from "./components/layout/Header";
+
+const layoutStyles: SxProps = {
+  display: "grid",
+  gridTemplateAreas: `
+  "sidebar header"
+  "sidebar main"
+  `,
+  gridTemplateColumns: "280px 1fr",
+  gridTemplateRows: "100px 1fr",
+  minHeight: "100vh",
+  ">*": {
+    border: "1px solid #000",
+  },
+};
 
 function App() {
   return (
-    <>
-      <h1 className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </h1>
-    </>
+    <Box sx={layoutStyles}>
+      <SideBar />
+      <Header />
+      <Box>Main</Box>
+    </Box>
   );
 }
 
