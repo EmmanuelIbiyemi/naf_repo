@@ -1,6 +1,8 @@
 import { createBrowserRouter } from "react-router-dom";
-import App from "./App";
-import Login from "./Pages/login/Login";
+import { lazy } from "react";
+
+const App = lazy(() => import("./App"));
+const Login = lazy(() => import("./Pages/login/Login"));
 
 export const router = createBrowserRouter([
   {
