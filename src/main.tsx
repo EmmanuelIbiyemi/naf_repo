@@ -21,9 +21,6 @@ const theme = createTheme({
       contrastText: "#fff",
     },
   },
-  typography: {
-    fontFamily: ["Maven Pro", "Roboto", "sans-serif"].join(","),
-  },
 });
 
 ReactDOM.createRoot(document.getElementById("root")!).render(

@@ -3,6 +3,18 @@ import "./App.scss";
 import SideBar from "./components/layout/SideBar";
 import Header from "./components/layout/Header";
 
+function App() {
+  return (
+    <Box sx={layoutStyles}>
+      <SideBar />
+      <Header />
+      <Box sx={{ paddingInline: "2rem" }}>Main</Box>
+    </Box>
+  );
+}
+
+export default App;
+
 const layoutStyles: SxProps = {
   display: "grid",
   gridTemplateAreas: `
@@ -16,15 +28,3 @@ const layoutStyles: SxProps = {
     border: "1px solid #000",
   },
 };
-
-function App() {
-  return (
-    <Box sx={layoutStyles}>
-      <SideBar />
-      <Header />
-      <Box>Main</Box>
-    </Box>
-  );
-}
-
-export default App;

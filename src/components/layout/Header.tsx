@@ -1,7 +1,73 @@
-import { Box } from "@mui/material";
+import { Help, Notifications } from "@mui/icons-material";
+import { Box, IconButton, SxProps, Typography } from "@mui/material";
 
 const Header = () => {
-  return <Box sx={{ gridArea: "header" }}>Header</Box>;
+  return (
+    <Box sx={headerStyles}>
+      <Typography
+        component="h1"
+        sx={{
+          color: "rgba(85, 85, 85, 1)",
+          fontSize: "1.7rem",
+          fontWeight: 500,
+        }}
+      >
+        Dashboard
+      </Typography>
+      <Box sx={actionsStyles}>
+        <Box>
+          <IconButton>
+            <Notifications />
+          </IconButton>
+          <IconButton sx={{ marginLeft: ".9rem" }}>
+            <Help />
+          </IconButton>
+        </Box>
+        <Box sx={flexStyles}>
+          <Box sx={{ textAlign: "right" }}>
+            <Typography>Amina Rabiu</Typography>
+            <Typography sx={{ color: "rgba(160, 152, 174, 1)" }}>
+              Admin
+            </Typography>
+          </Box>
+          <Box className="has_bg_image" sx={profileImageStyles}>
+            <img className="bg" src="" alt="" />
+          </Box>
+        </Box>
+      </Box>
+    </Box>
+  );
 };
 
 export default Header;
+
+const flexStyles: SxProps = {
+  alignItems: "center",
+  display: "flex",
+  gap: "1rem",
+};
+
+const headerStyles: SxProps = {
+  ...flexStyles,
+  gridArea: "header",
+  justifyContent: "space-between",
+  paddingInline: "2rem",
+};
+
+const actionsStyles: SxProps = {
+  ...flexStyles,
+  gap: "2rem",
+  ".MuiIconButton-root": {
+    bgcolor: "#fff",
+    borderRadius: "100%",
+    svg: { fontSize: "1.7rem" },
+  },
+};
+
+const profileImageStyles: SxProps = {
+  bgcolor: "primary.main",
+  height: "50px",
+  width: "50px",
+  borderRadius: "100%",
+  overflow: "hidden",
+};
