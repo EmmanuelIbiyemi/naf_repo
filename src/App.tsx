@@ -7,7 +7,9 @@ import { Outlet } from "react-router-dom";
 function App() {
   return (
     <Box sx={layoutStyles}>
-      <SideBar />
+      <Box sx={{ gridArea: "sidebar" }}>
+        <SideBar />
+      </Box>
       <Header />
       <Outlet />
     </Box>

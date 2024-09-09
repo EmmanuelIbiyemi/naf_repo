@@ -51,8 +51,10 @@ export default SideBar;
 const sideBarStyles: SxProps = {
   bgcolor: "primary.main",
   color: "primary.contrastText",
-  gridArea: "sidebar",
   padding: "2rem",
+  position: "sticky",
+  height: "100vh",
+  top: 0,
 };
 
 const navLinkStyles: SxProps = {
