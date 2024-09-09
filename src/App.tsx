@@ -2,13 +2,14 @@ import { Box, SxProps } from "@mui/material";
 import "./App.scss";
 import SideBar from "./components/layout/SideBar";
 import Header from "./components/layout/Header";
+import { Outlet } from "react-router-dom";
 
 function App() {
   return (
     <Box sx={layoutStyles}>
       <SideBar />
       <Header />
-      <Box sx={{ paddingInline: "2rem" }}>Main</Box>
+      <Outlet />
     </Box>
   );
 }

@@ -3,15 +3,16 @@ import { lazy } from "react";
 
 const App = lazy(() => import("./App"));
 const Login = lazy(() => import("./Pages/login/Login"));
+const Dashboard = lazy(() => import("./Pages/dashboard/Dashboard"));
 
 export const router = createBrowserRouter([
   {
-    path: "/",
-    element: <App />,
-    children: [],
-  },
-  {
     path: "/login",
     element: <Login />,
+  },
+  {
+    path: "/",
+    element: <App />,
+    children: [{ path: "/", element: <Dashboard /> }],
   },
 ]);
