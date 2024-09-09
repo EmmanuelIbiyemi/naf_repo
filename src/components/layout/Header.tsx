@@ -25,8 +25,21 @@ const Header = () => {
         </Box>
         <Box sx={flexStyles}>
           <Box sx={{ textAlign: "right" }}>
-            <Typography>Amina Rabiu</Typography>
-            <Typography sx={{ color: "rgba(160, 152, 174, 1)" }}>
+            <Typography
+              sx={{
+                letterSpacing: 0.1,
+                textTransform: "uppercase",
+                maxWidth: "9ch",
+                whiteSpace: "nowrap",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+              }}
+            >
+              Amina Rabiu
+            </Typography>
+            <Typography
+              sx={{ color: "rgba(160, 152, 174, 1)", letterSpacing: 0.1 }}
+            >
               Admin
             </Typography>
           </Box>
@@ -49,6 +62,7 @@ const flexStyles: SxProps = {
 
 const headerStyles: SxProps = {
   ...flexStyles,
+  borderBottom: "1px solid rgba(204, 204, 204, 1)",
   gridArea: "header",
   justifyContent: "space-between",
   paddingInline: "2rem",

@@ -27,7 +27,4 @@ const layoutStyles: SxProps = {
   gridTemplateColumns: "280px 1fr",
   gridTemplateRows: "100px 1fr",
   minHeight: "100vh",
-  ">*": {
-    border: "1px solid #000",
-  },
 };
