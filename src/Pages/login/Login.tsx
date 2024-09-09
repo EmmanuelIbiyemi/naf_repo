@@ -1,7 +1,7 @@
 import { Box, Button, Container, SxProps, Typography } from "@mui/material";
 import logo from "../../assets/logo.png";
 import loginBG from "../../assets/login-bg.svg";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Form, Formik } from "formik";
 import * as Yup from "yup";
 import { LoadingButton } from "@mui/lab";
@@ -14,6 +14,7 @@ type LoginForm = {
 };
 
 const Login = () => {
+  const navigate = useNavigate();
   const initialValues = {
     full_name: "",
     email: "",
@@ -28,6 +29,7 @@ const Login = () => {
 
   const handleSubmit = async (values: LoginForm) => {
     console.log(values);
+    navigate("/");
   };
 
   return (
@@ -54,7 +56,12 @@ const Login = () => {
         </Container>
       </Box>
       <Container className="has_bg_image" sx={formContainerStyles}>
-        <img className="bg" src={loginBG} alt="" />
+        <img
+          className="bg"
+          src={loginBG}
+          alt=""
+          style={{ position: "absolute" }}
+        />
         <Formik
           initialValues={initialValues}
           validationSchema={validationSchema}
