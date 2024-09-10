@@ -7,9 +7,11 @@ import InstructorIcon from "../../assets/instructorIcon";
 import BankIcon from "../../assets/bankIcon";
 import SettingsIcon from "../../assets/settingsIcon";
 import { useState } from "react";
+import ClipBoardIcon from "../../assets/clipboardIcon";
 
 const navLinks = [
   { content: "Dashboard", icon: HomeIcon, link: "/" },
+  { content: "Courses", icon: ClipBoardIcon, link: "/courses" },
   { content: "Participants", icon: ChartIcon, link: "/" },
   { content: "Instructors", icon: InstructorIcon, link: "/" },
   { content: "Application", icon: BankIcon, link: "/" },
@@ -33,6 +35,7 @@ const SideBar = () => {
       <Box sx={navLinkStyles}>
         {navLinks.map((item, i) => (
           <Link
+            key={`navlink-${i + 1}`}
             onClick={() => handleSetActive(i)}
             className={active == i ? "active" : ""}
             to={item.link}
