@@ -1,0 +1,38 @@
+.modal_form {
+  width: 100%;
+  display: grid;
+  gap: 2rem;
+
+  label {
+    display: block;
+    margin-bottom: 0.5rem;
+  }
+
+  input,
+  textarea {
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    display: block;
+    padding: 0.5rem 1rem;
+    width: 100%;
+  }
+
+  textarea {
+    height: 120px;
+  }
+}
+
+.btn_group {
+  display: flex;
+  gap: 1rem;
+  width: 100%;
+
+  button {
+    width: 100%;
+  }
+}
+
+.cancel_btn {
+  background-color: transparent;
+  color: rgba(138, 138, 138, 1);
+}

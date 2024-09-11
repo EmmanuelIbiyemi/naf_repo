@@ -3,7 +3,7 @@ import { Box, IconButton, SxProps, Typography } from "@mui/material";
 
 const Header = () => {
   return (
-    <Box sx={headerStyles}>
+    <Box className="header" sx={headerStyles}>
       <Typography
         component="h1"
         sx={{

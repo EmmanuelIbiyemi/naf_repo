@@ -25,7 +25,7 @@ const SideBar = () => {
   };
 
   return (
-    <Box sx={sideBarStyles}>
+    <Box className="sidebar" sx={sideBarStyles}>
       <img
         src={logo}
         alt=""

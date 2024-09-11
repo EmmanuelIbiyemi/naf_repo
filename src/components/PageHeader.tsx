@@ -3,7 +3,14 @@ import { Box, Button, SxProps } from "@mui/material";
 import { Field, Form, Formik } from "formik";
 import * as Yup from "yup";
 
-const PageHeader = () => {
+type Props = {
+  button: {
+    text: string;
+    action: () => void;
+  };
+};
+
+const PageHeader = ({ button }: Props) => {
   const initialValues = {
     filter: "",
     keyword: "",
@@ -60,8 +67,12 @@ const PageHeader = () => {
         >
           Export CSV
         </Button>
-        <Button variant="contained" sx={{ textTransform: "capitalize" }}>
-          Add Courses
+        <Button
+          onClick={button.action}
+          variant="contained"
+          sx={{ textTransform: "capitalize" }}
+        >
+          {button.text}
         </Button>
       </Box>
     </Box>
@@ -101,10 +112,4 @@ const formGroupStyles: SxProps = {
   alignItems: "center",
   display: "flex",
   gap: "1rem",
-
-  button: {
-    border: "1px solid rgba(204, 204, 204, 0.6)",
-    boxShadow: "none",
-    padding: ".6rem 2rem",
-  },
 };
