@@ -4,10 +4,18 @@ import EmptyState from "../../components/EmptyState";
 import FormModal from "../../components/FormModal";
 import { useRef, useState } from "react";
 import CourseForm from "./CourseForm";
+import CourseList from "./CourseList";
+import { CourseType } from "../../types/courses";
 
 const CoursesPage = () => {
   const [openModal, setOpenModal] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const [courses] = useState<CourseType[] | []>([
+    { id: 1, name: "course 1" },
+    { id: 2, name: "course 1" },
+    { id: 3, name: "course 1" },
+    { id: 4, name: "course 1" },
+  ]);
 
   const handleOpenModal = () => {
     setOpenModal(true);
@@ -46,7 +54,7 @@ const CoursesPage = () => {
           padding: "var(--padding)",
         }}
       >
-        <EmptyState />
+        {courses.length ? <CourseList courses={courses} /> : <EmptyState />}
       </Box>
     </Box>
   );
