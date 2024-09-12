@@ -38,7 +38,7 @@ const Dashboard = () => {
         }}
       >
         {cards.map((card) => (
-          <Link to="/">
+          <Link to="/" key={`dashboard-card-${card.id}`}>
             <Box sx={cardStyles}>
               <Box className="icon">{card.icon}</Box>
               <Box>

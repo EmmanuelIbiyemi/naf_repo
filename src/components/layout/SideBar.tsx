@@ -1,27 +1,34 @@
 import { Box, SxProps } from "@mui/material";
 import logo from "../../assets/logo.png";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import HomeIcon from "../../assets/homeIcon";
 import ChartIcon from "../../assets/chartIcon";
 import InstructorIcon from "../../assets/instructorIcon";
 import BankIcon from "../../assets/bankIcon";
 import SettingsIcon from "../../assets/settingsIcon";
-import { useState } from "react";
+import { ElementType } from "react";
 import ClipBoardIcon from "../../assets/clipboardIcon";
 
-const navLinks = [
+type NavLink = {
+  content: string;
+  icon: ElementType;
+  link: string;
+};
+const navLinks: NavLink[] = [
   { content: "Dashboard", icon: HomeIcon, link: "/" },
   { content: "Courses", icon: ClipBoardIcon, link: "/courses" },
-  { content: "Participants", icon: ChartIcon, link: "/" },
-  { content: "Instructors", icon: InstructorIcon, link: "/" },
-  { content: "Application", icon: BankIcon, link: "/" },
-  { content: "Settings", icon: SettingsIcon, link: "/" },
+  { content: "Participants", icon: ChartIcon, link: "/paticipants" },
+  { content: "Instructors", icon: InstructorIcon, link: "/instructors" },
+  { content: "Applications", icon: BankIcon, link: "/applicantions" },
+  { content: "Settings", icon: SettingsIcon, link: "/settings" },
 ];
 
 const SideBar = () => {
-  const [active, setActive] = useState(0);
-  const handleSetActive = (id: number) => {
-    setActive(id);
+  const location = useLocation();
+  const isCurrentPage = (navLink: NavLink) => {
+    if (navLink.content.toLowerCase() != "dashboard")
+      return location.pathname.includes(navLink.link);
+    else return location.pathname == "/";
   };
 
   return (
@@ -33,14 +40,15 @@ const SideBar = () => {
         style={{ display: "block", marginInline: "auto" }}
       />
       <Box sx={navLinkStyles}>
-        {navLinks.map((item, i) => (
+        {navLinks.map((item) => (
           <Link
-            key={`navlink-${i + 1}`}
-            onClick={() => handleSetActive(i)}
-            className={active == i ? "active" : ""}
+            key={`navlink-${item.content + 1}`}
+            className={isCurrentPage(item) ? "active" : ""}
             to={item.link}
           >
-            <item.icon color={active == i ? "rgba(2, 54, 120, 1)" : "#fff"} />
+            <item.icon
+              color={isCurrentPage(item) ? "rgba(2, 54, 120, 1)" : "#fff"}
+            />
             {item.content}
           </Link>
         ))}

@@ -36,7 +36,10 @@ const CourseList = ({ courses }: Props) => {
                 sx={{ alignItems: "center", display: "flex", gap: "1rem" }}
               >
                 <Checkbox />
-                <Link to="" style={{ textTransform: "capitalize" }}>
+                <Link
+                  to={`/course/${course.id}`}
+                  style={{ textTransform: "capitalize" }}
+                >
                   {course.name}
                 </Link>
               </TableCell>
