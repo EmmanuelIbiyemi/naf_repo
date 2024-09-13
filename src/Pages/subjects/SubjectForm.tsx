@@ -1,14 +1,12 @@
 import * as Yup from "yup";
 import { SubjectCreateType } from "../../types/subjects";
 import { Field, Form, Formik } from "formik";
-import { Box, Button } from "@mui/material";
+import { Box, Button, Typography } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
-// import { useNavigate } from "react-router-dom";
 import formStyles from "../../components/form/form.module.scss";
 import dayjs from "dayjs";
 
 const CourseForm = () => {
-  //   const navigate = useNavigate();
   const initialValues: SubjectCreateType = {
     duration: "",
     end_date: dayjs(),
@@ -31,7 +29,6 @@ const CourseForm = () => {
 
   const handleSubmit = async (values: SubjectCreateType) => {
     console.log(values);
-    // navigate("/");
   };
   return (
     <Formik
@@ -39,41 +36,18 @@ const CourseForm = () => {
       validationSchema={validationSchema}
       onSubmit={handleSubmit}
     >
-      <Form className={formStyles.modal_form}>
-        <Box>
-          <label htmlFor="name">Subject Name</label>
-          <Field id="name" name="name" />
-        </Box>
-        <Box
-          sx={{ display: "grid", gap: "1rem", gridTemplateColumns: "1fr 1fr" }}
-        >
+      {({ isValid, dirty }) => (
+        <Form className={formStyles.modal_form}>
+          <Typography
+            variant="h5"
+            component="h2"
+            sx={{ marginTop: "1rem", textAlign: "center" }}
+          >
+            Add Subject
+          </Typography>
           <Box>
-            <label htmlFor="rank">Rank Requirements</label>
-            <Field id="rank" name="rank" />
-          </Box>
-          <Box>
-            <label htmlFor="duration">Duration</label>
-            <Field id="duration" name="duration" />
-          </Box>
-        </Box>
-        <Box
-          sx={{ display: "grid", gap: "1rem", gridTemplateColumns: "1fr 1fr" }}
-        >
-          <Box>
-            <label htmlFor="duration">Duration</label>
-            <Field id="duration" name="duration" />
-          </Box>
-          <Box>
-            <label htmlFor="phone">Phone number</label>
-            <Field id="phone" name="phone_number" />
-          </Box>
-        </Box>
-        <Box
-          sx={{ display: "grid", gap: "1rem", gridTemplateColumns: "1fr 1fr" }}
-        >
-          <Box>
-            <label htmlFor="instructor">Instructor</label>
-            <Field id="instructor" name="instructor" />
+            <label htmlFor="name">Subject Name</label>
+            <Field id="name" name="name" />
           </Box>
           <Box
             sx={{
@@ -83,28 +57,73 @@ const CourseForm = () => {
             }}
           >
             <Box>
-              <label htmlFor="start-date">Start date</label>
-              <Field id="start-date" name="start_date" />
+              <label htmlFor="rank">Rank Requirements</label>
+              <Field id="rank" name="rank" />
             </Box>
             <Box>
-              <label htmlFor="end-date">End date</label>
-              <Field id="end-date" name="end_date" />
+              <label htmlFor="duration">Duration</label>
+              <Field id="duration" name="duration" />
             </Box>
           </Box>
-        </Box>
-        <Box className={formStyles.btn_group}>
-          <Button className={formStyles.cancel_btn} variant="contained">
-            Cancel
-          </Button>
-          <LoadingButton
-            className={formStyles.submit_btn}
-            type="submit"
-            variant="contained"
+          <Box
+            sx={{
+              display: "grid",
+              gap: "1rem",
+              gridTemplateColumns: "1fr 1fr",
+            }}
           >
-            Add Subject
-          </LoadingButton>
-        </Box>
-      </Form>
+            <Box>
+              <label htmlFor="duration">Duration</label>
+              <Field id="duration" name="duration" />
+            </Box>
+            <Box>
+              <label htmlFor="phone">Phone number</label>
+              <Field id="phone" name="phone_number" />
+            </Box>
+          </Box>
+          <Box
+            sx={{
+              display: "grid",
+              gap: "1rem",
+              gridTemplateColumns: "1fr 1fr",
+            }}
+          >
+            <Box>
+              <label htmlFor="instructor">Instructor</label>
+              <Field id="instructor" name="instructor" />
+            </Box>
+            <Box
+              sx={{
+                display: "grid",
+                gap: "1rem",
+                gridTemplateColumns: "1fr 1fr",
+              }}
+            >
+              <Box>
+                <label htmlFor="start-date">Start date</label>
+                <Field id="start-date" name="start_date" />
+              </Box>
+              <Box>
+                <label htmlFor="end-date">End date</label>
+                <Field id="end-date" name="end_date" />
+              </Box>
+            </Box>
+          </Box>
+          <Box className={formStyles.btn_group}>
+            <Button className={formStyles.cancel_btn} variant="contained">
+              Cancel
+            </Button>
+            <LoadingButton
+              className={formStyles.submit_btn}
+              type="submit"
+              variant="contained"
+              disabled={!(isValid && dirty)}
+            >
+              Add Subject
+            </LoadingButton>
+          </Box>
+        </Form>
+      )}
     </Formik>
   );
 };

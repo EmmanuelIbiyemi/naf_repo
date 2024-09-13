@@ -8,7 +8,6 @@ import { LoadingButton } from "@mui/lab";
 import { FormikTextField } from "../../components/form/TextField";
 
 type LoginForm = {
-  full_name: string;
   email: string;
   password: string;
 };
@@ -16,13 +15,11 @@ type LoginForm = {
 const Login = () => {
   const navigate = useNavigate();
   const initialValues = {
-    full_name: "",
     email: "",
     password: "",
   };
 
   const validationSchema = Yup.object({
-    full_name: Yup.string().required("Required"),
     email: Yup.string().email("Invalid email").required("Required"),
     password: Yup.string().required("Required"),
   });
@@ -74,10 +71,6 @@ const Login = () => {
                 USER LOGIN
               </Typography>
               <Box sx={{ display: "grid", gap: "1rem", width: 350 }}>
-                <FormikTextField<LoginForm>
-                  name="full_name"
-                  label="Full Name"
-                />
                 <FormikTextField<LoginForm> name="email" label="Email" />
                 <FormikTextField<LoginForm>
                   name="password"

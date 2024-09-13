@@ -10,20 +10,14 @@ import { Link } from "react-router-dom";
 
 type Props = {
   courses: CourseType[];
+  editCourse: (course: CourseType) => void;
+  deleteCourse: (id: number) => void;
 };
 
-const CourseList = ({ courses }: Props) => {
-  const handleDelete = (id: number) => {
-    console.log(id);
-  };
-
-  const handleEdit = (id: number) => {
-    console.log(id);
-  };
-
+const CourseList = ({ courses, editCourse, deleteCourse }: Props) => {
   return (
     <TableContainer>
-      <Table sx={{ minWidth: 650 }} aria-label="simple table">
+      <Table sx={{ minWidth: 650 }}>
         <TableBody>
           {courses.map((course) => (
             <TableRow
@@ -37,17 +31,17 @@ const CourseList = ({ courses }: Props) => {
               >
                 <Checkbox />
                 <Link
-                  to={`/course/${course.id}`}
+                  to={`/courses/${course.id}`}
                   style={{ textTransform: "capitalize" }}
                 >
                   {course.name}
                 </Link>
               </TableCell>
               <TableCell align="right">
-                <IconButton onClick={() => handleEdit(course.id)}>
+                <IconButton onClick={() => editCourse(course)}>
                   <Edit />
                 </IconButton>
-                <IconButton onClick={() => handleDelete(course.id)}>
+                <IconButton onClick={() => deleteCourse(course.id)}>
                   <Delete />
                 </IconButton>
               </TableCell>

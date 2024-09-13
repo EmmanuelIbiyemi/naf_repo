@@ -60,7 +60,7 @@ const SubjectsPage = () => {
 
   return (
     <Box ref={containerRef}>
-      <FormModal name="Add Subject" open={openModal} close={handleCloseModal}>
+      <FormModal open={openModal} close={handleCloseModal}>
         <SubjectForm />
       </FormModal>
       <PageHeader

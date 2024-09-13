@@ -5,12 +5,17 @@ import FormModal from "../../components/FormModal";
 import { useRef, useState } from "react";
 import CourseForm from "./CourseForm";
 import CourseList from "./CourseList";
-import { CourseType } from "../../types/courses";
+import {
+  CourseCreateType,
+  CourseEditFuncType,
+  CourseType,
+} from "../../types/courses";
 
 const CoursesPage = () => {
   const [openModal, setOpenModal] = useState(false);
+  const [selectedCourse, setSelectedCourse] = useState<CourseType>();
   const containerRef = useRef<HTMLDivElement>(null);
-  const [courses] = useState<CourseType[] | []>([
+  const [courses, setCourses] = useState<CourseType[] | []>([
     { id: 1, name: "course 1" },
     { id: 2, name: "course 1" },
     { id: 3, name: "course 1" },
@@ -29,16 +34,48 @@ const CoursesPage = () => {
     containerRef.current?.classList.remove("blur_effect");
     document.querySelector(".sidebar")?.classList.remove("blur_effect");
     document.querySelector(".header")?.classList.remove("blur_effect");
+    setSelectedCourse(undefined);
+  };
+
+  const handdleAddCourse = (course: CourseCreateType) => {
+    setCourses((prev) => [...prev, { id: prev.length + 1, name: course.name }]);
+    handleCloseModal();
+  };
+
+  const handdleEditCourse = (course: CourseType) => {
+    setCourses((prev) => {
+      const temp = [...prev];
+      const foundCourseIndex = courses.findIndex((crs) => crs.id == course.id);
+      temp[foundCourseIndex] = { id: course.id, name: course.name };
+      return temp;
+    });
+    handleCloseModal();
+  };
+
+  const handleDeleteCourse = (id: number) => {
+    setCourses((prev) => prev.filter((crs) => crs.id != id));
+  };
+
+  const handleOpenEditModal = (course: CourseType) => {
+    console.log(course);
+    setSelectedCourse(course);
+    handleOpenModal();
   };
 
   return (
     <Box ref={containerRef}>
       <FormModal
-        name="Create New Course"
-        open={openModal}
+        open={Boolean(selectedCourse) || openModal}
         close={handleCloseModal}
       >
-        <CourseForm />
+        <CourseForm
+          action={
+            selectedCourse
+              ? (handdleEditCourse as CourseEditFuncType)
+              : handdleAddCourse
+          }
+          course={selectedCourse}
+        />
       </FormModal>
       <PageHeader
         button={{
@@ -54,7 +91,15 @@ const CoursesPage = () => {
           padding: "var(--padding)",
         }}
       >
-        {courses.length ? <CourseList courses={courses} /> : <EmptyState />}
+        {courses.length ? (
+          <CourseList
+            courses={courses}
+            editCourse={handleOpenEditModal}
+            deleteCourse={handleDeleteCourse}
+          />
+        ) : (
+          <EmptyState />
+        )}
       </Box>
     </Box>
   );
