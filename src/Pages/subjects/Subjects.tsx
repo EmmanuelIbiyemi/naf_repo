@@ -7,6 +7,8 @@ import SubjectForm from "./SubjectForm";
 import SubjectList from "./SubjectList";
 import { SubjectType } from "../../types/subjects";
 import dayjs from "dayjs";
+import { useAppDispatch } from "../../store/hooks";
+import { setPageName } from "../../store/app.slice";
 
 const SubjectsPage = () => {
   const [openModal, setOpenModal] = useState(false);
@@ -43,6 +45,8 @@ const SubjectsPage = () => {
       start_date: dayjs("01/01/2024"),
     },
   ]);
+  const dispatch = useAppDispatch();
+  dispatch(setPageName("Subjects"));
 
   const handleOpenModal = () => {
     setOpenModal(true);

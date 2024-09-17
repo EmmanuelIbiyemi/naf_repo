@@ -8,8 +8,13 @@ import {
 } from "@mui/icons-material";
 import { Box, SxProps, Typography } from "@mui/material";
 import { Link } from "react-router-dom";
+import { useAppDispatch } from "../../store/hooks";
+import { setPageName } from "../../store/app.slice";
 
 const Dashboard = () => {
+  const dispatch = useAppDispatch();
+  dispatch(setPageName("Dashboa"));
+
   return (
     <Box
       sx={{

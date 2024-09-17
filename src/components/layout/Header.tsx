@@ -1,7 +1,11 @@
 import { Help, Notifications } from "@mui/icons-material";
 import { Box, IconButton, SxProps, Typography } from "@mui/material";
+import { selectPageName } from "../../store/app.slice";
+import { useAppSelector } from "../../store/hooks";
 
 const Header = () => {
+  const pageName = useAppSelector(selectPageName);
+
   return (
     <Box className="header" sx={headerStyles}>
       <Typography
@@ -12,7 +16,7 @@ const Header = () => {
           fontWeight: 500,
         }}
       >
-        Dashboard
+        {pageName}
       </Typography>
       <Box sx={actionsStyles}>
         <Box>

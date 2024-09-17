@@ -10,6 +10,8 @@ import {
   CourseEditFuncType,
   CourseType,
 } from "../../types/courses";
+import { useAppDispatch } from "../../store/hooks";
+import { setPageName } from "../../store/app.slice";
 
 const CoursesPage = () => {
   const [openModal, setOpenModal] = useState(false);
@@ -21,6 +23,8 @@ const CoursesPage = () => {
     { id: 3, name: "course 1" },
     { id: 4, name: "course 1" },
   ]);
+  const dispatch = useAppDispatch();
+  dispatch(setPageName("Course"));
 
   const handleOpenModal = () => {
     setOpenModal(true);
