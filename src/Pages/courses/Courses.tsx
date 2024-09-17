@@ -20,6 +20,7 @@ const CoursesPage = () => {
     add: false,
     edit: false,
     success: false,
+    delete: true,
   });
   const [courseName, setCourseName] = useState("");
   const [selectedCourse, setSelectedCourse] = useState<CourseType>();
@@ -32,12 +33,12 @@ const CoursesPage = () => {
 
   const handleOpenModal = (type: string) => {
     setOpenModal((prev) => ({ ...prev, [type]: true }));
-    blurBg(containerRef);
+    blurBg();
   };
 
   const handleCloseModal = (type: string) => {
     setOpenModal((prev) => ({ ...prev, [type]: false }));
-    unBlurBg(containerRef);
+    unBlurBg();
     setSelectedCourse(undefined);
   };
 
@@ -69,7 +70,7 @@ const CoursesPage = () => {
   };
 
   return (
-    <Box ref={containerRef}>
+    <Box ref={containerRef} className="content-container">
       <FormModal
         open={openModal.add || openModal.edit}
         close={() => handleCloseModal("add")}

@@ -7,6 +7,9 @@ import { CourseType } from "../../types/courses";
 import { Checkbox, IconButton } from "@mui/material";
 import { Delete, Edit } from "@mui/icons-material";
 import { Link } from "react-router-dom";
+import DeleteConfirmationModal from "../../components/DeleteConfirmationModal";
+import { useState } from "react";
+import { blurBg, unBlurBg } from "../../functions/modal";
 
 type Props = {
   courses: CourseType[];
@@ -15,8 +18,39 @@ type Props = {
 };
 
 const CourseList = ({ courses, editCourse, deleteCourse }: Props) => {
+  const [openModal, setOpenModal] = useState(false);
+  const [selectedCourse, setSelectedCourse] = useState<CourseType>();
+
+  const handleOpenModal = (course: CourseType) => {
+    blurBg();
+    setSelectedCourse(course);
+    setOpenModal(true);
+  };
+
+  const handleDelete = (course: CourseType) => {
+    deleteCourse(course.id);
+    unBlurBg();
+  };
+
   return (
     <TableContainer>
+      <DeleteConfirmationModal
+        actions={{
+          proceed: () => {
+            if (selectedCourse) handleDelete(selectedCourse);
+            console.log("proceed");
+          },
+          undo: () => {
+            console.log("cancel");
+          },
+        }}
+        close={() => setOpenModal(false)}
+        infoText="The students enrolled in this subject will get notified."
+        open={openModal}
+        subTitle={`Are you sure you want to delete subject <strong>“${selectedCourse?.name}”</strong>? You can’t undo this action.`}
+        title="Delete Course?"
+      />
+
       <Table sx={{ minWidth: 650 }}>
         <TableBody>
           {courses.map((course) => (
@@ -41,7 +75,7 @@ const CourseList = ({ courses, editCourse, deleteCourse }: Props) => {
                 <IconButton onClick={() => editCourse(course)}>
                   <Edit />
                 </IconButton>
-                <IconButton onClick={() => deleteCourse(course.id)}>
+                <IconButton onClick={() => handleOpenModal(course)}>
                   <Delete />
                 </IconButton>
               </TableCell>
