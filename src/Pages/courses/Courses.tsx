@@ -12,38 +12,40 @@ import {
 } from "../../types/courses";
 import { useAppDispatch } from "../../store/hooks";
 import { setPageName } from "../../store/app.slice";
+import SuccessModal from "../../components/SuccessModal";
+import { blurBg, unBlurBg } from "../../functions/modal";
 
 const CoursesPage = () => {
-  const [openModal, setOpenModal] = useState(false);
+  const [openModal, setOpenModal] = useState({
+    add: false,
+    edit: false,
+    success: false,
+  });
+  const [courseName, setCourseName] = useState("");
   const [selectedCourse, setSelectedCourse] = useState<CourseType>();
+  const [courses, setCourses] = useState<CourseType[] | []>([]);
   const containerRef = useRef<HTMLDivElement>(null);
-  const [courses, setCourses] = useState<CourseType[] | []>([
-    { id: 1, name: "course 1" },
-    { id: 2, name: "course 1" },
-    { id: 3, name: "course 1" },
-    { id: 4, name: "course 1" },
-  ]);
+
+  // set page name
   const dispatch = useAppDispatch();
   dispatch(setPageName("Course"));
 
-  const handleOpenModal = () => {
-    setOpenModal(true);
-    document.querySelector(".sidebar")?.classList.add("blur_effect");
-    document.querySelector(".header")?.classList.add("blur_effect");
-    containerRef.current?.classList.add("blur_effect");
+  const handleOpenModal = (type: string) => {
+    setOpenModal((prev) => ({ ...prev, [type]: true }));
+    blurBg(containerRef);
   };
 
-  const handleCloseModal = () => {
-    setOpenModal(false);
-    containerRef.current?.classList.remove("blur_effect");
-    document.querySelector(".sidebar")?.classList.remove("blur_effect");
-    document.querySelector(".header")?.classList.remove("blur_effect");
+  const handleCloseModal = (type: string) => {
+    setOpenModal((prev) => ({ ...prev, [type]: false }));
+    unBlurBg(containerRef);
     setSelectedCourse(undefined);
   };
 
   const handdleAddCourse = (course: CourseCreateType) => {
     setCourses((prev) => [...prev, { id: prev.length + 1, name: course.name }]);
-    handleCloseModal();
+    setCourseName(course.name);
+    handleCloseModal("add");
+    handleOpenModal("success");
   };
 
   const handdleEditCourse = (course: CourseType) => {
@@ -53,7 +55,8 @@ const CoursesPage = () => {
       temp[foundCourseIndex] = { id: course.id, name: course.name };
       return temp;
     });
-    handleCloseModal();
+    handleCloseModal("edit");
+    handleOpenModal("success");
   };
 
   const handleDeleteCourse = (id: number) => {
@@ -61,29 +64,47 @@ const CoursesPage = () => {
   };
 
   const handleOpenEditModal = (course: CourseType) => {
-    console.log(course);
     setSelectedCourse(course);
-    handleOpenModal();
+    handleOpenModal("edit");
   };
 
   return (
     <Box ref={containerRef}>
       <FormModal
-        open={Boolean(selectedCourse) || openModal}
-        close={handleCloseModal}
+        open={openModal.add || openModal.edit}
+        close={() => handleCloseModal("add")}
       >
         <CourseForm
-          action={
-            selectedCourse
-              ? (handdleEditCourse as CourseEditFuncType)
-              : handdleAddCourse
-          }
+          actions={{
+            submit: openModal.add
+              ? handdleAddCourse
+              : (handdleEditCourse as CourseEditFuncType),
+            cancel: () =>
+              openModal.add ? handleCloseModal("add") : handleOpenModal("edit"),
+          }}
           course={selectedCourse}
         />
       </FormModal>
+
+      <SuccessModal
+        actions={{
+          proceed: () => {
+            console.log("proceed");
+          },
+          undo: () => {
+            console.log("undo");
+          },
+        }}
+        close={() => handleCloseModal("success")}
+        infoText="The students enrolled in this subject will get notified."
+        open={openModal.success}
+        subTitle={`You have successfully added a new subject to the course <strong>“${courseName}”</strong>.`}
+        title="Updates Successful"
+      />
+
       <PageHeader
         button={{
-          action: handleOpenModal,
+          action: () => handleOpenModal("add"),
           text: "Add Courses",
         }}
       />

@@ -7,10 +7,13 @@ import { CourseCombinedType, CourseType } from "../../types/courses";
 
 type Props = {
   course?: CourseType;
-  action: (course: CourseCombinedType) => void;
+  actions: {
+    submit: (course: CourseCombinedType) => void;
+    cancel: () => void;
+  };
 };
 
-const CourseForm = ({ action, course }: Props) => {
+const CourseForm = ({ actions, course }: Props) => {
   const initialValues = {
     id: course?.id,
     name: course ? course.name : "",
@@ -23,7 +26,7 @@ const CourseForm = ({ action, course }: Props) => {
   const handleSubmit = async (values: CourseCombinedType) => {
     if (course) console.log("edit");
     else console.log("add");
-    action(values);
+    actions.submit(values);
   };
 
   return (
@@ -47,7 +50,7 @@ const CourseForm = ({ action, course }: Props) => {
           </Box>
           <Box className={formStyles.btn_group}>
             <Button
-              onClick={close}
+              onClick={actions.cancel}
               className={formStyles.cancel_btn}
               variant="contained"
             >
