@@ -17,7 +17,7 @@ type NavLink = {
 const navLinks: NavLink[] = [
   { content: "Dashboard", icon: HomeIcon, link: "/" },
   { content: "Courses", icon: ClipBoardIcon, link: "/courses" },
-  { content: "Participants", icon: ChartIcon, link: "/paticipants" },
+  { content: "Participants", icon: ChartIcon, link: "/participants" },
   { content: "Instructors", icon: InstructorIcon, link: "/instructors" },
   { content: "Applications", icon: BankIcon, link: "/applicantions" },
   { content: "Settings", icon: SettingsIcon, link: "/settings" },

@@ -1,7 +1,12 @@
 import { Box, SxProps, Typography } from "@mui/material";
 import SadFaceIcon from "../assets/sadFaceIcon";
 
-const EmptyState = () => {
+type Props = {
+  title: string;
+  subTitle: string;
+};
+
+const EmptyState = ({ title, subTitle }: Props) => {
   return (
     <Box sx={containerStyles}>
       <Box sx={{ display: "grid", gap: ".5rem", justifyItems: "center" }}>
@@ -9,11 +14,9 @@ const EmptyState = () => {
           <SadFaceIcon />
         </Box>
         <Typography variant="h5" sx={{ fontSize: "1.6rem" }}>
-          No Courses at this time
+          {title}
         </Typography>
-        <Typography>
-          Courses will appear here after you add them in your school.
-        </Typography>
+        <Typography>{subTitle}</Typography>
       </Box>
     </Box>
   );

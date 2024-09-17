@@ -124,7 +124,10 @@ const CoursesPage = () => {
             deleteCourse={handleDeleteCourse}
           />
         ) : (
-          <EmptyState />
+          <EmptyState
+            title="No Courses at this time"
+            subTitle="Courses will appear here after you add them in your school."
+          />
         )}
       </Box>
     </Box>

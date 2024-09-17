@@ -81,7 +81,14 @@ const SubjectsPage = () => {
           padding: "var(--padding)",
         }}
       >
-        {subjects.length ? <SubjectList subjects={subjects} /> : <EmptyState />}
+        {subjects.length ? (
+          <SubjectList subjects={subjects} />
+        ) : (
+          <EmptyState
+            title="No Subjects at this time"
+            subTitle="Subjects will appear here after you add them in your school."
+          />
+        )}
       </Box>
     </Box>
   );
