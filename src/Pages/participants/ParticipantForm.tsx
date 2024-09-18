@@ -3,28 +3,41 @@ import { Field, Form, Formik } from "formik";
 import { Box, Button, Typography } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
 import formStyles from "../../components/form/form.module.scss";
-import { CourseCombinedType, CourseType } from "../../types/courses";
+import {
+  ParticipantCombinedType,
+  ParticipantType,
+} from "../../types/participants";
 
 type Props = {
-  course?: CourseType;
+  participant?: ParticipantType;
   actions: {
-    submit: (course: CourseCombinedType) => void;
+    submit: (course: ParticipantCombinedType) => void;
     cancel: () => void;
   };
 };
 
-const CourseForm = ({ actions, course }: Props) => {
+const ParticipantForm = ({ actions, participant }: Props) => {
   const initialValues = {
-    id: course?.id,
-    name: course ? course.name : "",
+    id: participant?.id,
+    first_name: participant ? participant.first_name : "",
+    last_name: participant ? participant.last_name : "",
+    courses: participant ? participant.courses : "",
+    email: participant ? participant.email : "",
+    password: participant ? participant.password : "",
+    phone_number: participant ? participant.phone_number : "",
   };
 
   const validationSchema = Yup.object({
-    name: Yup.string().required("Required"),
+    first_name: Yup.string().required("Required"),
+    last_name: Yup.string().required("Required"),
+    courses: Yup.string().required("Required"),
+    email: Yup.string().required("Required"),
+    password: Yup.string().required("Required"),
+    phone_number: Yup.string().required("Required"),
   });
 
-  const handleSubmit = async (values: CourseCombinedType) => {
-    if (course) console.log("edit");
+  const handleSubmit = async (values: ParticipantCombinedType) => {
+    if (participant) console.log("edit");
     else console.log("add");
     actions.submit(values);
   };
@@ -42,15 +55,63 @@ const CourseForm = ({ actions, course }: Props) => {
             component="h2"
             sx={{ marginTop: "1rem", textAlign: "center" }}
           >
-            Create New Course
+            Invite Participants
           </Typography>
-          <Box sx={{ marginTop: "1rem" }}>
-            <label htmlFor="name">Course Name</label>
-            <Field id="name" name="name" as="textarea" />
+          <Box
+            sx={{
+              display: "grid",
+              gap: "1rem",
+              gridTemplateColumns: "1fr 1fr",
+            }}
+          >
+            <Box>
+              <label htmlFor="name">First Name</label>
+              <Field id="name" name="first_name" />
+            </Box>
+            <Box>
+              <label htmlFor="last-name">Last Name</label>
+              <Field id="last-name" name="last_name" />
+            </Box>
+          </Box>
+          <Box
+            sx={{
+              display: "grid",
+              gap: "1rem",
+              gridTemplateColumns: "1fr 1fr",
+            }}
+          >
+            <Box>
+              <label htmlFor="email">Email</label>
+              <Field id="email" name="email" />
+            </Box>
+            <Box>
+              <label htmlFor="phone-number">Phone Number</label>
+              <Field id="phone-number" name="phone_number" placeholder="+234" />
+            </Box>
+          </Box>
+          <Box
+            sx={{
+              display: "grid",
+              gap: "1rem",
+              gridTemplateColumns: "1fr 1fr",
+            }}
+          >
+            <Box>
+              <label htmlFor="courses">Assign Course(s) (optional)</label>
+              <Field id="courses" name="courses" placeholder="select courses" />
+            </Box>
+            <Box>
+              <label htmlFor="password">Create Password</label>
+              <Field
+                id="password"
+                name="password"
+                placeholder="Set default password for user"
+              />
+            </Box>
           </Box>
           <Box className={formStyles.btn_group}>
             <Button
-              onClick={actions.cancel}
+              onClick={() => actions.cancel()}
               className={formStyles.cancel_btn}
               variant="contained"
             >
@@ -60,9 +121,9 @@ const CourseForm = ({ actions, course }: Props) => {
               className={formStyles.submit_btn}
               type="submit"
               variant="contained"
-              disabled={course ? !isValid : !(isValid && dirty)}
+              disabled={!(isValid && dirty)}
             >
-              {course ? "Edit Course" : "Add Course"}
+              Add Subject
             </LoadingButton>
           </Box>
         </Form>
@@ -71,4 +132,4 @@ const CourseForm = ({ actions, course }: Props) => {
   );
 };
 
-export default CourseForm;
+export default ParticipantForm;

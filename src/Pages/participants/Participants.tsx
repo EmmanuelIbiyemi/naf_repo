@@ -2,18 +2,18 @@ import { Box } from "@mui/material";
 import PageHeader from "../../components/PageHeader";
 import EmptyState from "../../components/EmptyState";
 import FormModal from "../../components/FormModal";
-import { useRef, useState } from "react";
+import { useState } from "react";
 import ParticipantForm from "./ParticipantForm";
 import ParticipantList from "./ParticipantList";
-import {
-  CourseCreateType,
-  CourseEditFuncType,
-  CourseType,
-} from "../../types/courses";
 import { useAppDispatch } from "../../store/hooks";
 import { setPageName } from "../../store/app.slice";
 import SuccessModal from "../../components/SuccessModal";
 import { blurBg, unBlurBg } from "../../functions/modal";
+import {
+  ParticipantCreateType,
+  ParticipantEditFuncType,
+  ParticipantType,
+} from "../../types/participants";
 
 const ParticipantsPage = () => {
   const [openModal, setOpenModal] = useState({
@@ -22,10 +22,9 @@ const ParticipantsPage = () => {
     success: false,
     delete: true,
   });
-  const [courseName, setCourseName] = useState("");
-  const [selectedCourse, setSelectedCourse] = useState<CourseType>();
-  const [courses, setCourses] = useState<CourseType[] | []>([]);
-  const containerRef = useRef<HTMLDivElement>(null);
+  const [selectedParticipant, setSelectedParticipant] =
+    useState<ParticipantCreateType>();
+  const [participants, setParticipants] = useState<ParticipantType[] | []>([]);
 
   // set page name
   const dispatch = useAppDispatch();
@@ -39,38 +38,44 @@ const ParticipantsPage = () => {
   const handleCloseModal = (type: string) => {
     setOpenModal((prev) => ({ ...prev, [type]: false }));
     unBlurBg();
-    setSelectedCourse(undefined);
+    if (type == "success") setSelectedParticipant(undefined);
   };
 
-  const handdleAddCourse = (course: CourseCreateType) => {
-    setCourses((prev) => [...prev, { id: prev.length + 1, name: course.name }]);
-    setCourseName(course.name);
+  const handdleAddParticipant = (participant: ParticipantCreateType) => {
+    setParticipants((prev) => [
+      ...prev,
+      { ...participant, id: prev.length + 1 },
+    ]);
+    setSelectedParticipant(participant);
     handleCloseModal("add");
     handleOpenModal("success");
   };
 
-  const handdleEditCourse = (course: CourseType) => {
-    setCourses((prev) => {
+  const handdleEditCourse = (participant: ParticipantType) => {
+    setParticipants((prev) => {
       const temp = [...prev];
-      const foundCourseIndex = courses.findIndex((crs) => crs.id == course.id);
-      temp[foundCourseIndex] = { id: course.id, name: course.name };
+      const foundCourseIndex = participants.findIndex(
+        (crs) => crs.id == participant.id
+      );
+      temp[foundCourseIndex] = { ...participant };
       return temp;
     });
     handleCloseModal("edit");
+    setSelectedParticipant(participant);
     handleOpenModal("success");
   };
 
-  const handleDeleteCourse = (id: number) => {
-    setCourses((prev) => prev.filter((crs) => crs.id != id));
+  const handleDeleteParticipant = (id: number) => {
+    setParticipants((prev) => prev.filter((crs) => crs.id != id));
   };
 
-  const handleOpenEditModal = (course: CourseType) => {
-    setSelectedCourse(course);
+  const handleOpenEditModal = (participant: ParticipantType) => {
+    setSelectedParticipant(participant);
     handleOpenModal("edit");
   };
 
   return (
-    <Box ref={containerRef} className="content-container">
+    <Box className="content-container">
       <FormModal
         open={openModal.add || openModal.edit}
         close={() => handleCloseModal("add")}
@@ -78,12 +83,12 @@ const ParticipantsPage = () => {
         <ParticipantForm
           actions={{
             submit: openModal.add
-              ? handdleAddCourse
-              : (handdleEditCourse as CourseEditFuncType),
+              ? handdleAddParticipant
+              : (handdleEditCourse as ParticipantEditFuncType),
             cancel: () =>
               openModal.add ? handleCloseModal("add") : handleOpenModal("edit"),
           }}
-          course={selectedCourse}
+          participant={selectedParticipant as ParticipantType}
         />
       </FormModal>
 
@@ -99,7 +104,7 @@ const ParticipantsPage = () => {
         close={() => handleCloseModal("success")}
         infoText="The students enrolled in this subject will get notified."
         open={openModal.success}
-        subTitle={`You have successfully added a new subject to the course <strong>“${courseName}”</strong>.`}
+        subTitle={`You have successfully added a new subject to the participant <strong>“${selectedParticipant?.first_name} ${selectedParticipant?.last_name}”</strong>.`}
         title="Updates Successful"
       />
 
@@ -117,11 +122,11 @@ const ParticipantsPage = () => {
           padding: "var(--padding)",
         }}
       >
-        {courses.length ? (
+        {participants.length ? (
           <ParticipantList
-            courses={courses}
-            editCourse={handleOpenEditModal}
-            deleteCourse={handleDeleteCourse}
+            participants={participants}
+            editParticipant={handleOpenEditModal}
+            deleteParticipant={handleDeleteParticipant}
           />
         ) : (
           <EmptyState

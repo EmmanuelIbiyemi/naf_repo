@@ -3,8 +3,8 @@ import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
 import TableRow from "@mui/material/TableRow";
-import { CourseType } from "../../types/courses";
-import { Checkbox, IconButton } from "@mui/material";
+import { ParticipantType } from "../../types/participants";
+import { Box, Checkbox, IconButton, TableHead } from "@mui/material";
 import { Delete, Edit } from "@mui/icons-material";
 import { Link } from "react-router-dom";
 import DeleteConfirmationModal from "../../components/DeleteConfirmationModal";
@@ -12,23 +12,28 @@ import { useState } from "react";
 import { blurBg, unBlurBg } from "../../functions/modal";
 
 type Props = {
-  courses: CourseType[];
-  editCourse: (course: CourseType) => void;
-  deleteCourse: (id: number) => void;
+  participants: ParticipantType[];
+  editParticipant: (course: ParticipantType) => void;
+  deleteParticipant: (id: number) => void;
 };
 
-const CourseList = ({ courses, editCourse, deleteCourse }: Props) => {
+const CourseList = ({
+  participants,
+  editParticipant,
+  deleteParticipant,
+}: Props) => {
   const [openModal, setOpenModal] = useState(false);
-  const [selectedCourse, setSelectedCourse] = useState<CourseType>();
+  const [selectedParticipant, setSelectedParticipant] =
+    useState<ParticipantType>();
 
-  const handleOpenModal = (course: CourseType) => {
+  const handleOpenModal = (participant: ParticipantType) => {
     blurBg();
-    setSelectedCourse(course);
+    setSelectedParticipant(participant);
     setOpenModal(true);
   };
 
-  const handleDelete = (course: CourseType) => {
-    deleteCourse(course.id);
+  const handleDelete = (course: ParticipantType) => {
+    deleteParticipant(course.id);
     unBlurBg();
   };
 
@@ -37,7 +42,7 @@ const CourseList = ({ courses, editCourse, deleteCourse }: Props) => {
       <DeleteConfirmationModal
         actions={{
           proceed: () => {
-            if (selectedCourse) handleDelete(selectedCourse);
+            if (selectedParticipant) handleDelete(selectedParticipant);
             console.log("proceed");
           },
           undo: () => {
@@ -47,32 +52,62 @@ const CourseList = ({ courses, editCourse, deleteCourse }: Props) => {
         close={() => setOpenModal(false)}
         infoText="The students enrolled in this subject will get notified."
         open={openModal}
-        subTitle={`Are you sure you want to delete subject <strong>“${selectedCourse?.name}”</strong>? You can’t undo this action.`}
+        subTitle={`Are you sure you want to delete subject <strong>“${selectedParticipant?.first_name} ${selectedParticipant?.last_name}”</strong>? You can’t undo this action.`}
         title="Delete Course?"
       />
 
-      <Table sx={{ minWidth: 650 }}>
+      <Table
+        sx={{
+          minWidth: 650,
+          ".MuiTableCell-root": {
+            maxWidth: 200,
+            a: {
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              whiteSpace: "nowrap",
+            },
+          },
+        }}
+      >
+        <TableHead>
+          <TableRow>
+            <TableCell>Name</TableCell>
+            <TableCell>Email Address</TableCell>
+            <TableCell>Phone Number</TableCell>
+            <TableCell>Courses</TableCell>
+            <TableCell align="center">Actions</TableCell>
+          </TableRow>
+        </TableHead>
         <TableBody>
-          {courses.map((course) => (
+          {participants.map((course) => (
             <TableRow
               key={course.id}
               sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
             >
-              <TableCell
-                component="th"
-                scope="row"
-                sx={{ alignItems: "center", display: "flex", gap: "1rem" }}
-              >
-                <Checkbox />
-                <Link
-                  to={`/courses/${course.id}`}
-                  style={{ textTransform: "capitalize" }}
+              <TableCell component="th" scope="row">
+                <Box
+                  sx={{ alignItems: "center", display: "flex", gap: "1rem" }}
                 >
-                  {course.name}
-                </Link>
+                  <Checkbox />
+                  <Link
+                    to={`/participants/${course.id}`}
+                    style={{ textTransform: "capitalize" }}
+                  >
+                    {course.first_name} {course.last_name}
+                  </Link>
+                </Box>
+              </TableCell>
+              <TableCell component="th" scope="row">
+                {course.email}
+              </TableCell>
+              <TableCell component="th" scope="row">
+                {course.phone_number}
+              </TableCell>
+              <TableCell component="th" scope="row">
+                {course.courses}
               </TableCell>
               <TableCell align="right">
-                <IconButton onClick={() => editCourse(course)}>
+                <IconButton onClick={() => editParticipant(course)}>
                   <Edit />
                 </IconButton>
                 <IconButton onClick={() => handleOpenModal(course)}>
