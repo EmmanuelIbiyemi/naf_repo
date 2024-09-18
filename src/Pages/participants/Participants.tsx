@@ -14,6 +14,7 @@ import {
   ParticipantEditFuncType,
   ParticipantType,
 } from "../../types/participants";
+import ParticipantSidebar from "./ParticipantSidebar";
 
 const ParticipantsPage = () => {
   const [openModal, setOpenModal] = useState({
@@ -108,6 +109,10 @@ const ParticipantsPage = () => {
         title="Updates Successful"
       />
 
+      <ParticipantSidebar
+        participant={selectedParticipant as ParticipantType}
+      />
+
       <PageHeader
         button={{
           action: () => handleOpenModal("add"),
@@ -127,6 +132,8 @@ const ParticipantsPage = () => {
             participants={participants}
             editParticipant={handleOpenEditModal}
             deleteParticipant={handleDeleteParticipant}
+            selectedParticipant={selectedParticipant as ParticipantType}
+            setSelectedParticipant={setSelectedParticipant}
           />
         ) : (
           <EmptyState

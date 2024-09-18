@@ -15,16 +15,18 @@ type Props = {
   participants: ParticipantType[];
   editParticipant: (course: ParticipantType) => void;
   deleteParticipant: (id: number) => void;
+  selectedParticipant: ParticipantType | undefined;
+  setSelectedParticipant: (participant: ParticipantType) => void;
 };
 
 const CourseList = ({
   participants,
   editParticipant,
   deleteParticipant,
+  selectedParticipant,
+  setSelectedParticipant,
 }: Props) => {
   const [openModal, setOpenModal] = useState(false);
-  const [selectedParticipant, setSelectedParticipant] =
-    useState<ParticipantType>();
 
   const handleOpenModal = (participant: ParticipantType) => {
     blurBg();
