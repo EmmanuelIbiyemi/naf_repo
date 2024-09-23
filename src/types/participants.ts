@@ -8,9 +8,7 @@ type ParticipantBase = {
   courses: CourseType[];
   password: string;
 };
-export type ParticipantCreateType = ParticipantBase & {
-  courses: CourseType[];
-};
+export type ParticipantCreateType = ParticipantBase;
 
 export type ParticipantType = ParticipantBase & {
   id: number;
