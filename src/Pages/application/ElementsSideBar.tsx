@@ -3,13 +3,7 @@ import { formElements } from "./elements";
 
 const ElementsSideBar = () => {
   return (
-    <Box
-      sx={{
-        borderRight: "1px solid rgba(229, 229, 229, 1)",
-        bgcolor: "rgba(249, 250, 251, 1)",
-        padding: "1rem var(--padding)",
-      }}
-    >
+    <Box sx={elementSidebarStyles}>
       <Typography variant="h5">Form Elements</Typography>
       <Box sx={elementContainerStyles}>
         {formElements.map((el) => (
@@ -23,6 +17,17 @@ const ElementsSideBar = () => {
 };
 
 export default ElementsSideBar;
+const elementSidebarStyles: SxProps = {
+  borderRight: "1px solid rgba(229, 229, 229, 1)",
+  bgcolor: "rgba(249, 250, 251, 1)",
+  overflow: "auto",
+  height: "100vh",
+  padding: "1rem var(--padding)",
+
+  "&::-webkit-scrollbar": {
+    display: "none",
+  },
+};
 
 const elementContainerStyles: SxProps = {
   marginTop: "2rem",
