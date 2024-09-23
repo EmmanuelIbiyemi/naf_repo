@@ -4,12 +4,12 @@ import TableCell from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
 import TableRow from "@mui/material/TableRow";
 import { ParticipantType } from "../../types/participants";
-import { Box, Checkbox, IconButton, TableHead } from "@mui/material";
+import { Box, Button, Checkbox, IconButton, TableHead } from "@mui/material";
 import { Delete, Edit } from "@mui/icons-material";
-import { Link } from "react-router-dom";
 import DeleteConfirmationModal from "../../components/DeleteConfirmationModal";
 import { useState } from "react";
 import { blurBg, unBlurBg } from "../../functions/modal";
+import ParticipantSidebar from "./ParticipantSidebar";
 
 type Props = {
   participants: ParticipantType[];
@@ -27,6 +27,7 @@ const CourseList = ({
   setSelectedParticipant,
 }: Props) => {
   const [openModal, setOpenModal] = useState(false);
+  const [openSidebar, setOpenSidebar] = useState(false);
 
   const handleOpenModal = (participant: ParticipantType) => {
     blurBg();
@@ -39,8 +40,28 @@ const CourseList = ({
     unBlurBg();
   };
 
+  const handleViewParticipant = (participant: ParticipantType) => {
+    setSelectedParticipant(participant);
+    setOpenSidebar(true);
+    blurBg();
+  };
+
+  const toggleDrawer = (state: boolean) => {
+    if (state) blurBg();
+    else unBlurBg();
+    setOpenSidebar(state);
+  };
+
   return (
     <TableContainer>
+      <ParticipantSidebar
+        open={openSidebar}
+        participant={selectedParticipant as ParticipantType}
+        toggleDrawer={toggleDrawer}
+        openEditModal={() =>
+          editParticipant(selectedParticipant as ParticipantType)
+        }
+      />
       <DeleteConfirmationModal
         actions={{
           proceed: () => {
@@ -81,9 +102,9 @@ const CourseList = ({
           </TableRow>
         </TableHead>
         <TableBody>
-          {participants.map((course) => (
+          {participants.map((participant) => (
             <TableRow
-              key={course.id}
+              key={participant.id}
               sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
             >
               <TableCell component="th" scope="row">
@@ -91,28 +112,33 @@ const CourseList = ({
                   sx={{ alignItems: "center", display: "flex", gap: "1rem" }}
                 >
                   <Checkbox />
-                  <Link
-                    to={`/participants/${course.id}`}
-                    style={{ textTransform: "capitalize" }}
+                  <Button
+                    style={{
+                      border: "none",
+                      color: "inherit",
+                      padding: 0,
+                      textTransform: "capitalize",
+                    }}
+                    onClick={() => handleViewParticipant(participant)}
                   >
-                    {course.first_name} {course.last_name}
-                  </Link>
+                    {participant.first_name} {participant.last_name}
+                  </Button>
                 </Box>
               </TableCell>
               <TableCell component="th" scope="row">
-                {course.email}
+                {participant.email}
               </TableCell>
               <TableCell component="th" scope="row">
-                {course.phone_number}
+                {participant.phone_number}
               </TableCell>
               <TableCell component="th" scope="row">
-                {course.courses}
+                {participant.courses.map((c) => c.name).join(", ")}
               </TableCell>
               <TableCell align="right">
-                <IconButton onClick={() => editParticipant(course)}>
+                <IconButton onClick={() => editParticipant(participant)}>
                   <Edit />
                 </IconButton>
-                <IconButton onClick={() => handleOpenModal(course)}>
+                <IconButton onClick={() => handleOpenModal(participant)}>
                   <Delete />
                 </IconButton>
               </TableCell>

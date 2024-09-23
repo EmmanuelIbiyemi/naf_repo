@@ -1,6 +1,6 @@
 import { Box, TextField, Typography } from "@mui/material";
 import { ErrorMessage, useFormikContext } from "formik";
-import { SelectHTMLAttributes, useEffect } from "react";
+import { SelectHTMLAttributes } from "react";
 
 type Props<T> = {
   name: keyof T;
@@ -11,10 +11,6 @@ type Props<T> = {
 
 export const FormikTextField = <T,>({ label, name, type }: Props<T>) => {
   const formik = useFormikContext<T>();
-
-  useEffect(() => {
-    console.log(formik.errors);
-  }, [formik.values, formik.errors]);
   return (
     <Box sx={textFieldStyles}>
       <TextField

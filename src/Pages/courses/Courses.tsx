@@ -43,7 +43,10 @@ const CoursesPage = () => {
   };
 
   const handdleAddCourse = (course: CourseCreateType) => {
-    setCourses((prev) => [...prev, { id: prev.length + 1, name: course.name }]);
+    setCourses((prev) => [
+      ...prev,
+      { id: prev.length + 1, name: course.name, instructor: "" },
+    ]);
     setCourseName(course.name);
     handleCloseModal("add");
     handleOpenModal("success");
@@ -53,7 +56,7 @@ const CoursesPage = () => {
     setCourses((prev) => {
       const temp = [...prev];
       const foundCourseIndex = courses.findIndex((crs) => crs.id == course.id);
-      temp[foundCourseIndex] = { id: course.id, name: course.name };
+      temp[foundCourseIndex] = course;
       return temp;
     });
     handleCloseModal("edit");
@@ -73,7 +76,10 @@ const CoursesPage = () => {
     <Box ref={containerRef} className="content-container">
       <FormModal
         open={openModal.add || openModal.edit}
-        close={() => handleCloseModal("add")}
+        close={() => {
+          handleCloseModal("add");
+          handleCloseModal("edit");
+        }}
       >
         <CourseForm
           actions={{
@@ -81,7 +87,9 @@ const CoursesPage = () => {
               ? handdleAddCourse
               : (handdleEditCourse as CourseEditFuncType),
             cancel: () =>
-              openModal.add ? handleCloseModal("add") : handleOpenModal("edit"),
+              openModal.add
+                ? handleCloseModal("add")
+                : handleCloseModal("edit"),
           }}
           course={selectedCourse}
         />
@@ -96,7 +104,10 @@ const CoursesPage = () => {
             console.log("undo");
           },
         }}
-        close={() => handleCloseModal("success")}
+        close={() => {
+          handleCloseModal("success");
+          setSelectedCourse(undefined);
+        }}
         infoText="The students enrolled in this subject will get notified."
         open={openModal.success}
         subTitle={`You have successfully added a new subject to the course <strong>“${courseName}”</strong>.`}

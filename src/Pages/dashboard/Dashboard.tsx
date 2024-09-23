@@ -13,7 +13,7 @@ import { setPageName } from "../../store/app.slice";
 
 const Dashboard = () => {
   const dispatch = useAppDispatch();
-  dispatch(setPageName("Dashboa"));
+  dispatch(setPageName("Dashboard"));
 
   return (
     <Box

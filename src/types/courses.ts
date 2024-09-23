@@ -5,6 +5,7 @@ export type CourseCreateType = {
 export type CourseType = {
   id: number;
   name: string;
+  instructor: string;
 };
 
 export type CourseCombinedType = CourseCreateType | CourseType;

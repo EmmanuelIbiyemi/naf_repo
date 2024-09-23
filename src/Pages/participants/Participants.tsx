@@ -14,7 +14,6 @@ import {
   ParticipantEditFuncType,
   ParticipantType,
 } from "../../types/participants";
-import ParticipantSidebar from "./ParticipantSidebar";
 
 const ParticipantsPage = () => {
   const [openModal, setOpenModal] = useState({
@@ -79,7 +78,10 @@ const ParticipantsPage = () => {
     <Box className="content-container">
       <FormModal
         open={openModal.add || openModal.edit}
-        close={() => handleCloseModal("add")}
+        close={() => {
+          handleCloseModal("add");
+          handleCloseModal("edit");
+        }}
       >
         <ParticipantForm
           actions={{
@@ -87,7 +89,9 @@ const ParticipantsPage = () => {
               ? handdleAddParticipant
               : (handdleEditCourse as ParticipantEditFuncType),
             cancel: () =>
-              openModal.add ? handleCloseModal("add") : handleOpenModal("edit"),
+              openModal.add
+                ? handleCloseModal("add")
+                : handleCloseModal("edit"),
           }}
           participant={selectedParticipant as ParticipantType}
         />
@@ -107,10 +111,6 @@ const ParticipantsPage = () => {
         open={openModal.success}
         subTitle={`You have successfully added a new subject to the participant <strong>“${selectedParticipant?.first_name} ${selectedParticipant?.last_name}”</strong>.`}
         title="Updates Successful"
-      />
-
-      <ParticipantSidebar
-        participant={selectedParticipant as ParticipantType}
       />
 
       <PageHeader

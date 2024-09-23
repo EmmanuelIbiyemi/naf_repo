@@ -1,13 +1,15 @@
+import { CourseType } from "./courses";
+
 type ParticipantBase = {
   first_name: string;
   last_name: string;
   email: string;
   phone_number: string;
-  courses: string;
+  courses: CourseType[];
   password: string;
 };
 export type ParticipantCreateType = ParticipantBase & {
-  courses: string;
+  courses: CourseType[];
 };
 
 export type ParticipantType = ParticipantBase & {
