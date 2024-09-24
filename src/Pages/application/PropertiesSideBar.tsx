@@ -10,6 +10,7 @@ import {
 import {
   Box,
   Button,
+  ButtonProps,
   FormControl,
   MenuItem,
   Select,
@@ -17,20 +18,34 @@ import {
   SxProps,
   Typography,
 } from "@mui/material";
-import { ReactNode, useState } from "react";
+import { PropsWithChildren, useState } from "react";
+import { useNavigate } from "react-router-dom";
+
+type Properties = {
+  fontFamily: number;
+  fontSize: number;
+  bold: boolean;
+  italic: boolean;
+  underline: boolean;
+  alignLeft: boolean;
+  alignRight: boolean;
+  alignCenter: boolean;
+};
 
 const PropertiesSideBar = () => {
-  const [props, setProps] = useState({
+  const navigate = useNavigate();
+  const [props, setProps] = useState<Properties>({
     fontFamily: 1,
     fontSize: 11,
     bold: false,
     italic: false,
     underline: false,
+    alignCenter: false,
+    alignLeft: false,
+    alignRight: false,
   });
 
-  const handleChange = (event: SelectChangeEvent<number>, child: ReactNode) => {
-    console.log(event.target.value);
-    console.log(child);
+  const handleChange = (event: SelectChangeEvent<number>) => {
     const {
       target: { name, value },
     } = event;
@@ -43,90 +58,134 @@ const PropertiesSideBar = () => {
     });
   };
 
+  const handleBtnClick = (action: string) => {
+    setProps((prev) => {
+      return {
+        ...prev,
+        [action]: !prev[action as keyof Properties],
+      };
+    });
+  };
+
+  const handlePreviewForm = () => {
+    navigate("/");
+  };
+
   return (
     <Box sx={propertiesSidebarStyles}>
-      <Typography variant="h5">Design</Typography>
       <Box>
-        <Typography sx={{ marginBlock: "1rem" }}>Text</Typography>
-        <Box sx={{ ...groupStyles, gap: "1rem" }}>
-          <FormControl fullWidth sx={{ width: "70%" }}>
-            <Select
-              value={props.fontFamily}
-              name="fontFamily"
-              onChange={handleChange}
+        <Typography variant="h5">Design</Typography>
+        <Box>
+          <Typography sx={{ marginBlock: "1rem" }}>Text</Typography>
+          <Box sx={{ ...groupStyles, gap: "1rem" }}>
+            <FormControl fullWidth sx={{ width: "70%" }}>
+              <Select
+                value={props.fontFamily}
+                name="fontFamily"
+                onChange={handleChange}
+              >
+                <MenuItem value={1}>Inter</MenuItem>
+                <MenuItem value={2}>Roboto</MenuItem>
+                <MenuItem value={3}>Helvatica</MenuItem>
+              </Select>
+            </FormControl>
+            <FormControl fullWidth sx={{ width: "30%" }}>
+              <Select
+                value={props.fontSize}
+                name="fontSize"
+                onChange={handleChange}
+              >
+                <MenuItem value={11}>11</MenuItem>
+                <MenuItem value={12}>12</MenuItem>
+                <MenuItem value={13}>13</MenuItem>
+              </Select>
+            </FormControl>
+          </Box>
+          <Box sx={{ ...groupStyles, gap: "1rem", marginTop: "1rem" }}>
+            <Box sx={groupStyles}>
+              <CustomButton toggle={() => handleBtnClick("bold")}>
+                <FormatBold />
+              </CustomButton>
+              <CustomButton toggle={() => handleBtnClick("italic")}>
+                <FormatItalic />
+              </CustomButton>
+              <CustomButton toggle={() => handleBtnClick("underline")}>
+                <FormatUnderlined />
+              </CustomButton>
+            </Box>
+
+            <Button
+              sx={{
+                display: "flex",
+                gap: ".5rem",
+                justifyContent: "center",
+                width: "80px !important",
+              }}
             >
-              <MenuItem value={1}>Inter</MenuItem>
-              <MenuItem value={2}>Roboto</MenuItem>
-              <MenuItem value={3}>Helvatica</MenuItem>
-            </Select>
-          </FormControl>
-          <FormControl fullWidth sx={{ width: "30%" }}>
-            <Select
-              value={props.fontSize}
-              name="fontSize"
-              onChange={handleChange}
-            >
-              <MenuItem value={11}>11</MenuItem>
-              <MenuItem value={12}>12</MenuItem>
-              <MenuItem value={13}>13</MenuItem>
-            </Select>
-          </FormControl>
-        </Box>
-        <Box sx={{ ...groupStyles, gap: "1rem", marginTop: "1rem" }}>
-          <Box sx={groupStyles}>
-            <Button>
-              <FormatBold />
-            </Button>
-            <Button>
-              <FormatItalic />
-            </Button>
-            <Button>
-              <FormatUnderlined />
+              <FormatColorFill />
+              <span
+                style={{
+                  backgroundColor: "rgba(72, 156, 33, 1)",
+                  borderRadius: "5px",
+                  display: "inline-block",
+                  height: "25px",
+                  width: "25px",
+                }}
+              />
             </Button>
           </Box>
-          <Button
-            sx={{
-              display: "flex",
-              gap: ".5rem",
-              justifyContent: "center",
-              width: "80px !important",
-            }}
-          >
-            <FormatColorFill />
-            <span
-              style={{
-                backgroundColor: "rgba(72, 156, 33, 1)",
-                borderRadius: "5px",
-                display: "inline-block",
-                height: "30px",
-                width: "30px",
-              }}
-            />
-          </Button>
-        </Box>
-        <Box sx={{ ...groupStyles, marginTop: "1rem" }}>
-          <Button>
-            <FormatAlignLeft />
-          </Button>
-          <Button>
-            <FormatAlignCenter />
-          </Button>
-          <Button>
-            <FormatAlignRight />
-          </Button>
+          <Box sx={{ ...groupStyles, marginTop: "1rem" }}>
+            <CustomButton toggle={() => handleBtnClick("alignLeft")}>
+              <FormatAlignLeft />
+            </CustomButton>
+            <CustomButton toggle={() => handleBtnClick("alignCenter")}>
+              <FormatAlignCenter />
+            </CustomButton>
+            <CustomButton toggle={() => handleBtnClick("alignRight")}>
+              <FormatAlignRight />
+            </CustomButton>
+          </Box>
         </Box>
       </Box>
+      <Button variant="contained" onClick={() => handlePreviewForm()}>
+        Preview & Share
+      </Button>
     </Box>
+  );
+};
+
+type BtnProps = {
+  toggle: () => void;
+} & PropsWithChildren &
+  ButtonProps;
+
+const CustomButton = ({ children, toggle, ...rest }: BtnProps) => {
+  const [isActive, setIsActive] = useState(false);
+  const handleChange = () => {
+    setIsActive((prev) => !prev);
+    toggle();
+  };
+
+  return (
+    <Button
+      {...rest}
+      onClick={handleChange}
+      sx={{ bgcolor: (isActive ? "#ddd" : "#fff") + "!important" }}
+    >
+      {children}
+    </Button>
   );
 };
 
 export default PropertiesSideBar;
 
 const propertiesSidebarStyles: SxProps = {
-  borderRight: "1px solid rgba(229, 229, 229, 1)",
+  alignContent: "space-between",
+  borderLeft: "1px solid rgba(229, 229, 229, 1)",
   bgcolor: "rgba(249, 250, 251, 1)",
-  overflow: "auto",
+  display: "grid",
   height: "100vh",
+  overflow: "auto",
   padding: "1rem var(--padding)",
 
   "&::-webkit-scrollbar": {
