@@ -1,5 +1,5 @@
 import { Box, Button, SxProps, Typography } from "@mui/material";
-import { formElements } from "./elements";
+import { formElements } from "../elements";
 
 const ElementsSideBar = () => {
   return (

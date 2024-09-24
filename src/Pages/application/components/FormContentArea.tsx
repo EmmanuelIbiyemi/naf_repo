@@ -1,5 +1,5 @@
 import { Box, Button, SxProps, Typography } from "@mui/material";
-import cursorIcon from "../../assets/cursor.svg";
+import cursorIcon from "../../../assets/cursor.svg";
 import { FocusEvent, useState } from "react";
 
 const FormContentArea = () => {

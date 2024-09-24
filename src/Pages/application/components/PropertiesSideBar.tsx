@@ -68,7 +68,7 @@ const PropertiesSideBar = () => {
   };
 
   const handlePreviewForm = () => {
-    navigate("/");
+    navigate("/applications/form/preview");
   };
 
   return (

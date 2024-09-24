@@ -1,6 +1,6 @@
 import { Box, SxProps } from "@mui/material";
-import { setPageName } from "../../store/app.slice";
-import { useAppDispatch } from "../../store/hooks";
+import { setPageName } from "../../../store/app.slice";
+import { useAppDispatch } from "../../../store/hooks";
 import ElementsSideBar from "./ElementsSideBar";
 import FormContentArea from "./FormContentArea";
 import PropertiesSideBar from "./PropertiesSideBar";
