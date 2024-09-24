@@ -3,6 +3,7 @@ import { setPageName } from "../../store/app.slice";
 import { useAppDispatch } from "../../store/hooks";
 import ElementsSideBar from "./ElementsSideBar";
 import FormContentArea from "./FormContentArea";
+import PropertiesSideBar from "./PropertiesSideBar";
 
 const ApplicationFormPage = () => {
   // set page name
@@ -13,7 +14,7 @@ const ApplicationFormPage = () => {
     <Box className="content-container" sx={pageStyles}>
       <ElementsSideBar />
       <FormContentArea />
-      <ElementsSideBar />
+      <PropertiesSideBar />
     </Box>
   );
 };

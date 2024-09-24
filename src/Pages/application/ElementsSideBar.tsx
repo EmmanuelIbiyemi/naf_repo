@@ -17,6 +17,7 @@ const ElementsSideBar = () => {
 };
 
 export default ElementsSideBar;
+
 const elementSidebarStyles: SxProps = {
   borderRight: "1px solid rgba(229, 229, 229, 1)",
   bgcolor: "rgba(249, 250, 251, 1)",

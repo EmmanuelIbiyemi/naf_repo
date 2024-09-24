@@ -1,13 +1,34 @@
 import { Box, Button, SxProps, Typography } from "@mui/material";
 import cursorIcon from "../../assets/cursor.svg";
+import { FocusEvent, useState } from "react";
 
 const FormContentArea = () => {
+  const [props, setProps] = useState({
+    formName: "Untitled Form",
+    submitBtn: "Submit Form",
+  });
+
+  const handleInput = (e: FocusEvent<HTMLSpanElement>) => {
+    const target = e.currentTarget;
+    if (target && target.id) {
+      setProps((prev) => ({
+        ...prev,
+        [target.id]: target.textContent?.trim() || "",
+      }));
+    }
+  };
+
   return (
     <Box sx={formContentContainerStyles}>
       <Box sx={dropContainerStyles}>
         <Box sx={{ padding: "1.5rem" }}>
           <Typography variant="h5" sx={{ fontWeight: 300 }}>
-            Untitled Form
+            <span
+              id="formName"
+              contentEditable="true"
+              onBlur={handleInput}
+              dangerouslySetInnerHTML={{ __html: props.formName }}
+            />
           </Typography>
         </Box>
         <Box sx={dropAreaStyles}>
@@ -23,7 +44,14 @@ const FormContentArea = () => {
             justifyContent: "center",
           }}
         >
-          <Button variant="contained">Submit Form</Button>
+          <Button variant="contained">
+            <span
+              id="submitBtn"
+              contentEditable="true"
+              onBlur={handleInput}
+              dangerouslySetInnerHTML={{ __html: props.submitBtn }}
+            />
+          </Button>
         </Box>
       </Box>
     </Box>
