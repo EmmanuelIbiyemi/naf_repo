@@ -4,7 +4,7 @@ import { Field, Form, Formik } from "formik";
 import * as Yup from "yup";
 
 type Props = {
-  button: {
+  button?: {
     text: string;
     action: () => void;
   };
@@ -56,25 +56,27 @@ const PageHeader = ({ button }: Props) => {
           </Box>
         </Form>
       </Formik>
-      <Box sx={formGroupStyles}>
-        <Button
-          variant="contained"
-          sx={{
-            bgcolor: "#fff",
-            color: "primary.main",
-            textTransform: "capitalize",
-          }}
-        >
-          Export CSV
-        </Button>
-        <Button
-          onClick={button.action}
-          variant="contained"
-          sx={{ textTransform: "capitalize" }}
-        >
-          {button.text}
-        </Button>
-      </Box>
+      {button ? (
+        <Box sx={formGroupStyles}>
+          <Button
+            variant="contained"
+            sx={{
+              bgcolor: "#fff",
+              color: "primary.main",
+              textTransform: "capitalize",
+            }}
+          >
+            Export CSV
+          </Button>
+          <Button
+            onClick={button.action}
+            variant="contained"
+            sx={{ textTransform: "capitalize" }}
+          >
+            {button.text}
+          </Button>
+        </Box>
+      ) : null}
     </Box>
   );
 };

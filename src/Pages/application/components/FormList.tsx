@@ -111,7 +111,12 @@ const FormList = () => {
           </Box>
           Close Application
         </MenuItem>
-        <MenuItem onClick={handleClose}>
+        <MenuItem
+          onClick={() => {
+            handleClose();
+            navigate("/applications/applicants");
+          }}
+        >
           <Box sx={iconStyles}>
             <Visibility />
           </Box>
@@ -134,7 +139,7 @@ const FormList = () => {
                 <Checkbox />
                 <Box>
                   <Link
-                    to={`/forms/${form.id}`}
+                    to={`/applications/form`}
                     style={{ textTransform: "capitalize" }}
                   >
                     {form.name}
