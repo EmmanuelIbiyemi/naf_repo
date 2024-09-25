@@ -9,7 +9,6 @@ import { Delete, Edit } from "@mui/icons-material";
 import { Link } from "react-router-dom";
 import DeleteConfirmationModal from "../../components/DeleteConfirmationModal";
 import { useState } from "react";
-import { blurBg, unBlurBg } from "../../functions/modal";
 
 type Props = {
   courses: CourseType[];
@@ -22,14 +21,12 @@ const CourseList = ({ courses, editCourse, deleteCourse }: Props) => {
   const [selectedCourse, setSelectedCourse] = useState<CourseType>();
 
   const handleOpenModal = (course: CourseType) => {
-    blurBg();
     setSelectedCourse(course);
     setOpenModal(true);
   };
 
   const handleDelete = (course: CourseType) => {
     deleteCourse(course.id);
-    unBlurBg();
   };
 
   return (

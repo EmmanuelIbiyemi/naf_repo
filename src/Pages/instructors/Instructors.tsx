@@ -8,7 +8,6 @@ import InstructorList from "./InstructorsList";
 import { useAppDispatch } from "../../store/hooks";
 import { setPageName } from "../../store/app.slice";
 import SuccessModal from "../../components/SuccessModal";
-import { blurBg, unBlurBg } from "../../functions/modal";
 import {
   InstructorCreateType,
   InstructorEditFuncType,
@@ -32,12 +31,10 @@ const InstructorsPage = () => {
 
   const handleOpenModal = (type: string) => {
     setOpenModal((prev) => ({ ...prev, [type]: true }));
-    blurBg();
   };
 
   const handleCloseModal = (type: string) => {
     setOpenModal((prev) => ({ ...prev, [type]: false }));
-    unBlurBg();
     if (type == "success") setSelectedInstructor(undefined);
   };
 

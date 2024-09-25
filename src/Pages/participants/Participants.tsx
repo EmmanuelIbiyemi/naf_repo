@@ -8,7 +8,6 @@ import ParticipantList from "./ParticipantList";
 import { useAppDispatch } from "../../store/hooks";
 import { setPageName } from "../../store/app.slice";
 import SuccessModal from "../../components/SuccessModal";
-import { blurBg, unBlurBg } from "../../functions/modal";
 import {
   ParticipantCreateType,
   ParticipantEditFuncType,
@@ -32,12 +31,10 @@ const ParticipantsPage = () => {
 
   const handleOpenModal = (type: string) => {
     setOpenModal((prev) => ({ ...prev, [type]: true }));
-    blurBg();
   };
 
   const handleCloseModal = (type: string) => {
     setOpenModal((prev) => ({ ...prev, [type]: false }));
-    unBlurBg();
     if (type == "success") setSelectedParticipant(undefined);
   };
 

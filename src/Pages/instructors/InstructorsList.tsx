@@ -8,7 +8,6 @@ import { Box, Button, Checkbox, IconButton, TableHead } from "@mui/material";
 import { Delete, Edit } from "@mui/icons-material";
 import DeleteConfirmationModal from "../../components/DeleteConfirmationModal";
 import { useState } from "react";
-import { blurBg, unBlurBg } from "../../functions/modal";
 import InstructorSidebar from "./InstructorsSidebar";
 
 type Props = {
@@ -30,25 +29,20 @@ const CourseList = ({
   const [openSidebar, setOpenSidebar] = useState(false);
 
   const handleOpenModal = (participant: InstructorType) => {
-    blurBg();
     setSelectedInstructor(participant);
     setOpenModal(true);
   };
 
   const handleDelete = (course: InstructorType) => {
     deleteInstructor(course.id);
-    unBlurBg();
   };
 
   const handleViewInstructor = (participant: InstructorType) => {
     setSelectedInstructor(participant);
     setOpenSidebar(true);
-    blurBg();
   };
 
   const toggleDrawer = (state: boolean) => {
-    if (state) blurBg();
-    else unBlurBg();
     setOpenSidebar(state);
   };
 

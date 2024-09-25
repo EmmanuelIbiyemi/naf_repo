@@ -6,19 +6,43 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import SuccessModal from "../../components/SuccessModal";
 
 const PreviewFormPage = () => {
   const [props] = useState({
     formName: "Untitled Form",
     submitBtn: "Submit Form",
   });
-
   const navigate = useNavigate();
+  const [openModal, setOpenModal] = useState(false);
+  const elRef = useRef<HTMLDivElement>(null);
+
+  const handleOpenModal = () => {
+    setOpenModal(true);
+  };
 
   return (
     <Box sx={formContentContainerStyles}>
+      <Box ref={elRef}>
+        <SuccessModal
+          actions={{
+            proceed: () => {
+              console.log("proceed");
+              navigate("/applications");
+            },
+            undo: () => {
+              console.log("undo");
+            },
+          }}
+          close={() => setOpenModal(false)}
+          infoText="This form will be displayed publicly."
+          open={openModal}
+          subTitle={`You have successfully created a new from to your school.`}
+          title="Updates Successful"
+        />
+      </Box>
       <Box sx={dropContainerStyles}>
         <Box sx={{ padding: "1.5rem" }}>
           <Typography variant="h5" sx={{ fontWeight: 300 }}>
@@ -60,7 +84,9 @@ const PreviewFormPage = () => {
         sx={{ display: "flex", justifyContent: "space-between", width: "100%" }}
       >
         <Button onClick={() => navigate(-1)}>Back</Button>
-        <Button variant="contained">Share</Button>
+        <Button variant="contained" onClick={handleOpenModal}>
+          Share
+        </Button>
       </Box>
     </Box>
   );

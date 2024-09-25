@@ -10,11 +10,14 @@ const ParticipantsPage = lazy(
   () => import("./Pages/participants/Participants")
 );
 const InstructorsPage = lazy(() => import("./Pages/instructors/Instructors"));
-const ApplicationPage = lazy(() => import("./Pages/application/Application"));
+const FormsPage = lazy(() => import("./Pages/application/Forms"));
 const ApplicationFormPage = lazy(
   () => import("./Pages/application/components/ApplicationForm")
 );
 const PreviewFormPage = lazy(() => import("./Pages/application/PreviewForm"));
+const ApplicantsPage = lazy(
+  () => import("./Pages/applicants/components/ApplicantsList")
+);
 
 export const router = createBrowserRouter([
   {
@@ -30,9 +33,10 @@ export const router = createBrowserRouter([
       { path: "/courses/:id", element: <SubjectsPage /> },
       { path: "/participants", element: <ParticipantsPage /> },
       { path: "/instructors", element: <InstructorsPage /> },
-      { path: "/applications", element: <ApplicationPage /> },
+      { path: "/applications", element: <FormsPage /> },
       { path: "/applications/form", element: <ApplicationFormPage /> },
       { path: "/applications/form/preview", element: <PreviewFormPage /> },
+      { path: "/applications/form/applied", element: <ApplicantsPage /> },
     ],
   },
 ]);

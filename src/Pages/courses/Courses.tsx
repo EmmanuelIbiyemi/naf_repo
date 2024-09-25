@@ -13,7 +13,6 @@ import {
 import { useAppDispatch } from "../../store/hooks";
 import { setPageName } from "../../store/app.slice";
 import SuccessModal from "../../components/SuccessModal";
-import { blurBg, unBlurBg } from "../../functions/modal";
 
 const CoursesPage = () => {
   const [openModal, setOpenModal] = useState({
@@ -33,12 +32,10 @@ const CoursesPage = () => {
 
   const handleOpenModal = (type: string) => {
     setOpenModal((prev) => ({ ...prev, [type]: true }));
-    blurBg();
   };
 
   const handleCloseModal = (type: string) => {
     setOpenModal((prev) => ({ ...prev, [type]: false }));
-    unBlurBg();
     setSelectedCourse(undefined);
   };
 
