@@ -5,82 +5,42 @@ import TableContainer from "@mui/material/TableContainer";
 import TableRow from "@mui/material/TableRow";
 import { CBTSubjectType } from "../../types/subjects";
 import { Button, SxProps, Typography } from "@mui/material";
-import { useState } from "react";
+import { Dispatch, SetStateAction } from "react";
 import DeleteConfirmationModal from "../../components/DeleteConfirmationModal";
+import { useNavigate } from "react-router-dom";
 
-const CBTtList = () => {
-  const [openModal, setOpenModal] = useState(false);
-  const [subjects, setSubjects] = useState<CBTSubjectType[]>([
-    {
-      id: 1,
-      name: "Subject 1",
-      questions: [
-        {
-          id: 1,
-          options: ["option 1", "option 2", "option 3", "option 4"],
-          question: "What is the meaning of life ?",
-        },
-        {
-          id: 2,
-          options: ["option 1", "option 2", "option 3", "option 4"],
-          question: "What is the meaning of life ?",
-        },
-        {
-          id: 3,
-          options: ["option 1", "option 2", "option 3", "option 4"],
-          question: "What is the meaning of life ?",
-        },
-      ],
-    },
-    {
-      id: 2,
-      name: "Subject 1",
-      questions: [
-        {
-          id: 1,
-          options: ["option 1", "option 2", "option 3", "option 4"],
-          question: "What is the meaning of life ?",
-        },
-        {
-          id: 2,
-          options: ["option 1", "option 2", "option 3", "option 4"],
-          question: "What is the meaning of life ?",
-        },
-        {
-          id: 3,
-          options: ["option 1", "option 2", "option 3", "option 4"],
-          question: "What is the meaning of life ?",
-        },
-      ],
-    },
-    {
-      id: 3,
-      name: "Subject 1",
-      questions: [
-        {
-          id: 1,
-          options: ["option 1", "option 2", "option 3", "option 4"],
-          question: "What is the meaning of life ?",
-        },
-        {
-          id: 2,
-          options: ["option 1", "option 2", "option 3", "option 4"],
-          question: "What is the meaning of life ?",
-        },
-        {
-          id: 3,
-          options: ["option 1", "option 2", "option 3", "option 4"],
-          question: "What is the meaning of life ?",
-        },
-      ],
-    },
-  ]);
-  const [selectedCBT, setSelectedCBT] = useState<CBTSubjectType>(subjects[0]);
-
-  const handleOpenModal = (subject: CBTSubjectType) => {
-    setSelectedCBT(subject);
-    setOpenModal(true);
+type Props = {
+  subjects: CBTSubjectType[];
+  setSubjects: Dispatch<SetStateAction<CBTSubjectType[]>>;
+  selectedSubject: CBTSubjectType | undefined;
+  modals: {
+    openModals: {
+      add: boolean;
+      edit: boolean;
+      success: boolean;
+      delete: boolean;
+    };
+    handleOpenModal: (type: string) => void;
+    handleCloseModal: (type: string) => void;
+    handleOpenEditModal: (subject: CBTSubjectType) => void;
+    handleOpenDeleteModal: (subject: CBTSubjectType) => void;
   };
+};
+
+const CBTtList = ({
+  subjects,
+  setSubjects,
+  selectedSubject,
+  modals,
+}: Props) => {
+  //   const [openModals, setOpenModal] = useState(false);
+  //   const [selectedSubject, setSelectedCBT] = useState<CBTSubjectType>(subjects[0]);
+  const navigate = useNavigate();
+
+  //   const handleOpenModal = (subject: CBTSubjectType) => {
+  //     setSelectedCBT(subject);
+  //     setOpenModal(true);
+  //   };
 
   const handleDelete = (id: number) => {
     setSubjects((prev) => prev.filter((sb) => sb.id != id));
@@ -91,16 +51,17 @@ const CBTtList = () => {
       <DeleteConfirmationModal
         actions={{
           proceed: () => {
-            if (selectedCBT.id) handleDelete(selectedCBT.id);
+            if (selectedSubject?.id) handleDelete(selectedSubject.id);
             console.log("proceed");
           },
           undo: () => {
             console.log("cancel");
           },
         }}
-        close={() => setOpenModal(false)}
+        // close={() => setOpenModal(false)}
+        close={() => modals.handleCloseModal("delete")}
         infoText="The students enrolled in this subject will get notified."
-        open={openModal}
+        open={modals.openModals.delete}
         subTitle={`Are you sure you want to delete subject`}
         title="Delete Course?"
       />
@@ -118,6 +79,7 @@ const CBTtList = () => {
                     padding: 0,
                     textTransform: "capitalize",
                   }}
+                  onClick={() => navigate("/")}
                 >
                   {subject.name}
                 </Button>
@@ -126,8 +88,12 @@ const CBTtList = () => {
                 </Typography>
               </TableCell>
               <TableCell align="right" sx={{ display: "grid", gap: ".6rem" }}>
-                <Button onClick={() => handleOpenModal(subject)}>Edit</Button>
-                <Button onClick={() => handleOpenModal(subject)}>Delete</Button>
+                <Button onClick={() => modals.handleOpenEditModal(subject)}>
+                  Edit
+                </Button>
+                <Button onClick={() => modals.handleOpenDeleteModal(subject)}>
+                  Delete
+                </Button>
               </TableCell>
             </TableRow>
           ))}

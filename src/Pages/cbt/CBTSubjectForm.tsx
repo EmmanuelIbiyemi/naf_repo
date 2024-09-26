@@ -25,8 +25,6 @@ const CBTSubjectForm = ({ actions, subject }: Props) => {
   });
 
   const handleSubmit = async (values: CBTSubjectType) => {
-    if (subject) console.log("edit");
-    else console.log("add");
     actions.submit(values);
   };
 
@@ -63,7 +61,7 @@ const CBTSubjectForm = ({ actions, subject }: Props) => {
               variant="contained"
               disabled={subject ? !isValid : !(isValid && dirty)}
             >
-              {subject ? "Edit Course" : "Add Course"}
+              {subject ? "Edit Subject" : "Add Subject"}
             </LoadingButton>
           </Box>
         </Form>

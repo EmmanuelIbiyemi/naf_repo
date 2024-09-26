@@ -15,10 +15,10 @@ const CBTPage = () => {
     add: false,
     edit: false,
     success: false,
-    delete: true,
+    delete: false,
   });
   const [selectedSubject, setSelectedSubject] = useState<CBTSubjectType>();
-  const [subjects] = useState<CBTSubjectType[]>([
+  const [subjects, setSubjects] = useState<CBTSubjectType[]>([
     {
       id: 1,
       name: "Subject 1",
@@ -27,16 +27,19 @@ const CBTPage = () => {
           id: 1,
           options: ["option 1", "option 2", "option 3", "option 4"],
           question: "What is the meaning of life ?",
+          answer: 1,
         },
         {
           id: 2,
           options: ["option 1", "option 2", "option 3", "option 4"],
           question: "What is the meaning of life ?",
+          answer: 1,
         },
         {
           id: 3,
           options: ["option 1", "option 2", "option 3", "option 4"],
           question: "What is the meaning of life ?",
+          answer: 1,
         },
       ],
     },
@@ -49,8 +52,38 @@ const CBTPage = () => {
     setOpenModal((prev) => ({ ...prev, [type]: false }));
   };
 
+  const handleOpenModal = (type: string) => {
+    setOpenModal((prev) => ({ ...prev, [type]: true }));
+  };
+
+  const handleOpenEditModal = (subject: CBTSubjectType) => {
+    handleOpenModal("edit");
+    setSelectedSubject(subject);
+  };
+
+  const handleOpenDeleteModal = (subject: CBTSubjectType) => {
+    handleOpenModal("delete");
+    setSelectedSubject(subject);
+  };
+
   const handleAddSubject = (subject: CBTSubjectType) => {
-    console.log(subject);
+    subject.id = subjects.length + 1;
+    setSubjects((prev) => [...prev, subject]);
+    handleCloseModal("add");
+    setSelectedSubject(subject);
+    handleOpenModal("success");
+  };
+  const handdleEditSubject = (subject: CBTSubjectType) => {
+    setSubjects((prev) => {
+      const temp = [...prev];
+      const foundSubjectIndex = subjects.findIndex(
+        (sub) => sub.id == subject.id
+      );
+      temp[foundSubjectIndex] = subject;
+      return temp;
+    });
+    handleCloseModal("edit");
+    handleOpenModal("success");
   };
 
   return (
@@ -64,7 +97,7 @@ const CBTPage = () => {
       >
         <CBTSubjectForm
           actions={{
-            submit: handleAddSubject,
+            submit: openModal.add ? handleAddSubject : handdleEditSubject,
             cancel: () =>
               openModal.add
                 ? handleCloseModal("add")
@@ -87,12 +120,17 @@ const CBTPage = () => {
           handleCloseModal("success");
           setSelectedSubject(undefined);
         }}
-        infoText="The students enrolled in this subject will get notified."
+        infoText=""
         open={openModal.success}
-        subTitle={`You have successfully added a new subject to the course <strong>“${selectedSubject?.name}”</strong>.`}
+        subTitle={`You have successfully added a new subject`}
         title="Updates Successful"
       />
-      <PageHeader />
+      <PageHeader
+        button={{
+          action: () => handleOpenModal("add"),
+          text: "Add Subject",
+        }}
+      />
       <Box
         sx={{
           bgcolor: "rgba(252, 250, 250, 1)",
@@ -102,11 +140,22 @@ const CBTPage = () => {
         }}
       >
         {subjects.length ? (
-          <CBTtList />
+          <CBTtList
+            subjects={subjects}
+            setSubjects={setSubjects}
+            selectedSubject={selectedSubject}
+            modals={{
+              openModals: openModal,
+              handleOpenModal,
+              handleCloseModal,
+              handleOpenEditModal,
+              handleOpenDeleteModal,
+            }}
+          />
         ) : (
           <EmptyState
             title="Oops there’s nothing here!"
-            subTitle="There are no questions at the moment."
+            subTitle="There are no Subjects at the moment."
           />
         )}
       </Box>

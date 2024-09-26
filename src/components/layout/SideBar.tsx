@@ -33,7 +33,6 @@ const navLinks: NavLink[] = [
         link: "/applications/applicants",
       },
       { content: "Student Exam", icon: ChevronLeft, link: "/applications/cbt" },
-      { content: "Manage Applicants", icon: ChevronLeft, link: "" },
     ],
   },
   { content: "Settings", icon: SettingsIcon, link: "/settings" },
