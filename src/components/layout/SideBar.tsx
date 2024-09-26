@@ -8,27 +8,56 @@ import BankIcon from "../../assets/bankIcon";
 import SettingsIcon from "../../assets/settingsIcon";
 import { ElementType } from "react";
 import ClipBoardIcon from "../../assets/clipboardIcon";
+import { ChevronLeft, ChevronRight } from "@mui/icons-material";
 
 type NavLink = {
   content: string;
   icon: ElementType;
   link: string;
+  children?: NavLink[];
 };
 const navLinks: NavLink[] = [
   { content: "Dashboard", icon: HomeIcon, link: "/" },
   { content: "Courses", icon: ClipBoardIcon, link: "/courses" },
   { content: "Participants", icon: ChartIcon, link: "/participants" },
   { content: "Instructors", icon: InstructorIcon, link: "/instructors" },
-  { content: "Applications", icon: BankIcon, link: "/applications" },
+  {
+    content: "Applications",
+    icon: BankIcon,
+    link: "/applications",
+    children: [
+      { content: "Application Form", icon: ChevronLeft, link: "/applications" },
+      {
+        content: "All Applicants",
+        icon: ChevronLeft,
+        link: "/applications/applicants",
+      },
+      { content: "Student Exam", icon: ChevronLeft, link: "" },
+      { content: "Manage Applicants", icon: ChevronLeft, link: "" },
+    ],
+  },
   { content: "Settings", icon: SettingsIcon, link: "/settings" },
 ];
 
 const SideBar = () => {
   const location = useLocation();
+
   const isCurrentPage = (navLink: NavLink) => {
-    if (navLink.content.toLowerCase() != "dashboard")
-      return location.pathname.includes(navLink.link);
-    else return location.pathname == "/";
+    if (navLink.content.toLowerCase() !== "dashboard") {
+      if (location.pathname === navLink.link) return true;
+    } else {
+      if (location.pathname === "/") return true;
+    }
+
+    if (navLink.children) {
+      return navLink.children.some((child) => isCurrentChildLink(child));
+    }
+
+    return false;
+  };
+
+  const isCurrentChildLink = (childLink: NavLink) => {
+    return location.pathname === childLink.link;
   };
 
   return (
@@ -41,16 +70,30 @@ const SideBar = () => {
       />
       <Box sx={navLinkStyles}>
         {navLinks.map((item) => (
-          <Link
-            key={`navlink-${item.content + 1}`}
-            className={isCurrentPage(item) ? "active" : ""}
-            to={item.link}
-          >
-            <item.icon
-              color={isCurrentPage(item) ? "rgba(2, 54, 120, 1)" : "#fff"}
-            />
-            {item.content}
-          </Link>
+          <Box key={`navlink-${item.content + 1}`}>
+            <Link
+              className={isCurrentPage(item) ? "active" : ""}
+              to={item.link}
+            >
+              <item.icon
+                color={isCurrentPage(item) ? "rgba(2, 54, 120, 1)" : "#fff"}
+              />
+              {item.content}
+            </Link>
+            {isCurrentPage(item) && item.children ? (
+              <Box sx={childLinkStyles}>
+                {item.children.map((child) => (
+                  <Link
+                    key={`child-link-${child.content}`}
+                    to={child.link}
+                    className={isCurrentChildLink(child) ? "active" : ""}
+                  >
+                    <ChevronRight /> {child.content}
+                  </Link>
+                ))}
+              </Box>
+            ) : null}
+          </Box>
         ))}
       </Box>
     </Box>
@@ -63,9 +106,15 @@ const sideBarStyles: SxProps = {
   bgcolor: "primary.main",
   color: "primary.contrastText",
   padding: "2rem",
-  position: "sticky",
+  position: "fixed",
   height: "100vh",
   top: 0,
+  overflow: "scroll",
+  width: "280px",
+
+  "&::-webkit-scrollbar": {
+    display: "none",
+  },
 };
 
 const navLinkStyles: SxProps = {
@@ -89,5 +138,16 @@ const navLinkStyles: SxProps = {
   "a.active": {
     bgcolor: "primary.contrastText",
     color: "primary.main",
+  },
+};
+
+const childLinkStyles: SxProps = {
+  bgcolor: "rgba(3, 105, 161, 1)",
+  marginTop: "1rem",
+  a: {
+    borderRadius: 0,
+  },
+  ".active": {
+    bgcolor: "rgba(255, 255, 255, 0.9)",
   },
 };
