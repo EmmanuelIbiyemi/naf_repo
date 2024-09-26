@@ -32,7 +32,7 @@ const navLinks: NavLink[] = [
         icon: ChevronLeft,
         link: "/applications/applicants",
       },
-      { content: "Student Exam", icon: ChevronLeft, link: "" },
+      { content: "Student Exam", icon: ChevronLeft, link: "/applications/cbt" },
       { content: "Manage Applicants", icon: ChevronLeft, link: "" },
     ],
   },

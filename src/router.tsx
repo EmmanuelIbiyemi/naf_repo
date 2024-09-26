@@ -16,6 +16,7 @@ const ApplicationFormPage = lazy(
 );
 const PreviewFormPage = lazy(() => import("./Pages/application/PreviewForm"));
 const ApplicantsPage = lazy(() => import("./Pages/applicants/ApplicantsPage"));
+const CBT = lazy(() => import("./Pages/cbt/CBT"));
 
 export const router = createBrowserRouter([
   {
@@ -35,6 +36,7 @@ export const router = createBrowserRouter([
       { path: "/applications/form", element: <ApplicationFormPage /> },
       { path: "/applications/form/preview", element: <PreviewFormPage /> },
       { path: "/applications/applicants", element: <ApplicantsPage /> },
+      { path: "/applications/cbt", element: <CBT /> },
     ],
   },
 ]);

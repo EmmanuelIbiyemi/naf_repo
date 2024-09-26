@@ -15,3 +15,15 @@ export type SubjectCreateType = SubjectBaseType & {};
 export type SubjectType = SubjectBaseType & {
   id: number;
 };
+
+type Question = {
+  id?: number;
+  question: string;
+  options: string[];
+};
+
+export type CBTSubjectType = {
+  id?: number;
+  name: string;
+  questions: Question[];
+};
