@@ -4,46 +4,25 @@ import { setPageName } from "../../store/app.slice";
 import PageHeader from "../../components/PageHeader";
 import FormModal from "../../components/FormModal";
 import { useState } from "react";
-import CBTSubjectForm from "./CBTSubjectForm";
+import CBTQuestionForm from "./CBTQuestionForm";
 import SuccessModal from "../../components/SuccessModal";
-import { CBTSubjectType } from "../../types/subjects";
+import { CBTQuestion, CBTSubjectType } from "../../types/subjects";
 import EmptyState from "../../components/EmptyState";
-import CBTtList from "./CBTList";
+import CBTQuestiontList from "./CBTQuestionList";
 
-const CBTPage = () => {
+const CBTQuestionsPage = () => {
   const [openModal, setOpenModal] = useState({
     add: false,
     edit: false,
     success: false,
     delete: false,
   });
-  const [selectedSubject, setSelectedSubject] = useState<CBTSubjectType>();
-  const [subjects, setSubjects] = useState<CBTSubjectType[]>([
-    {
-      id: 1,
-      name: "Subject 1",
-      questions: [
-        {
-          id: 1,
-          options: ["option 1", "option 2", "option 3", "option 4"],
-          question: "What is the meaning of life ?",
-          answer: "option 1",
-        },
-        {
-          id: 2,
-          options: ["option 1", "option 2", "option 3", "option 4"],
-          question: "What is the meaning of life ?",
-          answer: "option 1",
-        },
-        {
-          id: 3,
-          options: ["option 1", "option 2", "option 3", "option 4"],
-          question: "What is the meaning of life ?",
-          answer: "option 1",
-        },
-      ],
-    },
-  ]);
+  const [selectedQuestion, setSelectedQuestion] = useState<CBTQuestion>();
+  const [subject, setSubject] = useState<CBTSubjectType>({
+    id: 1,
+    name: "Subject 1",
+    questions: [],
+  });
 
   const dispatch = useAppDispatch();
   dispatch(setPageName("CBT Screening"));
@@ -56,36 +35,43 @@ const CBTPage = () => {
     setOpenModal((prev) => ({ ...prev, [type]: true }));
   };
 
-  const handleOpenEditModal = (subject: CBTSubjectType) => {
+  const handleOpenEditModal = (question: CBTQuestion) => {
+    console.log(question);
+
     handleOpenModal("edit");
-    setSelectedSubject(subject);
+    setSelectedQuestion(question);
   };
 
-  const handleOpenDeleteModal = (subject: CBTSubjectType) => {
+  const handleOpenDeleteModal = (question: CBTQuestion) => {
     handleOpenModal("delete");
-    setSelectedSubject(subject);
+    setSelectedQuestion(question);
   };
 
-  const handleAddSubject = (subject: CBTSubjectType) => {
-    subject.id = subjects.length + 1;
-    setSubjects((prev) => [...prev, subject]);
+  const handleAddQuestion = (question: CBTQuestion) => {
+    question.id = subject.questions.length + 1;
+    subject.questions.push(question);
     handleCloseModal("add");
-    setSelectedSubject(subject);
+    setSelectedQuestion(question);
     handleOpenModal("success");
   };
-  const handdleEditSubject = (subject: CBTSubjectType) => {
-    setSubjects((prev) => {
-      const temp = [...prev];
-      const foundSubjectIndex = subjects.findIndex(
-        (sub) => sub.id == subject.id
-      );
-      temp[foundSubjectIndex] = subject;
-      return temp;
+
+  const handleEditQuestion = (question: CBTQuestion) => {
+    setSubject((prev) => {
+      const foundQuestion = prev.questions.find((q) => q.id == question.id);
+      if (foundQuestion) {
+        foundQuestion.answer = question.answer;
+        foundQuestion.options = question.options;
+        foundQuestion.question = question.question;
+      }
+      return prev;
     });
     handleCloseModal("edit");
     handleOpenModal("success");
   };
 
+  const setQuestions = (questions: CBTQuestion[]) => {
+    subject.questions = questions;
+  };
   return (
     <Box className="content-container">
       <FormModal
@@ -94,16 +80,19 @@ const CBTPage = () => {
           handleCloseModal("add");
           handleCloseModal("edit");
         }}
+        sx={{
+          backgroundColor: "rgba(248, 250, 252, 1)",
+        }}
       >
-        <CBTSubjectForm
+        <CBTQuestionForm
           actions={{
-            submit: openModal.add ? handleAddSubject : handdleEditSubject,
+            submit: openModal.add ? handleAddQuestion : handleEditQuestion,
             cancel: () =>
               openModal.add
                 ? handleCloseModal("add")
                 : handleCloseModal("edit"),
           }}
-          subject={selectedSubject}
+          question={selectedQuestion}
         />
       </FormModal>
 
@@ -118,17 +107,17 @@ const CBTPage = () => {
         }}
         close={() => {
           handleCloseModal("success");
-          setSelectedSubject(undefined);
+          setSelectedQuestion(undefined);
         }}
         infoText=""
         open={openModal.success}
-        subTitle={`You have successfully added a new subject`}
+        subTitle={`You have successfully added a new question`}
         title="Updates Successful"
       />
       <PageHeader
         button={{
           action: () => handleOpenModal("add"),
-          text: "Add Subject",
+          text: "Add Question",
         }}
       />
       <Box
@@ -139,11 +128,11 @@ const CBTPage = () => {
           padding: "var(--padding)",
         }}
       >
-        {subjects.length ? (
-          <CBTtList
-            subjects={subjects}
-            setSubjects={setSubjects}
-            selectedSubject={selectedSubject}
+        {subject.questions.length ? (
+          <CBTQuestiontList
+            questions={subject.questions}
+            setQuestions={setQuestions}
+            selectedQuestion={selectedQuestion}
             modals={{
               openModals: openModal,
               handleOpenModal,
@@ -155,7 +144,7 @@ const CBTPage = () => {
         ) : (
           <EmptyState
             title="Oops there’s nothing here!"
-            subTitle="There are no Subjects at the moment."
+            subTitle="There are no Questions at the moment."
           />
         )}
       </Box>
@@ -163,4 +152,4 @@ const CBTPage = () => {
   );
 };
 
-export default CBTPage;
+export default CBTQuestionsPage;

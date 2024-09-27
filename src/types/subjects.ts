@@ -20,7 +20,7 @@ export type CBTQuestion = {
   id?: number;
   question: string;
   options: string[];
-  answer: number;
+  answer: string;
 };
 
 export type CBTSubjectType = {

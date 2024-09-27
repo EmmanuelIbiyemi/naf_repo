@@ -1,20 +1,21 @@
-import { Box, Modal, SxProps } from "@mui/material";
+import { Box, Dialog, DialogProps, SxProps } from "@mui/material";
 import IdontknowIcon from "../assets/idontknowIcon";
 import { PropsWithChildren } from "react";
 
 type Props = {
   open: boolean;
   close: () => void;
-} & PropsWithChildren;
+} & PropsWithChildren &
+  DialogProps;
 
-const FormModal = ({ open, close, children }: Props) => {
+const FormModal = ({ open, close, children, ...rest }: Props) => {
   return (
-    <Modal open={open} onClose={close}>
+    <Dialog open={open} onClose={close} scroll="body" {...rest}>
       <Box sx={modalContentStyles}>
         <IdontknowIcon />
         {children}
       </Box>
-    </Modal>
+    </Dialog>
   );
 };
 
@@ -24,11 +25,7 @@ const modalContentStyles: SxProps = {
   bgcolor: "#fff",
   borderRadius: "var(--border-radius)",
   display: "grid",
-  left: "50%",
-  position: "fixed",
   padding: "2rem 5rem 3rem",
   placeItems: "center",
-  top: "50%",
-  transform: "translate(-50%,-50%)",
   width: "50vw",
 };

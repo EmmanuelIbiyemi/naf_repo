@@ -3,16 +3,15 @@ import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
 import TableRow from "@mui/material/TableRow";
-import { CBTSubjectType } from "../../types/subjects";
+import { CBTQuestion } from "../../types/subjects";
 import { Button, SxProps, Typography } from "@mui/material";
-import { Dispatch, SetStateAction } from "react";
 import DeleteConfirmationModal from "../../components/DeleteConfirmationModal";
 import { useNavigate } from "react-router-dom";
 
 type Props = {
-  subjects: CBTSubjectType[];
-  setSubjects: Dispatch<SetStateAction<CBTSubjectType[]>>;
-  selectedSubject: CBTSubjectType | undefined;
+  questions: CBTQuestion[];
+  setQuestions: (questions: CBTQuestion[]) => void;
+  selectedQuestion: CBTQuestion | undefined;
   modals: {
     openModals: {
       add: boolean;
@@ -22,21 +21,21 @@ type Props = {
     };
     handleOpenModal: (type: string) => void;
     handleCloseModal: (type: string) => void;
-    handleOpenEditModal: (subject: CBTSubjectType) => void;
-    handleOpenDeleteModal: (subject: CBTSubjectType) => void;
+    handleOpenEditModal: (question: CBTQuestion) => void;
+    handleOpenDeleteModal: (question: CBTQuestion) => void;
   };
 };
 
-const CBTtList = ({
-  subjects,
-  setSubjects,
-  selectedSubject,
+const CBTQuestiontList = ({
+  questions,
+  setQuestions,
+  selectedQuestion,
   modals,
 }: Props) => {
   const navigate = useNavigate();
 
   const handleDelete = (id: number) => {
-    setSubjects((prev) => prev.filter((sb) => sb.id != id));
+    setQuestions(questions.filter((qs) => qs.id != id));
   };
 
   return (
@@ -44,7 +43,7 @@ const CBTtList = ({
       <DeleteConfirmationModal
         actions={{
           proceed: () => {
-            if (selectedSubject?.id) handleDelete(selectedSubject.id);
+            if (selectedQuestion?.id) handleDelete(selectedQuestion.id);
             console.log("proceed");
           },
           undo: () => {
@@ -52,16 +51,16 @@ const CBTtList = ({
           },
         }}
         close={() => modals.handleCloseModal("delete")}
-        infoText="The students enrolled in this subject will get notified."
+        infoText=""
         open={modals.openModals.delete}
-        subTitle={`Are you sure you want to delete subject`}
-        title="Delete Course?"
+        subTitle={`Are you sure you want to delete question`}
+        title="Delete Question?"
       />
 
       <Table sx={tableStyles}>
         <TableBody>
-          {subjects.map((subject) => (
-            <TableRow key={subject.id} sx={{ "td,th": { border: 0 } }}>
+          {questions.map((question) => (
+            <TableRow key={question.id} sx={{ "td,th": { border: 0 } }}>
               <TableCell component="th" scope="row">
                 <Button
                   style={{
@@ -71,19 +70,24 @@ const CBTtList = ({
                     padding: 0,
                     textTransform: "capitalize",
                   }}
-                  onClick={() => navigate("/applications/cbt/questions")}
+                  onClick={() => navigate("/")}
                 >
-                  {subject.name}
+                  {question.question}
                 </Button>
-                <Typography sx={{ color: "secondary.light" }}>
-                  {subject.questions.length} Questions
-                </Typography>
+                <Typography
+                  sx={{ color: "secondary.light" }}
+                  dangerouslySetInnerHTML={{
+                    __html:
+                      "<strong>Options:</strong> " +
+                      question.options.join(" &#8226; "),
+                  }}
+                />
               </TableCell>
               <TableCell align="right" sx={{ display: "grid", gap: ".6rem" }}>
-                <Button onClick={() => modals.handleOpenEditModal(subject)}>
+                <Button onClick={() => modals.handleOpenEditModal(question)}>
                   Edit
                 </Button>
-                <Button onClick={() => modals.handleOpenDeleteModal(subject)}>
+                <Button onClick={() => modals.handleOpenDeleteModal(question)}>
                   Delete
                 </Button>
               </TableCell>
@@ -95,7 +99,7 @@ const CBTtList = ({
   );
 };
 
-export default CBTtList;
+export default CBTQuestiontList;
 
 const tableStyles: SxProps = {
   minWidth: 650,
