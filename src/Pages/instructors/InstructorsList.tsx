@@ -15,7 +15,7 @@ type Props = {
   editInstructor: (course: InstructorType) => void;
   deleteInstructor: (id: number) => void;
   selectedInstructor: InstructorType | undefined;
-  setSelectedInstructor: (participant: InstructorType) => void;
+  setSelectedInstructor: (student: InstructorType) => void;
 };
 
 const CourseList = ({
@@ -28,8 +28,8 @@ const CourseList = ({
   const [openModal, setOpenModal] = useState(false);
   const [openSidebar, setOpenSidebar] = useState(false);
 
-  const handleOpenModal = (participant: InstructorType) => {
-    setSelectedInstructor(participant);
+  const handleOpenModal = (student: InstructorType) => {
+    setSelectedInstructor(student);
     setOpenModal(true);
   };
 
@@ -37,8 +37,8 @@ const CourseList = ({
     deleteInstructor(course.id);
   };
 
-  const handleViewInstructor = (participant: InstructorType) => {
-    setSelectedInstructor(participant);
+  const handleViewInstructor = (student: InstructorType) => {
+    setSelectedInstructor(student);
     setOpenSidebar(true);
   };
 
@@ -96,9 +96,9 @@ const CourseList = ({
           </TableRow>
         </TableHead>
         <TableBody>
-          {instructors.map((participant) => (
+          {instructors.map((student) => (
             <TableRow
-              key={participant.id}
+              key={student.id}
               sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
             >
               <TableCell component="th" scope="row">
@@ -113,26 +113,26 @@ const CourseList = ({
                       padding: 0,
                       textTransform: "capitalize",
                     }}
-                    onClick={() => handleViewInstructor(participant)}
+                    onClick={() => handleViewInstructor(student)}
                   >
-                    {participant.first_name} {participant.last_name}
+                    {student.first_name} {student.last_name}
                   </Button>
                 </Box>
               </TableCell>
               <TableCell component="th" scope="row">
-                {participant.email}
+                {student.email}
               </TableCell>
               <TableCell component="th" scope="row">
-                {participant.phone_number}
+                {student.phone_number}
               </TableCell>
               <TableCell component="th" scope="row">
-                {participant.courses.map((c) => c.name).join(", ")}
+                {student.courses.map((c) => c.name).join(", ")}
               </TableCell>
               <TableCell align="right">
-                <IconButton onClick={() => editInstructor(participant)}>
+                <IconButton onClick={() => editInstructor(student)}>
                   <Edit />
                 </IconButton>
-                <IconButton onClick={() => handleOpenModal(participant)}>
+                <IconButton onClick={() => handleOpenModal(student)}>
                   <Delete />
                 </IconButton>
               </TableCell>

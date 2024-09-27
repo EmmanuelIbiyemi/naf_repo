@@ -3,42 +3,42 @@ import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
 import TableRow from "@mui/material/TableRow";
-import { ParticipantType } from "../../types/participants";
+import { StudentType } from "../../types/students";
 import { Box, Button, Checkbox, IconButton, TableHead } from "@mui/material";
 import { Delete, Edit } from "@mui/icons-material";
 import DeleteConfirmationModal from "../../components/DeleteConfirmationModal";
 import { useState } from "react";
-import ParticipantSidebar from "./ParticipantSidebar";
+import StudentSidebar from "./StudentsSidebar";
 
 type Props = {
-  participants: ParticipantType[];
-  editParticipant: (course: ParticipantType) => void;
-  deleteParticipant: (id: number) => void;
-  selectedParticipant: ParticipantType | undefined;
-  setSelectedParticipant: (participant: ParticipantType) => void;
+  students: StudentType[];
+  editStudent: (course: StudentType) => void;
+  deleteStudent: (id: number) => void;
+  selectedStudent: StudentType | undefined;
+  setSelectedStudent: (student: StudentType) => void;
 };
 
 const CourseList = ({
-  participants,
-  editParticipant,
-  deleteParticipant,
-  selectedParticipant,
-  setSelectedParticipant,
+  students,
+  editStudent,
+  deleteStudent,
+  selectedStudent,
+  setSelectedStudent,
 }: Props) => {
   const [openModal, setOpenModal] = useState(false);
   const [openSidebar, setOpenSidebar] = useState(false);
 
-  const handleOpenModal = (participant: ParticipantType) => {
-    setSelectedParticipant(participant);
+  const handleOpenModal = (student: StudentType) => {
+    setSelectedStudent(student);
     setOpenModal(true);
   };
 
-  const handleDelete = (course: ParticipantType) => {
-    deleteParticipant(course.id);
+  const handleDelete = (course: StudentType) => {
+    deleteStudent(course.id);
   };
 
-  const handleViewParticipant = (participant: ParticipantType) => {
-    setSelectedParticipant(participant);
+  const handleViewStudent = (student: StudentType) => {
+    setSelectedStudent(student);
     setOpenSidebar(true);
   };
 
@@ -48,18 +48,16 @@ const CourseList = ({
 
   return (
     <TableContainer>
-      <ParticipantSidebar
+      <StudentSidebar
         open={openSidebar}
-        participant={selectedParticipant as ParticipantType}
+        student={selectedStudent as StudentType}
         toggleDrawer={toggleDrawer}
-        openEditModal={() =>
-          editParticipant(selectedParticipant as ParticipantType)
-        }
+        openEditModal={() => editStudent(selectedStudent as StudentType)}
       />
       <DeleteConfirmationModal
         actions={{
           proceed: () => {
-            if (selectedParticipant) handleDelete(selectedParticipant);
+            if (selectedStudent) handleDelete(selectedStudent);
             console.log("proceed");
           },
           undo: () => {
@@ -69,7 +67,7 @@ const CourseList = ({
         close={() => setOpenModal(false)}
         infoText="The students enrolled in this subject will get notified."
         open={openModal}
-        subTitle={`Are you sure you want to delete subject <strong>“${selectedParticipant?.first_name} ${selectedParticipant?.last_name}”</strong>? You can’t undo this action.`}
+        subTitle={`Are you sure you want to delete subject <strong>“${selectedStudent?.first_name} ${selectedStudent?.last_name}”</strong>? You can’t undo this action.`}
         title="Delete Course?"
       />
 
@@ -96,9 +94,9 @@ const CourseList = ({
           </TableRow>
         </TableHead>
         <TableBody>
-          {participants.map((participant) => (
+          {students.map((student) => (
             <TableRow
-              key={participant.id}
+              key={student.id}
               sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
             >
               <TableCell component="th" scope="row">
@@ -113,26 +111,26 @@ const CourseList = ({
                       padding: 0,
                       textTransform: "capitalize",
                     }}
-                    onClick={() => handleViewParticipant(participant)}
+                    onClick={() => handleViewStudent(student)}
                   >
-                    {participant.first_name} {participant.last_name}
+                    {student.first_name} {student.last_name}
                   </Button>
                 </Box>
               </TableCell>
               <TableCell component="th" scope="row">
-                {participant.email}
+                {student.email}
               </TableCell>
               <TableCell component="th" scope="row">
-                {participant.phone_number}
+                {student.phone_number}
               </TableCell>
               <TableCell component="th" scope="row">
-                {participant.courses.map((c) => c.name).join(", ")}
+                {student.courses.map((c) => c.name).join(", ")}
               </TableCell>
               <TableCell align="right">
-                <IconButton onClick={() => editParticipant(participant)}>
+                <IconButton onClick={() => editStudent(student)}>
                   <Edit />
                 </IconButton>
-                <IconButton onClick={() => handleOpenModal(participant)}>
+                <IconButton onClick={() => handleOpenModal(student)}>
                   <Delete />
                 </IconButton>
               </TableCell>

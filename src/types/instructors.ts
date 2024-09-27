@@ -16,6 +16,4 @@ export type InstructorType = InstructorBase & {
 };
 
 export type InstructorCombinedType = InstructorCreateType | InstructorType;
-export type InstructorEditFuncType = (
-  participant: InstructorCombinedType
-) => void;
+export type InstructorEditFuncType = (student: InstructorCombinedType) => void;

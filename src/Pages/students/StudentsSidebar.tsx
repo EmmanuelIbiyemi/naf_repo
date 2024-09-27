@@ -6,22 +6,22 @@ import {
   SxProps,
   Typography,
 } from "@mui/material";
-import { ParticipantType } from "../../types/participants";
-import participantImg from "/images/participant.png";
+import { StudentType } from "../../types/students";
+import participantImg from "/images/student.png";
 import { Mail } from "@mui/icons-material";
 import formStyles from "../../components/form/form.module.scss";
 import { LoadingButton } from "@mui/lab";
 
 type Props = {
   open: boolean;
-  participant: ParticipantType;
+  student: StudentType;
   toggleDrawer: (state: boolean) => void;
   openEditModal: () => void;
 };
 
-const ParticipantSidebar = ({
+const StudentSidebar = ({
   open,
-  participant,
+  student,
   toggleDrawer,
   openEditModal,
 }: Props) => {
@@ -38,7 +38,7 @@ const ParticipantSidebar = ({
           </Box>
           <Box>
             <Typography variant="h6">
-              {participant?.first_name} {participant?.last_name}
+              {student?.first_name} {student?.last_name}
             </Typography>
             <Typography
               sx={{ alignItems: "center", display: "flex", gap: ".5rem" }}
@@ -46,7 +46,7 @@ const ParticipantSidebar = ({
               <Mail
                 sx={{ color: "rgba(179, 179, 179, 1)", fontSize: "1.2rem" }}
               />{" "}
-              {participant?.email}
+              {student?.email}
             </Typography>
           </Box>
         </Box>
@@ -61,15 +61,15 @@ const ParticipantSidebar = ({
           </Typography>
           <Typography>
             <span>First Name</span>
-            <span>{participant?.first_name}</span>
+            <span>{student?.first_name}</span>
           </Typography>
           <Typography>
             <span>Last Name</span>
-            <span>{participant?.last_name}</span>
+            <span>{student?.last_name}</span>
           </Typography>
           <Typography>
             <span>Phone Number</span>
-            <span>{participant?.phone_number}</span>
+            <span>{student?.phone_number}</span>
           </Typography>
         </Box>
         <Box sx={infoSectionStyles}>
@@ -81,7 +81,7 @@ const ParticipantSidebar = ({
           >
             Course Enrolled
           </Typography>
-          {participant?.courses?.map((c) => (
+          {student?.courses?.map((c) => (
             <Box key={c.name}>
               <Box>
                 <Typography>{c.name}</Typography>
@@ -116,7 +116,7 @@ const ParticipantSidebar = ({
   );
 };
 
-export default ParticipantSidebar;
+export default StudentSidebar;
 
 const sideBarStyles: SxProps = {
   height: "100%",

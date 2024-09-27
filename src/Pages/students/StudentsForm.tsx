@@ -12,10 +12,7 @@ import {
 } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
 import formStyles from "../../components/form/form.module.scss";
-import {
-  ParticipantCombinedType,
-  ParticipantType,
-} from "../../types/participants";
+import { StudentCombinedType, StudentType } from "../../types/students";
 import { CourseType } from "../../types/courses";
 
 const courses: CourseType[] = [
@@ -25,22 +22,22 @@ const courses: CourseType[] = [
 ];
 
 type Props = {
-  participant?: ParticipantType;
+  student?: StudentType;
   actions: {
-    submit: (participant: ParticipantCombinedType) => void;
+    submit: (student: StudentCombinedType) => void;
     cancel: () => void;
   };
 };
 
-const ParticipantForm = ({ actions, participant }: Props) => {
+const StudentsForm = ({ actions, student }: Props) => {
   const initialValues = {
-    id: participant?.id,
-    first_name: participant ? participant.first_name : "",
-    last_name: participant ? participant.last_name : "",
-    courses: participant ? participant.courses : [],
-    email: participant ? participant.email : "",
-    password: participant ? participant.password : "",
-    phone_number: participant ? participant.phone_number : "",
+    id: student?.id,
+    first_name: student ? student.first_name : "",
+    last_name: student ? student.last_name : "",
+    courses: student ? student.courses : [],
+    email: student ? student.email : "",
+    password: student ? student.password : "",
+    phone_number: student ? student.phone_number : "",
   };
 
   const validationSchema = Yup.object({
@@ -54,8 +51,8 @@ const ParticipantForm = ({ actions, participant }: Props) => {
     phone_number: Yup.string().required("Required"),
   });
 
-  const handleSubmit = async (values: ParticipantCombinedType) => {
-    if (participant) console.log("edit");
+  const handleSubmit = async (values: StudentCombinedType) => {
+    if (student) console.log("edit");
     else console.log("add");
     actions.submit(values);
   };
@@ -73,7 +70,7 @@ const ParticipantForm = ({ actions, participant }: Props) => {
             component="h2"
             sx={{ marginTop: "1rem", textAlign: "center" }}
           >
-            Invite Participants
+            Invite Students
           </Typography>
           <Box
             sx={{
@@ -181,4 +178,4 @@ const ParticipantForm = ({ actions, participant }: Props) => {
   );
 };
 
-export default ParticipantForm;
+export default StudentsForm;

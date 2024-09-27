@@ -7,7 +7,7 @@ import {
   Typography,
 } from "@mui/material";
 import { InstructorType } from "../../types/instructors";
-import instructorImg from "/images/participant.png";
+import instructorImg from "/images/student.png";
 import { Mail } from "@mui/icons-material";
 import formStyles from "../../components/form/form.module.scss";
 import { LoadingButton } from "@mui/lab";

@@ -3,31 +3,30 @@ import PageHeader from "../../components/PageHeader";
 import EmptyState from "../../components/EmptyState";
 import FormModal from "../../components/FormModal";
 import { useState } from "react";
-import ParticipantForm from "./ParticipantForm";
-import ParticipantList from "./ParticipantList";
+import StudentsForm from "./StudentsForm";
+import StudentList from "./StudentsList";
 import { useAppDispatch } from "../../store/hooks";
 import { setPageName } from "../../store/app.slice";
 import SuccessModal from "../../components/SuccessModal";
 import {
-  ParticipantCreateType,
-  ParticipantEditFuncType,
-  ParticipantType,
-} from "../../types/participants";
+  StudentCreateType,
+  StudentEditFuncType,
+  StudentType,
+} from "../../types/students";
 
-const ParticipantsPage = () => {
+const StudentsPage = () => {
   const [openModal, setOpenModal] = useState({
     add: false,
     edit: false,
     success: false,
     delete: true,
   });
-  const [selectedParticipant, setSelectedParticipant] =
-    useState<ParticipantCreateType>();
-  const [participants, setParticipants] = useState<ParticipantType[] | []>([]);
+  const [selectedStudent, setSelectedStudent] = useState<StudentCreateType>();
+  const [students, setStudents] = useState<StudentType[] | []>([]);
 
   // set page name
   const dispatch = useAppDispatch();
-  dispatch(setPageName("Participants"));
+  dispatch(setPageName("Students"));
 
   const handleOpenModal = (type: string) => {
     setOpenModal((prev) => ({ ...prev, [type]: true }));
@@ -35,39 +34,36 @@ const ParticipantsPage = () => {
 
   const handleCloseModal = (type: string) => {
     setOpenModal((prev) => ({ ...prev, [type]: false }));
-    if (type == "success") setSelectedParticipant(undefined);
+    if (type == "success") setSelectedStudent(undefined);
   };
 
-  const handdleAddParticipant = (participant: ParticipantCreateType) => {
-    setParticipants((prev) => [
-      ...prev,
-      { ...participant, id: prev.length + 1 },
-    ]);
-    setSelectedParticipant(participant);
+  const handdleAddStudent = (student: StudentCreateType) => {
+    setStudents((prev) => [...prev, { ...student, id: prev.length + 1 }]);
+    setSelectedStudent(student);
     handleCloseModal("add");
     handleOpenModal("success");
   };
 
-  const handdleEditCourse = (participant: ParticipantType) => {
-    setParticipants((prev) => {
+  const handdleEditCourse = (student: StudentType) => {
+    setStudents((prev) => {
       const temp = [...prev];
-      const foundCourseIndex = participants.findIndex(
-        (crs) => crs.id == participant.id
+      const foundCourseIndex = students.findIndex(
+        (crs) => crs.id == student.id
       );
-      temp[foundCourseIndex] = { ...participant };
+      temp[foundCourseIndex] = { ...student };
       return temp;
     });
     handleCloseModal("edit");
-    setSelectedParticipant(participant);
+    setSelectedStudent(student);
     handleOpenModal("success");
   };
 
-  const handleDeleteParticipant = (id: number) => {
-    setParticipants((prev) => prev.filter((crs) => crs.id != id));
+  const handleDeleteStudent = (id: number) => {
+    setStudents((prev) => prev.filter((crs) => crs.id != id));
   };
 
-  const handleOpenEditModal = (participant: ParticipantType) => {
-    setSelectedParticipant(participant);
+  const handleOpenEditModal = (student: StudentType) => {
+    setSelectedStudent(student);
     handleOpenModal("edit");
   };
 
@@ -80,17 +76,17 @@ const ParticipantsPage = () => {
           handleCloseModal("edit");
         }}
       >
-        <ParticipantForm
+        <StudentsForm
           actions={{
             submit: openModal.add
-              ? handdleAddParticipant
-              : (handdleEditCourse as ParticipantEditFuncType),
+              ? handdleAddStudent
+              : (handdleEditCourse as StudentEditFuncType),
             cancel: () =>
               openModal.add
                 ? handleCloseModal("add")
                 : handleCloseModal("edit"),
           }}
-          participant={selectedParticipant as ParticipantType}
+          student={selectedStudent as StudentType}
         />
       </FormModal>
 
@@ -106,14 +102,14 @@ const ParticipantsPage = () => {
         close={() => handleCloseModal("success")}
         infoText="The students enrolled in this subject will get notified."
         open={openModal.success}
-        subTitle={`You have successfully added a new subject to the participant <strong>“${selectedParticipant?.first_name} ${selectedParticipant?.last_name}”</strong>.`}
+        subTitle={`You have successfully added a new subject to the student <strong>“${selectedStudent?.first_name} ${selectedStudent?.last_name}”</strong>.`}
         title="Updates Successful"
       />
 
       <PageHeader
         button={{
           action: () => handleOpenModal("add"),
-          text: "Add Participants",
+          text: "Add Student",
         }}
       />
       <Box
@@ -124,18 +120,18 @@ const ParticipantsPage = () => {
           padding: "var(--padding)",
         }}
       >
-        {participants.length ? (
-          <ParticipantList
-            participants={participants}
-            editParticipant={handleOpenEditModal}
-            deleteParticipant={handleDeleteParticipant}
-            selectedParticipant={selectedParticipant as ParticipantType}
-            setSelectedParticipant={setSelectedParticipant}
+        {students.length ? (
+          <StudentList
+            students={students}
+            editStudent={handleOpenEditModal}
+            deleteStudent={handleDeleteStudent}
+            selectedStudent={selectedStudent as StudentType}
+            setSelectedStudent={setSelectedStudent}
           />
         ) : (
           <EmptyState
-            title="No Participants at this time"
-            subTitle="Participants will appear here after you add them in your school."
+            title="No Students at this time"
+            subTitle="Students will appear here after you add them in your school."
           />
         )}
       </Box>
@@ -143,4 +139,4 @@ const ParticipantsPage = () => {
   );
 };
 
-export default ParticipantsPage;
+export default StudentsPage;

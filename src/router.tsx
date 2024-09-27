@@ -6,9 +6,7 @@ const Login = lazy(() => import("./Pages/login/Login"));
 const Dashboard = lazy(() => import("./Pages/dashboard/Dashboard"));
 const CoursesPage = lazy(() => import("./Pages/courses/Courses"));
 const SubjectsPage = lazy(() => import("./Pages/subjects/Subjects"));
-const ParticipantsPage = lazy(
-  () => import("./Pages/participants/Participants")
-);
+const StudentsPage = lazy(() => import("./Pages/students/Students"));
 const InstructorsPage = lazy(() => import("./Pages/instructors/Instructors"));
 const FormsPage = lazy(() => import("./Pages/application/Forms"));
 const ApplicationFormPage = lazy(
@@ -33,7 +31,7 @@ export const router = createBrowserRouter([
       { path: "/", element: <Dashboard /> },
       { path: "/courses", element: <CoursesPage /> },
       { path: "/courses/:id", element: <SubjectsPage /> },
-      { path: "/participants", element: <ParticipantsPage /> },
+      { path: "/students", element: <StudentsPage /> },
       { path: "/instructors", element: <InstructorsPage /> },
       { path: "/applications", element: <FormsPage /> },
       { path: "/applications/form", element: <ApplicationFormPage /> },
