@@ -115,7 +115,10 @@ const StudentsForm = ({ actions, student }: Props) => {
               <FormControl fullWidth>
                 <label htmlFor="courses">Assign Course(s) (optional)</label>
                 <Select
-                  sx={{ padding: 0, ".MuiSelect-select": { padding: 0 } }}
+                  sx={{
+                    padding: 0,
+                    ".MuiSelect-select": { p: "5px", minHeight: "25px" },
+                  }}
                   multiple
                   name="courses"
                   value={values.courses.map((c) => c.name) || []}

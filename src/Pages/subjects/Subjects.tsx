@@ -5,21 +5,31 @@ import FormModal from "../../components/FormModal";
 import { useRef, useState } from "react";
 import SubjectForm from "./SubjectForm";
 import SubjectList from "./SubjectList";
-import { SubjectType } from "../../types/subjects";
+import {
+  SubjectCreateType,
+  SubjectEditFuncType,
+  SubjectType,
+} from "../../types/subjects";
 import dayjs from "dayjs";
 import { useAppDispatch } from "../../store/hooks";
 import { setPageName } from "../../store/app.slice";
+import { instructors } from "../instructors/instructors-data";
 
 const SubjectsPage = () => {
-  const [openModal, setOpenModal] = useState(false);
+  const [openModal, setOpenModal] = useState({
+    add: false,
+    edit: false,
+    success: false,
+    delete: true,
+  });
   const containerRef = useRef<HTMLDivElement>(null);
-  const [subjects] = useState<SubjectType[] | []>([
+  const [subjects, setSubjects] = useState<SubjectType[] | []>([
     {
       id: 1,
       name: "subject 1",
       duration: "2hr",
       end_date: dayjs("25/12/2024"),
-      instructors: [1],
+      instructors: instructors,
       phone: "09012345678",
       rank: "Captain",
       start_date: dayjs("01/01/2024"),
@@ -29,7 +39,7 @@ const SubjectsPage = () => {
       name: "subject 2",
       duration: "1hr 30min",
       end_date: dayjs("25/12/2024"),
-      instructors: [1],
+      instructors: instructors,
       phone: "09012345678",
       rank: "Captain",
       start_date: dayjs("01/01/2024"),
@@ -39,37 +49,83 @@ const SubjectsPage = () => {
       name: "subject 3",
       duration: "1hr",
       end_date: dayjs("25/12/2024"),
-      instructors: [1],
+      instructors: instructors,
       phone: "09012345678",
       rank: "Captain",
       start_date: dayjs("01/01/2024"),
     },
   ]);
+  const [selectedSubject, setSelectedSubject] = useState<SubjectCreateType>();
+
   const dispatch = useAppDispatch();
   dispatch(setPageName("Subjects"));
 
-  const handleOpenModal = () => {
-    setOpenModal(true);
-    document.querySelector(".sidebar")?.classList.add("blur_effect");
-    document.querySelector(".header")?.classList.add("blur_effect");
-    containerRef.current?.classList.add("blur_effect");
+  const handleOpenModal = (type: string) => {
+    setOpenModal((prev) => ({ ...prev, [type]: true }));
   };
 
-  const handleCloseModal = () => {
-    setOpenModal(false);
-    containerRef.current?.classList.remove("blur_effect");
-    document.querySelector(".sidebar")?.classList.remove("blur_effect");
-    document.querySelector(".header")?.classList.remove("blur_effect");
+  const handleCloseModal = (type: string) => {
+    setOpenModal((prev) => ({ ...prev, [type]: false }));
+    if (type != "success") setSelectedSubject(undefined);
+  };
+
+  const handdleAddSubject = (subject: SubjectCreateType) => {
+    setSubjects((prev) => [...prev, { ...subject, id: prev.length + 1 }]);
+    setSelectedSubject(subject);
+    handleCloseModal("add");
+    handleOpenModal("success");
+  };
+
+  const handdleEditSubject = (subject: SubjectType) => {
+    setSubjects((prev) => {
+      const temp = [...prev];
+      const foundSubjectIndex = subjects.findIndex(
+        (crs) => crs.id == subject.id
+      );
+      temp[foundSubjectIndex] = { ...subject };
+      return temp;
+    });
+    handleCloseModal("edit");
+    setSelectedSubject(subject);
+    handleOpenModal("success");
+  };
+
+  const handleDeleteSubject = (id: number) => {
+    setSubjects((prev) => prev.filter((crs) => crs.id != id));
+  };
+
+  const handleOpenEditModal = (subject: SubjectType) => {
+    console.log(subject);
+
+    setSelectedSubject(subject);
+    handleOpenModal("edit");
   };
 
   return (
     <Box ref={containerRef}>
-      <FormModal open={openModal} close={handleCloseModal}>
-        <SubjectForm />
+      <FormModal
+        open={openModal.add || openModal.edit}
+        close={() => {
+          handleCloseModal("add");
+          handleCloseModal("edit");
+        }}
+      >
+        <SubjectForm
+          actions={{
+            submit: openModal.add
+              ? handdleAddSubject
+              : (handdleEditSubject as SubjectEditFuncType),
+            cancel: () =>
+              openModal.add
+                ? handleCloseModal("add")
+                : handleCloseModal("edit"),
+          }}
+          subject={selectedSubject as SubjectType}
+        />
       </FormModal>
       <PageHeader
         button={{
-          action: handleOpenModal,
+          action: () => handleOpenModal("add"),
           text: "Add Subject",
         }}
       />
@@ -82,7 +138,13 @@ const SubjectsPage = () => {
         }}
       >
         {subjects.length ? (
-          <SubjectList subjects={subjects} />
+          <SubjectList
+            subjects={subjects}
+            editSubject={handleOpenEditModal}
+            deleteSubject={handleDeleteSubject}
+            selectedSubject={selectedSubject as SubjectType}
+            setSelectedSubject={setSelectedSubject}
+          />
         ) : (
           <EmptyState
             title="No Subjects at this time"

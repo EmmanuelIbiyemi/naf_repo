@@ -1,9 +1,10 @@
 import { Dayjs } from "dayjs";
+import { InstructorType } from "./instructors";
 
 type SubjectBaseType = {
   duration: string;
   end_date: Dayjs;
-  instructors: number[];
+  instructors: InstructorType[];
   phone: string;
   name: string;
   rank: string;
@@ -15,6 +16,9 @@ export type SubjectCreateType = SubjectBaseType & {};
 export type SubjectType = SubjectBaseType & {
   id: number;
 };
+
+export type SubjectCombinedType = SubjectCreateType | SubjectType;
+export type SubjectEditFuncType = (subject: SubjectCombinedType) => void;
 
 export type CBTQuestion = {
   id?: number;

@@ -12,13 +12,13 @@ import StudentSidebar from "./StudentsSidebar";
 
 type Props = {
   students: StudentType[];
-  editStudent: (course: StudentType) => void;
+  editStudent: (student: StudentType) => void;
   deleteStudent: (id: number) => void;
   selectedStudent: StudentType | undefined;
   setSelectedStudent: (student: StudentType) => void;
 };
 
-const CourseList = ({
+const StudentList = ({
   students,
   editStudent,
   deleteStudent,
@@ -33,8 +33,8 @@ const CourseList = ({
     setOpenModal(true);
   };
 
-  const handleDelete = (course: StudentType) => {
-    deleteStudent(course.id);
+  const handleDelete = (student: StudentType) => {
+    deleteStudent(student.id);
   };
 
   const handleViewStudent = (student: StudentType) => {
@@ -142,4 +142,4 @@ const CourseList = ({
   );
 };
 
-export default CourseList;
+export default StudentList;

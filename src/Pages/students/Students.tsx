@@ -34,7 +34,7 @@ const StudentsPage = () => {
 
   const handleCloseModal = (type: string) => {
     setOpenModal((prev) => ({ ...prev, [type]: false }));
-    if (type == "success") setSelectedStudent(undefined);
+    if (type != "success") setSelectedStudent(undefined);
   };
 
   const handdleAddStudent = (student: StudentCreateType) => {
@@ -44,13 +44,13 @@ const StudentsPage = () => {
     handleOpenModal("success");
   };
 
-  const handdleEditCourse = (student: StudentType) => {
+  const handdleEditStudent = (student: StudentType) => {
     setStudents((prev) => {
       const temp = [...prev];
-      const foundCourseIndex = students.findIndex(
+      const foundStudentIndex = students.findIndex(
         (crs) => crs.id == student.id
       );
-      temp[foundCourseIndex] = { ...student };
+      temp[foundStudentIndex] = { ...student };
       return temp;
     });
     handleCloseModal("edit");
@@ -80,7 +80,7 @@ const StudentsPage = () => {
           actions={{
             submit: openModal.add
               ? handdleAddStudent
-              : (handdleEditCourse as StudentEditFuncType),
+              : (handdleEditStudent as StudentEditFuncType),
             cancel: () =>
               openModal.add
                 ? handleCloseModal("add")
