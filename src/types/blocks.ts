@@ -1,7 +1,7 @@
 type BlockBaseType = {
+  content: string;
   type: string;
-  value: string;
 };
 export type BlockType = BlockBaseType & {
-  id: string;
+  id: number;
 };

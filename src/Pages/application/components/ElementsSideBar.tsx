@@ -1,5 +1,7 @@
 import { Box, Button, SxProps, Typography } from "@mui/material";
 import { formElements } from "../elements";
+import { useDraggable } from "@dnd-kit/core";
+import { PropsWithChildren } from "react";
 
 const ElementsSideBar = () => {
   return (
@@ -7,12 +9,29 @@ const ElementsSideBar = () => {
       <Typography variant="h5">Form Elements</Typography>
       <Box sx={elementContainerStyles}>
         {formElements.map((el) => (
-          <Button key={el.text} onClick={el.action}>
+          <Draggable key={el.text} id={el.text.toLowerCase()}>
             <img src={el.image} alt="" /> <span>{el.text}</span>
-          </Button>
+          </Draggable>
         ))}
       </Box>
     </Box>
+  );
+};
+
+const Draggable = ({ id, children }: PropsWithChildren<{ id: string }>) => {
+  const { attributes, listeners, setNodeRef } = useDraggable({
+    id: id,
+  });
+
+  return (
+    <Button
+      ref={setNodeRef}
+      {...listeners}
+      {...attributes}
+      sx={{ cursor: "move" }}
+    >
+      {children}
+    </Button>
   );
 };
 

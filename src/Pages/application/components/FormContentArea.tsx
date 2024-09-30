@@ -1,14 +1,25 @@
 import { Box, Button, SxProps, Typography } from "@mui/material";
 import cursorIcon from "../../../assets/cursor.svg";
 import { FocusEvent, useState } from "react";
+import { useDroppable } from "@dnd-kit/core";
+import { BlockType } from "../../../types/blocks";
+import FormBuilder from "./FormBuilder";
 
-const FormContentArea = () => {
+type Props = {
+  elements: BlockType[];
+  setElements: React.Dispatch<React.SetStateAction<BlockType[]>>;
+};
+
+const FormContentArea = ({ elements, setElements }: Props) => {
   const [props, setProps] = useState({
     formName: "Untitled Form",
     submitBtn: "Submit Form",
   });
+  const { setNodeRef } = useDroppable({
+    id: "droppable",
+  });
 
-  const handleInput = (e: FocusEvent<HTMLSpanElement>) => {
+  const handleFormPropsChange = (e: FocusEvent<HTMLSpanElement>) => {
     const target = e.currentTarget;
     if (target && target.id) {
       setProps((prev) => ({
@@ -26,16 +37,34 @@ const FormContentArea = () => {
             <span
               id="formName"
               contentEditable="true"
-              onBlur={handleInput}
+              onBlur={handleFormPropsChange}
               dangerouslySetInnerHTML={{ __html: props.formName }}
             />
           </Typography>
         </Box>
-        <Box sx={dropAreaStyles}>
-          <Box className="dashed_border" sx={{ textAlign: "center" }}>
-            <img src={cursorIcon} alt="" />
-            <Typography>Drag your first element here from the left</Typography>
-          </Box>
+        <Box
+          ref={setNodeRef}
+          sx={{
+            borderBlock: "1px solid rgba(204, 204, 204, 0.4)",
+            position: "relative",
+          }}
+        >
+          {elements.length ? (
+            <Box sx={{ padding: "1.5rem" }}>
+              <FormBuilder elements={elements} setElements={setElements} />
+            </Box>
+          ) : (
+            <Box sx={emptyDropAreaStyles}>
+              <Box className="dashed_border" sx={{ textAlign: "center" }}>
+                <img src={cursorIcon} alt="" />
+                <Box>
+                  <Typography>
+                    Drag your first element here from the left
+                  </Typography>
+                </Box>
+              </Box>
+            </Box>
+          )}
         </Box>
         <Box
           sx={{
@@ -48,7 +77,7 @@ const FormContentArea = () => {
             <span
               id="submitBtn"
               contentEditable="true"
-              onBlur={handleInput}
+              onBlur={handleFormPropsChange}
               dangerouslySetInnerHTML={{ __html: props.submitBtn }}
             />
           </Button>
@@ -71,14 +100,15 @@ const dropContainerStyles: SxProps = {
   display: "grid",
   gridTemplateRows: "15% 1fr 15%",
   height: "80%",
+  minHeight: "400px",
   width: "80%",
 };
 
-const dropAreaStyles: SxProps = {
-  borderBlock: "1px solid rgba(204, 204, 204, 0.4)",
+const emptyDropAreaStyles: SxProps = {
   display: "grid",
   paddingInline: "3rem",
   placeItems: "center",
+  height: "50vh",
 
   ">div": {
     bgcolor: "rgba(204, 204, 204, 0.3)",

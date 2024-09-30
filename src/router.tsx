@@ -1,5 +1,6 @@
 import { createBrowserRouter } from "react-router-dom";
 import { lazy } from "react";
+import { DNDkit } from "./Pages/application/DNDkit";
 
 const App = lazy(() => import("./App"));
 const Login = lazy(() => import("./Pages/login/Login"));
@@ -23,6 +24,10 @@ export const router = createBrowserRouter([
   {
     path: "/login",
     element: <Login />,
+  },
+  {
+    path: "/test",
+    element: <DNDkit />,
   },
   {
     path: "/",
