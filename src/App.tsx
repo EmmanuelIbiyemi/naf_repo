@@ -1,30 +1,12 @@
-import { Box, SxProps } from "@mui/material";
 import "./App.scss";
-import SideBar from "./components/layout/SideBar";
-import Header from "./components/layout/Header";
-import { Outlet } from "react-router-dom";
+import AdminLayout from "./components/layout/AdminLayout";
+import InstructorLayout from "./components/layout/InstructorLayout";
 
 function App() {
-  return (
-    <Box sx={layoutStyles}>
-      <Box sx={{ gridArea: "sidebar" }}>
-        <SideBar />
-      </Box>
-      <Header />
-      <Outlet />
-    </Box>
-  );
+  const userType: string = "admin";
+
+  // check user type
+  return userType == "admin" ? <AdminLayout /> : <InstructorLayout />;
 }
 
 export default App;
-
-const layoutStyles: SxProps = {
-  display: "grid",
-  gridTemplateAreas: `
-  "sidebar header"
-  "sidebar main"
-  `,
-  gridTemplateColumns: "280px 1fr",
-  gridTemplateRows: "100px 1fr",
-  minHeight: "100vh",
-};
