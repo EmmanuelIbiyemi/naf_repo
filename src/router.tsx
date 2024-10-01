@@ -1,23 +1,29 @@
 import { createBrowserRouter } from "react-router-dom";
 import { lazy } from "react";
-import { DNDkit } from "./Pages/application/DNDkit";
+import { DNDkit } from "./Pages/admin/application/DNDkit";
 
 const App = lazy(() => import("./App"));
 const Login = lazy(() => import("./Pages/login/Login"));
-const Dashboard = lazy(() => import("./Pages/dashboard/Dashboard"));
-const CoursesPage = lazy(() => import("./Pages/courses/Courses"));
-const SubjectsPage = lazy(() => import("./Pages/subjects/Subjects"));
-const StudentsPage = lazy(() => import("./Pages/students/Students"));
-const InstructorsPage = lazy(() => import("./Pages/instructors/Instructors"));
-const FormsPage = lazy(() => import("./Pages/application/Forms"));
-const ApplicationFormPage = lazy(
-  () => import("./Pages/application/components/ApplicationForm")
+const Dashboard = lazy(() => import("./Pages/admin/dashboard/Dashboard"));
+const CoursesPage = lazy(() => import("./Pages/admin/courses/Courses"));
+const SubjectsPage = lazy(() => import("./Pages/admin/subjects/Subjects"));
+const StudentsPage = lazy(() => import("./Pages/admin/students/Students"));
+const InstructorsPage = lazy(
+  () => import("./Pages/admin/instructors/Instructors")
 );
-const PreviewFormPage = lazy(() => import("./Pages/application/PreviewForm"));
-const ApplicantsPage = lazy(() => import("./Pages/applicants/ApplicantsPage"));
-const CBT = lazy(() => import("./Pages/cbt/CBT"));
+const FormsPage = lazy(() => import("./Pages/admin/application/Forms"));
+const ApplicationFormPage = lazy(
+  () => import("./Pages/admin/application/components/ApplicationForm")
+);
+const PreviewFormPage = lazy(
+  () => import("./Pages/admin/application/PreviewForm")
+);
+const ApplicantsPage = lazy(
+  () => import("./Pages/admin/cbtQuestions/CBTQuestions")
+);
+const CBT = lazy(() => import("./Pages/admin/cbt/CBT"));
 const CBTQuestionsPage = lazy(
-  () => import("./Pages/cbtQuestions/CBTQuestions")
+  () => import("./Pages/admin/cbtQuestions/CBTQuestions")
 );
 
 export const router = createBrowserRouter([
