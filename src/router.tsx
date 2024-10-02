@@ -10,10 +10,8 @@ const StudentsPage = lazy(() => import("./Pages/admin/students/Students"));
 const InstructorsPage = lazy(
   () => import("./Pages/admin/instructors/Instructors")
 );
-const FormsPage = lazy(() => import("./Pages/admin/application/Forms"));
-const ApplicationFormPage = lazy(
-  () => import("./Pages/admin/application/ApplicationForm")
-);
+const FormsPage = lazy(() => import("./Pages/admin/application/FormsPage"));
+const AddFormPage = lazy(() => import("./Pages/admin/application/AddForm"));
 const PreviewFormPage = lazy(
   () => import("./Pages/admin/application/PreviewForm")
 );
@@ -40,7 +38,7 @@ export const router = createBrowserRouter([
       { path: "/students", element: <StudentsPage /> },
       { path: "/instructors", element: <InstructorsPage /> },
       { path: "/applications", element: <FormsPage /> },
-      { path: "/applications/form", element: <ApplicationFormPage /> },
+      { path: "/applications/form", element: <AddFormPage /> },
       { path: "/applications/form/preview", element: <PreviewFormPage /> },
       { path: "/applications/applicants", element: <ApplicantsPage /> },
       { path: "/applications/cbt", element: <CBT /> },

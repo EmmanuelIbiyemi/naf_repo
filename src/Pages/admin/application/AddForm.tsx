@@ -10,7 +10,7 @@ import { FormType } from "../../../types/forms";
 import dayjs from "dayjs";
 import { selectCurrentForm } from "../../../store/forms.slice";
 
-const ApplicationFormPage = () => {
+const AddFormPage = () => {
   // set page name
   const dispatch = useAppDispatch();
   dispatch(setPageName("Application Form"));
@@ -74,7 +74,7 @@ const ApplicationFormPage = () => {
   );
 };
 
-export default ApplicationFormPage;
+export default AddFormPage;
 
 const pageStyles: SxProps = {
   display: "grid",
