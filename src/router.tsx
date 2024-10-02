@@ -1,6 +1,5 @@
 import { createBrowserRouter } from "react-router-dom";
 import { lazy } from "react";
-import { DNDkit } from "./Pages/admin/application/DNDkit";
 
 const App = lazy(() => import("./App"));
 const Login = lazy(() => import("./Pages/login/Login"));
@@ -13,13 +12,13 @@ const InstructorsPage = lazy(
 );
 const FormsPage = lazy(() => import("./Pages/admin/application/Forms"));
 const ApplicationFormPage = lazy(
-  () => import("./Pages/admin/application/components/ApplicationForm")
+  () => import("./Pages/admin/application/ApplicationForm")
 );
 const PreviewFormPage = lazy(
   () => import("./Pages/admin/application/PreviewForm")
 );
 const ApplicantsPage = lazy(
-  () => import("./Pages/admin/cbtQuestions/CBTQuestions")
+  () => import("./Pages/admin/applicants/ApplicantsPage")
 );
 const CBT = lazy(() => import("./Pages/admin/cbt/CBT"));
 const CBTQuestionsPage = lazy(
@@ -30,10 +29,6 @@ export const router = createBrowserRouter([
   {
     path: "/login",
     element: <Login />,
-  },
-  {
-    path: "/test",
-    element: <DNDkit />,
   },
   {
     path: "/",

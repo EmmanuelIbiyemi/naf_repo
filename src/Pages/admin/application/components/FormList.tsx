@@ -5,6 +5,7 @@ import TableContainer from "@mui/material/TableContainer";
 import TableRow from "@mui/material/TableRow";
 import {
   Box,
+  Button,
   Checkbox,
   IconButton,
   Menu,
@@ -20,40 +21,23 @@ import {
   MoreVert,
   Visibility,
 } from "@mui/icons-material";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import DeleteConfirmationModal from "../../../../components/DeleteConfirmationModal";
 import { MouseEvent, useState } from "react";
-
-type FormType = {
-  id: number;
-  last_edited: string;
-  name: string;
-  submissions: number;
-};
+import { useAppDispatch, useAppSelector } from "../../../../store/hooks";
+import {
+  removeForm,
+  selectCurrentForm,
+  selectForms,
+  setCurrentForm,
+} from "../../../../store/forms.slice";
+import { FormType } from "../../../../types/forms";
 
 const FormList = () => {
-  const [forms, setForms] = useState<FormType[]>([
-    {
-      id: 1,
-      last_edited: "Aug 11, 2024",
-      name: "Application Form HND 24/25",
-      submissions: 100,
-    },
-    {
-      id: 2,
-      last_edited: "Aug 11, 2024",
-      name: "Application Form HND 24/25",
-      submissions: 100,
-    },
-    {
-      id: 3,
-      last_edited: "Aug 11, 2024",
-      name: "Application Form HND 24/25",
-      submissions: 100,
-    },
-  ]);
+  const forms = useAppSelector(selectForms);
+  const dispatch = useAppDispatch();
+  const selectedForm = useAppSelector(selectCurrentForm);
   const [openModal, setOpenModal] = useState(false);
-  const [selectedForm, setSelectedForm] = useState<FormType>();
   const navigate = useNavigate();
 
   // Menu
@@ -67,16 +51,21 @@ const FormList = () => {
   };
 
   const handleOpenModal = (form: FormType) => {
-    setSelectedForm(form);
+    dispatch(setCurrentForm(form));
     setOpenModal(true);
   };
 
   const handleDelete = (id: number) => {
-    setForms((prev) => prev.filter((form) => form.id != id));
+    dispatch(removeForm(id));
   };
 
   const handleEditForm = (form: FormType) => {
     navigate("/applications/form", { state: form });
+  };
+
+  const handleViewForm = (form: FormType) => {
+    dispatch(setCurrentForm(form));
+    navigate("/applications/form");
   };
 
   return (
@@ -94,7 +83,7 @@ const FormList = () => {
         close={() => setOpenModal(false)}
         infoText="The students enrolled in this subject will get notified."
         open={openModal}
-        subTitle={`Are you sure you want to delete subject <strong>“${selectedForm?.name}”</strong>? You can’t undo this action.`}
+        subTitle={`Are you sure you want to delete subject <strong>“${selectedForm?.title}”</strong>? You can’t undo this action.`}
         title="Delete Course?"
       />
 
@@ -138,12 +127,17 @@ const FormList = () => {
               >
                 <Checkbox />
                 <Box>
-                  <Link
-                    to={`/applications/form`}
-                    style={{ textTransform: "capitalize" }}
+                  <Button
+                    variant="text"
+                    onClick={() => handleViewForm(form)}
+                    sx={{
+                      textTransform: "capitalize",
+                      border: "none !important",
+                      padding: "0 !important",
+                    }}
                   >
-                    {form.name}
-                  </Link>
+                    {form.title}
+                  </Button>
                   <Typography>
                     {form.submissions} submissions * Last Edited on{" "}
                     {form.last_edited}

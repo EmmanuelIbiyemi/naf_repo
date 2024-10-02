@@ -1,23 +1,40 @@
 import { Box, IconButton, SxProps, Typography } from "@mui/material";
 import { BlockType } from "../../../../types/blocks";
-import { Delete } from "@mui/icons-material";
-import { FocusEvent } from "react";
+import { CloudUploadOutlined } from "@mui/icons-material";
+import { ChangeEvent, FocusEvent, MouseEvent } from "react";
+import "./elements.scss";
+import { FormType } from "../../../../types/forms";
+import DeleteIcon from "../../../../assets/deleteIcon";
 
 type Props = {
-  elements: BlockType[];
-  setElements: React.Dispatch<React.SetStateAction<BlockType[]>>;
+  form: FormType;
+  setForm: React.Dispatch<React.SetStateAction<FormType>>;
+  allowDelete?: boolean;
 };
-const FormBuilder = ({ elements, setElements }: Props) => {
+
+const FormBuilder = ({ form, setForm, allowDelete = true }: Props) => {
   const handleInput = (e: FocusEvent) => {
     const target = e.currentTarget;
     if (target && target.id) {
-      setElements((prev) => {
-        const foundEl = prev.find((el) => `element-${el.id}` == target.id);
+      setForm((prev) => {
+        const foundEl = prev.elements.find(
+          (el) => `element-${el.id}` == target.id
+        );
         if (foundEl?.content)
           foundEl.content = target.textContent?.trim() || foundEl.content;
-        return [...prev];
+        return { ...prev };
       });
     }
+  };
+
+  const handleOpenFileSelect = (event: MouseEvent<HTMLDivElement>) => {
+    const target = event.target as HTMLDivElement;
+    target.querySelector("input")?.click();
+  };
+
+  const handleSelectImage = (event: ChangeEvent<HTMLInputElement>) => {
+    const target = event.target;
+    console.log(target.files);
   };
 
   const displayEl = (element: BlockType) => {
@@ -28,10 +45,10 @@ const FormBuilder = ({ elements, setElements }: Props) => {
           <Typography
             variant="h5"
             id={`element-${element.id}`}
-            contentEditable="true"
+            contentEditable={allowDelete ? "true" : "false"}
             onBlur={handleInput}
             dangerouslySetInnerHTML={{
-              __html: elements.find((el) => el.id == element.id)
+              __html: form.elements.find((el) => el.id == element.id)
                 ?.content as string,
             }}
           />
@@ -41,13 +58,25 @@ const FormBuilder = ({ elements, setElements }: Props) => {
         el = (
           <Typography
             id={`element-${element.id}`}
-            contentEditable="true"
+            contentEditable={allowDelete ? "true" : "false"}
             onBlur={handleInput}
             dangerouslySetInnerHTML={{
-              __html: elements.find((el) => el.id == element.id)
+              __html: form.elements.find((el) => el.id == element.id)
                 ?.content as string,
             }}
           />
+        );
+        break;
+      case "images":
+        el = (
+          <Box
+            id={`element-${element.id}`}
+            className="image_el dashed_border"
+            onClick={handleOpenFileSelect}
+          >
+            <CloudUploadOutlined /> Drag and drop your image here or browse
+            <input type="file" hidden onChange={handleSelectImage} />
+          </Box>
         );
         break;
     }
@@ -55,24 +84,31 @@ const FormBuilder = ({ elements, setElements }: Props) => {
     return (
       <Box key={`element-${element.id}`} className="element">
         {el}
-        <IconButton
-          onClick={() => handleDelete(element.id)}
-          className="delete_btn"
-          id={`element-${element.id}-delete`}
-        >
-          <Delete />
-        </IconButton>
+        {allowDelete ? (
+          <IconButton
+            onClick={() => handleDelete(element.id)}
+            className="delete_btn"
+            id={`element-${element.id}-delete`}
+          >
+            <DeleteIcon />
+          </IconButton>
+        ) : null}
       </Box>
     );
   };
 
   const handleDelete = (id: number) => {
     console.log(id);
-    setElements((prev) => prev.filter((el) => el.id != id));
+    setForm((prev) => {
+      prev.elements = prev.elements.filter((el) => el.id != id);
+      return { ...prev };
+    });
   };
 
   return (
-    <Box sx={formBuilderStyles}>{elements.map((el) => displayEl(el))}</Box>
+    <Box sx={formBuilderStyles}>
+      {form.elements?.map((el) => displayEl(el))}
+    </Box>
   );
 };
 
@@ -81,7 +117,6 @@ export default FormBuilder;
 const formBuilderStyles: SxProps = {
   ".element": {
     border: "1px solid transparent",
-    marginBottom: ".6rem",
     position: "relative",
     transition: ".3s",
     "&:hover": {
@@ -92,7 +127,7 @@ const formBuilderStyles: SxProps = {
       opacity: 1,
     },
     ">*": {
-      paddingInline: ".6rem",
+      padding: ".7rem 1rem",
     },
   },
 
@@ -105,6 +140,6 @@ const formBuilderStyles: SxProps = {
     top: "50%",
     transform: "translateY(-50%)",
     transition: ".3s",
-    paddingInline: "8px",
+    padding: "8px",
   },
 };

@@ -1,23 +1,17 @@
-import {
-  Box,
-  Button,
-  InputLabel,
-  SxProps,
-  TextField,
-  Typography,
-} from "@mui/material";
+import { Box, Button, SxProps, Typography } from "@mui/material";
 import { useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import SuccessModal from "../../../components/SuccessModal";
+import FormBuilder from "./components/FormBuilder";
+import { useAppDispatch, useAppSelector } from "../../../store/hooks";
+import { addForm, selectCurrentForm } from "../../../store/forms.slice";
 
 const PreviewFormPage = () => {
-  const [props] = useState({
-    formName: "Untitled Form",
-    submitBtn: "Submit Form",
-  });
   const navigate = useNavigate();
   const [openModal, setOpenModal] = useState(false);
   const elRef = useRef<HTMLDivElement>(null);
+  const dispatch = useAppDispatch();
+  const selectedForm = useAppSelector(selectCurrentForm);
 
   const handleOpenModal = () => {
     setOpenModal(true);
@@ -29,7 +23,7 @@ const PreviewFormPage = () => {
         <SuccessModal
           actions={{
             proceed: () => {
-              console.log("proceed");
+              if (selectedForm) dispatch(addForm(selectedForm));
               navigate("/applications");
             },
             undo: () => {
@@ -39,7 +33,7 @@ const PreviewFormPage = () => {
           close={() => setOpenModal(false)}
           infoText="This form will be displayed publicly."
           open={openModal}
-          subTitle={`You have successfully created a new from to your school.`}
+          subTitle={`You have successfully added a new form to your school.`}
           title="Updates Successful"
         />
       </Box>
@@ -47,22 +41,18 @@ const PreviewFormPage = () => {
         <Box sx={{ padding: "1.5rem" }}>
           <Typography variant="h5" sx={{ fontWeight: 300 }}>
             <span
-              id="formName"
-              dangerouslySetInnerHTML={{ __html: props.formName }}
+              dangerouslySetInnerHTML={{ __html: selectedForm?.title || "" }}
             />
           </Typography>
         </Box>
         <Box sx={dropAreaStyles}>
-          <Box>
-            <Typography variant="h6">Heading</Typography>
-            <Typography>Sub Heading</Typography>
-          </Box>
-          <Box>
-            <InputLabel>
-              <Typography variant="h6">Type a question</Typography>
-            </InputLabel>
-            <TextField multiline fullWidth rows={5} />
-          </Box>
+          {selectedForm ? (
+            <FormBuilder
+              form={selectedForm}
+              setForm={() => {}}
+              allowDelete={false}
+            />
+          ) : null}
         </Box>
         <Box
           sx={{
@@ -74,8 +64,9 @@ const PreviewFormPage = () => {
         >
           <Button variant="contained">
             <span
-              id="submitBtn"
-              dangerouslySetInnerHTML={{ __html: props.submitBtn }}
+              dangerouslySetInnerHTML={{
+                __html: selectedForm?.submitBtn || "",
+              }}
             />
           </Button>
         </Box>

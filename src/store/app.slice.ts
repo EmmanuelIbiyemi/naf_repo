@@ -1,7 +1,11 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { RootState } from "./store";
 
-const initialState = {
+interface AppState {
+  pageName: string;
+}
+
+const initialState: AppState = {
   pageName: "",
 };
 

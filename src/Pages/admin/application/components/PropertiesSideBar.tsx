@@ -20,6 +20,9 @@ import {
 } from "@mui/material";
 import { PropsWithChildren, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAppDispatch } from "../../../../store/hooks";
+import { setCurrentForm } from "../../../../store/forms.slice";
+import { FormType } from "../../../../types/forms";
 
 type Properties = {
   fontFamily: number;
@@ -32,7 +35,11 @@ type Properties = {
   alignCenter: boolean;
 };
 
-const PropertiesSideBar = () => {
+type Props = {
+  form: FormType;
+};
+
+const PropertiesSideBar = ({ form }: Props) => {
   const navigate = useNavigate();
   const [props, setProps] = useState<Properties>({
     fontFamily: 1,
@@ -44,6 +51,8 @@ const PropertiesSideBar = () => {
     alignLeft: false,
     alignRight: false,
   });
+  const dispatch = useAppDispatch();
+  console.log(form);
 
   const handleChange = (event: SelectChangeEvent<number>) => {
     const {
@@ -68,6 +77,7 @@ const PropertiesSideBar = () => {
   };
 
   const handlePreviewForm = () => {
+    dispatch(setCurrentForm(form));
     navigate("/applications/form/preview");
   };
 
@@ -187,6 +197,8 @@ const propertiesSidebarStyles: SxProps = {
   height: "100vh",
   overflow: "auto",
   padding: "1rem var(--padding)",
+  position: "sticky",
+  top: 0,
 
   "&::-webkit-scrollbar": {
     display: "none",

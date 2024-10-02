@@ -1,20 +1,16 @@
 import { Box, Button, SxProps, Typography } from "@mui/material";
 import cursorIcon from "../../../../assets/cursor.svg";
-import { FocusEvent, useState } from "react";
+import { FocusEvent } from "react";
 import { useDroppable } from "@dnd-kit/core";
-import { BlockType } from "../../../../types/blocks";
 import FormBuilder from "./FormBuilder";
+import { FormType } from "../../../../types/forms";
 
 type Props = {
-  elements: BlockType[];
-  setElements: React.Dispatch<React.SetStateAction<BlockType[]>>;
+  form: FormType;
+  setForm: React.Dispatch<React.SetStateAction<FormType>>;
 };
 
-const FormContentArea = ({ elements, setElements }: Props) => {
-  const [props, setProps] = useState({
-    formName: "Untitled Form",
-    submitBtn: "Submit Form",
-  });
+const FormContentArea = ({ form, setForm }: Props) => {
   const { setNodeRef } = useDroppable({
     id: "droppable",
   });
@@ -22,7 +18,7 @@ const FormContentArea = ({ elements, setElements }: Props) => {
   const handleFormPropsChange = (e: FocusEvent<HTMLSpanElement>) => {
     const target = e.currentTarget;
     if (target && target.id) {
-      setProps((prev) => ({
+      setForm((prev) => ({
         ...prev,
         [target.id]: target.textContent?.trim() || "",
       }));
@@ -35,10 +31,10 @@ const FormContentArea = ({ elements, setElements }: Props) => {
         <Box sx={{ padding: "1.5rem" }}>
           <Typography variant="h5" sx={{ fontWeight: 300 }}>
             <span
-              id="formName"
+              id="title"
               contentEditable="true"
               onBlur={handleFormPropsChange}
-              dangerouslySetInnerHTML={{ __html: props.formName }}
+              dangerouslySetInnerHTML={{ __html: form.title }}
             />
           </Typography>
         </Box>
@@ -49,9 +45,9 @@ const FormContentArea = ({ elements, setElements }: Props) => {
             position: "relative",
           }}
         >
-          {elements.length ? (
+          {form.elements.length ? (
             <Box sx={{ padding: "1.5rem" }}>
-              <FormBuilder elements={elements} setElements={setElements} />
+              <FormBuilder form={form} setForm={setForm} />
             </Box>
           ) : (
             <Box sx={emptyDropAreaStyles}>
@@ -66,19 +62,19 @@ const FormContentArea = ({ elements, setElements }: Props) => {
             </Box>
           )}
         </Box>
-        <Box
-          sx={{
-            alignItems: "center",
-            display: "flex",
-            justifyContent: "center",
-          }}
-        >
-          <Button variant="contained">
+        <Box>
+          <Button
+            variant="contained"
+            sx={{
+              display: "block",
+              margin: "1rem auto",
+            }}
+          >
             <span
               id="submitBtn"
               contentEditable="true"
               onBlur={handleFormPropsChange}
-              dangerouslySetInnerHTML={{ __html: props.submitBtn }}
+              dangerouslySetInnerHTML={{ __html: form.submitBtn }}
             />
           </Button>
         </Box>
@@ -98,9 +94,7 @@ const formContentContainerStyles: SxProps = {
 const dropContainerStyles: SxProps = {
   bgcolor: "#fff",
   display: "grid",
-  gridTemplateRows: "15% 1fr 15%",
-  height: "80%",
-  minHeight: "400px",
+  gridTemplateRows: "80px 1fr 80px",
   width: "80%",
 };
 

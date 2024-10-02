@@ -9,7 +9,7 @@ const ElementsSideBar = () => {
       <Typography variant="h5">Form Elements</Typography>
       <Box sx={elementContainerStyles}>
         {formElements.map((el) => (
-          <Draggable key={el.text} id={el.text.toLowerCase()}>
+          <Draggable key={el.type} id={el.type}>
             <img src={el.image} alt="" /> <span>{el.text}</span>
           </Draggable>
         ))}
@@ -43,6 +43,8 @@ const elementSidebarStyles: SxProps = {
   overflow: "auto",
   height: "100vh",
   padding: "1rem var(--padding)",
+  position: "sticky",
+  top: "0",
 
   "&::-webkit-scrollbar": {
     display: "none",
