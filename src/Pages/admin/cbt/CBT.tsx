@@ -127,8 +127,12 @@ const CBTPage = () => {
       />
       <PageHeader
         button={{
-          action: () => handleOpenModal("add"),
-          text: "Add Subject",
+          action: () => handleOpenModal("host"),
+          text: "Host Test",
+        }}
+        secondaryButton={{
+          action: () => console.log("active tests"),
+          text: "Active Tests",
         }}
       />
       <Box

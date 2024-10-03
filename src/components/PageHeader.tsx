@@ -8,9 +8,13 @@ type Props = {
     text: string;
     action: () => void;
   };
+  secondaryButton?: {
+    text: string;
+    action: () => void;
+  };
 };
 
-const PageHeader = ({ button }: Props) => {
+const PageHeader = ({ button, secondaryButton }: Props) => {
   const initialValues = {
     filter: "",
     keyword: "",
@@ -58,16 +62,30 @@ const PageHeader = ({ button }: Props) => {
       </Formik>
       {button ? (
         <Box sx={formGroupStyles}>
-          <Button
-            variant="contained"
-            sx={{
-              bgcolor: "#fff",
-              color: "primary.main",
-              textTransform: "capitalize",
-            }}
-          >
-            Export CSV
-          </Button>
+          {secondaryButton ? (
+            <Button
+              onClick={secondaryButton.action}
+              variant="contained"
+              sx={{
+                bgcolor: "#fff",
+                color: "primary.main",
+                textTransform: "capitalize",
+              }}
+            >
+              {secondaryButton.text}
+            </Button>
+          ) : (
+            <Button
+              variant="contained"
+              sx={{
+                bgcolor: "#fff",
+                color: "primary.main",
+                textTransform: "capitalize",
+              }}
+            >
+              Export CSV
+            </Button>
+          )}
           <Button
             onClick={button.action}
             variant="contained"

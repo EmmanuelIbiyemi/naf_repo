@@ -60,6 +60,18 @@ const CBTtList = ({
 
       <Table sx={tableStyles}>
         <TableBody>
+          <Button
+            onClick={() => modals.handleOpenModal("add")}
+            variant="contained"
+            sx={{
+              display: "block",
+              marginBottom: "1rem",
+              marginLeft: "auto",
+              textTransform: "capitalize",
+            }}
+          >
+            Add Subject
+          </Button>
           {subjects.map((subject) => (
             <TableRow key={subject.id} sx={{ "td,th": { border: 0 } }}>
               <TableCell component="th" scope="row">
