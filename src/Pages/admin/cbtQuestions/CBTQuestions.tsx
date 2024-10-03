@@ -80,9 +80,6 @@ const CBTQuestionsPage = () => {
           handleCloseModal("add");
           handleCloseModal("edit");
         }}
-        sx={{
-          backgroundColor: "rgba(248, 250, 252, 1)",
-        }}
       >
         <CBTQuestionForm
           actions={{
@@ -133,6 +130,7 @@ const CBTQuestionsPage = () => {
             questions={subject.questions}
             setQuestions={setQuestions}
             selectedQuestion={selectedQuestion}
+            setSelectedQuestion={setSelectedQuestion}
             modals={{
               openModals: openModal,
               handleOpenModal,

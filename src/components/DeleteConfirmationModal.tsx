@@ -41,9 +41,11 @@ const DeleteConfirmationModal = ({
       </Box>
       <Typography variant="h4" dangerouslySetInnerHTML={{ __html: title }} />
       <Typography dangerouslySetInnerHTML={{ __html: subTitle }} />
-      <Alert severity="info" icon={<Info />}>
-        {infoText}
-      </Alert>
+      {infoText ? (
+        <Alert severity="info" icon={<Info />}>
+          {infoText}
+        </Alert>
+      ) : null}
       <Box className={formStyles.btn_group}>
         <Button
           onClick={() => {

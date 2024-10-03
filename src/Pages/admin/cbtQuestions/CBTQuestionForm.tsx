@@ -4,6 +4,7 @@ import { Box, Button, SxProps, Typography } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
 import formStyles from "../../../components/form/form.module.scss";
 import { CBTQuestion } from "../../../types/subjects";
+import { CSSProperties } from "react";
 
 type Props = {
   question?: CBTQuestion;
@@ -59,7 +60,7 @@ const CBTQuestionForm = ({ actions, question }: Props) => {
       onSubmit={handleSubmit}
     >
       {({ isValid, dirty }) => (
-        <Form className={formStyles.modal_form}>
+        <Form style={formContainerStyles}>
           <Typography
             variant="h5"
             component="h2"
@@ -71,23 +72,23 @@ const CBTQuestionForm = ({ actions, question }: Props) => {
             <label htmlFor="question">Add your question</label>
             <Field id="question" name="question" />
           </Box>
-          <Box>
+          <Box sx={formGroup}>
             <label htmlFor="option1">Option 1</label>
             <Field id="option1" name="option1" />
           </Box>
-          <Box>
+          <Box sx={formGroup}>
             <label htmlFor="option2">Option 2</label>
             <Field id="option2" name="option2" />
           </Box>
-          <Box>
+          <Box sx={formGroup}>
             <label htmlFor="option3">Option 3</label>
             <Field id="option3" name="option3" />
           </Box>
-          <Box>
+          <Box sx={formGroup}>
             <label htmlFor="option4">Option 4</label>
             <Field id="option4" name="option4" />
           </Box>
-          <Box>
+          <Box sx={formGroup}>
             <label htmlFor="answer">Answer</label>
             <Field id="answer" name="answer" />
           </Box>
@@ -105,7 +106,7 @@ const CBTQuestionForm = ({ actions, question }: Props) => {
               variant="contained"
               disabled={question ? !isValid : !(isValid && dirty)}
             >
-              {question ? "Edit Subject" : "Add Subject"}
+              {question ? "Edit Question" : "Add Question"}
             </LoadingButton>
           </Box>
         </Form>
@@ -116,6 +117,28 @@ const CBTQuestionForm = ({ actions, question }: Props) => {
 
 export default CBTQuestionForm;
 
+const formContainerStyles: CSSProperties = {
+  display: "grid",
+  gap: "1rem",
+  width: "100%",
+};
 const formGroup: SxProps = {
-  bgcolor: "#fff",
+  bgcolor: "rgba(245, 245, 245, 1)",
+  borderRadius: " var(--border-radius)",
+  display: "grid",
+  padding: "1rem",
+  width: "100%",
+
+  label: {
+    display: "block",
+    marginBottom: "0.5rem",
+  },
+
+  "input,textarea": {
+    border: "1px solid var(--border-color)",
+    borderRadius: "4px",
+    display: "block",
+    padding: "0.5rem 1rem",
+    width: "100%",
+  },
 };

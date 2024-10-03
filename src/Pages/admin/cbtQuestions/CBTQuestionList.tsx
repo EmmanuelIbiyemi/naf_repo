@@ -7,11 +7,13 @@ import { CBTQuestion } from "../../../types/subjects";
 import { Button, SxProps, Typography } from "@mui/material";
 import DeleteConfirmationModal from "../../../components/DeleteConfirmationModal";
 import { useNavigate } from "react-router-dom";
+import { Dispatch, SetStateAction } from "react";
 
 type Props = {
   questions: CBTQuestion[];
   setQuestions: (questions: CBTQuestion[]) => void;
   selectedQuestion: CBTQuestion | undefined;
+  setSelectedQuestion: Dispatch<SetStateAction<CBTQuestion | undefined>>;
   modals: {
     openModals: {
       add: boolean;
@@ -30,12 +32,14 @@ const CBTQuestiontList = ({
   questions,
   setQuestions,
   selectedQuestion,
+  setSelectedQuestion,
   modals,
 }: Props) => {
   const navigate = useNavigate();
 
   const handleDelete = (id: number) => {
     setQuestions(questions.filter((qs) => qs.id != id));
+    setSelectedQuestion(undefined);
   };
 
   return (
