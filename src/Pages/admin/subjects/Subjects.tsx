@@ -14,6 +14,9 @@ import dayjs from "dayjs";
 import { useAppDispatch } from "../../../store/hooks";
 import { setPageName } from "../../../store/app.slice";
 import { instructors } from "../instructors/instructors-data";
+import CustomParseFormat from "dayjs/plugin/customParseFormat";
+
+dayjs.extend(CustomParseFormat);
 
 const SubjectsPage = () => {
   const [openModal, setOpenModal] = useState({
@@ -28,31 +31,31 @@ const SubjectsPage = () => {
       id: 1,
       name: "subject 1",
       duration: "2hr",
-      end_date: dayjs("25/12/2024"),
+      end_date: dayjs("05/12/2024", "DD-MM-YYYY"),
       instructors: instructors,
       phone: "09012345678",
       rank: "Captain",
-      start_date: dayjs("01/01/2024"),
+      start_date: dayjs("01/01/2024", "DD-MM-YYYY"),
     },
     {
       id: 2,
       name: "subject 2",
       duration: "1hr 30min",
-      end_date: dayjs("25/12/2024"),
+      end_date: dayjs("05/12/2024", "DD-MM-YYYY"),
       instructors: instructors,
       phone: "09012345678",
       rank: "Captain",
-      start_date: dayjs("01/01/2024"),
+      start_date: dayjs("01/01/2024", "DD-MM-YYYY"),
     },
     {
       id: 3,
       name: "subject 3",
       duration: "1hr",
-      end_date: dayjs("25/12/2024"),
+      end_date: dayjs("05/12/2024", "DD-MM-YYYY"),
       instructors: instructors,
       phone: "09012345678",
       rank: "Captain",
-      start_date: dayjs("01/01/2024"),
+      start_date: dayjs("01/01/2024", "DD-MM-YYYY"),
     },
   ]);
   const [selectedSubject, setSelectedSubject] = useState<SubjectCreateType>();

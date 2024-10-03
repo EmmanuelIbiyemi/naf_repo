@@ -65,10 +65,10 @@ const StudentList = ({
           },
         }}
         close={() => setOpenModal(false)}
-        infoText="The students enrolled in this subject will get notified."
+        infoText=""
         open={openModal}
-        subTitle={`Are you sure you want to delete subject <strong>“${selectedStudent?.first_name} ${selectedStudent?.last_name}”</strong>? You can’t undo this action.`}
-        title="Delete Course?"
+        subTitle={`Are you sure you want to delete <strong>“${selectedStudent?.first_name} ${selectedStudent?.last_name}”</strong>? You can’t undo this action.`}
+        title="Delete Student?"
       />
 
       <Table

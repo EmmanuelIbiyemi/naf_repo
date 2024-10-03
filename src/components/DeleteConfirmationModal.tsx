@@ -35,7 +35,7 @@ const DeleteConfirmationModal = ({
         }}
       >
         <img src={unhappyEmoji} alt="" />
-        <IconButton>
+        <IconButton onClick={close}>
           <Close />
         </IconButton>
       </Box>

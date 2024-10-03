@@ -213,7 +213,7 @@ const SubjectForm = ({ actions, subject }: Props) => {
                 variant="contained"
                 disabled={!(isValid && dirty)}
               >
-                Add Subject
+                {subject ? "Edit Subject" : "Add Subject"}
               </LoadingButton>
             </Box>
           </Form>

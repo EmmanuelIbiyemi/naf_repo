@@ -55,7 +55,7 @@ const SuccessModal = ({
           className={formStyles.cancel_btn}
           variant="contained"
         >
-          Undo
+          Close
         </Button>
         <LoadingButton
           onClick={() => {

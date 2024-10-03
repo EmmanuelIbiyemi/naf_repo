@@ -77,17 +77,27 @@ const StudentSidebar = ({
             sx={{
               bgcolor: "primary.main",
               color: "primary.contrastText",
+              marginBottom: "1rem",
             }}
           >
             Course Enrolled
           </Typography>
           {student?.courses?.map((c) => (
-            <Box key={c.name}>
+            <Box
+              key={c.name}
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                ".MuiTypography-root": { paddingBlock: 0 },
+              }}
+            >
               <Box>
                 <Typography>{c.name}</Typography>
                 <Typography>{c.instructor}</Typography>
               </Box>
-              <span>Fees paid</span>
+              <Typography sx={{ color: "rgba(72, 156, 33, 1)" }}>
+                Fees paid
+              </Typography>
             </Box>
           ))}
         </Box>

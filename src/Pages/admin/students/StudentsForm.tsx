@@ -172,7 +172,7 @@ const StudentsForm = ({ actions, student }: Props) => {
               variant="contained"
               disabled={!(isValid && dirty)}
             >
-              Add Subject
+              Add Student
             </LoadingButton>
           </Box>
         </Form>

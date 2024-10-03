@@ -34,17 +34,17 @@ const StudentsPage = () => {
 
   const handleCloseModal = (type: string) => {
     setOpenModal((prev) => ({ ...prev, [type]: false }));
-    if (type != "success") setSelectedStudent(undefined);
+    if (type == "success") setSelectedStudent(undefined);
   };
 
-  const handdleAddStudent = (student: StudentCreateType) => {
+  const handleAddStudent = (student: StudentCreateType) => {
     setStudents((prev) => [...prev, { ...student, id: prev.length + 1 }]);
     setSelectedStudent(student);
     handleCloseModal("add");
     handleOpenModal("success");
   };
 
-  const handdleEditStudent = (student: StudentType) => {
+  const handleEditStudent = (student: StudentType) => {
     setStudents((prev) => {
       const temp = [...prev];
       const foundStudentIndex = students.findIndex(
@@ -79,8 +79,8 @@ const StudentsPage = () => {
         <StudentsForm
           actions={{
             submit: openModal.add
-              ? handdleAddStudent
-              : (handdleEditStudent as StudentEditFuncType),
+              ? handleAddStudent
+              : (handleEditStudent as StudentEditFuncType),
             cancel: () =>
               openModal.add
                 ? handleCloseModal("add")
@@ -100,9 +100,9 @@ const StudentsPage = () => {
           },
         }}
         close={() => handleCloseModal("success")}
-        infoText="The students enrolled in this subject will get notified."
+        infoText="The student added will get notified via mail."
         open={openModal.success}
-        subTitle={`You have successfully added a new subject to the student <strong>“${selectedStudent?.first_name} ${selectedStudent?.last_name}”</strong>.`}
+        subTitle={`You have successfully added a new participant to your school.`}
         title="Updates Successful"
       />
 

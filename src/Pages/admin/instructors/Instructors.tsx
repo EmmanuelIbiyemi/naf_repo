@@ -101,9 +101,9 @@ const InstructorsPage = () => {
           },
         }}
         close={() => handleCloseModal("success")}
-        infoText="The students enrolled in this subject will get notified."
+        infoText="The instructor added will get notified via mail."
         open={openModal.success}
-        subTitle={`You have successfully added a new subject to the instructor <strong>“${selectedInstructor?.first_name} ${selectedInstructor?.last_name}”</strong>.`}
+        subTitle={`You have successfully added a new instructor to your school.`}
         title="Updates Successful"
       />
 
