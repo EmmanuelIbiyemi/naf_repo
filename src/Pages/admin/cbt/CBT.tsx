@@ -9,6 +9,7 @@ import SuccessModal from "../../../components/SuccessModal";
 import { CBTSubjectType } from "../../../types/subjects";
 import EmptyState from "../../../components/EmptyState";
 import CBTtList from "./CBTList";
+import HostCBTModal from "./components/HostCBTModal";
 
 const CBTPage = () => {
   const [openModal, setOpenModal] = useState({
@@ -16,6 +17,7 @@ const CBTPage = () => {
     edit: false,
     success: false,
     delete: false,
+    host: false,
   });
   const [selectedSubject, setSelectedSubject] = useState<CBTSubjectType>();
   const [subjects, setSubjects] = useState<CBTSubjectType[]>([
@@ -106,6 +108,11 @@ const CBTPage = () => {
           subject={selectedSubject}
         />
       </FormModal>
+
+      <HostCBTModal
+        open={openModal.host}
+        close={() => handleCloseModal("host")}
+      />
 
       <SuccessModal
         actions={{
