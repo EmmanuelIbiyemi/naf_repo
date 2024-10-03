@@ -1,6 +1,8 @@
 import { createBrowserRouter } from "react-router-dom";
 import { lazy } from "react";
 
+// Admin
+
 const App = lazy(() => import("./App"));
 const Login = lazy(() => import("./Pages/login/Login"));
 const Dashboard = lazy(() => import("./Pages/admin/dashboard/Dashboard"));
@@ -23,6 +25,12 @@ const CBTQuestionsPage = lazy(
   () => import("./Pages/admin/cbtQuestions/CBTQuestions")
 );
 
+// Instructor
+
+const InstructorDashboard = lazy(
+  () => import("./Pages/instructor/dashboard/Dashboard")
+);
+
 export const router = createBrowserRouter([
   {
     path: "/login",
@@ -43,6 +51,23 @@ export const router = createBrowserRouter([
       { path: "/applications/applicants", element: <ApplicantsPage /> },
       { path: "/applications/cbt", element: <CBT /> },
       { path: "/applications/cbt/questions", element: <CBTQuestionsPage /> },
+    ],
+  },
+  {
+    path: "/instructor",
+    element: <App />,
+    children: [
+      { path: "/instructor", element: <InstructorDashboard /> },
+      // { path: "/courses", element: <CoursesPage /> },
+      // { path: "/courses/:id", element: <SubjectsPage /> },
+      // { path: "/students", element: <StudentsPage /> },
+      // { path: "/instructors", element: <InstructorsPage /> },
+      // { path: "/applications", element: <FormsPage /> },
+      // { path: "/applications/form", element: <AddFormPage /> },
+      // { path: "/applications/form/preview", element: <PreviewFormPage /> },
+      // { path: "/applications/applicants", element: <ApplicantsPage /> },
+      // { path: "/applications/cbt", element: <CBT /> },
+      // { path: "/applications/cbt/questions", element: <CBTQuestionsPage /> },
     ],
   },
 ]);

@@ -16,11 +16,15 @@ type NavLink = {
   children?: NavLink[];
 };
 const navLinks: NavLink[] = [
-  { content: "Dashboard", icon: HomeIcon, link: "/" },
-  { content: "Courses", icon: ClipBoardIcon, link: "/courses" },
-  { content: "Reports", icon: reportsIcon, link: "/reports" },
-  { content: "Live Classes", icon: liveClassesIcon, link: "/classes" },
-  { content: "Settings", icon: SettingsIcon, link: "/settings" },
+  { content: "Dashboard", icon: HomeIcon, link: "/instructor/" },
+  { content: "Courses", icon: ClipBoardIcon, link: "/instructor/courses" },
+  { content: "Reports", icon: reportsIcon, link: "/instructor/reports" },
+  {
+    content: "Live Classes",
+    icon: liveClassesIcon,
+    link: "/instructor/classes",
+  },
+  { content: "Settings", icon: SettingsIcon, link: "/instructor/settings" },
 ];
 
 const SideBar = () => {
@@ -30,7 +34,7 @@ const SideBar = () => {
     if (navLink.content.toLowerCase() !== "dashboard") {
       if (location.pathname === navLink.link) return true;
     } else {
-      if (location.pathname === "/") return true;
+      if (location.pathname === "/instructor") return true;
     }
 
     if (navLink.children) {

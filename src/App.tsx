@@ -3,7 +3,7 @@ import AdminLayout from "./components/layout/AdminLayout";
 import InstructorLayout from "./components/layout/InstructorLayout";
 
 function App() {
-  const userType: string = "admin";
+  const userType: string = "instructor";
 
   // check user type
   return userType == "admin" ? <AdminLayout /> : <InstructorLayout />;
