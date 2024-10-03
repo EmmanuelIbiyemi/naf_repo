@@ -1,7 +1,6 @@
 import { Box } from "@mui/material";
 import { useAppDispatch } from "../../../store/hooks";
 import { setPageName } from "../../../store/app.slice";
-import PageHeader from "../../../components/PageHeader";
 import FormModal from "../../../components/FormModal";
 import { useState } from "react";
 import CBTQuestionForm from "./CBTQuestionForm";
@@ -9,6 +8,7 @@ import SuccessModal from "../../../components/SuccessModal";
 import { CBTQuestion, CBTSubjectType } from "../../../types/subjects";
 import EmptyState from "../../../components/EmptyState";
 import CBTQuestiontList from "./CBTQuestionList";
+import QuestionPageHeader from "./components/QuestionPageHeader";
 
 const CBTQuestionsPage = () => {
   const [openModal, setOpenModal] = useState({
@@ -111,7 +111,7 @@ const CBTQuestionsPage = () => {
         subTitle={`You have successfully added a new question`}
         title="Updates Successful"
       />
-      <PageHeader
+      <QuestionPageHeader
         button={{
           action: () => handleOpenModal("add"),
           text: "Add Question",
