@@ -30,6 +30,7 @@ const CBTQuestionsPage = lazy(
 const InstructorDashboard = lazy(
   () => import("./Pages/instructor/dashboard/Dashboard")
 );
+const SettingsPage = lazy(() => import("./Pages/instructor/settings/Settings"));
 
 export const router = createBrowserRouter([
   {
@@ -58,7 +59,7 @@ export const router = createBrowserRouter([
     element: <App />,
     children: [
       { path: "/instructor", element: <InstructorDashboard /> },
-      // { path: "/courses", element: <CoursesPage /> },
+      { path: "/instructor/settings", element: <SettingsPage /> },
       // { path: "/courses/:id", element: <SubjectsPage /> },
       // { path: "/students", element: <StudentsPage /> },
       // { path: "/instructors", element: <InstructorsPage /> },
