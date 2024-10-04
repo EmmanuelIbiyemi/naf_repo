@@ -46,6 +46,7 @@ const CBTQuestionForm = ({ actions, question }: Props) => {
 
   const handleSubmit = async (values: QuestionCreateType) => {
     const payload = {
+      id: values.id,
       question: values.question,
       answer: values.answer,
       options: [values.option1, values.option2, values.option3, values.option4],

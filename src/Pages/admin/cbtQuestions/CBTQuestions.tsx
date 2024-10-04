@@ -36,8 +36,6 @@ const CBTQuestionsPage = () => {
   };
 
   const handleOpenEditModal = (question: CBTQuestion) => {
-    console.log(question);
-
     handleOpenModal("edit");
     setSelectedQuestion(question);
   };
@@ -56,13 +54,15 @@ const CBTQuestionsPage = () => {
   };
 
   const handleEditQuestion = (question: CBTQuestion) => {
+    console.log(question);
+
     setSubject((prev) => {
-      const foundQuestion = prev.questions.find((q) => q.id == question.id);
-      if (foundQuestion) {
-        foundQuestion.answer = question.answer;
-        foundQuestion.options = question.options;
-        foundQuestion.question = question.question;
-      }
+      const foundQuestion = prev.questions.find(
+        (q) => q.id == question.id
+      ) as CBTQuestion;
+      foundQuestion.answer = question.answer;
+      foundQuestion.options = question.options;
+      foundQuestion.question = question.question;
       return prev;
     });
     handleCloseModal("edit");
