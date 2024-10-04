@@ -52,7 +52,6 @@ const PropertiesSideBar = ({ form }: Props) => {
     alignRight: false,
   });
   const dispatch = useAppDispatch();
-  console.log(form);
 
   const handleChange = (event: SelectChangeEvent<number>) => {
     const {

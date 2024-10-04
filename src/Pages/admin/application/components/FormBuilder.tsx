@@ -17,12 +17,12 @@ const FormBuilder = ({ form, setForm, allowDelete = true }: Props) => {
     const target = e.currentTarget;
     if (target && target.id) {
       setForm((prev) => {
-        const foundEl = prev.elements.find(
-          (el) => `element-${el.id}` == target.id
+        const updatedElements = prev.elements.map((el) =>
+          `element-${el.id}` === target.id
+            ? { ...el, content: target.textContent?.trim() || el.content }
+            : el
         );
-        if (foundEl?.content)
-          foundEl.content = target.textContent?.trim() || foundEl.content;
-        return { ...prev };
+        return { ...prev, elements: updatedElements };
       });
     }
   };

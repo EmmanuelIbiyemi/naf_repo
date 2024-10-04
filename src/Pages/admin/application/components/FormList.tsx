@@ -60,12 +60,13 @@ const FormList = () => {
   };
 
   const handleEditForm = (form: FormType) => {
-    navigate("/applications/form", { state: form });
+    dispatch(setCurrentForm(form));
+    navigate("/applications/form");
   };
 
   const handleViewForm = (form: FormType) => {
     dispatch(setCurrentForm(form));
-    navigate("/applications/form");
+    navigate("/applications/applicants");
   };
 
   return (
@@ -134,6 +135,8 @@ const FormList = () => {
                       textTransform: "capitalize",
                       border: "none !important",
                       padding: "0 !important",
+                      display: "block !important",
+                      textAlign: "left",
                     }}
                   >
                     {form.title}

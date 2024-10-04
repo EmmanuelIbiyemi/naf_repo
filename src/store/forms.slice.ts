@@ -17,7 +17,16 @@ export const formSlice = createSlice({
   initialState,
   reducers: {
     addForm: (state, action: PayloadAction<FormType>) => {
-      state.all.push({ ...action.payload, id: state.all.length });
+      const form = action.payload;
+      const foundIndex = state.all.findIndex((f) => f.id === form.id);
+
+      if (foundIndex !== -1) {
+        console.log("found");
+        state.all[foundIndex] = form;
+      } else {
+        console.log("not found");
+        state.all.push({ ...form, id: state.all.length });
+      }
     },
     removeForm: (state, action: PayloadAction<number>) => {
       state.all = state.all.filter((form) => form.id === action.payload);
