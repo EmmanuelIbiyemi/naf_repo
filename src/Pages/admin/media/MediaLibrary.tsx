@@ -23,14 +23,21 @@ import thumb2 from "/images/image1.png";
 import thumb3 from "/images/image2.png";
 import { Close } from "@mui/icons-material";
 import uploadIcon from "../../../assets/upload-file.svg";
+import SuccessModal from "../../../components/SuccessModal";
+import DeleteConfirmationModal from "../../../components/DeleteConfirmationModal";
 
 const MediaLibrary = () => {
   const [tab, setTab] = useState("1");
   const [mediaArray] = useState([1, 2, 3, 4, 5]);
-  const [modalOpen, setModalOpen] = useState(true);
+  const [openModal, setOpenModal] = useState({
+    add: false,
+    success: false,
+    delete: false,
+  });
+  const [files, setFiles] = useState<File[]>([]);
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
-    console.log(acceptedFiles);
+    setFiles(acceptedFiles);
   }, []);
 
   const {
@@ -56,11 +63,59 @@ const MediaLibrary = () => {
     setTab(newValue);
   };
 
+  const handleOpenModal = (type: string) => {
+    setOpenModal((prev) => ({ ...prev, [type]: true }));
+  };
+
+  const handleCloseModal = (type: string) => {
+    setOpenModal((prev) => ({ ...prev, [type]: false }));
+  };
+
+  const handleDeleteMedia = (id: number) => {
+    console.log(id);
+  };
+
   return (
     <Box sx={contentStyles}>
+      <SuccessModal
+        actions={{
+          proceed: () => {
+            console.log("proceed");
+          },
+          undo: () => {
+            console.log("undo");
+          },
+        }}
+        close={() => {
+          handleCloseModal("success");
+        }}
+        infoText=""
+        open={openModal.success}
+        subTitle={`Media successfully deleted`}
+        title="Updates Successful"
+      />
+
+      <DeleteConfirmationModal
+        actions={{
+          proceed: () => {
+            handleDeleteMedia(1);
+            handleOpenModal("success");
+            console.log("proceed");
+          },
+          undo: () => {
+            console.log("cancel");
+          },
+        }}
+        close={() => handleCloseModal("delete")}
+        infoText=""
+        open={openModal.delete}
+        subTitle={`Are you sure you want to delete subject <strong>“...”</strong>? You can’t undo this action.`}
+        title="Delete Media?"
+      />
+
       <Dialog
-        open={modalOpen}
-        onClose={() => setModalOpen(false)}
+        open={openModal.add}
+        onClose={() => handleOpenModal("add")}
         scroll="body"
       >
         <Box sx={modalContentStyles}>
@@ -91,6 +146,12 @@ const MediaLibrary = () => {
             <input {...getInputProps()} />
             {isDragActive ? (
               <p>Drop the files here ...</p>
+            ) : files ? (
+              <Box>
+                {files.map((file) => (
+                  <img key={file.name} src={URL.createObjectURL(file)} />
+                ))}
+              </Box>
             ) : (
               <p>Drag 'n' drop some files here, or click to select files</p>
             )}
@@ -126,7 +187,7 @@ const MediaLibrary = () => {
       </Dialog>
       <Box sx={headerStyles}>
         <Typography variant="h5">Media Library</Typography>
-        <Button variant="contained" onClick={() => setModalOpen(true)}>
+        <Button variant="contained" onClick={() => handleOpenModal("add")}>
           Add Media
         </Button>
       </Box>
@@ -142,17 +203,26 @@ const MediaLibrary = () => {
           </Box>
           <TabPanel value="1" sx={TabStyles}>
             {mediaArray.map(() => (
-              <MediaItem image={thumb1} />
+              <MediaItem
+                image={thumb1}
+                deleteItem={() => handleOpenModal("delete")}
+              />
             ))}
           </TabPanel>
           <TabPanel value="2" sx={TabStyles}>
             {mediaArray.map(() => (
-              <MediaItem image={thumb2} />
+              <MediaItem
+                image={thumb2}
+                deleteItem={() => handleOpenModal("delete")}
+              />
             ))}
           </TabPanel>
           <TabPanel value="3" sx={TabStyles}>
             {mediaArray.map(() => (
-              <MediaItem image={thumb3} />
+              <MediaItem
+                image={thumb3}
+                deleteItem={() => handleOpenModal("delete")}
+              />
             ))}
           </TabPanel>
         </TabContext>

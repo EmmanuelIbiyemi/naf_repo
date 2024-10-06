@@ -3,8 +3,9 @@ import DeleteIcon from "../../../../assets/deleteIcon";
 
 type Props = {
   image: string;
+  deleteItem: () => void;
 };
-const MediaItem = ({ image }: Props) => {
+const MediaItem = ({ image, deleteItem }: Props) => {
   return (
     <Box sx={mediaItemStyles}>
       <Box sx={mediaThumbStyles}>
@@ -23,7 +24,7 @@ const MediaItem = ({ image }: Props) => {
             1.1mb JPEG image file
           </Typography>
         </Box>
-        <IconButton>
+        <IconButton onClick={deleteItem}>
           <DeleteIcon color="rgba(170, 170, 170, 1)" />
         </IconButton>
       </Box>
