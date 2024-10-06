@@ -1,5 +1,6 @@
 import { createBrowserRouter } from "react-router-dom";
 import { lazy } from "react";
+import Page from "./Pages/admin/page/Page";
 
 // Admin
 
@@ -57,7 +58,11 @@ export const router = createBrowserRouter([
       {
         path: "/settings",
         element: <AdminSettingsPage />,
-        children: [{ path: "", element: <MediaLibrary /> }],
+        children: [
+          { path: "", element: <MediaLibrary /> },
+
+          { path: "page/:name", element: <Page /> },
+        ],
       },
     ],
   },

@@ -24,4 +24,5 @@ export default Settings;
 const layoutStyles: SxProps = {
   display: "grid",
   gridTemplateColumns: "225px 1fr",
+  height: "100%",
 };

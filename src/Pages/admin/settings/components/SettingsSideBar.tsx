@@ -1,5 +1,6 @@
 import { Box, SxProps } from "@mui/material";
-import { Link } from "react-router-dom";
+import { useState } from "react";
+import { Link, useLocation } from "react-router-dom";
 
 type NavLink = {
   content: string;
@@ -7,19 +8,21 @@ type NavLink = {
   children?: NavLink[];
 };
 
-const navLinks: NavLink[] = [
-  { content: "Media Library", link: "/settings" },
-  { content: "About Page", link: "/settings/about" },
-  { content: "Updates Page", link: "/settings/updates" },
-  { content: "Courses Page", link: "/settings/courses" },
-  { content: "Contact Page", link: "/settings/contact" },
-];
-
 const SettingsSideBar = () => {
+  const location = useLocation();
+  const [navLinks] = useState<NavLink[]>([
+    { content: "Media Library", link: "/settings" },
+    { content: "About Page", link: "/settings/page/about" },
+    { content: "Updates Page", link: "/settings/page/updates" },
+    { content: "Courses Page", link: "/settings/page/courses" },
+    { content: "Contact Page", link: "/settings/page/contact" },
+  ]);
+
   const isCurrentPage = (navLink: NavLink) => {
     if (location.pathname === navLink.link) return true;
     return false;
   };
+
   return (
     <Box sx={sidebarStyles}>
       {navLinks.map((item) => (
@@ -36,6 +39,7 @@ const SettingsSideBar = () => {
 export default SettingsSideBar;
 
 const sidebarStyles: SxProps = {
+  bgcolor: "#fff",
   borderRight: "1px solid rgba(204, 204, 204, 0.5)",
   height: "100%",
   position: "sticky",
