@@ -1,9 +1,19 @@
 import { Box, SxProps } from "@mui/material";
 import SideBar from "./AdminSideBar";
 import Header from "./Header";
-import { Outlet } from "react-router-dom";
+import { Outlet, useLocation } from "react-router-dom";
+import { useAppDispatch } from "../../store/hooks";
+import { useEffect } from "react";
+import { setLastVisitedPage } from "../../store/auth.slice";
 
 function AdminLayout() {
+  const dispatch = useAppDispatch();
+  const location = useLocation();
+
+  useEffect(() => {
+    dispatch(setLastVisitedPage(location.pathname));
+  }, [location]);
+
   return (
     <Box sx={layoutStyles}>
       <Box sx={{ gridArea: "sidebar" }}>

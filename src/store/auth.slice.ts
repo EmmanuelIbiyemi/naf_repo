@@ -2,23 +2,28 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { RootState } from "./store";
 import { UserType } from "../types/users";
 
-interface UsersState {
+type UserLoginResponse = {
   user: UserType | null;
   access_token: string;
   refresh_token: string;
-}
+};
 
-const initialState: UsersState = {
+type AdditionalUserState = {
+  lastVisitedPage: string;
+};
+
+const initialState: UserLoginResponse & AdditionalUserState = {
   user: null,
   access_token: "",
   refresh_token: "",
+  lastVisitedPage: "",
 };
 
 export const authSlice = createSlice({
   name: "auth",
   initialState,
   reducers: {
-    login: (state, action: PayloadAction<UsersState>) => {
+    login: (state, action: PayloadAction<UserLoginResponse>) => {
       const { access_token, refresh_token, user } = action.payload;
       state.user = user;
       state.access_token = access_token;
@@ -46,6 +51,24 @@ export const authSlice = createSlice({
       localStorage.setItem("user", JSON.stringify(user));
     },
 
+    setUserFromLocalStorage: (state) => {
+      const local_user = localStorage.getItem("user");
+      const access_token = localStorage.getItem("access_token");
+      const refresh_token = localStorage.getItem("refresh_token");
+
+      if (local_user && access_token && refresh_token) {
+        state.access_token = access_token;
+        state.refresh_token = refresh_token;
+        state.user = JSON.parse(local_user);
+      }
+    },
+
+    setLastVisitedPage: (state, action: PayloadAction<string>) => {
+      const page = action.payload;
+      state.lastVisitedPage = page;
+      sessionStorage.setItem("lastVisitedPage", page);
+    },
+
     logout: (state) => {
       state.access_token = "";
       state.refresh_token = "";
@@ -56,7 +79,14 @@ export const authSlice = createSlice({
   },
 });
 
-export const { login, setAccessToken, setUser, logout } = authSlice.actions;
+export const {
+  login,
+  setAccessToken,
+  setUser,
+  setUserFromLocalStorage,
+  setLastVisitedPage,
+  logout,
+} = authSlice.actions;
 export const authReducer = authSlice.reducer;
 
 export const selectCurrentUser = (state: RootState) => state.auth.user;
@@ -64,3 +94,5 @@ export const selectCurrentAccessToken = (state: RootState) =>
   state.auth.access_token;
 export const selectCurrentRefreshToken = (state: RootState) =>
   state.auth.refresh_token;
+export const selectLastVisitedPage = (state: RootState) =>
+  state.auth.lastVisitedPage;

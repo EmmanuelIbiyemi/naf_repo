@@ -10,10 +10,14 @@ import { Box, Button, SxProps, Typography } from "@mui/material";
 import { Link, useNavigate } from "react-router-dom";
 import { useAppDispatch } from "../../../store/hooks";
 import { setPageName } from "../../../store/app.slice";
+import { useEffect } from "react";
 
 const Dashboard = () => {
   const dispatch = useAppDispatch();
-  dispatch(setPageName("Dashboard"));
+
+  useEffect(() => {
+    dispatch(setPageName("Dashboard"));
+  }, []);
 
   const navigate = useNavigate();
 
