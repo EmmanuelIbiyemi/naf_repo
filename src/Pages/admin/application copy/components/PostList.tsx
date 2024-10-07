@@ -3,26 +3,11 @@ import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
 import TableRow from "@mui/material/TableRow";
-import {
-  Box,
-  Button,
-  Checkbox,
-  IconButton,
-  Menu,
-  MenuItem,
-  SxProps,
-} from "@mui/material";
-import {
-  Delete,
-  Drafts,
-  Edit,
-  Lock,
-  MoreVert,
-  Visibility,
-} from "@mui/icons-material";
+import { Box, Button, Checkbox, IconButton } from "@mui/material";
+import { Delete, Edit } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import DeleteConfirmationModal from "../../../../components/DeleteConfirmationModal";
-import { MouseEvent, useState } from "react";
+import { useState } from "react";
 import { useAppDispatch, useAppSelector } from "../../../../store/hooks";
 import { PostType } from "../../../../types/posts";
 import {
@@ -33,21 +18,11 @@ import {
 } from "../../../../store/posts.slice";
 
 const PostList = () => {
-  const forms = useAppSelector(selectPosts);
+  const posts = useAppSelector(selectPosts);
   const dispatch = useAppDispatch();
-  const selectedForm = useAppSelector(selectCurrentPost);
+  const selectedPost = useAppSelector(selectCurrentPost);
   const [openModal, setOpenModal] = useState(false);
   const navigate = useNavigate();
-
-  // Menu
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const open = Boolean(anchorEl);
-  const handleClick = (event: MouseEvent<HTMLButtonElement>) => {
-    setAnchorEl(event.currentTarget);
-  };
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
 
   const handleOpenModal = (post: PostType) => {
     dispatch(setCurrentPost(post));
@@ -60,12 +35,7 @@ const PostList = () => {
 
   const handleEditForm = (post: PostType) => {
     dispatch(setCurrentPost(post));
-    navigate("/applications/post");
-  };
-
-  const handleViewForm = (post: PostType) => {
-    dispatch(setCurrentPost(post));
-    navigate("/applications/applicants");
+    navigate("/posts/add");
   };
 
   return (
@@ -73,7 +43,7 @@ const PostList = () => {
       <DeleteConfirmationModal
         actions={{
           proceed: () => {
-            if (selectedForm) handleDelete(selectedForm.id);
+            if (selectedPost) handleDelete(selectedPost.id);
             console.log("proceed");
           },
           undo: () => {
@@ -81,41 +51,15 @@ const PostList = () => {
           },
         }}
         close={() => setOpenModal(false)}
-        infoText="The students enrolled in this subject will get notified."
+        infoText=""
         open={openModal}
-        subTitle={`Are you sure you want to delete subject <strong>“${selectedForm?.title}”</strong>? You can’t undo this action.`}
-        title="Delete Course?"
+        subTitle={`Are you sure you want to delete Post <strong>“${selectedPost?.title}”</strong>? You can’t undo this action.`}
+        title="Delete Post?"
       />
-
-      <Menu anchorEl={anchorEl} open={open} onClose={handleClose}>
-        <MenuItem onClick={handleClose}>
-          <Box sx={iconStyles}>
-            <Drafts />
-          </Box>
-          Open Application
-        </MenuItem>
-        <MenuItem onClick={handleClose}>
-          <Box sx={iconStyles}>
-            <Lock />
-          </Box>
-          Close Application
-        </MenuItem>
-        <MenuItem
-          onClick={() => {
-            handleClose();
-            navigate("/applications/applicants");
-          }}
-        >
-          <Box sx={iconStyles}>
-            <Visibility />
-          </Box>
-          View Applied
-        </MenuItem>
-      </Menu>
 
       <Table sx={{ minWidth: 650 }}>
         <TableBody>
-          {forms.map((post) => (
+          {posts.map((post) => (
             <TableRow
               key={post.id}
               sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
@@ -129,7 +73,6 @@ const PostList = () => {
                 <Box>
                   <Button
                     variant="text"
-                    onClick={() => handleViewForm(post)}
                     sx={{
                       textTransform: "capitalize",
                       border: "none !important",
@@ -149,9 +92,6 @@ const PostList = () => {
                 <IconButton onClick={() => handleOpenModal(post)}>
                   <Delete />
                 </IconButton>
-                <IconButton onClick={handleClick}>
-                  <MoreVert />
-                </IconButton>
               </TableCell>
             </TableRow>
           ))}
@@ -162,18 +102,3 @@ const PostList = () => {
 };
 
 export default PostList;
-
-const iconStyles: SxProps = {
-  border: "2px solid rgba(179, 179, 179, 1)",
-  borderRadius: "100%",
-  display: "grid",
-  height: "25px",
-  marginRight: ".5rem",
-  placeItems: "center",
-  width: "25px",
-
-  svg: {
-    fontSize: "18px",
-    color: "rgba(179, 179, 179, 1)",
-  },
-};

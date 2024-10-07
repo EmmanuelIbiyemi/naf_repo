@@ -4,13 +4,17 @@ import { useAppDispatch, useAppSelector } from "../../../store/hooks";
 import PageHeader from "../../../components/PageHeader";
 import EmptyState from "../../../components/EmptyState";
 import { useNavigate } from "react-router-dom";
-import FormList from "./components/PostList";
+import PostList from "./components/PostList";
 import { selectPosts, setCurrentPost } from "../../../store/posts.slice";
+import { useEffect } from "react";
 
 const PostPage = () => {
   // set page name
   const dispatch = useAppDispatch();
-  dispatch(setPageName("Post"));
+  useEffect(() => {
+    dispatch(setPageName("Posts"));
+  }, []);
+
   const navigate = useNavigate();
   const forms = useAppSelector(selectPosts);
 
@@ -36,7 +40,7 @@ const PostPage = () => {
         }}
       >
         {forms.length ? (
-          <FormList />
+          <PostList />
         ) : (
           <EmptyState
             title="Oops! There’s nothing here!"

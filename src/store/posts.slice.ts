@@ -17,19 +17,19 @@ export const postSlice = createSlice({
   initialState,
   reducers: {
     addPost: (state, action: PayloadAction<PostType>) => {
-      const form = action.payload;
-      const foundIndex = state.all.findIndex((f) => f.id === form.id);
+      const post = action.payload;
+      const foundIndex = state.all.findIndex((f) => f.id === post.id);
 
       if (foundIndex !== -1) {
         console.log("found");
-        state.all[foundIndex] = form;
+        state.all[foundIndex] = post;
       } else {
         console.log("not found");
-        state.all.push({ ...form, id: state.all.length });
+        state.all.push({ ...post, id: state.all.length });
       }
     },
     removePost: (state, action: PayloadAction<number>) => {
-      state.all = state.all.filter((form) => form.id === action.payload);
+      state.all = state.all.filter((post) => post.id !== action.payload);
     },
     setCurrentPost: (state, action: PayloadAction<PostType | undefined>) => {
       state.current = action.payload;

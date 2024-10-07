@@ -6,14 +6,20 @@ import {
   Inventory,
   VolumeUp,
 } from "@mui/icons-material";
-import { Box, SxProps, Typography } from "@mui/material";
-import { Link } from "react-router-dom";
+import { Box, Button, SxProps, Typography } from "@mui/material";
+import { Link, useNavigate } from "react-router-dom";
 import { useAppDispatch } from "../../../store/hooks";
 import { setPageName } from "../../../store/app.slice";
 
 const Dashboard = () => {
   const dispatch = useAppDispatch();
   dispatch(setPageName("Dashboard"));
+
+  const navigate = useNavigate();
+
+  const handleManageSite = () => {
+    navigate("posts");
+  };
 
   return (
     <Box
@@ -59,6 +65,11 @@ const Dashboard = () => {
             </Box>
           </Link>
         ))}
+      </Box>
+      <Box>
+        <Button variant="contained" onClick={handleManageSite}>
+          Manage website
+        </Button>
       </Box>
     </Box>
   );

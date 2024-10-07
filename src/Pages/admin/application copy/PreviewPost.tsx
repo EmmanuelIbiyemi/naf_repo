@@ -24,7 +24,7 @@ const PreviewPostPage = () => {
           actions={{
             proceed: () => {
               if (selectedPost) dispatch(addPost(selectedPost));
-              navigate("/applications");
+              navigate("/posts");
             },
             undo: () => {
               console.log("undo");

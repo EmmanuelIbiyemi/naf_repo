@@ -7,7 +7,7 @@ import PropertiesSideBar from "./components/PropertiesSideBar";
 import { DndContext, DragEndEvent, DragOverlay } from "@dnd-kit/core";
 import { useState } from "react";
 import { PostType } from "../../../types/posts";
-import { selectCurrentForm } from "../../../store/forms.slice";
+import { selectCurrentPost } from "../../../store/posts.slice";
 
 const AddPostPage = () => {
   // set page name
@@ -15,11 +15,11 @@ const AddPostPage = () => {
   dispatch(setPageName("Posts"));
 
   // Use global post
-  const selectedForm = useAppSelector(selectCurrentForm);
+  const selectedPost = useAppSelector(selectCurrentPost);
   const [post, setForm] = useState<PostType>({
-    id: selectedForm?.id || 1,
-    elements: selectedForm?.elements || [],
-    title: selectedForm?.title || "Untitled Post",
+    id: selectedPost?.id || 1,
+    elements: selectedPost?.elements || [],
+    title: selectedPost?.title || "Untitled Post",
   });
   const [activeId, setActiveId] = useState<string | null>(null);
   const loremIpsum =
