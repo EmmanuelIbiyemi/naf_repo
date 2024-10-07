@@ -2,11 +2,13 @@ import { configureStore } from "@reduxjs/toolkit";
 import { appApi } from "./api/app.api";
 import appReducer from "./app.slice";
 import formsReducer from "./forms.slice";
+import postsReducer from "./posts.slice";
 
 export const store = configureStore({
   reducer: {
     app: appReducer,
     forms: formsReducer,
+    posts: postsReducer,
     [appApi.reducerPath]: appApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>

@@ -27,6 +27,13 @@ const CBTQuestionsPage = lazy(
 );
 const AdminSettingsPage = lazy(() => import("./Pages/admin/settings/Settings"));
 const MediaLibrary = lazy(() => import("./Pages/admin/media/MediaLibrary"));
+const PostPage = lazy(() => import("./Pages/admin/application copy/PostPage"));
+const AddPostPage = lazy(
+  () => import("./Pages/admin/application copy/AddPost")
+);
+const PreviewPostPage = lazy(
+  () => import("./Pages/admin/application copy/PreviewPost")
+);
 
 // Instructor
 
@@ -55,6 +62,9 @@ export const router = createBrowserRouter([
       { path: "/applications/applicants", element: <ApplicantsPage /> },
       { path: "/applications/cbt", element: <CBT /> },
       { path: "/applications/cbt/questions", element: <CBTQuestionsPage /> },
+      { path: "/posts", element: <PostPage /> },
+      { path: "/posts/add", element: <AddPostPage /> },
+      { path: "/post/preview", element: <PreviewPostPage /> },
       {
         path: "/settings",
         element: <AdminSettingsPage />,
