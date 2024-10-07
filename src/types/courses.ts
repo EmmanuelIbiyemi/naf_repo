@@ -3,12 +3,21 @@ import { InstructorType2 } from "./instructors";
 export type CourseType2 = {
   code: string;
   created_at: string;
-  credit_units: number;
-  id: number;
-  instructors: InstructorType2;
+  credit_unit: number;
+  id?: number;
+  instructors: InstructorType2[];
   name: string;
   semester: string;
   updated_at: string;
+};
+
+export type CourseCreateType2 = {
+  code: string;
+  credit_unit: number;
+  id?: number;
+  name: string;
+  semester: string;
+  instructor_ids: number[];
 };
 
 export type CoursesResponse = {
@@ -25,5 +34,5 @@ export type CourseType = {
   instructor: string;
 };
 
-export type CourseCombinedType = CourseCreateType | CourseType;
-export type CourseEditFuncType = (course: CourseCombinedType) => void;
+export type CourseCombinedType = CourseCreateType2 | CourseType2;
+export type CourseFormAction = (course: CourseCombinedType) => Promise<void>;

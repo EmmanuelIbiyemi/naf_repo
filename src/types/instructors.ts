@@ -1,5 +1,19 @@
 import { CourseType } from "./courses";
 
+export type InstructorType2 = {
+  address: string;
+  created_at: string;
+  email: string;
+  first_name: string;
+  id: number;
+  last_name: string;
+  phone: string;
+  photo: string;
+  updated_at: string;
+};
+
+export type InstructorsResponse = { data: InstructorType2[] };
+
 type InstructorBase = {
   first_name: string;
   last_name: string;
@@ -17,15 +31,3 @@ export type InstructorType = InstructorBase & {
 
 export type InstructorCombinedType = InstructorCreateType | InstructorType;
 export type InstructorEditFuncType = (student: InstructorCombinedType) => void;
-
-export type InstructorType2 = {
-  address: string;
-  created_at: string;
-  email: string;
-  first_name: string;
-  id: number;
-  last_name: string;
-  phone: string;
-  photo: string;
-  updated_at: string;
-};

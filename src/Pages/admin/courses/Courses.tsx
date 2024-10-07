@@ -6,27 +6,28 @@ import { useEffect, useRef, useState } from "react";
 import CourseForm from "./CourseForm";
 import CourseList from "./CourseList";
 import {
-  CourseCreateType,
-  CourseEditFuncType,
-  CourseType,
+  CourseCreateType2,
+  CourseFormAction,
+  CourseType2,
 } from "../../../types/courses";
 import { useAppDispatch } from "../../../store/hooks";
 import { setPageName } from "../../../store/app.slice";
 import SuccessModal from "../../../components/SuccessModal";
-import { useGetCoursesQuery } from "../../../store/api/courses.api";
+import {
+  useAddCourseMutation,
+  useGetCoursesQuery,
+} from "../../../store/api/courses.api";
 
 const CoursesPage = () => {
   const [openModal, setOpenModal] = useState({
     add: false,
-    edit: false,
     success: false,
-    delete: true,
   });
   const [courseName, setCourseName] = useState("");
-  const [selectedCourse, setSelectedCourse] = useState<CourseType>();
+  const [selectedCourse, setSelectedCourse] = useState<CourseType2>();
   const { data: courses } = useGetCoursesQuery(null);
-
   const containerRef = useRef<HTMLDivElement>(null);
+  const [addCourse] = useAddCourseMutation();
 
   // set page name
   const dispatch = useAppDispatch();
@@ -34,49 +35,33 @@ const CoursesPage = () => {
     dispatch(setPageName("Course"));
   }, [dispatch]);
 
-  useEffect(() => {
-    console.log(courses?.data);
-  }, [courses]);
-
   const handleOpenModal = (type: string) => {
     setOpenModal((prev) => ({ ...prev, [type]: true }));
   };
 
   const handleCloseModal = (type: string) => {
-    setOpenModal((prev) => ({ ...prev, [type]: false }));
     setSelectedCourse(undefined);
+    setOpenModal((prev) => ({ ...prev, [type]: false }));
   };
 
-  const handdleAddCourse = (course: CourseCreateType) => {
-    setCourseName(course.name);
-    handleCloseModal("add");
-    handleOpenModal("success");
-  };
-
-  const handdleEditCourse = (course: CourseType) => {
-    console.log(course);
-    handleCloseModal("edit");
-    handleOpenModal("success");
+  const handleAddCourse = async (course: CourseCreateType2) => {
+    try {
+      await addCourse(course).unwrap();
+      handleCloseModal("add");
+      handleOpenModal("success");
+      setCourseName(course.name);
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (
     <Box ref={containerRef} className="content-container">
-      <FormModal
-        open={openModal.add || openModal.edit}
-        close={() => {
-          handleCloseModal("add");
-          handleCloseModal("edit");
-        }}
-      >
+      <FormModal open={openModal.add} close={() => handleCloseModal("add")}>
         <CourseForm
           actions={{
-            submit: openModal.add
-              ? handdleAddCourse
-              : (handdleEditCourse as CourseEditFuncType),
-            cancel: () =>
-              openModal.add
-                ? handleCloseModal("add")
-                : handleCloseModal("edit"),
+            submit: handleAddCourse as CourseFormAction,
+            cancel: () => handleCloseModal("add"),
           }}
           course={selectedCourse}
         />
@@ -95,15 +80,15 @@ const CoursesPage = () => {
           handleCloseModal("success");
           setSelectedCourse(undefined);
         }}
-        infoText="The students enrolled in this subject will get notified."
+        infoText=""
         open={openModal.success}
-        subTitle={`You have successfully added a new subject to the course <strong>“${courseName}”</strong>.`}
+        subTitle={`You have successfully added a new course <strong>“${courseName}”</strong>.`}
         title="Updates Successful"
       />
 
       <PageHeader
         button={{
-          action: () => handleOpenModal("add"),
+          action: () => setOpenModal((prev) => ({ ...prev, add: true })),
           text: "Add Courses",
         }}
       />
