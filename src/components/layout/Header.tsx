@@ -2,9 +2,11 @@ import { Help, Notifications } from "@mui/icons-material";
 import { Box, IconButton, SxProps, Typography } from "@mui/material";
 import { selectPageName } from "../../store/app.slice";
 import { useAppSelector } from "../../store/hooks";
+import { selectCurrentUser } from "../../store/auth.slice";
 
 const Header = () => {
   const pageName = useAppSelector(selectPageName);
+  const user = useAppSelector(selectCurrentUser);
 
   return (
     <Box className="header" sx={headerStyles}>
@@ -13,7 +15,7 @@ const Header = () => {
         sx={{
           color: "rgba(85, 85, 85, 1)",
           fontSize: "1.7rem",
-          fontWeight: 500,
+          fontWeight: "500 !important",
         }}
       >
         {pageName}
@@ -28,16 +30,22 @@ const Header = () => {
           </IconButton>
         </Box>
         <Box sx={flexStyles}>
-          <Box sx={{ textAlign: "right" }}>
-            <Typography sx={usernameStyles}>Amina Rabiu</Typography>
+          <Box
+            sx={{
+              textAlign: "right",
+              ".MuiTypography-root": { fontWeight: "500 !important" },
+            }}
+          >
+            <Typography
+              sx={usernameStyles}
+            >{`${user?.first_name} ${user?.last_name}`}</Typography>
             <Typography
               sx={{
                 color: "rgba(160, 152, 174, 1)",
                 letterSpacing: 0.1,
-                fontWeight: 300,
               }}
             >
-              Admin
+              {user?.role || "Admin"}
             </Typography>
           </Box>
           <Box className="has_bg_image" sx={profileImageStyles}>

@@ -66,7 +66,7 @@ const Dashboard = () => {
           </Link>
         ))}
       </Box>
-      <Box>
+      <Box sx={{ display: "flex", justifyContent: "end", marginTop: "1rem" }}>
         <Button variant="contained" onClick={handleManageSite}>
           Manage website
         </Button>
