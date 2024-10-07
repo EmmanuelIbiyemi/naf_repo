@@ -3,30 +3,27 @@ import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
 import TableRow from "@mui/material/TableRow";
-import { CourseType } from "../../../types/courses";
+import { CourseType2 } from "../../../types/courses";
 import { Checkbox, IconButton } from "@mui/material";
 import { Delete, Edit } from "@mui/icons-material";
 import { Link } from "react-router-dom";
 import DeleteConfirmationModal from "../../../components/DeleteConfirmationModal";
 import { useState } from "react";
+import { useGetCoursesQuery } from "../../../store/api/courses.api";
 
-type Props = {
-  courses: CourseType[];
-  editCourse: (course: CourseType) => void;
-  deleteCourse: (id: number) => void;
-};
-
-const CourseList = ({ courses, editCourse, deleteCourse }: Props) => {
+const CourseList = () => {
   const [openModal, setOpenModal] = useState(false);
-  const [selectedCourse, setSelectedCourse] = useState<CourseType>();
+  const [selectedCourse, setSelectedCourse] = useState<CourseType2>();
+  const { data: courses } = useGetCoursesQuery(null);
 
-  const handleOpenModal = (course: CourseType) => {
+  const handleOpenModal = (course: CourseType2) => {
     setSelectedCourse(course);
     setOpenModal(true);
   };
 
-  const handleDelete = (course: CourseType) => {
-    deleteCourse(course.id);
+  const handleDelete = (course: CourseType2) => {
+    // deleteCourse(course.id);
+    console.log(course);
   };
 
   return (
@@ -50,7 +47,7 @@ const CourseList = ({ courses, editCourse, deleteCourse }: Props) => {
 
       <Table sx={{ minWidth: 650 }}>
         <TableBody>
-          {courses.map((course) => (
+          {courses?.data.map((course) => (
             <TableRow
               key={course.id}
               sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
@@ -69,7 +66,7 @@ const CourseList = ({ courses, editCourse, deleteCourse }: Props) => {
                 </Link>
               </TableCell>
               <TableCell align="right">
-                <IconButton onClick={() => editCourse(course)}>
+                <IconButton onClick={() => console.log(course)}>
                   <Edit />
                 </IconButton>
                 <IconButton onClick={() => handleOpenModal(course)}>

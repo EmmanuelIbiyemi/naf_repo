@@ -1,13 +1,10 @@
 import { fetchBaseQuery } from "@reduxjs/toolkit/query";
-// import type { RootState } from "./store";
+import { RootState } from "./store";
 
 export const myBaseQuery = fetchBaseQuery({
   baseUrl: import.meta.env.VITE_API_URL,
-  prepareHeaders: (headers) => {
-    // Temp
-    const token = "sdfada"; // Temp
-    // const token = (getState() as RootState).auth.access_token;
-    //   prepareHeaders: (headers, { getState }) => {
+  prepareHeaders: (headers, { getState }) => {
+    const token = (getState() as RootState).auth.access_token;
 
     if (token) {
       headers.set("authorization", `Bearer ${token}`);

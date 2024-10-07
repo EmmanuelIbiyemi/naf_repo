@@ -2,7 +2,7 @@ import { Box } from "@mui/material";
 import PageHeader from "../../../components/PageHeader";
 import EmptyState from "../../../components/EmptyState";
 import FormModal from "../../../components/FormModal";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import CourseForm from "./CourseForm";
 import CourseList from "./CourseList";
 import {
@@ -13,6 +13,7 @@ import {
 import { useAppDispatch } from "../../../store/hooks";
 import { setPageName } from "../../../store/app.slice";
 import SuccessModal from "../../../components/SuccessModal";
+import { useGetCoursesQuery } from "../../../store/api/courses.api";
 
 const CoursesPage = () => {
   const [openModal, setOpenModal] = useState({
@@ -23,12 +24,19 @@ const CoursesPage = () => {
   });
   const [courseName, setCourseName] = useState("");
   const [selectedCourse, setSelectedCourse] = useState<CourseType>();
-  const [courses, setCourses] = useState<CourseType[] | []>([]);
+  const { data: courses } = useGetCoursesQuery(null);
+
   const containerRef = useRef<HTMLDivElement>(null);
 
   // set page name
   const dispatch = useAppDispatch();
-  dispatch(setPageName("Course"));
+  useEffect(() => {
+    dispatch(setPageName("Course"));
+  }, [dispatch]);
+
+  useEffect(() => {
+    console.log(courses?.data);
+  }, [courses]);
 
   const handleOpenModal = (type: string) => {
     setOpenModal((prev) => ({ ...prev, [type]: true }));
@@ -40,33 +48,15 @@ const CoursesPage = () => {
   };
 
   const handdleAddCourse = (course: CourseCreateType) => {
-    setCourses((prev) => [
-      ...prev,
-      { id: prev.length + 1, name: course.name, instructor: "" },
-    ]);
     setCourseName(course.name);
     handleCloseModal("add");
     handleOpenModal("success");
   };
 
   const handdleEditCourse = (course: CourseType) => {
-    setCourses((prev) => {
-      const temp = [...prev];
-      const foundCourseIndex = courses.findIndex((crs) => crs.id == course.id);
-      temp[foundCourseIndex] = course;
-      return temp;
-    });
+    console.log(course);
     handleCloseModal("edit");
     handleOpenModal("success");
-  };
-
-  const handleDeleteCourse = (id: number) => {
-    setCourses((prev) => prev.filter((crs) => crs.id != id));
-  };
-
-  const handleOpenEditModal = (course: CourseType) => {
-    setSelectedCourse(course);
-    handleOpenModal("edit");
   };
 
   return (
@@ -125,12 +115,8 @@ const CoursesPage = () => {
           padding: "var(--padding)",
         }}
       >
-        {courses.length ? (
-          <CourseList
-            courses={courses}
-            editCourse={handleOpenEditModal}
-            deleteCourse={handleDeleteCourse}
-          />
+        {courses?.data.length ? (
+          <CourseList />
         ) : (
           <EmptyState
             title="No Courses at this time"

@@ -29,8 +29,6 @@ export const authSlice = createSlice({
       state.access_token = access_token;
       state.refresh_token = refresh_token;
 
-      console.log(action.payload);
-
       localStorage.setItem("user", JSON.stringify(user));
       localStorage.setItem("access_token", access_token);
       localStorage.setItem("refresh_token", refresh_token);
