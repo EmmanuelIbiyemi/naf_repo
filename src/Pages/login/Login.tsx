@@ -6,14 +6,15 @@ import { Form, Formik } from "formik";
 import * as Yup from "yup";
 import { LoadingButton } from "@mui/lab";
 import { FormikTextField } from "../../components/form/TextField";
-
-type LoginForm = {
-  email: string;
-  password: string;
-};
+import { useLoginMutation } from "../../store/api/auth.api";
+import { UserLoginType } from "../../types/users";
+import { login } from "../../store/auth.slice";
+import { useAppDispatch } from "../../store/hooks";
 
 const Login = () => {
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
+  const [loginUser] = useLoginMutation();
   const initialValues = {
     email: "",
     password: "",
@@ -24,9 +25,14 @@ const Login = () => {
     password: Yup.string().required("Required"),
   });
 
-  const handleSubmit = async (values: LoginForm) => {
-    console.log(values);
-    navigate("/");
+  const handleSubmit = async (values: UserLoginType) => {
+    try {
+      const response = await loginUser(values).unwrap();
+      dispatch(login(response));
+      navigate("/");
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (
@@ -71,8 +77,8 @@ const Login = () => {
                 USER LOGIN
               </Typography>
               <Box sx={{ display: "grid", gap: "1rem", width: 350 }}>
-                <FormikTextField<LoginForm> name="email" label="Email" />
-                <FormikTextField<LoginForm>
+                <FormikTextField<UserLoginType> name="email" label="Email" />
+                <FormikTextField<UserLoginType>
                   name="password"
                   label="Password"
                   placeholder="********"
