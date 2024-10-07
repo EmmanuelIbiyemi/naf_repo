@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import { createBrowserRouter } from "react-router-dom";
 import { lazy } from "react";
 
@@ -30,6 +31,13 @@ const CBTQuestionsPage = lazy(
 const InstructorDashboard = lazy(
   () => import("./Pages/instructor/dashboard/Dashboard")
 );
+const InstructorCoursesPage = lazy(
+  () => import("./Pages/instructor/courses/Courses")
+);
+const CoursesLayout = lazy(() => import("./components/CoursesLayout"));
+const CoursesDetailsPage = lazy(
+  () => import("./Pages/instructor/courses/Details")
+);
 const SettingsPage = lazy(() => import("./Pages/instructor/settings/Settings"));
 
 export const router = createBrowserRouter([
@@ -60,7 +68,16 @@ export const router = createBrowserRouter([
     children: [
       { path: "/instructor", element: <InstructorDashboard /> },
       { path: "/instructor/settings", element: <SettingsPage /> },
-      // { path: "/courses/:id", element: <SubjectsPage /> },
+      { path: "/instructor/courses", element: <InstructorCoursesPage /> },
+
+      {
+        path: "/instructor/courses/:id",
+        element: <CoursesLayout />,
+        children: [
+          { path: "/instructor/courses/:id", element: <CoursesDetailsPage /> },
+          // { path: "/instructor/courses/:id", element: <CoursesDetailsPage /> },
+        ],
+      },
       // { path: "/students", element: <StudentsPage /> },
       // { path: "/instructors", element: <InstructorsPage /> },
       // { path: "/applications", element: <FormsPage /> },

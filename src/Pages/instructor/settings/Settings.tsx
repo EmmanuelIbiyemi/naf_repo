@@ -18,17 +18,6 @@ import {
   Visibility,
   VisibilityOff,
 } from "@mui/icons-material";
-// import formStyles from "../../../components/form/form.module.scss";
-// import { LoadingButton } from "@mui/lab";
-// import logo from "../../../assets/logo.png";
-
-// type Props = {
-//   settings?: SettingsType;
-//   actions: {
-//     submit: (settings: SettingsCombinedType) => void;
-//     cancel: () => void;
-//   };
-// };
 
 const Settings = () => {
   const [showPassword, setShowPassword] = React.useState(false);
@@ -85,26 +74,6 @@ const Settings = () => {
   // set page name
   const dispatch = useAppDispatch();
   dispatch(setPageName("Settings"));
-
-  // <Box ref={containerRef} className="content-container">
-  //     <SettingsHeader
-  //       additionalButton={{
-  //         action: () => console.log("Hello"),
-  //         text: "Contact Admin",
-  //         heading: "Amina Rabiu Mustapha",
-  //         subHeading: "RANK: NAFCONS SENIOR STAFF",
-  //         image: `data:image/png;base64,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`,
-  //       }}
-  //     />
-  //     <Box
-  //       sx={{
-  //         bgcolor: "#fff",
-  //         borderRadius: "var(--border-radius)",
-  //         marginInline: "var(--padding)",
-  //         padding: "var(--padding)",
-  //         margin: "1em",
-  //       }}
-  //     ></Box>
 
   return (
     <Box ref={containerRef} className="content-container">
