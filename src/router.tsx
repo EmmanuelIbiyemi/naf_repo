@@ -48,6 +48,9 @@ const CoursesLayout = lazy(() => import("./components/CoursesLayout"));
 const CoursesDetailsPage = lazy(
   () => import("./Pages/instructor/courses/Details")
 );
+const CoursesParicipantsPage = lazy(
+  () => import("./Pages/instructor/courses/Participants")
+);
 const SettingsPage = lazy(() => import("./Pages/instructor/settings/Settings"));
 
 export const router = createBrowserRouter([
@@ -96,7 +99,14 @@ export const router = createBrowserRouter([
         path: "/instructor/courses/:id",
         element: <CoursesLayout />,
         children: [
-          { path: "/instructor/courses/:id", element: <CoursesDetailsPage /> },
+          {
+            path: "details",
+            element: <CoursesDetailsPage />,
+          },
+          {
+            path: "participants",
+            element: <CoursesParicipantsPage />,
+          },
           // { path: "/instructor/courses/:id", element: <CoursesDetailsPage /> },
         ],
       },
