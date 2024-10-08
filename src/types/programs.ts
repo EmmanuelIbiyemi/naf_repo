@@ -12,3 +12,9 @@ export type ProgramCreateType = ProgramBaseType & {};
 export type ProgramResponse = {
   data: ProgramType[];
 };
+
+export type ProgramCourse = {
+  program_id: number;
+  course_ids: number[];
+  type: string;
+};

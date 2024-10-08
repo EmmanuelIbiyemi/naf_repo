@@ -1,4 +1,5 @@
 import {
+  ProgramCourse,
   ProgramCreateType,
   ProgramResponse,
   ProgramType,
@@ -12,7 +13,7 @@ const programApi = appApi.injectEndpoints({
       providesTags: ["Programs"],
     }),
     addProgram: builder.mutation<ProgramResponse, ProgramCreateType>({
-      query: (program: ProgramCreateType) => ({
+      query: (program) => ({
         url: `/program`,
         method: "POST",
         body: program,
@@ -20,7 +21,7 @@ const programApi = appApi.injectEndpoints({
       invalidatesTags: ["Programs"],
     }),
     updateProgram: builder.mutation<ProgramResponse, ProgramType>({
-      query: (program: ProgramType) => ({
+      query: (program) => ({
         url: `/program/${program.id}`,
         method: "PUT",
         body: program,
@@ -28,11 +29,55 @@ const programApi = appApi.injectEndpoints({
       invalidatesTags: ["Programs"],
     }),
     deleteProgram: builder.mutation<ProgramResponse, number>({
-      query: (course_id: number) => ({
+      query: (course_id) => ({
         url: `/program/${course_id}`,
         method: "DELETE",
       }),
       invalidatesTags: ["Programs"],
+    }),
+
+    // Program Course
+    addProgramCourse: builder.mutation<ProgramResponse, ProgramCourse>({
+      query: (course) => ({
+        url: `/program/course`,
+        method: "POST",
+        body: course,
+      }),
+      invalidatesTags: ["Programs"],
+    }),
+    deleteProgramCourse: builder.mutation<
+      ProgramResponse,
+      { program_id: number; course_id: number }
+    >({
+      query: ({ course_id, program_id }) => ({
+        url: `/program/${program_id}/course/${course_id}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["Programs"],
+    }),
+    getProgramCourses: builder.query<
+      ProgramResponse,
+      {
+        program_id: number;
+        page: number;
+        per_page: number;
+      }
+    >({
+      query: ({ program_id, page = 1, per_page = 10 }) =>
+        `/program/${program_id}/courses?page=${page}&per_page=${per_page}`,
+      providesTags: ["Programs"],
+    }),
+    getProgramParticipants: builder.query<
+      ProgramResponse,
+      {
+        program_id: number;
+        page: number;
+        per_page: number;
+      }
+    >({
+      query: ({ program_id, page = 1, per_page = 10 }) =>
+        `/program/${program_id}/participants?page=${page}&per_page=${per_page}`,
+      providesTags: ["Programs"],
     }),
   }),
   overrideExisting: false,
@@ -43,4 +88,8 @@ export const {
   useAddProgramMutation,
   useUpdateProgramMutation,
   useDeleteProgramMutation,
+  useAddProgramCourseMutation,
+  useDeleteProgramCourseMutation,
+  useGetProgramCoursesQuery,
+  useGetProgramParticipantsQuery,
 } = programApi;

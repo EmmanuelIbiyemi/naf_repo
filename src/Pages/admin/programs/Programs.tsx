@@ -14,6 +14,7 @@ import {
 import ProgramForm from "./ProgramForm";
 import { ProgramCreateType, ProgramType } from "../../../types/programs";
 import { FormAction } from "../../../types/forms";
+import LoadingScreen from "../../../components/LoadingScreen";
 
 const ProgramPage = () => {
   const [openModal, setOpenModal] = useState({
@@ -24,7 +25,7 @@ const ProgramPage = () => {
   const [selectedProgram, setSelectedProgram] = useState<ProgramType>();
   const { data: programs } = useGetProgramsQuery(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const [addProgram] = useAddProgramMutation();
+  const [addProgram, addState] = useAddProgramMutation();
 
   // set page name
   const dispatch = useAppDispatch();
@@ -54,6 +55,11 @@ const ProgramPage = () => {
 
   return (
     <Box ref={containerRef} className="content-container">
+      {addState.isLoading ? (
+        <Box sx={{ position: "relative", zIndex: 2000 }}>
+          <LoadingScreen />
+        </Box>
+      ) : null}
       <FormModal open={openModal.add} close={() => handleCloseModal("add")}>
         <ProgramForm
           actions={{

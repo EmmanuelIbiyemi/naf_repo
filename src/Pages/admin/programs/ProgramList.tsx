@@ -3,7 +3,7 @@ import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
 import TableRow from "@mui/material/TableRow";
-import { Checkbox, IconButton } from "@mui/material";
+import { Box, Checkbox, IconButton } from "@mui/material";
 import { Delete, Edit } from "@mui/icons-material";
 import { Link } from "react-router-dom";
 import DeleteConfirmationModal from "../../../components/DeleteConfirmationModal";
@@ -18,6 +18,7 @@ import SuccessModal from "../../../components/SuccessModal";
 import ProgramForm from "./ProgramForm";
 import { FormAction } from "../../../types/forms";
 import { ProgramType } from "../../../types/programs";
+import LoadingScreen from "../../../components/LoadingScreen";
 
 const ProgramList = () => {
   const [openModal, setOpenModal] = useState({
@@ -26,9 +27,10 @@ const ProgramList = () => {
     delete: false,
   });
   const [selectedProgram, setSelectedProgram] = useState<ProgramType>();
-  const { data: programs } = useGetProgramsQuery(null);
-  const [deleteProgram] = useDeleteProgramMutation();
-  const [updateProgram] = useUpdateProgramMutation();
+  const { data: programs, isFetching: getState } = useGetProgramsQuery(null);
+  const [deleteProgram, deleteState] = useDeleteProgramMutation();
+  const [updateProgram, updateState] = useUpdateProgramMutation();
+  const [successMsg, setSuccessMsg] = useState("");
 
   const handleOpenModal = (program: ProgramType, type: string) => {
     setSelectedProgram(program);
@@ -40,27 +42,40 @@ const ProgramList = () => {
     setOpenModal((prev) => ({ ...prev, [type]: false }));
   };
 
-  const handleDelete = async (course_id: number) => {
+  const handleDelete = async (program: ProgramType) => {
     try {
-      await deleteProgram(course_id).unwrap();
+      await deleteProgram(program.id as number).unwrap();
     } catch (error) {
       console.log(error);
     }
+    handleCloseModal("delete");
+    setSuccessMsg(`You have successfully deleted Program.`);
+    handleOpenModal(program, "success");
   };
 
   const handleEditProgram = async (program: ProgramType) => {
     try {
       await updateProgram(program).unwrap();
-      console.log(program);
     } catch (error) {
       console.log(error);
     }
     handleCloseModal("edit");
+    setSuccessMsg(
+      `You have successfully updated a new Program <strong>“${selectedProgram?.name}”</strong>.`
+    );
     handleOpenModal(program, "success");
   };
 
   return (
     <TableContainer>
+      {[deleteState.isLoading, updateState.isLoading, getState].some(
+        (item) => item
+      ) ? (
+        <Box sx={{ position: "relative", zIndex: 2000 }}>
+          <LoadingScreen />
+        </Box>
+      ) : null}
+
       {/* ADD */}
       <FormModal open={openModal.edit} close={() => handleCloseModal("edit")}>
         <ProgramForm
@@ -76,7 +91,7 @@ const ProgramList = () => {
       <DeleteConfirmationModal
         actions={{
           proceed: () => {
-            if (selectedProgram) handleDelete(selectedProgram.id as number);
+            if (selectedProgram) handleDelete(selectedProgram);
             console.log("proceed");
           },
           undo: () => {
@@ -106,7 +121,7 @@ const ProgramList = () => {
         }}
         infoText=""
         open={openModal.success}
-        subTitle={`You have successfully added a new Program <strong>“${selectedProgram?.name}”</strong>.`}
+        subTitle={successMsg}
         title="Updates Successful"
       />
 
