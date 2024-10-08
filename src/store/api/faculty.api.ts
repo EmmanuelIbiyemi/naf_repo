@@ -7,8 +7,12 @@ import { appApi } from "./app.api";
 
 const facultyApi = appApi.injectEndpoints({
   endpoints: (builder) => ({
-    getFaculty: builder.query<FacultyResponse, null>({
+    getFaculties: builder.query<FacultyResponse, null>({
       query: () => "/faculty",
+      providesTags: ["Faculty"],
+    }),
+    getFaculty: builder.query<FacultyResponse, number>({
+      query: (faculty_id) => `/faculty/${faculty_id}`,
       providesTags: ["Faculty"],
     }),
     addFaculty: builder.mutation<FacultyResponse, FacultyCreateType>({
@@ -39,6 +43,7 @@ const facultyApi = appApi.injectEndpoints({
 });
 
 export const {
+  useGetFacultiesQuery,
   useGetFacultyQuery,
   useAddFacultyMutation,
   useUpdateFacultyMutation,

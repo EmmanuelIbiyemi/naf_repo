@@ -1,6 +1,8 @@
 export type FacultyBaseType = {
+  created_at: string;
+  id: number;
   name: string;
-  next_program_id: number | null;
+  updated_at: string;
 };
 
 export type FacultyType = FacultyBaseType & {
