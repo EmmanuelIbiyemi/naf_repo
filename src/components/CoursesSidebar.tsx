@@ -8,8 +8,8 @@ type NavLink = {
   children?: NavLink[];
 };
 const navLinks: NavLink[] = [
-  { content: "Course Details", link: "" },
-  { content: "Course Participants", link: "participants" },
+  { content: "Course Details", link: "details" },
+  { content: "Course Students", link: "participants" },
   { content: "Course Notes", link: "notes" },
   { content: "CBT Tests", link: "tests" },
   { content: "Schedules & Batches", link: "schedules" },
