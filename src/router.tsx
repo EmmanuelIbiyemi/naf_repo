@@ -8,6 +8,7 @@ import Page from "./Pages/admin/page/Page";
 const App = lazy(() => import("./App"));
 const Login = lazy(() => import("./Pages/login/Login"));
 const Dashboard = lazy(() => import("./Pages/admin/dashboard/Dashboard"));
+const ProgramPage = lazy(() => import("./Pages/admin/programs/Programs"));
 const CoursesPage = lazy(() => import("./Pages/admin/courses/Courses"));
 const SubjectsPage = lazy(() => import("./Pages/admin/subjects/Subjects"));
 const StudentsPage = lazy(() => import("./Pages/admin/students/Students"));
@@ -60,6 +61,7 @@ export const router = createBrowserRouter([
     element: <App />,
     children: [
       { path: "/", element: <Dashboard /> },
+      { path: "/programs", element: <ProgramPage /> },
       { path: "/courses", element: <CoursesPage /> },
       { path: "/courses/:id", element: <SubjectsPage /> },
       { path: "/students", element: <StudentsPage /> },

@@ -8,3 +8,5 @@ export type FormType = {
   submissions: number;
   last_edited: string;
 };
+
+export type FormAction<T> = (object: T) => Promise<void>;
