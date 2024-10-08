@@ -5,13 +5,14 @@ export const appApi = createApi({
   reducerPath: "appApi",
   baseQuery: myBaseQuery,
   tagTypes: [
-    "Projects",
     "Reports",
     "Users",
     "Courses",
     "Programs",
     "Faculty",
     "Departments",
+    "Levels",
+    "Participants",
   ],
   endpoints: () => ({}),
 });
