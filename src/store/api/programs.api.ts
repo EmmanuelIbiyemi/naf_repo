@@ -96,4 +96,5 @@ export const {
   useDeleteProgramCourseMutation,
   useGetProgramCoursesQuery,
   useGetProgramParticipantsQuery,
+  useGetProgramQuery,
 } = programApi;

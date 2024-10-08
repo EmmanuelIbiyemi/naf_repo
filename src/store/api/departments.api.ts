@@ -44,6 +44,7 @@ const departmentsApi = appApi.injectEndpoints({
 
 export const {
   useGetDepartmentsQuery,
+  useGetDepartmentQuery,
   useAddDepartmentMutation,
   useUpdateDepartmentMutation,
   useDeleteDepartmentMutation,
