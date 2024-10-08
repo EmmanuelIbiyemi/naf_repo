@@ -12,10 +12,10 @@ import InstructorSidebar from "./InstructorsSidebar";
 
 type Props = {
   instructors: InstructorType[];
-  editInstructor: (course: InstructorType) => void;
+  editInstructor: (instructor: InstructorType) => void;
   deleteInstructor: (id: number) => void;
   selectedInstructor: InstructorType | undefined;
-  setSelectedInstructor: (student: InstructorType) => void;
+  setSelectedInstructor: (instructor: InstructorType) => void;
 };
 
 const CourseList = ({
@@ -28,17 +28,17 @@ const CourseList = ({
   const [openModal, setOpenModal] = useState(false);
   const [openSidebar, setOpenSidebar] = useState(false);
 
-  const handleOpenModal = (student: InstructorType) => {
-    setSelectedInstructor(student);
+  const handleOpenModal = (instructor: InstructorType) => {
+    setSelectedInstructor(instructor);
     setOpenModal(true);
   };
 
-  const handleDelete = (course: InstructorType) => {
-    deleteInstructor(course.id);
+  const handleDelete = (instructor: InstructorType) => {
+    if (instructor.id) deleteInstructor(instructor.id);
   };
 
-  const handleViewInstructor = (student: InstructorType) => {
-    setSelectedInstructor(student);
+  const handleViewInstructor = (instructor: InstructorType) => {
+    setSelectedInstructor(instructor);
     setOpenSidebar(true);
   };
 
@@ -91,14 +91,14 @@ const CourseList = ({
             <TableCell>Name</TableCell>
             <TableCell>Email Address</TableCell>
             <TableCell>Phone Number</TableCell>
-            <TableCell>Courses</TableCell>
+            {/* <TableCell>Courses</TableCell> */}
             <TableCell align="center">Actions</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
-          {instructors.map((student) => (
+          {instructors.map((instructor) => (
             <TableRow
-              key={student.id}
+              key={instructor.id}
               sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
             >
               <TableCell component="th" scope="row">
@@ -113,26 +113,23 @@ const CourseList = ({
                       padding: 0,
                       textTransform: "capitalize",
                     }}
-                    onClick={() => handleViewInstructor(student)}
+                    onClick={() => handleViewInstructor(instructor)}
                   >
-                    {student.first_name} {student.last_name}
+                    {instructor.first_name} {instructor.last_name}
                   </Button>
                 </Box>
               </TableCell>
               <TableCell component="th" scope="row">
-                {student.email}
+                {instructor.email}
               </TableCell>
               <TableCell component="th" scope="row">
-                {student.phone_number}
-              </TableCell>
-              <TableCell component="th" scope="row">
-                {student.courses.map((c) => c.name).join(", ")}
+                {instructor.phone}
               </TableCell>
               <TableCell align="right">
-                <IconButton onClick={() => editInstructor(student)}>
+                <IconButton onClick={() => editInstructor(instructor)}>
                   <Edit />
                 </IconButton>
-                <IconButton onClick={() => handleOpenModal(student)}>
+                <IconButton onClick={() => handleOpenModal(instructor)}>
                   <Delete />
                 </IconButton>
               </TableCell>

@@ -14,8 +14,8 @@ import { LoadingButton } from "@mui/lab";
 import formStyles from "../../../components/form/form.module.scss";
 import {
   CourseCombinedType,
-  CourseCreateType2,
-  CourseType2,
+  CourseCreateType,
+  CourseType,
 } from "../../../types/courses";
 import { useGetInstructorsQuery } from "../../../store/api/instructors.api";
 
@@ -33,15 +33,15 @@ const CourseForm = ({ actions, course }: Props) => {
 
   const isEditMode = !!course && "instructors" in course;
 
-  const initialValues: CourseCreateType2 | CourseType2 = {
-    id: course?.id || 0,
+  const initialValues: CourseCombinedType = {
+    id: (course as CourseType)?.id || 0,
     name: course?.name || "",
     code: course?.code || "",
     credit_unit: course?.credit_unit || 2,
     semester: course?.semester || "",
-    instructor_ids: isEditMode
+    instructor_ids: (isEditMode
       ? course.instructors.map((ins) => ins.id)
-      : course?.instructor_ids || [],
+      : course?.instructor_ids) as number[],
   };
 
   const validationSchema = Yup.object({
@@ -55,7 +55,7 @@ const CourseForm = ({ actions, course }: Props) => {
   });
 
   const handleSubmit = async (values: CourseCombinedType) => {
-    if (values.id == 0) delete values.id;
+    if ("id" in values && values.id == 0) delete values.id;
     await actions.submit(values);
   };
 
@@ -142,7 +142,7 @@ const CourseForm = ({ actions, course }: Props) => {
                   multiple
                   id="instructor_ids"
                   name="instructor_ids"
-                  value={values.instructor_ids}
+                  value={(values as CourseCreateType).instructor_ids}
                   onChange={(event) => {
                     const {
                       target: { value },

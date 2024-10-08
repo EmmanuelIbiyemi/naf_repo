@@ -3,7 +3,7 @@ import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
 import TableRow from "@mui/material/TableRow";
-import { CourseFormAction, CourseType2 } from "../../../types/courses";
+import { CourseFormAction, CourseType } from "../../../types/courses";
 import { Checkbox, IconButton } from "@mui/material";
 import { Delete, Edit } from "@mui/icons-material";
 import { Link } from "react-router-dom";
@@ -24,12 +24,12 @@ const CourseList = () => {
     success: false,
     delete: false,
   });
-  const [selectedCourse, setSelectedCourse] = useState<CourseType2>();
+  const [selectedCourse, setSelectedCourse] = useState<CourseType>();
   const { data: courses } = useGetCoursesQuery(null);
   const [deleteCourse] = useDeleteCourseMutation();
   const [updateCourse] = useUpdateCourseMutation();
 
-  const handleOpenModal = (course: CourseType2, type: string) => {
+  const handleOpenModal = (course: CourseType, type: string) => {
     setSelectedCourse(course);
     setOpenModal((prev) => ({ ...prev, [type]: true }));
   };
@@ -47,7 +47,7 @@ const CourseList = () => {
     }
   };
 
-  const handleEditCourse = async (course: CourseType2) => {
+  const handleEditCourse = async (course: CourseType) => {
     try {
       await updateCourse(course).unwrap();
     } catch (error) {

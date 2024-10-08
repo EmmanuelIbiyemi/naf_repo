@@ -158,7 +158,8 @@ const SubjectForm = ({ actions, subject }: Props) => {
                       } = event;
                       const selectedIds = value as number[];
                       const foundInstructors = instructors.filter(
-                        (instructor) => selectedIds.includes(instructor.id)
+                        (instructor) =>
+                          selectedIds.includes(instructor.id as number)
                       );
                       setFieldValue("instructors", foundInstructors);
                     }}

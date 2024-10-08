@@ -9,6 +9,7 @@ import { useAppDispatch } from "../../../store/hooks";
 import { setPageName } from "../../../store/app.slice";
 import SuccessModal from "../../../components/SuccessModal";
 import {
+  InstructorCombinedType,
   InstructorCreateType,
   InstructorEditFuncType,
   InstructorType,
@@ -22,7 +23,7 @@ const InstructorsPage = () => {
     delete: true,
   });
   const [selectedInstructor, setSelectedInstructor] =
-    useState<InstructorCreateType>();
+    useState<InstructorCombinedType>();
   const [instructors, setInstructors] = useState<InstructorType[] | []>([]);
 
   // set page name
@@ -80,7 +81,7 @@ const InstructorsPage = () => {
         <InstructorForm
           actions={{
             submit: openModal.add
-              ? handdleAddInstructor
+              ? (handdleAddInstructor as InstructorEditFuncType)
               : (handdleEditCourse as InstructorEditFuncType),
             cancel: () =>
               openModal.add

@@ -69,38 +69,10 @@ const InstructorSidebar = ({
           </Typography>
           <Typography>
             <span>Phone Number</span>
-            <span>{instructor?.phone_number}</span>
+            <span>{instructor?.phone}</span>
           </Typography>
         </Box>
-        <Box sx={infoSectionStyles}>
-          <Typography
-            sx={{
-              bgcolor: "primary.main",
-              color: "primary.contrastText",
-            }}
-          >
-            Course Enrolled
-          </Typography>
-          {instructor?.courses?.map((c) => (
-            <Box
-              key={c.name}
-              sx={{
-                alignItems: "center",
-                display: "flex",
-                justifyContent: "space-between",
-                p: {
-                  margin: 0,
-                },
-              }}
-            >
-              <Box>
-                <Typography>{c.name}</Typography>
-                <Typography>{c.instructor}</Typography>
-              </Box>
-              <span>Fees paid</span>
-            </Box>
-          ))}
-        </Box>
+
         <Box className={formStyles.btn_group} sx={{ marginTop: "2rem" }}>
           <Button
             onClick={() => toggleDrawer(false)}

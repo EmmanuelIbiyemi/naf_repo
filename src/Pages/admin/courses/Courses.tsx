@@ -6,9 +6,9 @@ import { useEffect, useRef, useState } from "react";
 import CourseForm from "./CourseForm";
 import CourseList from "./CourseList";
 import {
-  CourseCreateType2,
+  CourseCreateType,
   CourseFormAction,
-  CourseType2,
+  CourseType,
 } from "../../../types/courses";
 import { useAppDispatch } from "../../../store/hooks";
 import { setPageName } from "../../../store/app.slice";
@@ -24,7 +24,7 @@ const CoursesPage = () => {
     success: false,
   });
   const [courseName, setCourseName] = useState("");
-  const [selectedCourse, setSelectedCourse] = useState<CourseType2>();
+  const [selectedCourse, setSelectedCourse] = useState<CourseType>();
   const { data: courses } = useGetCoursesQuery(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [addCourse] = useAddCourseMutation();
@@ -44,7 +44,7 @@ const CoursesPage = () => {
     setOpenModal((prev) => ({ ...prev, [type]: false }));
   };
 
-  const handleAddCourse = async (course: CourseCreateType2) => {
+  const handleAddCourse = async (course: CourseCreateType) => {
     try {
       await addCourse(course).unwrap();
       handleCloseModal("add");

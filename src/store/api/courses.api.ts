@@ -1,7 +1,8 @@
 import {
-  CourseCreateType2,
+  CourseCreateType,
+  CourseInstructor,
   CoursesResponse,
-  CourseType2,
+  CourseType,
 } from "../../types/courses";
 import { appApi } from "./app.api";
 
@@ -11,16 +12,28 @@ const coursesApi = appApi.injectEndpoints({
       query: () => "/course",
       providesTags: ["Courses"],
     }),
-    addCourse: builder.mutation<CoursesResponse, CourseCreateType2>({
-      query: (course: CourseCreateType2) => ({
+    getCourse: builder.query<CoursesResponse, number>({
+      query: (course_id) => `/course/${course_id}`,
+      providesTags: ["Courses"],
+    }),
+    addCourse: builder.mutation<CoursesResponse, CourseCreateType>({
+      query: (course) => ({
         url: `/course`,
         method: "POST",
         body: course,
       }),
       invalidatesTags: ["Courses"],
     }),
-    updateCourse: builder.mutation<CoursesResponse, CourseType2>({
-      query: (course: CourseType2) => ({
+    addCourseInstructor: builder.mutation<CoursesResponse, CourseInstructor>({
+      query: (course_instructor) => ({
+        url: `/course/instructor`,
+        method: "POST",
+        body: course_instructor,
+      }),
+      invalidatesTags: ["Courses"],
+    }),
+    updateCourse: builder.mutation<CoursesResponse, CourseType>({
+      query: (course) => ({
         url: `/course/${course.id}`,
         method: "PUT",
         body: course,
@@ -28,7 +41,7 @@ const coursesApi = appApi.injectEndpoints({
       invalidatesTags: ["Courses"],
     }),
     deleteCourse: builder.mutation<CoursesResponse, number>({
-      query: (course_id: number) => ({
+      query: (course_id) => ({
         url: `/course/${course_id}`,
         method: "DELETE",
       }),
