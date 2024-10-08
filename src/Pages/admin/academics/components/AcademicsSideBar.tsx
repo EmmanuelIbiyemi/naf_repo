@@ -13,7 +13,7 @@ const AcademicsSideBar = () => {
   const [navLinks] = useState<NavLink[]>([
     { content: "Faculties", link: "/academics" },
     { content: "Departments", link: "/academics/departments" },
-    { content: "Programs", link: "/academics/programs" },
+    { content: "Programmes", link: "/academics/programmes" },
     { content: "Levels", link: "/academics/levels" },
     { content: "Courses", link: "/academics/courses" },
   ]);

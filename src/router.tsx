@@ -11,6 +11,7 @@ const Dashboard = lazy(() => import("./Pages/admin/dashboard/Dashboard"));
 const AdminAcademicsPage = lazy(() => import("./Pages/admin/academics/Academics"));
 const FacultiesPage = lazy(() => import("./Pages/admin/academics/faculties/Faculties"));
 const DepartmentsPage = lazy(() => import("./Pages/admin/academics/departments/Departments"));
+const ProgrammesPage = lazy(() => import("./Pages/admin/academics/programmes/Programmes"));
 const CoursesPage = lazy(() => import("./Pages/admin/academics/courses/Courses"));
 const SubjectsPage = lazy(() => import("./Pages/admin/subjects/Subjects"));
 const StudentsPage = lazy(() => import("./Pages/admin/students/Students"));
@@ -83,6 +84,7 @@ export const router = createBrowserRouter([
         children: [
           { path: "", element: <FacultiesPage /> },
           { path: "departments", element: <DepartmentsPage /> },
+          { path: "programmes", element: <ProgrammesPage /> },
           { path: "courses", element: <CoursesPage /> },
           { path: "page/:name", element: <Page /> },
         ],

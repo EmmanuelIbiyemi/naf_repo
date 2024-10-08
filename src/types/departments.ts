@@ -1,7 +1,7 @@
 export type Department = {
   id?: number;
   name: string;
-  faculty: string;
+  faculty_id: string;
 };
 
 export type DepartmentResponse = {

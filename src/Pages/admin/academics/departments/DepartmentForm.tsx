@@ -29,12 +29,12 @@ const DepartmentForm = ({ actions, department }: Props) => {
   const initialValues: Department = {
     id: department?.id || 0,
     name: department?.name || "",
-    faculty: department?.faculty || "",
+    faculty_id: department?.faculty_id || "",
   };
 
   const validationSchema = Yup.object({
     name: Yup.string().required("Required"),
-    faculty: Yup.string().required("Required"),
+    faculty_id: Yup.string().required("Required"),
   });
 
   const handleSubmit = async (values: Department) => {
@@ -71,20 +71,20 @@ const DepartmentForm = ({ actions, department }: Props) => {
           </Box>
           <Box>
             <FormControl fullWidth>
-              <label htmlFor="faculty">Select Faculty</label>
+              <label htmlFor="faculty_id">Select Faculty</label>
               <Select
                 sx={{
                   padding: 0,
                   ".MuiSelect-select": { p: "5px", minHeight: "25px" },
                 }}
-                name="faculty"
-                value={values.faculty}
+                name="faculty_id"
+                value={values.faculty_id}
                 onChange={(event) => {
                   const {
                     target: { value },
                   } = event;
 
-                  setFieldValue("faculty", value);
+                  setFieldValue("faculty_id", value);
                 }}
                 input={<OutlinedInput />}
               >
