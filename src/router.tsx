@@ -8,7 +8,9 @@ import Page from "./Pages/admin/page/Page";
 const App = lazy(() => import("./App"));
 const Login = lazy(() => import("./Pages/login/Login"));
 const Dashboard = lazy(() => import("./Pages/admin/dashboard/Dashboard"));
+const AdminAcademicsPage = lazy(() => import("./Pages/admin/academics/Academics"));
 const CoursesPage = lazy(() => import("./Pages/admin/courses/Courses"));
+const FacultyPage = lazy(() => import("./Pages/admin/faculties/Faculties"));
 const SubjectsPage = lazy(() => import("./Pages/admin/subjects/Subjects"));
 const StudentsPage = lazy(() => import("./Pages/admin/students/Students"));
 const InstructorsPage = lazy(
@@ -62,6 +64,7 @@ export const router = createBrowserRouter([
       { path: "/", element: <Dashboard /> },
       { path: "/courses", element: <CoursesPage /> },
       { path: "/courses/:id", element: <SubjectsPage /> },
+      { path: "/courses/:id", element: <SubjectsPage /> },
       { path: "/students", element: <StudentsPage /> },
       { path: "/instructors", element: <InstructorsPage /> },
       { path: "/applications", element: <FormsPage /> },
@@ -73,6 +76,15 @@ export const router = createBrowserRouter([
       { path: "/posts", element: <PostPage /> },
       { path: "/posts/add", element: <AddPostPage /> },
       { path: "/post/preview", element: <PreviewPostPage /> },
+      {
+        path: "/academics",
+        element: <AdminAcademicsPage />,
+        children: [
+          { path: "", element: <FacultyPage /> },
+          { path: "courses", element: <CoursesPage /> },
+          { path: "page/:name", element: <Page /> },
+        ],
+      },
       {
         path: "/settings",
         element: <AdminSettingsPage />,
