@@ -12,6 +12,10 @@ const programApi = appApi.injectEndpoints({
       query: () => "/program",
       providesTags: ["Programs"],
     }),
+    getProgram: builder.query<ProgramResponse, number>({
+      query: (program_id) => `/program/${program_id}`,
+      providesTags: ["Programs"],
+    }),
     addProgram: builder.mutation<ProgramResponse, ProgramCreateType>({
       query: (program) => ({
         url: `/program`,
@@ -29,8 +33,8 @@ const programApi = appApi.injectEndpoints({
       invalidatesTags: ["Programs"],
     }),
     deleteProgram: builder.mutation<ProgramResponse, number>({
-      query: (course_id) => ({
-        url: `/program/${course_id}`,
+      query: (program_id) => ({
+        url: `/program/${program_id}`,
         method: "DELETE",
       }),
       invalidatesTags: ["Programs"],
