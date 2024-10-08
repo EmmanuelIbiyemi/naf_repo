@@ -1,16 +1,18 @@
 import { Box } from "@mui/material";
-import PageHeader from "../../../components/PageHeader";
-import EmptyState from "../../../components/EmptyState";
-import FormModal from "../../../components/FormModal";
+import PageHeader from "../../../../components/PageHeader";
+import EmptyState from "../../../../components/EmptyState";
+import FormModal from "../../../../components/FormModal";
 import { useEffect, useRef, useState } from "react";
-import { useAppDispatch } from "../../../store/hooks";
-import { setPageName } from "../../../store/app.slice";
-import SuccessModal from "../../../components/SuccessModal";
+import { useAppDispatch } from "../../../../store/hooks";
+import { setPageName } from "../../../../store/app.slice";
+import SuccessModal from "../../../../components/SuccessModal";
 import {
   useAddFacultyMutation,
   useGetFacultiesQuery,
-} from "../../../store/api/Faculties.api";
-import { Faculty } from "../../../types/faculties";
+} from "../../../../store/api/faculties.api";
+import { Faculty, FacultyFormAction } from "../../../../types/faculties";
+import FacultyForm from "./FacultyForm";
+import FacultyList from "./FacultyList";
 
 const FacultiesPage = () => {
   const [openModal, setOpenModal] = useState({
@@ -18,7 +20,7 @@ const FacultiesPage = () => {
     success: false,
   });
   const [facultyName, setFacultyName] = useState("");
-  const [selectedFaculty, setSelectedFaculty] = useState<FacultyType2>();
+  const [selectedFaculty, setSelectedFaculty] = useState<Faculty>();
   const { data: Faculties } = useGetFacultiesQuery(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [addFaculty] = useAddFacultyMutation();
@@ -26,7 +28,7 @@ const FacultiesPage = () => {
   // set page name
   const dispatch = useAppDispatch();
   useEffect(() => {
-    dispatch(setPageName("Faculty"));
+    dispatch(setPageName("Academics/Faculties"));
   }, [dispatch]);
 
   const handleOpenModal = (type: string) => {
@@ -83,7 +85,7 @@ const FacultiesPage = () => {
       <PageHeader
         button={{
           action: () => setOpenModal((prev) => ({ ...prev, add: true })),
-          text: "Add Faculties",
+          text: "Add Faculty",
         }}
       />
       <Box

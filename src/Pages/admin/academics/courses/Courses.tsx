@@ -1,7 +1,7 @@
 import { Box } from "@mui/material";
-import PageHeader from "../../../components/PageHeader";
-import EmptyState from "../../../components/EmptyState";
-import FormModal from "../../../components/FormModal";
+import PageHeader from "../../../../components/PageHeader";
+import EmptyState from "../../../../components/EmptyState";
+import FormModal from "../../../../components/FormModal";
 import { useEffect, useRef, useState } from "react";
 import CourseForm from "./CourseForm";
 import CourseList from "./CourseList";
@@ -9,14 +9,14 @@ import {
   CourseCreateType2,
   CourseFormAction,
   CourseType2,
-} from "../../../types/courses";
-import { useAppDispatch } from "../../../store/hooks";
-import { setPageName } from "../../../store/app.slice";
-import SuccessModal from "../../../components/SuccessModal";
+} from "../../../../types/courses";
+import { useAppDispatch } from "../../../../store/hooks";
+import { setPageName } from "../../../../store/app.slice";
+import SuccessModal from "../../../../components/SuccessModal";
 import {
   useAddCourseMutation,
   useGetCoursesQuery,
-} from "../../../store/api/courses.api";
+} from "../../../../store/api/courses.api";
 
 const CoursesPage = () => {
   const [openModal, setOpenModal] = useState({
@@ -32,7 +32,7 @@ const CoursesPage = () => {
   // set page name
   const dispatch = useAppDispatch();
   useEffect(() => {
-    dispatch(setPageName("Course"));
+    dispatch(setPageName("Academics/Courses"));
   }, [dispatch]);
 
   const handleOpenModal = (type: string) => {

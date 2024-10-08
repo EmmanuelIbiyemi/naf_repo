@@ -9,8 +9,9 @@ const App = lazy(() => import("./App"));
 const Login = lazy(() => import("./Pages/login/Login"));
 const Dashboard = lazy(() => import("./Pages/admin/dashboard/Dashboard"));
 const AdminAcademicsPage = lazy(() => import("./Pages/admin/academics/Academics"));
-const CoursesPage = lazy(() => import("./Pages/admin/courses/Courses"));
-const FacultyPage = lazy(() => import("./Pages/admin/faculties/Faculties"));
+const FacultiesPage = lazy(() => import("./Pages/admin/academics/faculties/Faculties"));
+const DepartmentsPage = lazy(() => import("./Pages/admin/academics/departments/Departments"));
+const CoursesPage = lazy(() => import("./Pages/admin/academics/courses/Courses"));
 const SubjectsPage = lazy(() => import("./Pages/admin/subjects/Subjects"));
 const StudentsPage = lazy(() => import("./Pages/admin/students/Students"));
 const InstructorsPage = lazy(
@@ -80,7 +81,8 @@ export const router = createBrowserRouter([
         path: "/academics",
         element: <AdminAcademicsPage />,
         children: [
-          { path: "", element: <FacultyPage /> },
+          { path: "", element: <FacultiesPage /> },
+          { path: "departments", element: <DepartmentsPage /> },
           { path: "courses", element: <CoursesPage /> },
           { path: "page/:name", element: <Page /> },
         ],

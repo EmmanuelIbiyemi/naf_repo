@@ -11,13 +11,13 @@ import {
   Typography,
 } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
-import formStyles from "../../../components/form/form.module.scss";
+import formStyles from "../../../../components/form/form.module.scss";
 import {
   CourseCombinedType,
   CourseCreateType2,
   CourseType2,
-} from "../../../types/courses";
-import { useGetInstructorsQuery } from "../../../store/api/instructors.api";
+} from "../../../../types/courses";
+import { useGetInstructorsQuery } from "../../../../store/api/instructors.api";
 
 const semesters = ["First Semester", "Second Semester"];
 type Props = {
