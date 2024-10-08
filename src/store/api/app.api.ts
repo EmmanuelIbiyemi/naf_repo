@@ -13,6 +13,7 @@ export const appApi = createApi({
     "Participants",
     "Instructors",
     "Semesters",
+    "Sessions",
   ],
   endpoints: () => ({}),
 });
