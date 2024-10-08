@@ -1,41 +1,26 @@
 import { Box, SxProps } from "@mui/material";
-import logo from "../../assets/logo.png";
 import { Link, useLocation } from "react-router-dom";
-import HomeIcon from "../../assets/homeIcon";
-import reportsIcon from "../../assets/reportsIcon";
-import liveClassesIcon from "../../assets/liveClassIcon";
-import SettingsIcon from "../../assets/settingsIcon";
-import { ElementType } from "react";
-import ClipBoardIcon from "../../assets/clipboardIcon";
 import { ChevronRight } from "@mui/icons-material";
 
 type NavLink = {
   content: string;
-  icon: ElementType;
   link: string;
   children?: NavLink[];
 };
 const navLinks: NavLink[] = [
-  { content: "Dashboard", icon: HomeIcon, link: "/instructor/" },
-  { content: "Courses", icon: ClipBoardIcon, link: "/instructor/courses" },
-  { content: "Reports", icon: reportsIcon, link: "/instructor/reports" },
-  {
-    content: "Live Classes",
-    icon: liveClassesIcon,
-    link: "/instructor/classes",
-  },
-  { content: "Settings", icon: SettingsIcon, link: "/instructor/settings" },
+  { content: "Course Details", link: "" },
+  { content: "Course Participants", link: "participants" },
+  { content: "Course Notes", link: "notes" },
+  { content: "CBT Tests", link: "tests" },
+  { content: "Schedules & Batches", link: "schedules" },
 ];
 
-const SideBar = () => {
+const CoursesSidebar = () => {
   const location = useLocation();
 
   const isCurrentPage = (navLink: NavLink) => {
-    console.log(navLink.link);
     if (navLink.content.toLowerCase() !== "") {
       if (location.pathname === navLink.link) return true;
-    } else if (location.pathname.includes(navLink.link)) {
-      return true;
     } else {
       if (location.pathname === "/instructor") return true;
     }
@@ -53,22 +38,13 @@ const SideBar = () => {
 
   return (
     <Box className="sidebar" sx={sideBarStyles}>
-      <img
-        src={logo}
-        alt=""
-        width={80}
-        style={{ display: "block", marginInline: "auto" }}
-      />
       <Box sx={navLinkStyles}>
         {navLinks.map((item) => (
           <Box key={`navlink-${item.content + 1}`}>
             <Link
-              className={isCurrentPage(item) ? "active" : ""}
+              className={location.pathname.includes(item.link) ? "active" : ""}
               to={item.link}
             >
-              <item.icon
-                color={isCurrentPage(item) ? "rgba(2, 54, 120, 1)" : "#fff"}
-              />
               {item.content}
             </Link>
             {isCurrentPage(item) && item.children ? (
@@ -91,17 +67,19 @@ const SideBar = () => {
   );
 };
 
-export default SideBar;
+export default CoursesSidebar;
 
 const sideBarStyles: SxProps = {
-  bgcolor: "primary.main",
+  bgcolor: "#fff",
   color: "primary.contrastText",
-  padding: "2rem",
+  //   padding: "2rem",
   position: "fixed",
   height: "100vh",
-  top: 0,
+  top: 100,
+  left: 0,
   overflow: "scroll",
-  width: "280px",
+  marginLeft: "280px",
+  width: "220px",
 
   "&::-webkit-scrollbar": {
     display: "none",
@@ -110,16 +88,17 @@ const sideBarStyles: SxProps = {
 
 const navLinkStyles: SxProps = {
   display: "grid",
-  gap: "1rem",
-  marginTop: "3rem",
+  // gap: "1rem",
+  fontSize: "0.85rem",
 
   a: {
     alignItems: "center",
-    borderRadius: "var(--border-radius)",
+    // borderRadius: "var(--border-radius)",
     display: "flex",
     gap: ".7rem",
-    padding: "1rem",
+    padding: "1.5rem",
     transition: ".2s",
+    color: "#000000",
   },
 
   img: {
@@ -127,8 +106,9 @@ const navLinkStyles: SxProps = {
   },
 
   "a.active": {
-    bgcolor: "primary.contrastText",
-    color: "primary.main",
+    bgcolor: "#02367833",
+    color: "#000000",
+    borderLeft: "6px solid #023678",
   },
 };
 

@@ -24,6 +24,8 @@ export type CoursesResponse = {
   data: CourseType2[];
 };
 
+export type CourseCombinedType = CourseCreateType2 | CourseType2;
+export type CourseFormAction = (course: CourseCombinedType) => Promise<void>;
 export type CourseCreateType = {
   name: string;
 };
@@ -34,5 +36,15 @@ export type CourseType = {
   instructor: string;
 };
 
-export type CourseCombinedType = CourseCreateType2 | CourseType2;
-export type CourseFormAction = (course: CourseCombinedType) => Promise<void>;
+type CourseContent = {
+  id: number;
+  course: string;
+  subject: string;
+  topic: string;
+  days: string;
+  time: string;
+  num_of_students: number;
+};
+
+export type CourseEditFuncType = (course: CourseCombinedType) => void;
+export type CourseContents = CourseContent;
