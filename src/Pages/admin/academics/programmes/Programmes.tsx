@@ -13,7 +13,6 @@ import {
 import { Programme, ProgrammeFormAction } from "../../../../types/programmes";
 import ProgrammeForm from "./ProgrammeForm";
 import ProgrammeList from "./ProgrammeList";
-import { setFilterBy, setFilterOptions } from "../../../../store/search.slice";
 import { useGetFacultiesQuery } from "../../../../store/api/faculties.api";
 import { useLocation } from "react-router-dom";
 
@@ -36,8 +35,6 @@ const ProgrammesPage = () => {
   const dispatch = useAppDispatch();
   useEffect(() => {
     dispatch(setPageName("Academics/Programmes"));
-    dispatch(setFilterOptions(faculties?.data?.map((f) => f.name) || []));
-    dispatch(setFilterBy("Faculty"));
   }, [dispatch, faculties]);
 
   const handleOpenModal = (type: string) => {

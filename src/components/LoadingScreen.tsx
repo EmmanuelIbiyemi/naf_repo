@@ -4,7 +4,7 @@ const LoadingScreen = () => {
   return (
     <Box
       sx={{
-        bgcolor: "rgba(255,255,255,0.5)",
+        bgcolor: "rgba(255,255,255,0.75)",
         display: "grid",
         height: "100%",
         left: 0,
