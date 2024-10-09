@@ -1,38 +1,34 @@
 import { Box } from "@mui/material";
-import PageHeader from "../../../components/PageHeader";
-import EmptyState from "../../../components/EmptyState";
-import FormModal from "../../../components/FormModal";
+import PageHeader from "../../../../components/PageHeader";
+import EmptyState from "../../../../components/EmptyState";
+import FormModal from "../../../../components/FormModal";
 import { useEffect, useRef, useState } from "react";
-import CourseForm from "./CourseForm";
-import CourseList from "./CourseList";
+import { useAppDispatch } from "../../../../store/hooks";
+import { setPageName } from "../../../../store/app.slice";
+import SuccessModal from "../../../../components/SuccessModal";
 import {
-  CourseCreateType,
-  CourseFormAction,
-  CourseType,
-} from "../../../types/courses";
-import { useAppDispatch } from "../../../store/hooks";
-import { setPageName } from "../../../store/app.slice";
-import SuccessModal from "../../../components/SuccessModal";
-import {
-  useAddCourseMutation,
-  useGetCoursesQuery,
-} from "../../../store/api/courses.api";
+  useAddFacultyMutation,
+  useGetFacultiesQuery,
+} from "../../../../store/api/faculties.api";
+import { Faculty, FacultyFormAction } from "../../../../types/faculties";
+import FacultyForm from "./FacultyForm";
+import FacultyList from "./FacultyList";
 
-const CoursesPage = () => {
+const FacultiesPage = () => {
   const [openModal, setOpenModal] = useState({
     add: false,
     success: false,
   });
-  const [courseName, setCourseName] = useState("");
-  const [selectedCourse, setSelectedCourse] = useState<CourseType>();
-  const { data: courses } = useGetCoursesQuery(null);
+  const [facultyName, setFacultyName] = useState("");
+  const [selectedFaculty, setSelectedFaculty] = useState<Faculty>();
+  const { data: Faculties } = useGetFacultiesQuery(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const [addCourse] = useAddCourseMutation();
+  const [addFaculty] = useAddFacultyMutation();
 
   // set page name
   const dispatch = useAppDispatch();
   useEffect(() => {
-    dispatch(setPageName("Course"));
+    dispatch(setPageName("Academics/Faculties"));
   }, [dispatch]);
 
   const handleOpenModal = (type: string) => {
@@ -40,16 +36,16 @@ const CoursesPage = () => {
   };
 
   const handleCloseModal = (type: string) => {
-    setSelectedCourse(undefined);
+    setSelectedFaculty(undefined);
     setOpenModal((prev) => ({ ...prev, [type]: false }));
   };
 
-  const handleAddCourse = async (course: CourseCreateType) => {
+  const handleAddFaculty = async (faculty: Faculty) => {
     try {
-      await addCourse(course).unwrap();
+      await addFaculty(faculty).unwrap();
       handleCloseModal("add");
       handleOpenModal("success");
-      setCourseName(course.name);
+      setFacultyName(faculty.name);
     } catch (error) {
       console.log(error);
     }
@@ -58,12 +54,12 @@ const CoursesPage = () => {
   return (
     <Box ref={containerRef} className="content-container">
       <FormModal open={openModal.add} close={() => handleCloseModal("add")}>
-        <CourseForm
+        <FacultyForm
           actions={{
-            submit: handleAddCourse as CourseFormAction,
+            submit: handleAddFaculty as FacultyFormAction,
             cancel: () => handleCloseModal("add"),
           }}
-          course={selectedCourse}
+          faculty={selectedFaculty}
         />
       </FormModal>
 
@@ -78,18 +74,18 @@ const CoursesPage = () => {
         }}
         close={() => {
           handleCloseModal("success");
-          setSelectedCourse(undefined);
+          setSelectedFaculty(undefined);
         }}
-        infoText=""
+        infoText="The instructors added in this faculty will get notified."
         open={openModal.success}
-        subTitle={`You have successfully added a new course <strong>“${courseName}”</strong>.`}
+        subTitle={`You have successfully added a new faculty <strong>“${facultyName}”</strong>.`}
         title="Updates Successful"
       />
 
       <PageHeader
         button={{
           action: () => setOpenModal((prev) => ({ ...prev, add: true })),
-          text: "Add Courses",
+          text: "Add Faculty",
         }}
       />
       <Box
@@ -100,12 +96,12 @@ const CoursesPage = () => {
           padding: "var(--padding)",
         }}
       >
-        {courses?.data.length ? (
-          <CourseList />
+        {Faculties?.data.length ? (
+          <FacultyList />
         ) : (
           <EmptyState
-            title="No Courses at this time"
-            subTitle="Courses will appear here after you add them in your school."
+            title="No Faculties at this time"
+            subTitle="Faculties will appear here after you add them in your school."
           />
         )}
       </Box>
@@ -113,4 +109,4 @@ const CoursesPage = () => {
   );
 };
 
-export default CoursesPage;
+export default FacultiesPage;

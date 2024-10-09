@@ -6,7 +6,7 @@ export const appApi = createApi({
   baseQuery: myBaseQuery,
   tagTypes: [
     "Courses",
-    "Programs",
+    "Programmes",
     "Faculty",
     "Departments",
     "Levels",
@@ -16,6 +16,7 @@ export const appApi = createApi({
     "Sessions",
     "Forms",
     "Posts",
+    "Faculties",
   ],
   endpoints: () => ({}),
 });

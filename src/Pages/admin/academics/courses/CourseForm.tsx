@@ -11,13 +11,13 @@ import {
   Typography,
 } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
-import formStyles from "../../../components/form/form.module.scss";
+import formStyles from "../../../../components/form/form.module.scss";
 import {
   CourseCombinedType,
   CourseCreateType,
   CourseType,
-} from "../../../types/courses";
-import { useGetInstructorsQuery } from "../../../store/api/instructors.api";
+} from "../../../../types/courses";
+import { useGetInstructorsQuery } from "../../../../store/api/instructors.api";
 
 const semesters = ["First Semester", "Second Semester"];
 type Props = {
@@ -32,16 +32,15 @@ const CourseForm = ({ actions, course }: Props) => {
   const { data: instructors } = useGetInstructorsQuery(null);
 
   const isEditMode = !!course && "instructors" in course;
-
-  const initialValues: CourseCombinedType = {
+  const initialValues: CourseCreateType | CourseType = {
     id: (course as CourseType)?.id || 0,
     name: course?.name || "",
     code: course?.code || "",
     credit_unit: course?.credit_unit || 2,
     semester: course?.semester || "",
-    instructor_ids: (isEditMode
-      ? course.instructors.map((ins) => ins.id)
-      : course?.instructor_ids) as number[],
+    instructor_ids: isEditMode
+      ? course.instructors.map((ins) => ins.id).filter((id) => id !== undefined)
+      : course?.instructor_ids || [],
   };
 
   const validationSchema = Yup.object({
@@ -55,7 +54,7 @@ const CourseForm = ({ actions, course }: Props) => {
   });
 
   const handleSubmit = async (values: CourseCombinedType) => {
-    if ("id" in values && values.id == 0) delete values.id;
+    if ((values as CourseType).id == 0) delete (values as CourseType).id;
     await actions.submit(values);
   };
 
@@ -142,7 +141,11 @@ const CourseForm = ({ actions, course }: Props) => {
                   multiple
                   id="instructor_ids"
                   name="instructor_ids"
-                  value={(values as CourseCreateType).instructor_ids}
+                  value={
+                    (values as CourseCreateType).instructor_ids
+                      ? (values as CourseCreateType).instructor_ids
+                      : (values as CourseType).instructors.map((ins) => ins.id)
+                  }
                   onChange={(event) => {
                     const {
                       target: { value },

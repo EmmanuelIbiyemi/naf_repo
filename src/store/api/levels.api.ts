@@ -43,7 +43,7 @@ const levelsApi = appApi.injectEndpoints({
     // Levels
     getProgramLevels: builder.query<LevelsResponse, number>({
       query: (program_id) => `/level/programs/${program_id}`,
-      providesTags: ["Programs", "Levels"],
+      providesTags: ["Programmes", "Levels"],
     }),
 
     // Course

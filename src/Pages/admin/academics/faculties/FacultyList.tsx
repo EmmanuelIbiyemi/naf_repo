@@ -3,70 +3,70 @@ import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
 import TableRow from "@mui/material/TableRow";
-import { CourseFormAction, CourseType } from "../../../types/courses";
+import { Faculty, FacultyFormAction } from "../../../../types/faculties";
 import { Checkbox, IconButton } from "@mui/material";
 import { Delete, Edit } from "@mui/icons-material";
 import { Link } from "react-router-dom";
-import DeleteConfirmationModal from "../../../components/DeleteConfirmationModal";
+import DeleteConfirmationModal from "../../../../components/DeleteConfirmationModal";
 import { useState } from "react";
 import {
-  useDeleteCourseMutation,
-  useGetCoursesQuery,
-  useUpdateCourseMutation,
-} from "../../../store/api/courses.api";
-import FormModal from "../../../components/FormModal";
-import CourseForm from "./CourseForm";
-import SuccessModal from "../../../components/SuccessModal";
+  useDeleteFacultyMutation,
+  useGetFacultiesQuery,
+  useUpdateFacultyMutation,
+} from "../../../../store/api/faculties.api";
+import FormModal from "../../../../components/FormModal";
+import FacultyForm from "./FacultyForm";
+import SuccessModal from "../../../../components/SuccessModal";
 
-const CourseList = () => {
+const FacultyList = () => {
   const [openModal, setOpenModal] = useState({
     edit: false,
     success: false,
     delete: false,
   });
-  const [selectedCourse, setSelectedCourse] = useState<CourseType>();
-  const { data: courses } = useGetCoursesQuery(null);
-  const [deleteCourse] = useDeleteCourseMutation();
-  const [updateCourse] = useUpdateCourseMutation();
+  const [selectedFaculty, setSelectedFaculty] = useState<Faculty>();
+  const { data: faculty } = useGetFacultiesQuery(null);
+  const [deleteFaculty] = useDeleteFacultyMutation();
+  const [updateFaculty] = useUpdateFacultyMutation();
 
-  const handleOpenModal = (course: CourseType, type: string) => {
-    setSelectedCourse(course);
+  const handleOpenModal = (faculty: Faculty, type: string) => {
+    setSelectedFaculty(faculty);
     setOpenModal((prev) => ({ ...prev, [type]: true }));
   };
 
   const handleCloseModal = (type: string) => {
-    setSelectedCourse(undefined);
+    setSelectedFaculty(undefined);
     setOpenModal((prev) => ({ ...prev, [type]: false }));
   };
 
-  const handleDelete = async (course_id: number) => {
+  const handleDelete = async (faculty_id: number) => {
     try {
-      await deleteCourse(course_id).unwrap();
+      await deleteFaculty(faculty_id).unwrap();
     } catch (error) {
       console.log(error);
     }
   };
 
-  const handleEditCourse = async (course: CourseType) => {
+  const handleEditFaculty = async (faculty: Faculty) => {
     try {
-      await updateCourse(course).unwrap();
+      await updateFaculty(faculty).unwrap();
     } catch (error) {
       console.log(error);
     }
     handleCloseModal("edit");
-    handleOpenModal(course, "success");
+    handleOpenModal(faculty, "success");
   };
 
   return (
     <TableContainer>
       {/* ADD */}
       <FormModal open={openModal.edit} close={() => handleCloseModal("edit")}>
-        <CourseForm
+        <FacultyForm
           actions={{
-            submit: handleEditCourse as CourseFormAction,
+            submit: handleEditFaculty as FacultyFormAction,
             cancel: () => handleCloseModal("edit"),
           }}
-          course={selectedCourse}
+          faculty={selectedFaculty}
         />
       </FormModal>
 
@@ -74,7 +74,7 @@ const CourseList = () => {
       <DeleteConfirmationModal
         actions={{
           proceed: () => {
-            if (selectedCourse) handleDelete(selectedCourse.id as number);
+            if (selectedFaculty) handleDelete(selectedFaculty.id as number);
             console.log("proceed");
           },
           undo: () => {
@@ -82,10 +82,10 @@ const CourseList = () => {
           },
         }}
         close={() => handleCloseModal("delete")}
-        infoText="The students enrolled in this Course will get notified."
+        infoText="The instructors enrolled in this Faculty will get notified."
         open={openModal.delete}
-        subTitle={`Are you sure you want to delete Course <strong>“${selectedCourse?.name}”</strong>? You can’t undo this action.`}
-        title="Delete Course?"
+        subTitle={`Are you sure you want to delete Faculty <strong>“${selectedFaculty?.name}”</strong>? You can’t undo this action.`}
+        title="Delete Faculty?"
       />
 
       {/* Success */}
@@ -100,19 +100,19 @@ const CourseList = () => {
         }}
         close={() => {
           handleCloseModal("success");
-          setSelectedCourse(undefined);
+          setSelectedFaculty(undefined);
         }}
         infoText=""
         open={openModal.success}
-        subTitle={`You have successfully added a new Course <strong>“${selectedCourse?.name}”</strong>.`}
+        subTitle={`You have successfully added a new Faculty <strong>“${selectedFaculty?.name}”</strong>.`}
         title="Updates Successful"
       />
 
       <Table sx={{ minWidth: 650 }}>
         <TableBody>
-          {courses?.data.map((course) => (
+          {faculty?.data.map((faculty: Faculty) => (
             <TableRow
-              key={course.id}
+              key={faculty.id}
               sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
             >
               <TableCell
@@ -122,17 +122,17 @@ const CourseList = () => {
               >
                 <Checkbox />
                 <Link
-                  to={`/courses/${course.id}`}
+                  to={`/faculty/${faculty.id}`}
                   style={{ textTransform: "capitalize" }}
                 >
-                  {course.name}
+                  {faculty.name}
                 </Link>
               </TableCell>
               <TableCell align="right">
-                <IconButton onClick={() => handleOpenModal(course, "edit")}>
+                <IconButton onClick={() => handleOpenModal(faculty, "edit")}>
                   <Edit />
                 </IconButton>
-                <IconButton onClick={() => handleOpenModal(course, "delete")}>
+                <IconButton onClick={() => handleOpenModal(faculty, "delete")}>
                   <Delete />
                 </IconButton>
               </TableCell>
@@ -144,4 +144,4 @@ const CourseList = () => {
   );
 };
 
-export default CourseList;
+export default FacultyList;
