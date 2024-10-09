@@ -16,9 +16,50 @@ import { StudentCombinedType, StudentType } from "../../../types/students";
 import { CourseType } from "../../../types/courses";
 
 const courses: CourseType[] = [
-  { id: 1, instructor: "instructor 1", name: "Course 1" },
-  { id: 2, instructor: "instructor 2", name: "Course 2" },
-  { id: 3, instructor: "instructor 3", name: "Course 3" },
+  {
+    id: 1,
+    code: "CSC101",
+    name: "Introduction to Computer Science",
+    credit_unit: 3,
+    semester: "Fall",
+    instructors: [
+      {
+        id: 1,
+        first_name: "John",
+        last_name: "Doe",
+        email: "john.doe@example.com",
+        phone: "123-456-7890",
+        address: "",
+        created_at: "",
+        photo: "",
+        updated_at: "",
+      },
+    ],
+    created_at: "2023-10-01",
+    updated_at: "2023-10-01",
+  },
+  {
+    id: 2,
+    code: "MATH201",
+    name: "Calculus I",
+    credit_unit: 4,
+    semester: "Spring",
+    instructors: [
+      {
+        id: 1,
+        first_name: "John",
+        last_name: "Doe",
+        email: "john.doe@example.com",
+        phone: "123-456-7890",
+        address: "",
+        created_at: "",
+        photo: "",
+        updated_at: "",
+      },
+    ],
+    created_at: "2023-10-02",
+    updated_at: "2023-10-02",
+  },
 ];
 
 type Props = {

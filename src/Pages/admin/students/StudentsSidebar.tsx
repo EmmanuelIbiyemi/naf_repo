@@ -93,7 +93,11 @@ const StudentSidebar = ({
             >
               <Box>
                 <Typography>{c.name}</Typography>
-                <Typography>{c.instructor}</Typography>
+                <Typography>
+                  {c.instructors.map(
+                    (ins) => `${ins.first_name} ${ins.last_name}`
+                  )}
+                </Typography>
               </Box>
               <Typography sx={{ color: "rgba(72, 156, 33, 1)" }}>
                 Fees paid

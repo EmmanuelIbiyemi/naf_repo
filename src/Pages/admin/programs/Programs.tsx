@@ -3,36 +3,34 @@ import PageHeader from "../../../components/PageHeader";
 import EmptyState from "../../../components/EmptyState";
 import FormModal from "../../../components/FormModal";
 import { useEffect, useRef, useState } from "react";
-import CourseForm from "./CourseForm";
-import CourseList from "./CourseList";
-import {
-  CourseCreateType,
-  CourseFormAction,
-  CourseType,
-} from "../../../types/courses";
+import ProgramList from "./ProgramList";
 import { useAppDispatch } from "../../../store/hooks";
 import { setPageName } from "../../../store/app.slice";
 import SuccessModal from "../../../components/SuccessModal";
 import {
-  useAddCourseMutation,
-  useGetCoursesQuery,
-} from "../../../store/api/courses.api";
+  useAddProgramMutation,
+  useGetProgramsQuery,
+} from "../../../store/api/programs.api";
+import ProgramForm from "./ProgramForm";
+import { ProgramCreateType, ProgramType } from "../../../types/programs";
+import { FormAction } from "../../../types/forms";
+import LoadingScreen from "../../../components/LoadingScreen";
 
-const CoursesPage = () => {
+const ProgramPage = () => {
   const [openModal, setOpenModal] = useState({
     add: false,
     success: false,
   });
-  const [courseName, setCourseName] = useState("");
-  const [selectedCourse, setSelectedCourse] = useState<CourseType>();
-  const { data: courses } = useGetCoursesQuery(null);
+  const [programName, setProgramName] = useState("");
+  const [selectedProgram, setSelectedProgram] = useState<ProgramType>();
+  const { data: programs } = useGetProgramsQuery(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const [addCourse] = useAddCourseMutation();
+  const [addProgram, addState] = useAddProgramMutation();
 
   // set page name
   const dispatch = useAppDispatch();
   useEffect(() => {
-    dispatch(setPageName("Course"));
+    dispatch(setPageName("Programs"));
   }, [dispatch]);
 
   const handleOpenModal = (type: string) => {
@@ -40,16 +38,16 @@ const CoursesPage = () => {
   };
 
   const handleCloseModal = (type: string) => {
-    setSelectedCourse(undefined);
+    setSelectedProgram(undefined);
     setOpenModal((prev) => ({ ...prev, [type]: false }));
   };
 
-  const handleAddCourse = async (course: CourseCreateType) => {
+  const handleAddProgram = async (program: ProgramCreateType) => {
     try {
-      await addCourse(course).unwrap();
+      await addProgram(program).unwrap();
       handleCloseModal("add");
       handleOpenModal("success");
-      setCourseName(course.name);
+      setProgramName(program.name);
     } catch (error) {
       console.log(error);
     }
@@ -57,13 +55,18 @@ const CoursesPage = () => {
 
   return (
     <Box ref={containerRef} className="content-container">
+      {addState.isLoading ? (
+        <Box sx={{ position: "relative", zIndex: 2000 }}>
+          <LoadingScreen />
+        </Box>
+      ) : null}
       <FormModal open={openModal.add} close={() => handleCloseModal("add")}>
-        <CourseForm
+        <ProgramForm
           actions={{
-            submit: handleAddCourse as CourseFormAction,
+            submit: handleAddProgram as FormAction<ProgramType>,
             cancel: () => handleCloseModal("add"),
           }}
-          course={selectedCourse}
+          program={selectedProgram}
         />
       </FormModal>
 
@@ -78,18 +81,18 @@ const CoursesPage = () => {
         }}
         close={() => {
           handleCloseModal("success");
-          setSelectedCourse(undefined);
+          setSelectedProgram(undefined);
         }}
         infoText=""
         open={openModal.success}
-        subTitle={`You have successfully added a new course <strong>“${courseName}”</strong>.`}
+        subTitle={`You have successfully added a new program <strong>“${programName}”</strong>.`}
         title="Updates Successful"
       />
 
       <PageHeader
         button={{
           action: () => setOpenModal((prev) => ({ ...prev, add: true })),
-          text: "Add Courses",
+          text: "Add Program",
         }}
       />
       <Box
@@ -100,12 +103,12 @@ const CoursesPage = () => {
           padding: "var(--padding)",
         }}
       >
-        {courses?.data.length ? (
-          <CourseList />
+        {programs?.data.length ? (
+          <ProgramList />
         ) : (
           <EmptyState
-            title="No Courses at this time"
-            subTitle="Courses will appear here after you add them in your school."
+            title="No Programs at this time"
+            subTitle="Programs will appear here after you add them in your school."
           />
         )}
       </Box>
@@ -113,4 +116,4 @@ const CoursesPage = () => {
   );
 };
 
-export default CoursesPage;
+export default ProgramPage;

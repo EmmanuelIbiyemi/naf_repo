@@ -3,70 +3,87 @@ import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
 import TableRow from "@mui/material/TableRow";
-import { CourseFormAction, CourseType } from "../../../types/courses";
-import { Checkbox, IconButton } from "@mui/material";
+import { Box, Checkbox, IconButton } from "@mui/material";
 import { Delete, Edit } from "@mui/icons-material";
 import { Link } from "react-router-dom";
 import DeleteConfirmationModal from "../../../components/DeleteConfirmationModal";
 import { useState } from "react";
 import {
-  useDeleteCourseMutation,
-  useGetCoursesQuery,
-  useUpdateCourseMutation,
-} from "../../../store/api/courses.api";
+  useDeleteProgramMutation,
+  useGetProgramsQuery,
+  useUpdateProgramMutation,
+} from "../../../store/api/programs.api";
 import FormModal from "../../../components/FormModal";
-import CourseForm from "./CourseForm";
 import SuccessModal from "../../../components/SuccessModal";
+import ProgramForm from "./ProgramForm";
+import { FormAction } from "../../../types/forms";
+import { ProgramType } from "../../../types/programs";
+import LoadingScreen from "../../../components/LoadingScreen";
 
-const CourseList = () => {
+const ProgramList = () => {
   const [openModal, setOpenModal] = useState({
     edit: false,
     success: false,
     delete: false,
   });
-  const [selectedCourse, setSelectedCourse] = useState<CourseType>();
-  const { data: courses } = useGetCoursesQuery(null);
-  const [deleteCourse] = useDeleteCourseMutation();
-  const [updateCourse] = useUpdateCourseMutation();
+  const [selectedProgram, setSelectedProgram] = useState<ProgramType>();
+  const { data: programs, isFetching: getState } = useGetProgramsQuery(null);
+  const [deleteProgram, deleteState] = useDeleteProgramMutation();
+  const [updateProgram, updateState] = useUpdateProgramMutation();
+  const [successMsg, setSuccessMsg] = useState("");
 
-  const handleOpenModal = (course: CourseType, type: string) => {
-    setSelectedCourse(course);
+  const handleOpenModal = (program: ProgramType, type: string) => {
+    setSelectedProgram(program);
     setOpenModal((prev) => ({ ...prev, [type]: true }));
   };
 
   const handleCloseModal = (type: string) => {
-    setSelectedCourse(undefined);
+    setSelectedProgram(undefined);
     setOpenModal((prev) => ({ ...prev, [type]: false }));
   };
 
-  const handleDelete = async (course_id: number) => {
+  const handleDelete = async (program: ProgramType) => {
     try {
-      await deleteCourse(course_id).unwrap();
+      await deleteProgram(program.id as number).unwrap();
     } catch (error) {
       console.log(error);
     }
+    handleCloseModal("delete");
+    setSuccessMsg(`You have successfully deleted Program.`);
+    handleOpenModal(program, "success");
   };
 
-  const handleEditCourse = async (course: CourseType) => {
+  const handleEditProgram = async (program: ProgramType) => {
     try {
-      await updateCourse(course).unwrap();
+      await updateProgram(program).unwrap();
     } catch (error) {
       console.log(error);
     }
     handleCloseModal("edit");
-    handleOpenModal(course, "success");
+    setSuccessMsg(
+      `You have successfully updated a new Program <strong>“${selectedProgram?.name}”</strong>.`
+    );
+    handleOpenModal(program, "success");
   };
 
   return (
     <TableContainer>
+      {[deleteState.isLoading, updateState.isLoading, getState].some(
+        (item) => item
+      ) ? (
+        <Box sx={{ position: "relative", zIndex: 2000 }}>
+          <LoadingScreen />
+        </Box>
+      ) : null}
+
       {/* ADD */}
       <FormModal open={openModal.edit} close={() => handleCloseModal("edit")}>
-        <CourseForm
+        <ProgramForm
           actions={{
-            submit: handleEditCourse as CourseFormAction,
+            submit: handleEditProgram as FormAction<ProgramType>,
             cancel: () => handleCloseModal("edit"),
           }}
-          course={selectedCourse}
+          program={selectedProgram}
         />
       </FormModal>
 
@@ -74,7 +91,7 @@ const CourseList = () => {
       <DeleteConfirmationModal
         actions={{
           proceed: () => {
-            if (selectedCourse) handleDelete(selectedCourse.id as number);
+            if (selectedProgram) handleDelete(selectedProgram);
             console.log("proceed");
           },
           undo: () => {
@@ -82,10 +99,10 @@ const CourseList = () => {
           },
         }}
         close={() => handleCloseModal("delete")}
-        infoText="The students enrolled in this Course will get notified."
+        infoText="The students enrolled in this Program will get notified."
         open={openModal.delete}
-        subTitle={`Are you sure you want to delete Course <strong>“${selectedCourse?.name}”</strong>? You can’t undo this action.`}
-        title="Delete Course?"
+        subTitle={`Are you sure you want to delete Program <strong>“${selectedProgram?.name}”</strong>? You can’t undo this action.`}
+        title="Delete Program?"
       />
 
       {/* Success */}
@@ -100,19 +117,19 @@ const CourseList = () => {
         }}
         close={() => {
           handleCloseModal("success");
-          setSelectedCourse(undefined);
+          setSelectedProgram(undefined);
         }}
         infoText=""
         open={openModal.success}
-        subTitle={`You have successfully added a new Course <strong>“${selectedCourse?.name}”</strong>.`}
+        subTitle={successMsg}
         title="Updates Successful"
       />
 
       <Table sx={{ minWidth: 650 }}>
         <TableBody>
-          {courses?.data.map((course) => (
+          {programs?.data.map((program) => (
             <TableRow
-              key={course.id}
+              key={program.id}
               sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
             >
               <TableCell
@@ -122,17 +139,17 @@ const CourseList = () => {
               >
                 <Checkbox />
                 <Link
-                  to={`/courses/${course.id}`}
+                  to={`/program/${program.id}`}
                   style={{ textTransform: "capitalize" }}
                 >
-                  {course.name}
+                  {program.name}
                 </Link>
               </TableCell>
               <TableCell align="right">
-                <IconButton onClick={() => handleOpenModal(course, "edit")}>
+                <IconButton onClick={() => handleOpenModal(program, "edit")}>
                   <Edit />
                 </IconButton>
-                <IconButton onClick={() => handleOpenModal(course, "delete")}>
+                <IconButton onClick={() => handleOpenModal(program, "delete")}>
                   <Delete />
                 </IconButton>
               </TableCell>
@@ -144,4 +161,4 @@ const CourseList = () => {
   );
 };
 
-export default CourseList;
+export default ProgramList;

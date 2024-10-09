@@ -1,13 +1,51 @@
-import { InstructorsResponse } from "../../types/instructors";
+import {
+  InstructorCreateType,
+  InstructorsResponse,
+  InstructorType,
+} from "../../types/instructors";
 import { appApi } from "./app.api";
 
 const instructorsApi = appApi.injectEndpoints({
   endpoints: (builder) => ({
     getInstructors: builder.query<InstructorsResponse, null>({
       query: () => "/instructor",
+      providesTags: ["Instructors"],
+    }),
+    getInstructor: builder.query<InstructorsResponse, number>({
+      query: (instructor_id) => `/instructor/${instructor_id}`,
+      providesTags: ["Instructors"],
+    }),
+    addInstructor: builder.mutation<InstructorsResponse, InstructorCreateType>({
+      query: (instructor) => ({
+        url: `/instructor`,
+        method: "POST",
+        body: instructor,
+      }),
+      invalidatesTags: ["Instructors"],
+    }),
+    updateInstructor: builder.mutation<InstructorsResponse, InstructorType>({
+      query: (instructor) => ({
+        url: `/instructor/${instructor.id}`,
+        method: "PUT",
+        body: instructor,
+      }),
+      invalidatesTags: ["Instructors"],
+    }),
+    deleteInstructor: builder.mutation<InstructorsResponse, number>({
+      query: (instructor_id) => ({
+        url: `/instructor/${instructor_id}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["Instructors"],
     }),
   }),
   overrideExisting: false,
 });
 
-export const { useGetInstructorsQuery } = instructorsApi;
+export const {
+  useGetInstructorsQuery,
+  useAddInstructorMutation,
+  useUpdateInstructorMutation,
+  useDeleteInstructorMutation,
+  useGetInstructorQuery,
+} = instructorsApi;

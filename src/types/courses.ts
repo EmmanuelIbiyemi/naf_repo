@@ -1,40 +1,29 @@
-import { InstructorType2 } from "./instructors";
+import { InstructorType } from "./instructors";
 
-export type CourseType2 = {
+export type CourseBaseType = {
   code: string;
-  created_at: string;
   credit_unit: number;
-  id?: number;
-  instructors: InstructorType2[];
   name: string;
   semester: string;
+};
+
+export type CourseType = CourseBaseType & {
+  id?: number;
+  instructors: InstructorType[];
+  created_at: string;
   updated_at: string;
 };
 
-export type CourseCreateType2 = {
-  code: string;
-  credit_unit: number;
-  id?: number;
-  name: string;
-  semester: string;
+export type CourseCreateType = CourseBaseType & {
   instructor_ids: number[];
 };
 
 export type CoursesResponse = {
-  data: CourseType2[];
+  data: CourseType[];
 };
 
-export type CourseCombinedType = CourseCreateType2 | CourseType2;
+export type CourseCombinedType = CourseCreateType | CourseType;
 export type CourseFormAction = (course: CourseCombinedType) => Promise<void>;
-export type CourseCreateType = {
-  name: string;
-};
-
-export type CourseType = {
-  id: number;
-  name: string;
-  instructor: string;
-};
 
 type CourseContent = {
   id: number;
@@ -48,3 +37,8 @@ type CourseContent = {
 
 export type CourseEditFuncType = (course: CourseCombinedType) => void;
 export type CourseContents = CourseContent;
+
+export type CourseInstructor = {
+  course_id: number;
+  instructor_ids: number[];
+};
