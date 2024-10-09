@@ -13,15 +13,22 @@ import {
 import { Programme, ProgrammeFormAction } from "../../../../types/programmes";
 import ProgrammeForm from "./ProgrammeForm";
 import ProgrammeList from "./ProgrammeList";
+import { setFilterBy, setFilterOptions } from "../../../../store/search.slice";
+import { useGetFacultiesQuery } from "../../../../store/api/faculties.api";
+import { useLocation } from "react-router-dom";
 
 const ProgrammesPage = () => {
+  const location = useLocation();
   const [openModal, setOpenModal] = useState({
     add: false,
     success: false,
   });
   const [programmeName, setProgrammeName] = useState("");
   const [selectedProgramme, setSelectedProgramme] = useState<Programme>();
-  const { data: Programmes } = useGetProgrammesQuery(null);
+  const { data: Programmes } = useGetProgrammesQuery(
+    location.state?.department_id
+  );
+  const { data: faculties } = useGetFacultiesQuery(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [addProgramme] = useAddProgrammeMutation();
 
@@ -29,7 +36,9 @@ const ProgrammesPage = () => {
   const dispatch = useAppDispatch();
   useEffect(() => {
     dispatch(setPageName("Academics/Programmes"));
-  }, [dispatch]);
+    dispatch(setFilterOptions(faculties?.data?.map((f) => f.name) || []));
+    dispatch(setFilterBy("Faculty"));
+  }, [dispatch, faculties]);
 
   const handleOpenModal = (type: string) => {
     setOpenModal((prev) => ({ ...prev, [type]: true }));

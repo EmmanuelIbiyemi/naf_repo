@@ -1,18 +1,15 @@
-import {
-  Programme,
-  ProgrammeResponse
-} from "../../types/programmes";
+import { Programme, ProgrammeResponse } from "../../types/programmes";
 import { appApi } from "./app.api";
 
 const programmesApi = appApi.injectEndpoints({
   endpoints: (builder) => ({
-    getProgrammes: builder.query<ProgrammeResponse, null>({
-      query: () => "/programme",
+    getProgrammes: builder.query<ProgrammeResponse, number>({
+      query: (department_id) => `/program/department/${department_id}`,
       providesTags: ["Programmes"],
     }),
     addProgramme: builder.mutation<ProgrammeResponse, Programme>({
       query: (programme: Programme) => ({
-        url: `/programme`,
+        url: `/program`,
         method: "POST",
         body: programme,
       }),
@@ -20,7 +17,7 @@ const programmesApi = appApi.injectEndpoints({
     }),
     updateProgramme: builder.mutation<Programme, Programme>({
       query: (programme: Programme) => ({
-        url: `/programme/${programme.id}`,
+        url: `/program/${programme.id}`,
         method: "PUT",
         body: programme,
       }),
@@ -28,7 +25,7 @@ const programmesApi = appApi.injectEndpoints({
     }),
     deleteProgramme: builder.mutation<Programme, number>({
       query: (programme_id: number) => ({
-        url: `/programme/${programme_id}`,
+        url: `/program/${programme_id}`,
         method: "DELETE",
       }),
       invalidatesTags: ["Programmes"],

@@ -11,9 +11,11 @@ const departmentsApi = appApi.injectEndpoints({
       query: (faculty_id) => `/department/faculty/${faculty_id}`,
       providesTags: ["Departments"],
     }),
+    getDepartmentsM: builder.mutation<DepartmentsResponse, number>({
+      query: (faculty_id) => `/department/faculty/${faculty_id}`,
+    }),
     getDepartment: builder.query<DepartmentsResponse, number>({
       query: (department_id) => `/department/${department_id}`,
-      providesTags: ["Departments"],
     }),
     addDepartment: builder.mutation<DepartmentsResponse, DepartmentCreateType>({
       query: (department: DepartmentCreateType) => ({
@@ -44,6 +46,7 @@ const departmentsApi = appApi.injectEndpoints({
 
 export const {
   useGetDepartmentsQuery,
+  useGetDepartmentsMMutation,
   useGetDepartmentQuery,
   useAddDepartmentMutation,
   useUpdateDepartmentMutation,

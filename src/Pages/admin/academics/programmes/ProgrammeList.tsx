@@ -4,9 +4,8 @@ import TableCell from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
 import TableRow from "@mui/material/TableRow";
 import { Programme, ProgrammeFormAction } from "../../../../types/programmes";
-import { Checkbox, IconButton } from "@mui/material";
+import { Button, Checkbox, IconButton } from "@mui/material";
 import { Delete, Edit } from "@mui/icons-material";
-import { Link } from "react-router-dom";
 import DeleteConfirmationModal from "../../../../components/DeleteConfirmationModal";
 import { useState } from "react";
 import {
@@ -17,15 +16,20 @@ import {
 import FormModal from "../../../../components/FormModal";
 import ProgrammeForm from "./ProgrammeForm";
 import SuccessModal from "../../../../components/SuccessModal";
+import { useLocation, useNavigate } from "react-router-dom";
 
 const ProgrammeList = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
   const [openModal, setOpenModal] = useState({
     edit: false,
     success: false,
     delete: false,
   });
   const [selectedProgramme, setSelectedProgramme] = useState<Programme>();
-  const { data: programme } = useGetProgrammesQuery(null);
+  const { data: programme } = useGetProgrammesQuery(
+    location.state?.department_id
+  );
   const [deleteProgramme] = useDeleteProgrammeMutation();
   const [updateProgramme] = useUpdateProgrammeMutation();
 
@@ -121,18 +125,31 @@ const ProgrammeList = () => {
                 sx={{ alignItems: "center", display: "flex", gap: "1rem" }}
               >
                 <Checkbox />
-                <Link
-                  to={`/programme/${programme.id}`}
-                  style={{ textTransform: "capitalize" }}
+                <Button
+                  onClick={() =>
+                    navigate("/academics/levels", {
+                      state: { programme_id: programme.id },
+                    })
+                  }
+                  sx={{
+                    "&.MuiButton-root": {
+                      border: "none",
+                      color: "inherit",
+                      padding: 0,
+                      textTransform: "capitalize",
+                    },
+                  }}
                 >
                   {programme.name}
-                </Link>
+                </Button>
               </TableCell>
               <TableCell align="right">
                 <IconButton onClick={() => handleOpenModal(programme, "edit")}>
                   <Edit />
                 </IconButton>
-                <IconButton onClick={() => handleOpenModal(programme, "delete")}>
+                <IconButton
+                  onClick={() => handleOpenModal(programme, "delete")}
+                >
                   <Delete />
                 </IconButton>
               </TableCell>
