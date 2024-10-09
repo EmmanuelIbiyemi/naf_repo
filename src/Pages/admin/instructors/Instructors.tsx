@@ -14,6 +14,11 @@ import {
   InstructorEditFuncType,
   InstructorType,
 } from "../../../types/instructors";
+import {
+  useAddInstructorMutation,
+  useGetInstructorsQuery,
+} from "../../../store/api/instructors.api";
+import LoadingScreen from "../../../components/LoadingScreen";
 
 const InstructorsPage = () => {
   const [openModal, setOpenModal] = useState({
@@ -24,13 +29,15 @@ const InstructorsPage = () => {
   });
   const [selectedInstructor, setSelectedInstructor] =
     useState<InstructorCombinedType>();
-  const [instructors, setInstructors] = useState<InstructorType[] | []>([]);
+  const { data: instructors, isLoading } = useGetInstructorsQuery(null);
+  const [addInstructor, addState] = useAddInstructorMutation();
 
   // set page name
   const dispatch = useAppDispatch();
   dispatch(setPageName("Instructors"));
 
   const handleOpenModal = (type: string) => {
+    if (type == "add") setSelectedInstructor(undefined);
     setOpenModal((prev) => ({ ...prev, [type]: true }));
   };
 
@@ -39,38 +46,25 @@ const InstructorsPage = () => {
     if (type == "success") setSelectedInstructor(undefined);
   };
 
-  const handdleAddInstructor = (instructor: InstructorCreateType) => {
-    setInstructors((prev) => [...prev, { ...instructor, id: prev.length + 1 }]);
+  const handleAddInstructor = async (instructor: InstructorCreateType) => {
+    try {
+      await addInstructor(instructor).unwrap();
+    } catch (error) {
+      console.log(error);
+    }
     setSelectedInstructor(instructor);
     handleCloseModal("add");
     handleOpenModal("success");
   };
 
-  const handdleEditCourse = (instructor: InstructorType) => {
-    setInstructors((prev) => {
-      const temp = [...prev];
-      const foundCourseIndex = instructors.findIndex(
-        (crs) => crs.id == instructor.id
-      );
-      temp[foundCourseIndex] = { ...instructor };
-      return temp;
-    });
-    handleCloseModal("edit");
-    setSelectedInstructor(instructor);
-    handleOpenModal("success");
-  };
-
-  const handleDeleteInstructor = (id: number) => {
-    setInstructors((prev) => prev.filter((crs) => crs.id != id));
-  };
-
-  const handleOpenEditModal = (instructor: InstructorType) => {
-    setSelectedInstructor(instructor);
-    handleOpenModal("edit");
-  };
-
   return (
     <Box className="content-container">
+      {[isLoading, addState.isLoading].some((item) => item) ? (
+        <Box sx={{ position: "relative", zIndex: 2000 }}>
+          <LoadingScreen />
+        </Box>
+      ) : null}
+
       <FormModal
         open={openModal.add || openModal.edit}
         close={() => {
@@ -80,13 +74,8 @@ const InstructorsPage = () => {
       >
         <InstructorForm
           actions={{
-            submit: openModal.add
-              ? (handdleAddInstructor as InstructorEditFuncType)
-              : (handdleEditCourse as InstructorEditFuncType),
-            cancel: () =>
-              openModal.add
-                ? handleCloseModal("add")
-                : handleCloseModal("edit"),
+            submit: handleAddInstructor as InstructorEditFuncType,
+            cancel: () => handleCloseModal("add"),
           }}
           instructor={selectedInstructor as InstructorType}
         />
@@ -122,11 +111,8 @@ const InstructorsPage = () => {
           padding: "var(--padding)",
         }}
       >
-        {instructors.length ? (
+        {instructors?.data.length ? (
           <InstructorList
-            instructors={instructors}
-            editInstructor={handleOpenEditModal}
-            deleteInstructor={handleDeleteInstructor}
             selectedInstructor={selectedInstructor as InstructorType}
             setSelectedInstructor={setSelectedInstructor}
           />

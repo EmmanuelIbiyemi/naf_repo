@@ -63,10 +63,6 @@ const StudentList = ({ selectedStudent, setSelectedStudent }: Props) => {
     handleCloseModal("delete");
   };
 
-  const handleOpenEditModal = (student: StudentType) => {
-    handleOpenModal(student, "edit");
-  };
-
   const handleEditStudent = async (student: StudentType) => {
     try {
       await updateStudent(student).unwrap();
@@ -91,7 +87,7 @@ const StudentList = ({ selectedStudent, setSelectedStudent }: Props) => {
         student={selectedStudent as StudentType}
         toggleDrawer={toggleDrawer}
         openEditModal={() =>
-          handleOpenEditModal(selectedStudent as StudentType)
+          handleOpenModal(selectedStudent as StudentType, "edit")
         }
       />
       <DeleteConfirmationModal
@@ -193,7 +189,7 @@ const StudentList = ({ selectedStudent, setSelectedStudent }: Props) => {
                 {student.courses?.map((c) => c.name).join(", ")}
               </TableCell>
               <TableCell align="right">
-                <IconButton onClick={() => handleOpenEditModal(student)}>
+                <IconButton onClick={() => handleOpenModal(student, "edit")}>
                   <Edit />
                 </IconButton>
                 <IconButton onClick={() => handleOpenModal(student, "delete")}>

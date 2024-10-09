@@ -33,6 +33,7 @@ const StudentsPage = () => {
   }, []);
 
   const handleOpenModal = (type: string) => {
+    if (type == "add") setSelectedStudent(undefined);
     setOpenModal((prev) => ({ ...prev, [type]: true }));
   };
 
