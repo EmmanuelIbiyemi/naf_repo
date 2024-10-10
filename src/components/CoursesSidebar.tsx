@@ -9,7 +9,7 @@ type NavLink = {
 };
 const navLinks: NavLink[] = [
   { content: "Course Details", link: "details" },
-  { content: "Course Students", link: "participants" },
+  { content: "Course Students", link: "students" },
   { content: "Course Notes", link: "notes" },
   { content: "CBT Tests", link: "tests" },
   { content: "Schedules & Batches", link: "schedules" },

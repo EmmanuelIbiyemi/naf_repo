@@ -8,6 +8,8 @@ import LoadingScreen from "./components/LoadingScreen.tsx";
 import { Provider } from "react-redux";
 import { store } from "./store/store.ts";
 
+import "@mdxeditor/editor/style.css";
+
 const theme = createTheme({
   palette: {
     primary: {

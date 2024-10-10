@@ -6,7 +6,7 @@ type PaginationProps = {
   totalNumber: number;
   count: number;
   page: number;
-  handleChangePage: () => void;
+  handleChangePage: (event: React.ChangeEvent<unknown>, page: number) => void;
 };
 
 const CustomPagination = ({
