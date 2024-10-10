@@ -7,7 +7,7 @@ import TableRow from "@mui/material/TableRow";
 import { Box, Checkbox, IconButton } from "@mui/material";
 import { Delete, Edit } from "@mui/icons-material";
 import { Link } from "react-router-dom";
-import CustomPagination from "../../../../components/CustomPagination";
+import CustomPagination from "../../../components/CustomPagination";
 
 interface ListType {
   id: number;

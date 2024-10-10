@@ -11,7 +11,7 @@ import * as yup from "yup";
 // } from "../../../store/api/courses.api";
 
 import CustomSuccessModal from "../../../../components/CustomSuccessModal";
-import NotesUploadModal from "./NotesUploadModal";
+import NotesUploadModal from "../notes/NotesUploadModal";
 import CoursesItemList from "../CoursesItemList";
 import SuccessModal from "../../../../components/SuccessModal";
 import DeleteConfirmationModal from "../../../../components/DeleteConfirmationModal";
@@ -24,7 +24,7 @@ interface NoteType {
   modified: string;
 }
 
-const Notes = () => {
+const Tests = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [openModal, setOpenModal] = useState(false);
   const [openActionsModal, setOpenActionsModal] = useState({
@@ -360,4 +360,4 @@ const notes = [
   },
 ];
 
-export default Notes;
+export default Tests;
