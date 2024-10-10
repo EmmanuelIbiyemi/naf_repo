@@ -31,7 +31,6 @@ const SideBar = () => {
   const location = useLocation();
 
   const isCurrentPage = (navLink: NavLink) => {
-    console.log(navLink.link);
     if (navLink.content.toLowerCase() !== "") {
       if (location.pathname === navLink.link) return true;
     } else if (location.pathname.includes(navLink.link)) {

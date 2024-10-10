@@ -58,6 +58,7 @@ const Header = () => {
               sx={{
                 color: "rgba(160, 152, 174, 1)",
                 letterSpacing: 0.1,
+                textTransform: "capitalize",
               }}
             >
               {user?.role || "Admin"}
