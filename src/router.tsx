@@ -72,6 +72,13 @@ const CoursesNotesPage = lazy(
 const CreateNotePage = lazy(
   () => import("./Pages/instructor/courses/notes/NewNote")
 );
+const CoursesTestsPage = lazy(
+  () => import("./Pages/instructor/courses/cbt/Tests")
+);
+const ReportsPage = lazy(() => import("./Pages/instructor/reports/Reports"));
+const LiveClassesPage = lazy(
+  () => import("./Pages/instructor/classes/LiveClasses")
+);
 const SettingsPage = lazy(() => import("./Pages/instructor/settings/Settings"));
 
 export const router = createBrowserRouter([
@@ -146,8 +153,17 @@ export const router = createBrowserRouter([
             element: <CoursesNotesPage />,
           },
           { path: "notes/new", element: <CreateNotePage /> },
+          { path: "tests", element: <CoursesTestsPage /> },
+          { path: "classes", element: <LiveClassesPage /> },
         ],
       },
+
+      { path: "/instructor/reports", element: <ReportsPage /> },
+      { path: "classes", element: <LiveClassesPage /> },
+      { path: "/instructor/post", element: <PostPage /> },
+      { path: "/instructor/posts/add", element: <AddPostPage /> },
+      { path: "/instructor/post/preview", element: <PreviewPostPage /> },
+
       // { path: "/students", element: <StudentsPage /> },
       // { path: "/instructors", element: <InstructorsPage /> },
       // { path: "/applications", element: <FormsPage /> },

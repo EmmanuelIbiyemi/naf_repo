@@ -4,10 +4,10 @@ import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
 import TableRow from "@mui/material/TableRow";
-import { Box, Checkbox, IconButton } from "@mui/material";
-import { Delete, Edit } from "@mui/icons-material";
+import { Box, Checkbox, IconButton, Menu, MenuItem } from "@mui/material";
+import { Delete, Edit, MoreVert } from "@mui/icons-material";
 import { Link } from "react-router-dom";
-import CustomPagination from "../../../../components/CustomPagination";
+import CustomPagination from "../../../components/CustomPagination";
 
 interface ListType {
   id: number;
@@ -18,6 +18,7 @@ interface ListType {
 
 type ListProps = {
   lists: ListType[];
+  menu?: boolean;
   handleOpenActionsModal: (list: ListType, type: string) => void;
   handleEditActionsModal: (list: ListType) => void;
 };
@@ -26,10 +27,19 @@ const ITEMS_PER_PAGE = 10;
 
 const CoursesItemList = ({
   lists,
+  menu,
   handleOpenActionsModal,
   handleEditActionsModal,
 }: ListProps) => {
   const [currentPage, setCurrentPage] = useState(1);
+  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+  const open = Boolean(anchorEl);
+  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
 
   const handleChangePage = (
     _event: React.ChangeEvent<unknown>,
@@ -70,7 +80,7 @@ const CoursesItemList = ({
                 >
                   <Checkbox />
                   <Link
-                    to={`lists/${list.id}`}
+                    to={`${list.id}`}
                     style={{ textTransform: "capitalize" }}
                   >
                     {list.name}
@@ -85,6 +95,30 @@ const CoursesItemList = ({
                   >
                     <Delete />
                   </IconButton>
+                  {menu && (
+                    <IconButton
+                      // onClick={() => handleOpenActionsModal(list, "delete")}
+                      aria-controls={open ? "basic-menu" : undefined}
+                      aria-haspopup="true"
+                      aria-expanded={open ? "true" : undefined}
+                      onClick={handleClick}
+                    >
+                      <MoreVert />
+                      <Menu
+                        id="basic-menu"
+                        anchorEl={anchorEl}
+                        open={open}
+                        onClose={handleClose}
+                        MenuListProps={{
+                          "aria-labelledby": "basic-button",
+                        }}
+                      >
+                        <MenuItem onClick={handleClose}>Profile</MenuItem>
+                        <MenuItem onClick={handleClose}>My account</MenuItem>
+                        <MenuItem onClick={handleClose}>Logout</MenuItem>
+                      </Menu>
+                    </IconButton>
+                  )}
                 </TableCell>
               </TableRow>
             ))}

@@ -11,31 +11,36 @@ import * as yup from "yup";
 // } from "../../../store/api/courses.api";
 
 import CustomSuccessModal from "../../../../components/CustomSuccessModal";
-import NotesUploadModal from "./NotesUploadModal";
+import NotesUploadModal from "../notes/NotesUploadModal";
 import CoursesItemList from "../CoursesItemList";
 import SuccessModal from "../../../../components/SuccessModal";
 import DeleteConfirmationModal from "../../../../components/DeleteConfirmationModal";
+import GenerateReportModal from "./GenerateReportModal";
 // import FormModal from "../../../../components/FormModal";
 
-interface NoteType {
+interface TestType {
   id: number;
   name: string;
   created: string;
   modified: string;
 }
 
-const Notes = () => {
+const Tests = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [openModal, setOpenModal] = useState(false);
+  const [openGenerateReportModal, setOpenGenerateReportModal] = useState(false);
   const [openActionsModal, setOpenActionsModal] = useState({
     edit: false,
     success: false,
     delete: false,
   });
-  const [selectedNotes, setSelectedNotes] = useState<NoteType | undefined>();
+  const [selectedTests, setSelectedTests] = useState<TestType | undefined>();
 
   const handleUploadModalOpen = () => setOpenModal(true);
   const handleUploadModalClose = () => setOpenModal(false);
+  const handleOpenGenerateReportModal = () => setOpenGenerateReportModal(true);
+  const handleCloseGenerateReportModal = () =>
+    setOpenGenerateReportModal(false);
   const [openFileSuccessModal, setOpenFileSuccessModal] = useState(false);
 
   const handleDelete = (noteId: number) => {
@@ -43,17 +48,17 @@ const Notes = () => {
     setOpenActionsModal((prev) => ({ ...prev, delete: true }));
   };
 
-  const handleOpenActionsModal = (course: NoteType, type: string) => {
-    setSelectedNotes(course);
+  const handleOpenActionsModal = (course: TestType, type: string) => {
+    setSelectedTests(course);
     setOpenActionsModal((prev) => ({ ...prev, [type]: true }));
   };
 
   const handleCloseActionsModal = (type: string) => {
-    setSelectedNotes(undefined);
+    setSelectedTests(undefined);
     setOpenActionsModal((prev) => ({ ...prev, [type]: false }));
   };
 
-  const handleEditActionsModal = async (note: NoteType) => {
+  const handleEditActionsModal = async (note: TestType) => {
     console.log(note);
     handleCloseActionsModal("edit");
     handleOpenActionsModal(note, "success");
@@ -62,17 +67,19 @@ const Notes = () => {
   const formik = useFormik({
     initialValues: {
       subject: "",
-      level: "",
-      topic: "",
-      body: "",
-      resources: [],
-      fileName: "",
+      totalQuestions: 0,
+      passingPercentage: 0,
+      scheduleDate: "",
+      expirationDate: "",
+      type: "string",
     },
     validationSchema: yup.object({
       subject: yup.string().required("Required"),
-      level: yup.string().required("Required"),
-      topic: yup.string().required("Required"),
-      body: yup.string().required(""),
+      totalQuestions: yup.number().required("Required"),
+      passingPercentage: yup.number().required("Required"),
+      scheduleDate: yup.string().required("Required"),
+      expirationDate: yup.string().required("Required"),
+      type: yup.string().required("Required"),
     }),
     onSubmit: async (values: unknown) => {
       try {
@@ -146,7 +153,7 @@ const Notes = () => {
             submit: handleAddCourse as CourseFormAction,
             cancel: () => handleCloseActionsModal("add"),
           }}
-          course={selectedNotes}
+          course={selectedTests}
         />
       </FormModal> */}
       <NotesUploadModal
@@ -173,28 +180,33 @@ const Notes = () => {
         }}
       >
         <InstructorPageHeader
-          heading="Notes"
-          subHeading="List of notes that have been created in the course “Sosososo And So”"
+          heading="CBT Tests"
+          subHeading="List of tests that have been created in the course “Sosososo And So”"
           button={{
-            action: () => console.log("Hi"),
+            action: handleOpenGenerateReportModal,
             text: "Generate Report",
           }}
           additionalButton={{
             action: handleUploadModalOpen,
-            text: "Create New Note",
+            text: "Create New Test",
           }}
+        />
+        <GenerateReportModal
+          open={openGenerateReportModal}
+          handleClose={handleCloseGenerateReportModal}
         />
         <Box>
           <CoursesItemList
             lists={notes}
             handleOpenActionsModal={handleOpenActionsModal}
             handleEditActionsModal={handleEditActionsModal}
+            menu={true}
           />
         </Box>
         <DeleteConfirmationModal
           actions={{
             proceed: () => {
-              if (selectedNotes) handleDelete(selectedNotes.id);
+              if (selectedTests) handleDelete(selectedTests.id);
               console.log("proceed");
             },
             undo: () => {
@@ -204,7 +216,7 @@ const Notes = () => {
           close={() => handleCloseActionsModal("delete")}
           infoText="The students enrolled in this Course will get notified."
           open={openActionsModal.delete}
-          subTitle={`Are you sure you want to delete Course <strong>"${selectedNotes?.name}"</strong>? You can't undo this action.`}
+          subTitle={`Are you sure you want to delete Course <strong>"${selectedTests?.name}"</strong>? You can't undo this action.`}
           title="Delete Course?"
         />
 
@@ -219,11 +231,11 @@ const Notes = () => {
           }}
           close={() => {
             handleCloseActionsModal("success");
-            setSelectedNotes(undefined);
+            setSelectedTests(undefined);
           }}
           infoText=""
           open={openActionsModal.success}
-          subTitle={`You have successfully added a new Course <strong>"${selectedNotes?.name}"</strong>.`}
+          subTitle={`You have successfully added a new Course <strong>"${selectedTests?.name}"</strong>.`}
           title="Updates Successful"
         />
       </Box>
@@ -360,4 +372,4 @@ const notes = [
   },
 ];
 
-export default Notes;
+export default Tests;

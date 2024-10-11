@@ -3,10 +3,12 @@ import { Box, IconButton, SxProps, Typography } from "@mui/material";
 import { selectPageName } from "../../store/app.slice";
 import { useAppSelector } from "../../store/hooks";
 import { selectCurrentUser } from "../../store/auth.slice";
+import { useNavigate } from "react-router-dom";
 
 const Header = () => {
   const pageName = useAppSelector(selectPageName);
   const user = useAppSelector(selectCurrentUser);
+  const navigate = useNavigate();
 
   const [mainPage, subPage] = pageName.split('/');
 
@@ -37,9 +39,15 @@ const Header = () => {
     </Typography>
       <Box sx={actionsStyles}>
         <Box>
-          <IconButton>
-            <Notifications />
-          </IconButton>
+          {user?.role === "instructor" ? (
+            <IconButton onClick={() => navigate("/posts")}>
+              <Notifications />
+            </IconButton>
+          ) : (
+            <IconButton onClick={() => navigate("/instructor/post")}>
+              <Notifications />
+            </IconButton>
+          )}
           <IconButton sx={{ marginLeft: ".9rem" }}>
             <Help />
           </IconButton>
