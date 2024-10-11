@@ -16,7 +16,7 @@ type NavLink = {
   children?: NavLink[];
 };
 const navLinks: NavLink[] = [
-  { content: "Dashboard", icon: HomeIcon, link: "/instructor/" },
+  { content: "Dashboard", icon: HomeIcon, link: "/instructor" },
   { content: "Courses", icon: ClipBoardIcon, link: "/instructor/courses" },
   { content: "Reports", icon: reportsIcon, link: "/instructor/reports" },
   {
