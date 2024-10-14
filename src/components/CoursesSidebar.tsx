@@ -1,6 +1,11 @@
 import { Box, SxProps } from "@mui/material";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { ChevronRight } from "@mui/icons-material";
+import { CoursesResponse } from "../types/courses";
+
+type courseProps = {
+  course: CoursesResponse | undefined;
+};
 
 type NavLink = {
   content: string;
@@ -12,11 +17,11 @@ const navLinks: NavLink[] = [
   { content: "Course Students", link: "students" },
   { content: "Course Notes", link: "notes" },
   { content: "CBT Tests", link: "tests" },
-  { content: "Schedules & Batches", link: "schedules" },
 ];
 
-const CoursesSidebar = () => {
+const CoursesSidebar = ({ course }: courseProps) => {
   const location = useLocation();
+  const navigate = useNavigate();
 
   const isCurrentPage = (navLink: NavLink) => {
     if (navLink.content.toLowerCase() !== "") {
@@ -50,13 +55,18 @@ const CoursesSidebar = () => {
             {isCurrentPage(item) && item.children ? (
               <Box sx={childLinkStyles}>
                 {item.children.map((child) => (
-                  <Link
-                    key={`child-link-${child.content}`}
-                    to={child.link}
+                  <Box
                     className={isCurrentChildLink(child) ? "active" : ""}
+                    onClick={() => navigate(child.link, { state: { course } })}
                   >
                     <ChevronRight /> {child.content}
-                  </Link>
+                  </Box>
+                  // <Link
+                  //   key={`child-link-${child.content}`}
+                  //   to={child.link}
+                  //   className={isCurrentChildLink(child) ? "active" : ""}
+                  // >
+                  // </Link>
                 ))}
               </Box>
             ) : null}

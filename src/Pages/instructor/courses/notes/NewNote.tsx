@@ -1,47 +1,60 @@
-import { Box, Button } from "@mui/material";
+import { Box, Button, LinearProgress } from "@mui/material";
 import { useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import CustomMarkdownEditor from "../../../../components/layout/CustomMarkdownEditor";
 import * as yup from "yup";
 import { useFormik } from "formik";
 import ShareWithModal from "../../../../components/ShareWithModal";
-import SuccessModal from "../../../../components/SuccessModal";
+import { useAddNoteMutation } from "../../../../store/api/notes.api";
+import { noteInput } from "../../../../types/notes";
+import { useGetParticipantsQuery } from "../../../../store/api/participants.api";
 
 const NewNote = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
   const [openModal, setOpenModal] = useState(false);
-  const [openSuccessModal, setOpenSuccessModal] = useState(false);
+  const [noteId, setNoteId] = useState<number | null>(null);
   const handleOpenModal = () => setOpenModal(true);
   const handleCloseModal = () => setOpenModal(false);
-  const handleOpenSuccessModal = () => setOpenSuccessModal(true);
-  const handleCloseSuccessModal = () => setOpenSuccessModal(false);
 
-  const formik = useFormik({
+  const locationData = location.pathname.split("/");
+  const courseId = locationData[locationData.length - 3];
+
+  const [createNote, { isLoading: isCreatingNote }] = useAddNoteMutation();
+  const { data: participants, isLoading: isFetchingParticipants } =
+    useGetParticipantsQuery(null);
+  // console.log(participants?.data.first_name);
+  // console.log(participants?.data);
+
+  const formik = useFormik<noteInput>({
     initialValues: {
-      name: "Untitled Document",
-      body: "",
-      recipients: [],
+      title: "Untitled Document",
+      content: "",
+      media: [],
+      course_id: parseInt(courseId) | 0,
+      // note_id: 0,
+      // participants: []
     },
     validationSchema: yup.object({
-      name: yup.string().required("Required"),
-      body: yup.string().required("Required"),
-      recipients: yup.array().required("Required"),
+      title: yup.string().required("Required"),
+      content: yup.string().required("Required"),
+      course_id: yup.number().required(),
+      // recipients: yup.array().required("Required"),
     }),
-    onSubmit: (values) => {
-      console.log(values);
-      handleOpenSuccessModal();
+    onSubmit: async (values: noteInput) => {
+      try {
+        const response = await createNote(values).unwrap();
+        setNoteId(response?.data?.id);
+        handleOpenModal();
+      } catch (error) {
+        console.error(error);
+      }
     },
   });
 
-  const handleSelectedRecipients = (recipients: number[]) => {
-    // formik.setFieldValue("recipients", recipients);
-    console.log(recipients);
-    handleOpenSuccessModal();
-  };
-
   return (
     <Box ref={containerRef} className="content-container">
+      {isFetchingParticipants && <LinearProgress />}
       <Box
         sx={{
           bgcolor: "#fff",
@@ -64,10 +77,10 @@ const NewNote = () => {
           <Box sx={{ padding: "1.5rem" }}>
             <input
               type="text"
-              name="name"
-              id="name"
+              name="title"
+              id="title"
               onChange={formik.handleChange}
-              value={formik.values.name}
+              value={formik.values.title}
               style={{
                 border: "none",
                 fontWeight: 500,
@@ -98,42 +111,27 @@ const NewNote = () => {
                 width: "11em",
                 alignSelf: "end",
               }}
-              // type="submit"
-              onClick={handleOpenModal}
+              type="submit"
+              // onClick={handleOpenModal}
             >
-              Save & Share
+              {isCreatingNote ? "Loading" : "Save & Share"}
             </Button>
           </Box>
         </Box>
         <Box>
           <CustomMarkdownEditor
             placeholder="Start writing something here..."
-            value={formik.values.body}
-            onChange={(markdown) => formik.setFieldValue("body", markdown)}
+            value={formik.values.content}
+            onChange={(markdown) => formik.setFieldValue("content", markdown)}
           />
         </Box>
       </Box>
       <ShareWithModal
         open={openModal}
         handleClose={handleCloseModal}
-        handleSelectedRecipients={handleSelectedRecipients}
-      />
-      <SuccessModal
-        actions={{
-          proceed: () => {
-            console.log("proceed");
-          },
-          undo: () => {
-            console.log("undo");
-          },
-        }}
-        close={() => {
-          handleCloseSuccessModal();
-        }}
-        infoText=""
-        open={openSuccessModal}
-        subTitle={`You have successfully shared a new note to your students`}
-        title="Successful"
+        // handleSelectedRecipients={handleSelectedRecipients}
+        noteId={noteId}
+        participants={participants?.data ?? []}
       />
     </Box>
   );

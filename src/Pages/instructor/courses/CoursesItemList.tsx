@@ -8,19 +8,13 @@ import { Box, Checkbox, IconButton, Menu, MenuItem } from "@mui/material";
 import { Delete, Edit, MoreVert } from "@mui/icons-material";
 import { Link } from "react-router-dom";
 import CustomPagination from "../../../components/CustomPagination";
-
-interface ListType {
-  id: number;
-  name: string;
-  created: string;
-  modified: string;
-}
+import { note } from "../../../types/notes";
 
 type ListProps = {
-  lists: ListType[];
+  lists: note[];
   menu?: boolean;
-  handleOpenActionsModal: (list: ListType, type: string) => void;
-  handleEditActionsModal: (list: ListType) => void;
+  handleOpenActionsModal: (list: note, type: string) => void;
+  handleEditActionsModal: (list: note) => void;
 };
 
 const ITEMS_PER_PAGE = 10;
@@ -83,7 +77,7 @@ const CoursesItemList = ({
                     to={`${list.id}`}
                     style={{ textTransform: "capitalize" }}
                   >
-                    {list.name}
+                    {list.title}
                   </Link>
                 </TableCell>
                 <TableCell align="right">
