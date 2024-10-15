@@ -9,7 +9,7 @@ import TableRow from "@mui/material/TableRow";
 import { VisibilityOutlined } from "@mui/icons-material";
 import { Box } from "@mui/material";
 
-const CoursesTable = () => {
+const CoursesParticipantsTable = () => {
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
 
@@ -203,4 +203,4 @@ const tableBody = [
   },
 ];
 
-export default CoursesTable;
+export default CoursesParticipantsTable;

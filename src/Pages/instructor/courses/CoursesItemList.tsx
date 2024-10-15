@@ -13,6 +13,8 @@ import { note } from "../../../types/notes";
 type ListProps = {
   lists: note[];
   menu?: boolean;
+  deleteIcon?: boolean;
+  edit?: boolean;
   handleOpenActionsModal: (list: note, type: string) => void;
   handleEditActionsModal: (list: note) => void;
 };
@@ -22,6 +24,8 @@ const ITEMS_PER_PAGE = 10;
 const CoursesItemList = ({
   lists,
   menu,
+  deleteIcon,
+  edit,
   handleOpenActionsModal,
   handleEditActionsModal,
 }: ListProps) => {
@@ -81,14 +85,18 @@ const CoursesItemList = ({
                   </Link>
                 </TableCell>
                 <TableCell align="right">
-                  <IconButton onClick={() => handleEditActionsModal(list)}>
-                    <Edit />
-                  </IconButton>
-                  <IconButton
-                    onClick={() => handleOpenActionsModal(list, "delete")}
-                  >
-                    <Delete />
-                  </IconButton>
+                  {edit && (
+                    <IconButton onClick={() => handleEditActionsModal(list)}>
+                      <Edit />
+                    </IconButton>
+                  )}
+                  {deleteIcon && (
+                    <IconButton
+                      onClick={() => handleOpenActionsModal(list, "delete")}
+                    >
+                      <Delete />
+                    </IconButton>
+                  )}
                   {menu && (
                     <IconButton
                       // onClick={() => handleOpenActionsModal(list, "delete")}
