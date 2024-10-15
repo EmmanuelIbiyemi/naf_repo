@@ -1,10 +1,17 @@
+import { UserType } from "../../types/users";
 import { appApi } from "./app.api";
 
 const settingsApi = appApi.injectEndpoints({
   endpoints: (builder) => ({
-    updateUserInfo: builder.mutation<unknown, unknown>({
-      query: (values) => ({
-        url: `/user/me`,
+    getInstructor: builder.query<{ data: UserType }, unknown>({
+      query: (user_id) => `/instructor/${user_id}`,
+    }),
+    updateInstructorInfo: builder.mutation<
+      unknown,
+      { values: unknown; id: number | undefined }
+    >({
+      query: ({ values, id }) => ({
+        url: `/instructor/${id}`,
         method: "PUT",
         body: values,
       }),
@@ -13,4 +20,5 @@ const settingsApi = appApi.injectEndpoints({
   }),
 });
 
-export const { useUpdateUserInfoMutation } = settingsApi;
+export const { useGetInstructorQuery, useUpdateInstructorInfoMutation } =
+  settingsApi;
