@@ -102,7 +102,7 @@ const Reports = () => {
   // set page name
   const dispatch = useAppDispatch();
   useEffect(() => {
-    dispatch(setPageName("Course"));
+    dispatch(setPageName("Reports"));
   }, [dispatch]);
 
   // const handleAddCourse = async (course: CourseCreateType2) => {
