@@ -17,6 +17,7 @@ export const appApi = createApi({
     "Forms",
     "Posts",
     "Faculties",
+    "Notes",
   ],
   endpoints: () => ({}),
 });

@@ -131,7 +131,7 @@ uplodaModalProps) => {
                     }}
                     onClick={() => navigate("new")}
                   >
-                    Imput Manually
+                    Input Manually
                   </Button>
                 </Box>
               </Box>
