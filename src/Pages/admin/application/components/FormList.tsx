@@ -3,27 +3,11 @@ import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
 import TableRow from "@mui/material/TableRow";
-import {
-  Box,
-  Button,
-  Checkbox,
-  IconButton,
-  Menu,
-  MenuItem,
-  SxProps,
-  Typography,
-} from "@mui/material";
-import {
-  Delete,
-  Drafts,
-  Edit,
-  Lock,
-  MoreVert,
-  Visibility,
-} from "@mui/icons-material";
+import { Box, Button, Checkbox, IconButton, Typography } from "@mui/material";
+import { Delete, Edit } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import DeleteConfirmationModal from "../../../../components/DeleteConfirmationModal";
-import { MouseEvent, useState } from "react";
+import { useState } from "react";
 import { useAppDispatch, useAppSelector } from "../../../../store/hooks";
 import {
   selectCurrentForm,
@@ -43,16 +27,6 @@ const FormList = () => {
   const [openModal, setOpenModal] = useState(false);
   const navigate = useNavigate();
   const [deleteForm] = useDeleteFormMutation();
-
-  // Menu
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const open = Boolean(anchorEl);
-  const handleClick = (event: MouseEvent<HTMLButtonElement>) => {
-    setAnchorEl(event.currentTarget);
-  };
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
 
   const handleOpenModal = (form: FormType2) => {
     dispatch(setCurrentForm(form));
@@ -96,32 +70,6 @@ const FormList = () => {
         title="Delete Course?"
       />
 
-      <Menu anchorEl={anchorEl} open={open} onClose={handleClose}>
-        <MenuItem onClick={handleClose}>
-          <Box sx={iconStyles}>
-            <Drafts />
-          </Box>
-          Open Application
-        </MenuItem>
-        <MenuItem onClick={handleClose}>
-          <Box sx={iconStyles}>
-            <Lock />
-          </Box>
-          Close Application
-        </MenuItem>
-        <MenuItem
-          onClick={() => {
-            handleClose();
-            navigate("/applications/applicants");
-          }}
-        >
-          <Box sx={iconStyles}>
-            <Visibility />
-          </Box>
-          View Applied
-        </MenuItem>
-      </Menu>
-
       <Table sx={{ minWidth: 650 }}>
         <TableBody>
           {forms?.data.map((form) => (
@@ -147,7 +95,7 @@ const FormList = () => {
                       textAlign: "left",
                     }}
                   >
-                    {form.name}
+                    {form.name.split("::")[0]}
                   </Button>
                   <Typography>
                     {form.fee} submissions * Last Edited on{" "}
@@ -162,9 +110,6 @@ const FormList = () => {
                 <IconButton onClick={() => handleOpenModal(form)}>
                   <Delete />
                 </IconButton>
-                <IconButton onClick={handleClick}>
-                  <MoreVert />
-                </IconButton>
               </TableCell>
             </TableRow>
           ))}
@@ -175,18 +120,3 @@ const FormList = () => {
 };
 
 export default FormList;
-
-const iconStyles: SxProps = {
-  border: "2px solid rgba(179, 179, 179, 1)",
-  borderRadius: "100%",
-  display: "grid",
-  height: "25px",
-  marginRight: ".5rem",
-  placeItems: "center",
-  width: "25px",
-
-  svg: {
-    fontSize: "18px",
-    color: "rgba(179, 179, 179, 1)",
-  },
-};

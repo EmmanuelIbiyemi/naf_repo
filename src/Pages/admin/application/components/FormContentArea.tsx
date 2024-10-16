@@ -21,7 +21,10 @@ const FormContentArea = () => {
   });
 
   const handleSubmitBtnChange = async (e: FocusEvent) => {
-    if (form?.data)
+    if (
+      form?.data &&
+      form.data.name.split("::")[1] != e.currentTarget.textContent
+    )
       try {
         await updateForm({
           ...form?.data,
@@ -33,7 +36,10 @@ const FormContentArea = () => {
   };
 
   const handleFormNameChange = async (e: FocusEvent<HTMLSpanElement>) => {
-    if (form?.data) {
+    if (
+      form?.data &&
+      form.data.name.split("::")[0] != e.currentTarget.textContent
+    ) {
       try {
         await updateForm({
           ...form.data,
