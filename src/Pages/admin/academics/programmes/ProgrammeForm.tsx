@@ -14,7 +14,6 @@ import { LoadingButton } from "@mui/lab";
 import formStyles from "../../../../components/form/form.module.scss";
 import { Programme } from "../../../../types/programmes";
 import { useGetFacultiesQuery } from "../../../../store/api/faculties.api";
-// import { FacultyType } from "../../../../types/faculty";
 import { useEffect, useState } from "react";
 import { useGetDepartmentsMMutation } from "../../../../store/api/departments.api";
 
@@ -30,7 +29,6 @@ const ProgrammeForm = ({ actions, programme }: Props) => {
   const { data: faculties } = useGetFacultiesQuery(null);
   const [facultyId, setFacultyId] = useState(0);
   const [getDepartments, departmentsState] = useGetDepartmentsMMutation();
-  // const [currentFaculty, setCurrentFaculty] = useState<FacultyType>();
 
   const initialValues: Programme = {
     id: programme?.id || 0,

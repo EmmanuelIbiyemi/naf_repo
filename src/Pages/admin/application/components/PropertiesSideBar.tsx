@@ -20,9 +20,11 @@ import {
 } from "@mui/material";
 import { PropsWithChildren, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAppDispatch } from "../../../../store/hooks";
-import { setCurrentForm } from "../../../../store/forms.slice";
-import { FormType } from "../../../../types/forms";
+import { useAppDispatch, useAppSelector } from "../../../../store/hooks";
+import {
+  selectCurrentForm,
+  setCurrentForm,
+} from "../../../../store/forms.slice";
 
 type Properties = {
   fontFamily: number;
@@ -35,11 +37,8 @@ type Properties = {
   alignCenter: boolean;
 };
 
-type Props = {
-  form: FormType;
-};
-
-const PropertiesSideBar = ({ form }: Props) => {
+const PropertiesSideBar = () => {
+  const form = useAppSelector(selectCurrentForm);
   const navigate = useNavigate();
   const [props, setProps] = useState<Properties>({
     fontFamily: 1,

@@ -7,8 +7,13 @@ const programmesApi = appApi.injectEndpoints({
       query: (department_id) => `/program/department/${department_id}`,
       providesTags: ["Programmes"],
     }),
+    getProgrammesM: builder.mutation<ProgrammeResponse, number>({
+      query: (department_id) => ({
+        url: `/program/department/${department_id}`,
+      }),
+    }),
     addProgramme: builder.mutation<ProgrammeResponse, Programme>({
-      query: (programme: Programme) => ({
+      query: (programme) => ({
         url: `/program`,
         method: "POST",
         body: programme,
@@ -16,7 +21,7 @@ const programmesApi = appApi.injectEndpoints({
       invalidatesTags: ["Programmes"],
     }),
     updateProgramme: builder.mutation<Programme, Programme>({
-      query: (programme: Programme) => ({
+      query: (programme) => ({
         url: `/program/${programme.id}`,
         method: "PUT",
         body: programme,
@@ -24,7 +29,7 @@ const programmesApi = appApi.injectEndpoints({
       invalidatesTags: ["Programmes"],
     }),
     deleteProgramme: builder.mutation<Programme, number>({
-      query: (programme_id: number) => ({
+      query: (programme_id) => ({
         url: `/program/${programme_id}`,
         method: "DELETE",
       }),
@@ -36,6 +41,7 @@ const programmesApi = appApi.injectEndpoints({
 
 export const {
   useGetProgrammesQuery,
+  useGetProgrammesMMutation,
   useAddProgrammeMutation,
   useUpdateProgrammeMutation,
   useDeleteProgrammeMutation,

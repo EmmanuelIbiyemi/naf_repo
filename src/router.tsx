@@ -29,7 +29,7 @@ const InstructorsPage = lazy(
   () => import("./Pages/admin/instructors/Instructors")
 );
 const FormsPage = lazy(() => import("./Pages/admin/application/FormsPage"));
-const AddFormPage = lazy(() => import("./Pages/admin/application/AddForm"));
+const AddFormPage = lazy(() => import("./Pages/admin/application/AddFormPage"));
 const PreviewFormPage = lazy(
   () => import("./Pages/admin/application/PreviewForm")
 );

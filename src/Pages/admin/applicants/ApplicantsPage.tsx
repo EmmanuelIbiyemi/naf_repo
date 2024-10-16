@@ -6,11 +6,15 @@ import EmptyState from "../../../components/EmptyState";
 import ApplicantsList from "./components/ApplicantsList";
 import { useGetApplicantsQuery } from "../../../store/api/applicants.api";
 import LoadingScreen from "../../../components/LoadingScreen";
+import { useEffect } from "react";
 
 const ApplicationPage = () => {
   // set page name
   const dispatch = useAppDispatch();
-  dispatch(setPageName("Applicants"));
+
+  useEffect(() => {
+    dispatch(setPageName("Applicants"));
+  }, [dispatch]);
 
   const { data: applicants, isLoading } = useGetApplicantsQuery(null);
 
