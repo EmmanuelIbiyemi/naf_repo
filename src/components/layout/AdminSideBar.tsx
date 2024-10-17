@@ -8,6 +8,7 @@ import BankIcon from "../../assets/bankIcon";
 import SettingsIcon from "../../assets/settingsIcon";
 import { ElementType } from "react";
 import ClipBoardIcon from "../../assets/clipboardIcon";
+import SchoolIcon from "../../assets/schoolIcon";
 import { ChevronLeft, ChevronRight } from "@mui/icons-material";
 
 type NavLink = {
@@ -18,9 +19,9 @@ type NavLink = {
 };
 const navLinks: NavLink[] = [
   { content: "Dashboard", icon: HomeIcon, link: "/" },
-  { content: "Programs", icon: ClipBoardIcon, link: "/programs" },
   { content: "Academics", icon: ClipBoardIcon, link: "/academics" },
-  { content: "Students", icon: ChartIcon, link: "/students" },
+  { content: "Participants", icon: ChartIcon, link: "/participants" },
+  { content: "Users", icon: SchoolIcon, link: "/users" },
   { content: "Instructors", icon: InstructorIcon, link: "/instructors" },
   {
     content: "Applications",

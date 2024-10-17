@@ -1,22 +1,20 @@
 import { Box, SxProps } from "@mui/material";
 import { Outlet } from "react-router-dom";
-import AcademicsSideBar from "./components/AcademicsSideBar";
+import UsersSideBar from "./components/UsersSideBar";
 
-const Academics = () => {
-  // set page name
-  
+const Users = () => {
 
   return (
     <Box sx={layoutStyles}>
       <Box>
-        <AcademicsSideBar />
+        <UsersSideBar />
       </Box>
       <Outlet />
     </Box>
   );
 };
 
-export default Academics;
+export default Users;
 
 const layoutStyles: SxProps = {
   display: "grid",

@@ -24,8 +24,22 @@ const ProgrammesPage = lazy(
 const CoursesPage = lazy(
   () => import("./Pages/admin/academics/courses/Courses")
 );
+const AdminUsersPage = lazy(
+  () => import("./Pages/admin/users/Users")
+);
+const LecturersPage = lazy(
+  () => import("./Pages/admin/users/lecturers/Lecturers")
+);
+const StudentsPage = lazy(
+  () => import("./Pages/admin/users/students/Students")
+);
+const LevelCoordinatorsPage = lazy(
+  () => import("./Pages/admin/users/level-coordinators/LevelCoordinators")
+);
+const ExamOfficersPage = lazy(
+  () => import("./Pages/admin/users/exam-officers/ExamOfficers")
+);
 const SubjectsPage = lazy(() => import("./Pages/admin/subjects/Subjects"));
-const StudentsPage = lazy(() => import("./Pages/admin/students/Students"));
 const InstructorsPage = lazy(
   () => import("./Pages/admin/instructors/Instructors")
 );
@@ -95,7 +109,6 @@ export const router = createBrowserRouter([
       { path: "/courses", element: <CoursesPage /> },
       { path: "/courses/:id", element: <SubjectsPage /> },
       { path: "/courses/:id", element: <SubjectsPage /> },
-      { path: "/students", element: <StudentsPage /> },
       { path: "/instructors", element: <InstructorsPage /> },
       { path: "/applications", element: <FormsPage /> },
       { path: "/applications/form", element: <AddFormPage /> },
@@ -114,6 +127,17 @@ export const router = createBrowserRouter([
           { path: "departments", element: <DepartmentsPage /> },
           { path: "programmes", element: <ProgrammesPage /> },
           { path: "courses", element: <CoursesPage /> },
+          { path: "page/:name", element: <Page /> },
+        ],
+      },
+      {
+        path: "/users",
+        element: <AdminUsersPage />,
+        children: [
+          { path: "", element: <LecturersPage /> },
+          { path: "students", element: <StudentsPage /> },
+          { path: "level-coordinators", element: <LevelCoordinatorsPage /> },
+          { path: "exam-officers", element: <ExamOfficersPage /> },
           { path: "page/:name", element: <Page /> },
         ],
       },
