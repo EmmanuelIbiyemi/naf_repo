@@ -2,6 +2,7 @@
 import { createBrowserRouter } from "react-router-dom";
 import { lazy } from "react";
 import Page from "./Pages/admin/page/Page";
+import ReportsExpanded from "./Pages/instructor/reports/ReportsExpanded";
 
 // Admin
 
@@ -159,6 +160,7 @@ export const router = createBrowserRouter([
       },
 
       { path: "/instructor/reports", element: <ReportsPage /> },
+      { path: "/instructor/reports/:id", element: <ReportsExpanded /> },
       { path: "classes", element: <LiveClassesPage /> },
       { path: "/instructor/post", element: <PostPage /> },
       { path: "/instructor/posts/add", element: <AddPostPage /> },

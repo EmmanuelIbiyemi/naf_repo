@@ -16,13 +16,17 @@ import CoursesItemList from "../CoursesItemList";
 import SuccessModal from "../../../../components/SuccessModal";
 import DeleteConfirmationModal from "../../../../components/DeleteConfirmationModal";
 import GenerateReportModal from "./GenerateReportModal";
+import { media } from "../../../../types/media";
+// import { note } from "../../../../types/notes";
 // import FormModal from "../../../../components/FormModal";
 
 interface TestType {
+  content: string;
+  created_at: string;
   id: number;
-  name: string;
-  created: string;
-  modified: string;
+  media: media;
+  title: string;
+  updated_at: string;
 }
 
 const Tests = () => {
@@ -216,7 +220,7 @@ const Tests = () => {
           close={() => handleCloseActionsModal("delete")}
           infoText="The students enrolled in this Course will get notified."
           open={openActionsModal.delete}
-          subTitle={`Are you sure you want to delete Course <strong>"${selectedTests?.name}"</strong>? You can't undo this action.`}
+          subTitle={`Are you sure you want to delete Course <strong>"${selectedTests?.title}"</strong>? You can't undo this action.`}
           title="Delete Course?"
         />
 
@@ -235,7 +239,7 @@ const Tests = () => {
           }}
           infoText=""
           open={openActionsModal.success}
-          subTitle={`You have successfully added a new Course <strong>"${selectedTests?.name}"</strong>.`}
+          subTitle={`You have successfully added a new Course <strong>"${selectedTests?.title}"</strong>.`}
           title="Updates Successful"
         />
       </Box>
@@ -247,128 +251,191 @@ const notes = [
   {
     id: 1,
     name: "B.Tech Specialization in Health Informatics",
-    created: "22/09",
-    modified: "25/09",
+    created_at: "22/09",
+    updated_at: "25/09",
+    content: "string",
+    media: [],
+    title: "Title",
   },
   {
     id: 2,
     name: "B.Tech Specialization in Health Informatic",
-    created: "22/09",
-    modified: "25/09",
+    created_at: "22/09",
+    updated_at: "25/09",
+    content: "string",
+    media: [],
+    title: "Title",
   },
   {
     id: 3,
     name: "B.Tech Specialization in Health Informats",
-    created: "22/09",
-    modified: "25/09",
+    created_at: "22/09",
+    updated_at: "25/09",
+    content: "string",
+    media: [],
+    title: "Title",
   },
   {
     id: 4,
     name: "B.Tech Specialization in Health Informatics",
-    created: "22/09",
-    modified: "25/09",
+    created_at: "22/09",
+    updated_at: "25/09",
+    content: "string",
+    media: [],
+    title: "Title",
   },
   {
     id: 5,
     name: "B.Tech Specialization in Health Informatics",
-    created: "22/09",
-    modified: "25/09",
+    created_at: "22/09",
+    updated_at: "25/09",
+    content: "string",
+    media: [],
+    title: "Title",
   },
   {
     id: 6,
     name: "B.Tech Specialization in Health Informatics",
-    created: "22/09",
-    modified: "25/09",
+    created_at: "22/09",
+    updated_at: "25/09",
+    content: "string",
+    media: [],
+    title: "Title",
   },
   {
     id: 7,
     name: "B.Tech Specialization in Health Informatics",
-    created: "22/09",
-    modified: "25/09",
+    created_at: "22/09",
+    updated_at: "25/09",
+    content: "string",
+    media: [],
+    title: "Title",
   },
   {
     id: 8,
     name: "B.Tech Specialization in Health Informatics",
-    created: "22/09",
-    modified: "25/09",
+    created_at: "22/09",
+    updated_at: "25/09",
+    content: "string",
+    media: [],
+    title: "Title",
   },
   {
     id: 9,
     name: "B.Tech Specialization in Health Informatics",
-    created: "22/09",
-    modified: "25/09",
+    created_at: "22/09",
+    updated_at: "25/09",
+    content: "string",
+    media: [],
+    title: "Title",
   },
   {
     id: 10,
     name: "B.Tech Specialization in Health Informatics",
-    created: "22/09",
-    modified: "25/09",
+    created_at: "22/09",
+    updated_at: "25/09",
+    content: "string",
+    media: [],
+    title: "Title",
   },
   {
     id: 11,
     name: "B.Tech Specialization in Health Informatics",
-    created: "22/09",
-    modified: "25/09",
+    created_at: "22/09",
+    updated_at: "25/09",
+    content: "string",
+    media: [],
+    title: "Title",
   },
   {
     id: 12,
     name: "B.Tech Specialization in Health Informatics",
-    created: "22/09",
-    modified: "25/09",
+    created_at: "22/09",
+    updated_at: "25/09",
+    content: "string",
+    media: [],
+    title: "Title",
   },
   {
     id: 13,
     name: "B.Tech Specialization in Health Informatics",
-    created: "22/09",
-    modified: "25/09",
+    created_at: "22/09",
+    updated_at: "25/09",
+    content: "string",
+    media: [],
+    title: "Title",
   },
   {
     id: 14,
     name: "B.Tech Specialization in Health Informatics",
-    created: "22/09",
-    modified: "25/09",
+    created_at: "22/09",
+    updated_at: "25/09",
+    content: "string",
+    media: [],
+    title: "Title",
   },
   {
     id: 15,
     name: "B.Tech Specialization in Health Informatics",
-    created: "22/09",
-    modified: "25/09",
+    created_at: "22/09",
+    updated_at: "25/09",
+    content: "string",
+    media: [],
+    title: "Title",
   },
   {
     id: 16,
     name: "B.Tech Specialization in Health Informatics",
-    created: "22/09",
-    modified: "25/09",
+    created_at: "22/09",
+    updated_at: "25/09",
+    content: "string",
+    media: [],
+    title: "Title",
   },
   {
     id: 17,
     name: "B.Tech Specialization in Health Informatics",
-    created: "22/09",
-    modified: "25/09",
+    created_at: "22/09",
+    updated_at: "25/09",
+    content: "string",
+    media: [],
+    title: "Title",
   },
   {
     id: 18,
     name: "B.Tech Specialization in Health Informatics",
-    created: "22/09",
-    modified: "25/09",
+    created_at: "22/09",
+    updated_at: "25/09",
+    content: "string",
+    media: [],
+    title: "Title",
   },
   {
     id: 19,
     name: "B.Tech Specialization in Health Informatics",
-    created: "22/09",
-    modified: "25/09",
+    created_at: "22/09",
+    updated_at: "25/09",
+    content: "string",
+    media: [],
+    title: "Title",
   },
   {
     id: 20,
     name: "B.Tech Specialization in Health Informatics",
-    created: "22/09",
-    modified: "25/09",
+    created_at: "22/09",
+    updated_at: "25/09",
+    content: "string",
+    media: [],
+    title: "Title",
   },
   {
     id: 21,
     name: "B.Tech Specialization in Health Informatics",
-    created: "22/09",
-    modified: "25/09",
+    created_at: "22/09",
+    updated_at: "25/09",
+    content: "string",
+    media: [],
+    title: "Title",
   },
 ];
 

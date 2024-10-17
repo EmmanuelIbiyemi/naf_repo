@@ -4,15 +4,24 @@ import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
 import TableRow from "@mui/material/TableRow";
-import { Box, Checkbox, IconButton, Menu, MenuItem } from "@mui/material";
+import {
+  Box,
+  Checkbox,
+  IconButton,
+  Menu,
+  MenuItem,
+  Typography,
+} from "@mui/material";
 import { Delete, Edit, MoreVert } from "@mui/icons-material";
-import { Link } from "react-router-dom";
 import CustomPagination from "../../../components/CustomPagination";
 import { note } from "../../../types/notes";
+import { useNavigate } from "react-router-dom";
 
 type ListProps = {
   lists: note[];
   menu?: boolean;
+  deleteIcon?: boolean;
+  edit?: boolean;
   handleOpenActionsModal: (list: note, type: string) => void;
   handleEditActionsModal: (list: note) => void;
 };
@@ -22,12 +31,15 @@ const ITEMS_PER_PAGE = 10;
 const CoursesItemList = ({
   lists,
   menu,
+  deleteIcon,
+  edit,
   handleOpenActionsModal,
   handleEditActionsModal,
 }: ListProps) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
+  const navigate = useNavigate();
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
   };
@@ -73,22 +85,33 @@ const CoursesItemList = ({
                   sx={{ alignItems: "center", display: "flex", gap: "1rem" }}
                 >
                   <Checkbox />
-                  <Link
+                  <Box
+                    onClick={() => navigate(`${list.id}`, { state: { lists } })}
+                    sx={{ cursor: "pointer" }}
+                  >
+                    <Typography variant="body2" sx={{ color: "#474747" }}>
+                      {list.title}
+                    </Typography>
+                  </Box>
+                  {/* <Link
                     to={`${list.id}`}
                     style={{ textTransform: "capitalize" }}
                   >
-                    {list.title}
-                  </Link>
+                  </Link> */}
                 </TableCell>
                 <TableCell align="right">
-                  <IconButton onClick={() => handleEditActionsModal(list)}>
-                    <Edit />
-                  </IconButton>
-                  <IconButton
-                    onClick={() => handleOpenActionsModal(list, "delete")}
-                  >
-                    <Delete />
-                  </IconButton>
+                  {edit && (
+                    <IconButton onClick={() => handleEditActionsModal(list)}>
+                      <Edit />
+                    </IconButton>
+                  )}
+                  {deleteIcon && (
+                    <IconButton
+                      onClick={() => handleOpenActionsModal(list, "delete")}
+                    >
+                      <Delete />
+                    </IconButton>
+                  )}
                   {menu && (
                     <IconButton
                       // onClick={() => handleOpenActionsModal(list, "delete")}

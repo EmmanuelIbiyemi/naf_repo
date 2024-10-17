@@ -1,6 +1,6 @@
 import { Box, Typography } from "@mui/material";
 import { useRef } from "react";
-import CoursesTable from "./CoursesTable";
+import CoursesParticipantsTable from "./CoursesParticipantsTable";
 
 const Students = () => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -41,7 +41,7 @@ const Students = () => {
           </Typography>
         </Box>
         <Box sx={{ margin: "2em 0" }}>
-          <CoursesTable />
+          <CoursesParticipantsTable />
         </Box>
       </Box>
     </Box>
