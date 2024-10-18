@@ -12,8 +12,8 @@ import {
   ToggleButtonGroup,
   Typography,
 } from "@mui/material";
-import { CloudUploadOutlined } from "@mui/icons-material";
-import { ChangeEvent, FocusEvent, MouseEvent, useState } from "react";
+import { Add, CloudUploadOutlined, Remove } from "@mui/icons-material";
+import { FocusEvent } from "react";
 import "./elements.scss";
 import { FormField } from "../../../../types/forms";
 import DeleteIcon from "../../../../assets/deleteIcon";
@@ -26,6 +26,8 @@ import {
   useUpdateFormFieldMutation,
 } from "../../../../store/api/form.api";
 import { useLocation } from "react-router-dom";
+import { useAppDispatch } from "../../../../store/hooks";
+import { setLoading } from "../../../../store/app.slice";
 
 const getElementId = (id: string) => {
   const [, sectionId, rowId, elId] = id.split("-");
@@ -38,9 +40,15 @@ const getElementKey = (id: string) => {
 type Props = {
   allowDelete?: boolean;
   allowEdit?: boolean;
+  isPreview?: boolean;
 };
 
-const FormBuilder = ({ allowDelete = true, allowEdit = true }: Props) => {
+const FormBuilder = ({
+  allowDelete = true,
+  allowEdit = true,
+  isPreview = false,
+}: Props) => {
+  const dispatch = useAppDispatch();
   const [deleteRow] = useDeleteFormRowMutation();
   const location = useLocation();
   const { data: form } = useGetFormQuery(location.state);
@@ -50,7 +58,7 @@ const FormBuilder = ({ allowDelete = true, allowEdit = true }: Props) => {
   const handleInput = async (e: FocusEvent) => {
     const target = e.currentTarget;
     const elKey = getElementKey(target.id);
-
+    dispatch(setLoading(true));
     try {
       const response = await getFormFieldByKey(elKey).unwrap();
       console.log(response);
@@ -61,11 +69,13 @@ const FormBuilder = ({ allowDelete = true, allowEdit = true }: Props) => {
     } catch (error) {
       console.log(error);
     }
+    dispatch(setLoading(false));
   };
 
   const handleLabelInput = async (e: FocusEvent) => {
     const target = e.currentTarget;
     const elKey = getElementKey(target.id);
+    dispatch(setLoading(true));
     try {
       const response = await getFormFieldByKey(elKey).unwrap();
       console.log(response);
@@ -76,42 +86,105 @@ const FormBuilder = ({ allowDelete = true, allowEdit = true }: Props) => {
     } catch (error) {
       console.log(error);
     }
+    dispatch(setLoading(false));
   };
 
-  const handleOpenFileSelect = (event: MouseEvent<HTMLDivElement>) => {
-    const target = event.target as HTMLDivElement;
-    target.querySelector("input")?.click();
+  const handleAddRemoveChange = async (id: string, type: string) => {
+    const elKey = getElementKey(id);
+    dispatch(setLoading(true));
+
+    try {
+      const response = await getFormFieldByKey(elKey).unwrap();
+      let newField: typeof response.data;
+      if (type == "delete") {
+        newField = {
+          ...response.data,
+          name: `${response.data.name.substring(
+            0,
+            response.data.name.lastIndexOf("::")
+          )}`,
+          placeholder: `${response.data.placeholder.substring(
+            0,
+            response.data.name.lastIndexOf("::")
+          )}`,
+        };
+      } else {
+        const optionsLength = response.data.name.split("::").length;
+        newField = {
+          ...response.data,
+          name: `${response.data.name}::Option ${optionsLength}`,
+          placeholder: `${response.data.placeholder}::Option ${optionsLength}`,
+        };
+      }
+
+      await updateField(newField);
+    } catch (error) {
+      console.log(error);
+    }
+    dispatch(setLoading(false));
   };
 
-  const handleSelectImage = (event: ChangeEvent<HTMLInputElement>) => {
-    const target = event.target;
-    console.log(target.files);
+  const handleOptionChange = async (
+    e: FocusEvent,
+    id: string,
+    optionIndex: number
+  ) => {
+    const text = e.currentTarget.textContent;
+    const elKey = getElementKey(id);
+    dispatch(setLoading(true));
+
+    try {
+      const response = await getFormFieldByKey(elKey).unwrap();
+      const names = response.data.name.split("::");
+      const placeholders = response.data.placeholder.split("::");
+      names[optionIndex] = `${text}`;
+      placeholders[optionIndex] = `${text?.toLowerCase()}`;
+
+      const newField = {
+        ...response.data,
+        name: names.join("::"),
+        placeholder: placeholders.join("::"),
+      };
+
+      await updateField(newField);
+    } catch (error) {
+      console.log(error);
+    }
+    dispatch(setLoading(false));
   };
 
   const handleDelete = async (id: string) => {
-    console.log(id);
     const [, rowId] = getElementId(id);
+    dispatch(setLoading(true));
     try {
       await deleteRow(+rowId).unwrap();
     } catch (error) {
       console.log(error);
     }
-  };
-
-  const [alignment, setAlignment] = useState<string | null>("left");
-  const handleAlignment = (
-    _: React.MouseEvent<HTMLElement>,
-    newAlignment: string | null
-  ) => {
-    setAlignment(newAlignment);
+    dispatch(setLoading(false));
   };
 
   const displayEl = (elId: string, element: FormField) => {
     let el;
+    let name = "";
+    let optionNames = [""];
+    let optionValues = [""];
+
+    if (["dropdown", "single-choice", "multi-choice"].includes(element.type)) {
+      [name, ...optionNames] = element.name.split("::");
+      [...optionValues] = element.placeholder.split("::");
+    }
 
     switch (element.type) {
       case "heading":
-        el = (
+        el = isPreview ? (
+          <Typography
+            variant="h5"
+            dangerouslySetInnerHTML={{
+              __html: element.placeholder as string,
+            }}
+          />
+        ) : (
           <Typography
             variant="h5"
             id={elId}
@@ -124,7 +197,13 @@ const FormBuilder = ({ allowDelete = true, allowEdit = true }: Props) => {
         );
         break;
       case "paragraph":
-        el = (
+        el = isPreview ? (
+          <Typography
+            dangerouslySetInnerHTML={{
+              __html: element.placeholder as string,
+            }}
+          />
+        ) : (
           <Typography
             id={elId}
             contentEditable={allowEdit}
@@ -138,21 +217,24 @@ const FormBuilder = ({ allowDelete = true, allowEdit = true }: Props) => {
       case "images":
         el = (
           <Box>
-            <label
-              id={elId}
-              contentEditable={allowEdit}
-              onBlur={handleLabelInput}
-              dangerouslySetInnerHTML={{
-                __html: element.name as string,
-              }}
-            />
-            <Box
-              id={elId}
-              className="image_el dashed_border"
-              onClick={handleOpenFileSelect}
-            >
+            {isPreview ? (
+              <label
+                dangerouslySetInnerHTML={{
+                  __html: element.name as string,
+                }}
+              />
+            ) : (
+              <label
+                id={elId}
+                contentEditable={allowEdit}
+                onBlur={handleLabelInput}
+                dangerouslySetInnerHTML={{
+                  __html: element.name as string,
+                }}
+              />
+            )}
+            <Box id={elId} className="image_el dashed_border">
               <CloudUploadOutlined /> Drag and drop your images here or browse
-              <input type="file" hidden onChange={handleSelectImage} />
             </Box>
           </Box>
         );
@@ -160,21 +242,24 @@ const FormBuilder = ({ allowDelete = true, allowEdit = true }: Props) => {
       case "documents":
         el = (
           <Box>
-            <label
-              id={elId}
-              contentEditable={allowEdit}
-              onBlur={handleLabelInput}
-              dangerouslySetInnerHTML={{
-                __html: element.name as string,
-              }}
-            />
-            <Box
-              id={elId}
-              className="image_el dashed_border"
-              onClick={handleOpenFileSelect}
-            >
+            {isPreview ? (
+              <label
+                dangerouslySetInnerHTML={{
+                  __html: element.name as string,
+                }}
+              />
+            ) : (
+              <label
+                id={elId}
+                contentEditable={allowEdit}
+                onBlur={handleLabelInput}
+                dangerouslySetInnerHTML={{
+                  __html: element.name as string,
+                }}
+              />
+            )}
+            <Box id={elId} className="image_el dashed_border">
               <CloudUploadOutlined /> Drag and drop your files here or browse
-              <input type="file" hidden onChange={handleSelectImage} />
             </Box>
           </Box>
         );
@@ -182,14 +267,22 @@ const FormBuilder = ({ allowDelete = true, allowEdit = true }: Props) => {
       case "text-field":
         el = (
           <Box>
-            <label
-              id={elId}
-              contentEditable={allowEdit}
-              onBlur={handleLabelInput}
-              dangerouslySetInnerHTML={{
-                __html: element.name as string,
-              }}
-            />
+            {isPreview ? (
+              <label
+                dangerouslySetInnerHTML={{
+                  __html: element.name as string,
+                }}
+              />
+            ) : (
+              <label
+                id={elId}
+                contentEditable={allowEdit}
+                onBlur={handleLabelInput}
+                dangerouslySetInnerHTML={{
+                  __html: element.name as string,
+                }}
+              />
+            )}
             <input />
           </Box>
         );
@@ -197,14 +290,22 @@ const FormBuilder = ({ allowDelete = true, allowEdit = true }: Props) => {
       case "textarea":
         el = (
           <Box>
-            <label
-              id={elId}
-              contentEditable={allowEdit}
-              onBlur={handleLabelInput}
-              dangerouslySetInnerHTML={{
-                __html: element.name as string,
-              }}
-            />
+            {isPreview ? (
+              <label
+                dangerouslySetInnerHTML={{
+                  __html: element.name as string,
+                }}
+              />
+            ) : (
+              <label
+                id={elId}
+                contentEditable={allowEdit}
+                onBlur={handleLabelInput}
+                dangerouslySetInnerHTML={{
+                  __html: element.name as string,
+                }}
+              />
+            )}
             <textarea />
           </Box>
         );
@@ -233,14 +334,22 @@ const FormBuilder = ({ allowDelete = true, allowEdit = true }: Props) => {
         el = (
           <Box>
             <LocalizationProvider dateAdapter={AdapterDayjs}>
-              <label
-                id={elId}
-                contentEditable={allowEdit}
-                onBlur={handleLabelInput}
-                dangerouslySetInnerHTML={{
-                  __html: element.name as string,
-                }}
-              />
+              {isPreview ? (
+                <label
+                  dangerouslySetInnerHTML={{
+                    __html: element.name as string,
+                  }}
+                />
+              ) : (
+                <label
+                  id={elId}
+                  contentEditable={allowEdit}
+                  onBlur={handleLabelInput}
+                  dangerouslySetInnerHTML={{
+                    __html: element.name as string,
+                  }}
+                />
+              )}
               <DatePicker />
             </LocalizationProvider>
           </Box>
@@ -248,74 +357,260 @@ const FormBuilder = ({ allowDelete = true, allowEdit = true }: Props) => {
         break;
       case "dropdown":
         el = (
-          <FormControl fullWidth>
-            <label
-              id={elId}
-              contentEditable={allowEdit}
-              onBlur={handleLabelInput}
-              dangerouslySetInnerHTML={{
-                __html: element.name as string,
-              }}
-            />
-            <Select
-              sx={{
-                padding: 0,
-                ".MuiSelect-select": { p: "5px", minHeight: "25px" },
-              }}
-            >
-              <MenuItem value={0}>select option</MenuItem>
-            </Select>
-          </FormControl>
+          <Box>
+            {isPreview ? (
+              <label
+                dangerouslySetInnerHTML={{
+                  __html: name,
+                }}
+              />
+            ) : (
+              <Box
+                sx={{
+                  alignItems: "center",
+                  display: "flex",
+                  justifyContent: "space-between",
+                }}
+              >
+                <label
+                  id={elId}
+                  contentEditable={allowEdit}
+                  onBlur={handleLabelInput}
+                  dangerouslySetInnerHTML={{
+                    __html: name as string,
+                  }}
+                />
+                <IconButton
+                  sx={{ padding: "5px" }}
+                  onClick={() => handleAddRemoveChange(elId, "add")}
+                >
+                  <Add />
+                </IconButton>
+              </Box>
+            )}
+            {!isPreview ? (
+              <Box>
+                {optionNames?.map((opt, i) => (
+                  <Typography
+                    key={`${name}-${opt}`}
+                    sx={{ display: "flex", justifyContent: "space-between" }}
+                  >
+                    <span
+                      contentEditable={allowEdit}
+                      onBlur={(e) => handleOptionChange(e, elId, i + 1)}
+                      dangerouslySetInnerHTML={{
+                        __html: opt.toLowerCase(),
+                      }}
+                      onClick={(e) => e.stopPropagation()}
+                    ></span>
+                    <IconButton
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleAddRemoveChange(elId, "delete");
+                      }}
+                    >
+                      <Remove />
+                    </IconButton>
+                  </Typography>
+                ))}
+              </Box>
+            ) : (
+              <FormControl fullWidth>
+                <Select
+                  value={0}
+                  sx={{
+                    padding: 0,
+                    ".MuiSelect-select": { p: "5px", minHeight: "25px" },
+                  }}
+                >
+                  <MenuItem value={0}>select {name?.toLowerCase()}</MenuItem>
+                  {optionNames?.map((opt, i) => (
+                    <MenuItem
+                      value={optionValues[i]}
+                      key={`${name}-${opt}`}
+                      sx={{ display: "flex", justifyContent: "space-between" }}
+                    >
+                      <span>{opt.toLowerCase()}</span>
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            )}
+          </Box>
         );
         break;
       case "multi-choice":
         el = (
-          <FormControl>
-            <label
-              id={elId}
-              contentEditable={allowEdit}
-              onBlur={handleLabelInput}
-              dangerouslySetInnerHTML={{
-                __html: element.name as string,
-              }}
-            />
-            <FormGroup
-              sx={{ ".MuiFormControlLabel-root": { display: "flex" } }}
-            >
-              <FormControlLabel control={<Checkbox />} label="Option 1" />
-              <FormControlLabel control={<Checkbox />} label="Option 2" />
-              <FormControlLabel control={<Checkbox />} label="Option 3" />
-            </FormGroup>
-          </FormControl>
+          <Box>
+            {isPreview ? (
+              <>
+                <label
+                  dangerouslySetInnerHTML={{
+                    __html: name,
+                  }}
+                />
+                <FormControl>
+                  <FormGroup
+                    sx={{ ".MuiFormControlLabel-root": { display: "flex" } }}
+                  >
+                    {optionNames.map((opt, i) => (
+                      <FormControlLabel
+                        key={opt}
+                        control={<Checkbox />}
+                        value={optionValues[i]}
+                        label={opt}
+                      />
+                    ))}
+                  </FormGroup>
+                </FormControl>
+              </>
+            ) : (
+              <>
+                <Box
+                  sx={{
+                    alignItems: "center",
+                    display: "flex",
+                    justifyContent: "space-between",
+                  }}
+                >
+                  <label
+                    id={elId}
+                    contentEditable={allowEdit}
+                    onBlur={handleLabelInput}
+                    dangerouslySetInnerHTML={{
+                      __html: name as string,
+                    }}
+                  />
+                  <IconButton
+                    sx={{ padding: "5px" }}
+                    onClick={() => handleAddRemoveChange(elId, "add")}
+                  >
+                    <Add />
+                  </IconButton>
+                </Box>
+
+                <Box>
+                  {optionNames?.map((opt, i) => (
+                    <Typography
+                      key={`${name}-${opt}`}
+                      sx={{ display: "flex", justifyContent: "space-between" }}
+                    >
+                      <span
+                        contentEditable={allowEdit}
+                        onBlur={(e) => handleOptionChange(e, elId, i + 1)}
+                        dangerouslySetInnerHTML={{
+                          __html: opt.toLowerCase(),
+                        }}
+                        onClick={(e) => e.stopPropagation()}
+                      ></span>
+                      <IconButton
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleAddRemoveChange(elId, "delete");
+                        }}
+                      >
+                        <Remove />
+                      </IconButton>
+                    </Typography>
+                  ))}
+                </Box>
+              </>
+            )}
+          </Box>
         );
         break;
       case "single-choice":
         el = (
           <Box>
-            <label
-              id={elId}
-              contentEditable={allowEdit}
-              onBlur={handleLabelInput}
-              dangerouslySetInnerHTML={{
-                __html: element.name as string,
-              }}
-            />
-            <ToggleButtonGroup
-              value={alignment}
-              exclusive
-              onChange={handleAlignment}
-              aria-label="text alignment"
-            >
-              <ToggleButton value="left">Option 1</ToggleButton>
-              <ToggleButton value="center">Option 2</ToggleButton>
-              <ToggleButton value="right">Option 3</ToggleButton>
-            </ToggleButtonGroup>
+            {isPreview ? (
+              <>
+                <label
+                  dangerouslySetInnerHTML={{
+                    __html: name,
+                  }}
+                />
+                <FormControl>
+                  <ToggleButtonGroup exclusive>
+                    {optionNames.map((opt, i) => (
+                      <ToggleButton
+                        value={optionValues[i]}
+                        sx={{ textTransform: "capitalize" }}
+                      >
+                        {opt}
+                      </ToggleButton>
+                    ))}
+                  </ToggleButtonGroup>
+                </FormControl>
+              </>
+            ) : (
+              <>
+                <Box
+                  sx={{
+                    alignItems: "center",
+                    display: "flex",
+                    justifyContent: "space-between",
+                  }}
+                >
+                  <label
+                    id={elId}
+                    contentEditable={allowEdit}
+                    onBlur={handleLabelInput}
+                    dangerouslySetInnerHTML={{
+                      __html: name as string,
+                    }}
+                  />
+                  <IconButton
+                    sx={{ padding: "5px" }}
+                    onClick={() => handleAddRemoveChange(elId, "add")}
+                  >
+                    <Add />
+                  </IconButton>
+                </Box>
+
+                <Box>
+                  {optionNames?.map((opt, i) => (
+                    <Typography
+                      key={`${name}-${opt}`}
+                      sx={{ display: "flex", justifyContent: "space-between" }}
+                    >
+                      <span
+                        contentEditable={allowEdit}
+                        onBlur={(e) => handleOptionChange(e, elId, i + 1)}
+                        dangerouslySetInnerHTML={{
+                          __html: opt.toLowerCase(),
+                        }}
+                        onClick={(e) => e.stopPropagation()}
+                      ></span>
+                      <IconButton
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleAddRemoveChange(elId, "delete");
+                        }}
+                      >
+                        <Remove />
+                      </IconButton>
+                    </Typography>
+                  ))}
+                </Box>
+              </>
+            )}
           </Box>
         );
         break;
     }
     return (
-      <Box key={`element-${element.id}`} className="element">
+      <Box
+        key={`element-${element.id}`}
+        className="element"
+        sx={
+          isPreview
+            ? {
+                "&:hover": { borderColor: "transparent !important" },
+                ">.MuiBox-root, .MuiTypography-root": { padding: 0 },
+              }
+            : {}
+        }
+      >
         {el}
         {allowDelete ? (
           <IconButton

@@ -8,33 +8,32 @@ const Header = () => {
   const pageName = useAppSelector(selectPageName);
   const user = useAppSelector(selectCurrentUser);
 
-  const [mainPage, subPage] = pageName.split('/');
-
+  const [mainPage, subPage] = pageName.split("/");
 
   return (
     <Box className="header" sx={headerStyles}>
       <Typography
-      component="h1"
-      sx={{
-        color: "rgba(85, 85, 85, 1)",
-        fontSize: "1.7rem",
-        fontWeight: "600 !important",
-      }}
-    >
-      {mainPage}
-      {subPage && (
-        <Typography
-          component="span"
-          sx={{
-            fontSize: "0.7em", // Make it smaller
-            fontWeight: "100 !important",
-            marginLeft: "0.2em",
-          }}
-        >
-          / {subPage}
-        </Typography>
-      )}
-    </Typography>
+        component="h1"
+        sx={{
+          color: "rgba(85, 85, 85, 1)",
+          fontSize: "1.7rem",
+          fontWeight: "500 !important",
+        }}
+      >
+        {mainPage}
+        {subPage && (
+          <Typography
+            component="span"
+            sx={{
+              fontSize: "0.7em", // Make it smaller
+              fontWeight: "100 !important",
+              marginLeft: "0.2em",
+            }}
+          >
+            / {subPage}
+          </Typography>
+        )}
+      </Typography>
       <Box sx={actionsStyles}>
         <Box>
           <IconButton>

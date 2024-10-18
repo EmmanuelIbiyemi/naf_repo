@@ -1,5 +1,5 @@
 import { Box, Button, SxProps } from "@mui/material";
-import { setPageName } from "../../../store/app.slice";
+import { setLoading, setPageName } from "../../../store/app.slice";
 import { useAppDispatch } from "../../../store/hooks";
 import ElementsSideBar from "./components/ElementsSideBar";
 import FormContentArea from "./components/FormContentArea";
@@ -11,13 +11,14 @@ import {
   useAddFormRowMutation,
   useGetFormQuery,
 } from "../../../store/api/form.api";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { formElements } from "./elements";
 
 const AddFormPage = () => {
   // set page name
   const dispatch = useAppDispatch();
   const location = useLocation();
+  const navigate = useNavigate();
 
   useEffect(() => {
     dispatch(setPageName("Application Form"));
@@ -31,6 +32,7 @@ const AddFormPage = () => {
 
   const addElement = async (type: string) => {
     const element = formElements.find((el) => el.type == type);
+    dispatch(setLoading(true));
     if (element) {
       try {
         if (form?.data) {
@@ -47,13 +49,18 @@ const AddFormPage = () => {
             formrow_id: row?.data.id as number,
             key,
             name: element.text,
-            placeholder: element.content,
+            placeholder: ["dropdown", "single-choice", "multi-choice"].includes(
+              element.type
+            )
+              ? element.content
+              : "",
             type,
           }).unwrap();
         }
       } catch (error) {
         console.log(error);
       }
+      dispatch(setLoading(false));
     }
   };
 
@@ -68,6 +75,10 @@ const AddFormPage = () => {
   const handleDragStart = (event: DragEndEvent) => {
     setActiveId(event.active.id as string);
   };
+
+  useEffect(() => {
+    if (!location.state) navigate("/applications");
+  }, [location]);
 
   return (
     <Box className="content-container" sx={pageStyles}>

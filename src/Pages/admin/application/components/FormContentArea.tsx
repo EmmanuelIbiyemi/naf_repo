@@ -1,59 +1,47 @@
 import { Box, Button, SxProps, Typography } from "@mui/material";
 import cursorIcon from "../../../../assets/cursor.svg";
-import { FocusEvent, useEffect } from "react";
+import { FocusEvent } from "react";
 import { useDroppable } from "@dnd-kit/core";
 import FormBuilder from "./FormBuilder";
 import {
   useGetFormQuery,
   useUpdateFormMutation,
 } from "../../../../store/api/form.api";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 
 const FormContentArea = () => {
   const location = useLocation();
   const { data: form } = useGetFormQuery(location.state);
-
   const [updateForm] = useUpdateFormMutation();
-  const navigate = useNavigate();
 
   const { setNodeRef } = useDroppable({
     id: "droppable",
   });
 
-  const handleSubmitBtnChange = async (e: FocusEvent) => {
-    if (
-      form?.data &&
-      form.data.name.split("::")[1] != e.currentTarget.textContent
-    )
-      try {
-        await updateForm({
-          ...form?.data,
-          name: `${form.data.name}::${e.currentTarget.textContent}`,
-        });
-      } catch (error) {
-        console.log(error);
-      }
-  };
+  const handleFormPropsChange = async (e: FocusEvent, type: string) => {
+    if (form?.data) {
+      let name = "";
+      if (type == "name")
+        name = `${form.data.name.split("::")[0]}::${
+          e.currentTarget.textContent
+        }`;
+      else
+        name = `${e.currentTarget.textContent}::${
+          form.data.name.split("::")[1]
+        }`;
 
-  const handleFormNameChange = async (e: FocusEvent<HTMLSpanElement>) => {
-    if (
-      form?.data &&
-      form.data.name.split("::")[0] != e.currentTarget.textContent
-    ) {
       try {
         await updateForm({
-          ...form.data,
-          name: e.currentTarget.textContent as string,
-        }).unwrap();
+          id: form.data.id,
+          fee: form.data.fee,
+          name,
+          program_id: form.data.program_id,
+        });
       } catch (error) {
         console.log(error);
       }
     }
   };
-
-  useEffect(() => {
-    if (!location.state) navigate("/applications");
-  }, [location]);
 
   return (
     <Box sx={formContentContainerStyles}>
@@ -63,7 +51,7 @@ const FormContentArea = () => {
             <span
               id="name"
               contentEditable="true"
-              onBlur={handleFormNameChange}
+              onBlur={(e) => handleFormPropsChange(e, "name")}
               dangerouslySetInnerHTML={{
                 __html: form?.data.name.split("::")[0] as string,
               }}
@@ -105,7 +93,7 @@ const FormContentArea = () => {
             <span
               id="submitBtn"
               contentEditable="true"
-              onBlur={handleSubmitBtnChange}
+              onBlur={(e) => handleFormPropsChange(e, "name")}
               dangerouslySetInnerHTML={{
                 __html: form?.data.name.split("::")[1] as string,
               }}

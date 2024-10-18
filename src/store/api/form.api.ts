@@ -3,6 +3,7 @@ import {
   FormField,
   FormResponse,
   FormsResponse,
+  FormType2,
 } from "../../types/forms";
 import { appApi } from "./app.api";
 
@@ -77,7 +78,10 @@ const formsApi = appApi.injectEndpoints({
       }),
       invalidatesTags: ["Forms"],
     }),
-    updateForm: builder.mutation<FormResponse, FormCreateType2>({
+    updateForm: builder.mutation<
+      FormResponse,
+      Omit<FormType2, "sections" | "updated_at">
+    >({
       query: (form) => ({
         url: `/form/${form.id}`,
         method: "PUT",
