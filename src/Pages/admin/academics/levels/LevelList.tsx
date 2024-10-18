@@ -127,8 +127,8 @@ const LevelList = () => {
                 <Checkbox />
                 <Button
                   onClick={() =>
-                    navigate(`/academics/departments`, {
-                      state: { level_id: level.id },
+                    navigate(`/academics/courses`, {
+                      state: { ...location.state, level_id: level.id },
                     })
                   }
                   sx={{

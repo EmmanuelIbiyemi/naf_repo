@@ -6,8 +6,8 @@ import { useEffect, useRef, useState } from "react";
 import CourseForm from "./CourseForm";
 import CourseList from "./CourseList";
 import {
+  CourseCombinedType,
   CourseCreateType,
-  CourseFormAction,
   CourseType,
 } from "../../../../types/courses";
 import { useAppDispatch } from "../../../../store/hooks";
@@ -15,19 +15,26 @@ import { setPageName } from "../../../../store/app.slice";
 import SuccessModal from "../../../../components/SuccessModal";
 import {
   useAddCourseMutation,
+  useAddLevelCourseMutation,
   useGetCoursesQuery,
 } from "../../../../store/api/courses.api";
+import { useLocation } from "react-router-dom";
+import { FormAction } from "../../../../types/forms";
 
 const CoursesPage = () => {
+  const location = useLocation();
   const [openModal, setOpenModal] = useState({
     add: false,
     success: false,
   });
   const [courseName, setCourseName] = useState("");
   const [selectedCourse, setSelectedCourse] = useState<CourseType>();
-  const { data: courses } = useGetCoursesQuery(null);
+  const { data: courses } = useGetCoursesQuery({
+    level_id: location.state.level_id,
+  });
   const containerRef = useRef<HTMLDivElement>(null);
   const [addCourse] = useAddCourseMutation();
+  const [addCourseToLevel] = useAddLevelCourseMutation();
 
   // set page name
   const dispatch = useAppDispatch();
@@ -46,7 +53,12 @@ const CoursesPage = () => {
 
   const handleAddCourse = async (course: CourseCreateType) => {
     try {
-      await addCourse(course).unwrap();
+      const response = await addCourse(course).unwrap();
+      await addCourseToLevel({
+        course_ids: [response.data.id as number],
+        level_id: location.state.level_id,
+        type: response.data.type,
+      }).unwrap();
       handleCloseModal("add");
       handleOpenModal("success");
       setCourseName(course.name);
@@ -60,7 +72,7 @@ const CoursesPage = () => {
       <FormModal open={openModal.add} close={() => handleCloseModal("add")}>
         <CourseForm
           actions={{
-            submit: handleAddCourse as CourseFormAction,
+            submit: handleAddCourse as FormAction<CourseCombinedType>,
             cancel: () => handleCloseModal("add"),
           }}
           course={selectedCourse}

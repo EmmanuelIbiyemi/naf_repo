@@ -21,7 +21,8 @@ const courses: CourseType[] = [
     code: "CSC101",
     name: "Introduction to Computer Science",
     credit_unit: 3,
-    semester: "Fall",
+    semester: "First Semester",
+    type: "elective",
     instructors: [
       {
         id: 1,
@@ -43,7 +44,8 @@ const courses: CourseType[] = [
     code: "MATH201",
     name: "Calculus I",
     credit_unit: 4,
-    semester: "Spring",
+    semester: "Second Semester",
+    type: "Core",
     instructors: [
       {
         id: 1,
