@@ -1,7 +1,6 @@
 /* eslint-disable react-refresh/only-export-components */
 import { createBrowserRouter } from "react-router-dom";
 import { lazy } from "react";
-import Page from "./Pages/admin/page/Page";
 
 // Admin
 
@@ -49,6 +48,8 @@ const AddPostPage = lazy(
 const PreviewPostPage = lazy(
   () => import("./Pages/admin/application copy/PreviewPost")
 );
+const Page = lazy(() => import("./Pages/admin/page/Page"));
+const LevelsPage = lazy(() => import("./Pages/admin/academics/levels/Levels"));
 
 // Instructor
 
@@ -99,7 +100,7 @@ export const router = createBrowserRouter([
           { path: "departments", element: <DepartmentsPage /> },
           { path: "programmes", element: <ProgrammesPage /> },
           { path: "courses", element: <CoursesPage /> },
-          { path: "page/:name", element: <Page /> },
+          { path: "levels", element: <LevelsPage /> },
         ],
       },
       {

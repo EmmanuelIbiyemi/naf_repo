@@ -7,15 +7,13 @@ import {
   MenuItem,
   OutlinedInput,
   Select,
-  SelectChangeEvent,
   Typography,
 } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
 import formStyles from "../../../../components/form/form.module.scss";
 import { Programme } from "../../../../types/programmes";
-import { useGetFacultiesQuery } from "../../../../store/api/faculties.api";
-import { useEffect, useState } from "react";
-import { useGetDepartmentsMMutation } from "../../../../store/api/departments.api";
+import { useGetDepartmentsQuery } from "../../../../store/api/departments.api";
+import { useLocation } from "react-router-dom";
 
 type Props = {
   programme?: Programme;
@@ -26,9 +24,10 @@ type Props = {
 };
 
 const ProgrammeForm = ({ actions, programme }: Props) => {
-  const { data: faculties } = useGetFacultiesQuery(null);
-  const [facultyId, setFacultyId] = useState(0);
-  const [getDepartments, departmentsState] = useGetDepartmentsMMutation();
+  const location = useLocation();
+  const { data: departments } = useGetDepartmentsQuery(
+    location.state.faculty_id
+  );
 
   const initialValues: Programme = {
     id: programme?.id || 0,
@@ -48,17 +47,6 @@ const ProgrammeForm = ({ actions, programme }: Props) => {
     await actions.submit(values);
     console.log(values);
   };
-
-  const handleFacultyChange = (event: SelectChangeEvent<number>) => {
-    const {
-      target: { value },
-    } = event;
-    setFacultyId(value as number);
-  };
-
-  useEffect(() => {
-    if (facultyId != 0) getDepartments(facultyId);
-  }, [facultyId, getDepartments]);
 
   return (
     <Formik
@@ -90,28 +78,6 @@ const ProgrammeForm = ({ actions, programme }: Props) => {
 
           <Box>
             <FormControl fullWidth>
-              <label htmlFor="faculty_id">Select Faculty</label>
-              <Select
-                sx={{
-                  padding: 0,
-                  ".MuiSelect-select": { p: "5px", minHeight: "25px" },
-                }}
-                id="faculty_id"
-                value={facultyId || 0}
-                onChange={handleFacultyChange}
-                input={<OutlinedInput />}
-              >
-                <MenuItem value={0}>Select faculty</MenuItem>
-                {faculties?.data.map((faculty) => (
-                  <MenuItem key={faculty.id} value={faculty.id}>
-                    {faculty.name}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </Box>
-          <Box>
-            <FormControl fullWidth>
               <label htmlFor="department_id">Select Department</label>
               <Select
                 sx={{
@@ -130,7 +96,7 @@ const ProgrammeForm = ({ actions, programme }: Props) => {
                 input={<OutlinedInput />}
               >
                 <MenuItem value={0}>select department</MenuItem>
-                {departmentsState?.data?.data.map((department) => (
+                {departments?.data.map((department) => (
                   <MenuItem key={department.id} value={department.id}>
                     {department.name}
                   </MenuItem>

@@ -1,58 +1,54 @@
 import { Box } from "@mui/material";
 import PageHeader from "../../../../components/PageHeader";
 import EmptyState from "../../../../components/EmptyState";
-import FormModal from "../../../../components/FormModal";
 import { useEffect, useRef, useState } from "react";
 import { useAppDispatch } from "../../../../store/hooks";
 import { setPageName } from "../../../../store/app.slice";
 import SuccessModal from "../../../../components/SuccessModal";
 import {
-  useAddDepartmentMutation,
-  useGetDepartmentsQuery,
-} from "../../../../store/api/departments.api";
-import {
-  Department,
-  DepartmentFormAction,
-} from "../../../../types/departments";
-import DepartmentForm from "./DepartmentForm";
-import DepartmentList from "./DepartmentList";
+  useAddLevelMutation,
+  useGetLevelsQuery,
+} from "../../../../store/api/levels.api";
+import { LevelType } from "../../../../types/levels";
+import LevelList from "./LevelList";
+import FormModal from "../../../../components/FormModal";
+import LevelForm from "./LevelForm";
+import { FormAction } from "../../../../types/forms";
 import { useLocation } from "react-router-dom";
 
-const DepartmentsPage = () => {
+const LevelsPage = () => {
+  const location = useLocation();
   const [openModal, setOpenModal] = useState({
     add: false,
     success: false,
   });
-  const [departmentName, setDepartmentName] = useState("");
-  const [selectedDepartment, setSelectedDepartment] = useState<Department>();
-  const location = useLocation();
-  const { data: departments } = useGetDepartmentsQuery(
-    location.state?.faculty_id
-  );
+  const [levelName, setLevelName] = useState("");
+  const [selectedLevel, setSelectedLevel] = useState<LevelType>();
+  const { data: Levels } = useGetLevelsQuery(location.state.programme_id);
   const containerRef = useRef<HTMLDivElement>(null);
-  const [addDepartment] = useAddDepartmentMutation();
+  const [addLevel] = useAddLevelMutation();
 
   // set page name
   const dispatch = useAppDispatch();
   useEffect(() => {
-    dispatch(setPageName("Academics/Departments"));
-  }, []);
+    dispatch(setPageName("Academics/Levels"));
+  }, [dispatch]);
 
   const handleOpenModal = (type: string) => {
     setOpenModal((prev) => ({ ...prev, [type]: true }));
   };
 
   const handleCloseModal = (type: string) => {
-    setSelectedDepartment(undefined);
+    setSelectedLevel(undefined);
     setOpenModal((prev) => ({ ...prev, [type]: false }));
   };
 
-  const handleAddDepartment = async (department: Department) => {
+  const handleAddLevel = async (level: LevelType) => {
     try {
-      await addDepartment(department).unwrap();
+      await addLevel(level).unwrap();
       handleCloseModal("add");
       handleOpenModal("success");
-      setDepartmentName(department.name);
+      setLevelName(level.name);
     } catch (error) {
       console.log(error);
     }
@@ -61,12 +57,12 @@ const DepartmentsPage = () => {
   return (
     <Box ref={containerRef} className="content-container">
       <FormModal open={openModal.add} close={() => handleCloseModal("add")}>
-        <DepartmentForm
+        <LevelForm
           actions={{
-            submit: handleAddDepartment as DepartmentFormAction,
+            submit: handleAddLevel as FormAction<LevelType>,
             cancel: () => handleCloseModal("add"),
           }}
-          department={selectedDepartment}
+          level={selectedLevel}
         />
       </FormModal>
 
@@ -81,18 +77,18 @@ const DepartmentsPage = () => {
         }}
         close={() => {
           handleCloseModal("success");
-          setSelectedDepartment(undefined);
+          setSelectedLevel(undefined);
         }}
-        infoText="The instructors added in this department will get notified."
+        infoText="The instructors added in this level will get notified."
         open={openModal.success}
-        subTitle={`You have successfully added a new department <strong>“${departmentName}”</strong>.`}
+        subTitle={`You have successfully added a new level <strong>“${levelName}”</strong>.`}
         title="Updates Successful"
       />
 
       <PageHeader
         button={{
           action: () => setOpenModal((prev) => ({ ...prev, add: true })),
-          text: "Add Department",
+          text: "Add Level",
         }}
       />
       <Box
@@ -103,12 +99,12 @@ const DepartmentsPage = () => {
           padding: "var(--padding)",
         }}
       >
-        {departments?.data.length ? (
-          <DepartmentList />
+        {Levels?.data.length ? (
+          <LevelList />
         ) : (
           <EmptyState
-            title="No Departments at this time"
-            subTitle="Departments will appear here after you add them in your school."
+            title="No Levels at this time"
+            subTitle="Levels will appear here after you add them in your school."
           />
         )}
       </Box>
@@ -116,4 +112,4 @@ const DepartmentsPage = () => {
   );
 };
 
-export default DepartmentsPage;
+export default LevelsPage;

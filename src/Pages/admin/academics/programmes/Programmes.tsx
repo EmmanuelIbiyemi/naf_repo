@@ -13,7 +13,6 @@ import {
 import { Programme, ProgrammeFormAction } from "../../../../types/programmes";
 import ProgrammeForm from "./ProgrammeForm";
 import ProgrammeList from "./ProgrammeList";
-import { useGetFacultiesQuery } from "../../../../store/api/faculties.api";
 import { useLocation } from "react-router-dom";
 
 const ProgrammesPage = () => {
@@ -27,7 +26,6 @@ const ProgrammesPage = () => {
   const { data: Programmes } = useGetProgrammesQuery(
     location.state?.department_id
   );
-  const { data: faculties } = useGetFacultiesQuery(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [addProgramme] = useAddProgrammeMutation();
 
@@ -35,7 +33,7 @@ const ProgrammesPage = () => {
   const dispatch = useAppDispatch();
   useEffect(() => {
     dispatch(setPageName("Academics/Programmes"));
-  }, [dispatch, faculties]);
+  }, []);
 
   const handleOpenModal = (type: string) => {
     setOpenModal((prev) => ({ ...prev, [type]: true }));

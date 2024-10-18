@@ -132,7 +132,10 @@ const DepartmentList = () => {
                 <Button
                   onClick={() =>
                     navigate("/academics/programmes", {
-                      state: { department_id: department.id },
+                      state: {
+                        ...location.state,
+                        department_id: department.id,
+                      },
                     })
                   }
                   sx={{

@@ -3,22 +3,23 @@ import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
 import TableRow from "@mui/material/TableRow";
-import { Programme, ProgrammeFormAction } from "../../../../types/programmes";
+import { LevelType } from "../../../../types/levels";
 import { Button, Checkbox, IconButton } from "@mui/material";
 import { Delete, Edit } from "@mui/icons-material";
+import { useLocation, useNavigate } from "react-router-dom";
 import DeleteConfirmationModal from "../../../../components/DeleteConfirmationModal";
 import { useState } from "react";
 import {
-  useDeleteProgrammeMutation,
-  useGetProgrammesQuery,
-  useUpdateProgrammeMutation,
-} from "../../../../store/api/programmes.api";
+  useDeleteLevelMutation,
+  useGetLevelsQuery,
+  useUpdateLevelMutation,
+} from "../../../../store/api/levels.api";
 import FormModal from "../../../../components/FormModal";
-import ProgrammeForm from "./ProgrammeForm";
+import LevelForm from "./LevelForm";
 import SuccessModal from "../../../../components/SuccessModal";
-import { useLocation, useNavigate } from "react-router-dom";
+import { FormAction } from "../../../../types/forms";
 
-const ProgrammeList = () => {
+const LevelList = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [openModal, setOpenModal] = useState({
@@ -26,51 +27,50 @@ const ProgrammeList = () => {
     success: false,
     delete: false,
   });
-  const [selectedProgramme, setSelectedProgramme] = useState<Programme>();
-  const { data: programme } = useGetProgrammesQuery(
-    location.state?.department_id
-  );
-  const [deleteProgramme] = useDeleteProgrammeMutation();
-  const [updateProgramme] = useUpdateProgrammeMutation();
+  const [selectedLevel, setSelectedLevel] = useState<LevelType>();
+  const { data: levels } = useGetLevelsQuery(location.state.programme_id);
 
-  const handleOpenModal = (programme: Programme, type: string) => {
-    setSelectedProgramme(programme);
+  const [deleteLevel] = useDeleteLevelMutation();
+  const [updateLevel] = useUpdateLevelMutation();
+
+  const handleOpenModal = (level: LevelType, type: string) => {
+    setSelectedLevel(level);
     setOpenModal((prev) => ({ ...prev, [type]: true }));
   };
 
   const handleCloseModal = (type: string) => {
-    setSelectedProgramme(undefined);
+    setSelectedLevel(undefined);
     setOpenModal((prev) => ({ ...prev, [type]: false }));
   };
 
-  const handleDelete = async (programme_id: number) => {
+  const handleDelete = async (level_id: number) => {
     try {
-      await deleteProgramme(programme_id).unwrap();
+      await deleteLevel(level_id).unwrap();
     } catch (error) {
       console.log(error);
     }
   };
 
-  const handleEditProgramme = async (programme: Programme) => {
+  const handleEditLevel = async (level: LevelType) => {
     try {
-      await updateProgramme(programme).unwrap();
+      await updateLevel(level).unwrap();
     } catch (error) {
       console.log(error);
     }
     handleCloseModal("edit");
-    handleOpenModal(programme, "success");
+    handleOpenModal(level, "success");
   };
 
   return (
     <TableContainer>
       {/* ADD */}
       <FormModal open={openModal.edit} close={() => handleCloseModal("edit")}>
-        <ProgrammeForm
+        <LevelForm
           actions={{
-            submit: handleEditProgramme as ProgrammeFormAction,
+            submit: handleEditLevel as FormAction<LevelType>,
             cancel: () => handleCloseModal("edit"),
           }}
-          programme={selectedProgramme}
+          level={selectedLevel}
         />
       </FormModal>
 
@@ -78,7 +78,7 @@ const ProgrammeList = () => {
       <DeleteConfirmationModal
         actions={{
           proceed: () => {
-            if (selectedProgramme) handleDelete(selectedProgramme.id as number);
+            if (selectedLevel) handleDelete(selectedLevel.id as number);
             console.log("proceed");
           },
           undo: () => {
@@ -86,10 +86,10 @@ const ProgrammeList = () => {
           },
         }}
         close={() => handleCloseModal("delete")}
-        infoText="The instructors enrolled in this Programme will get notified."
+        infoText="The instructors enrolled in this Level will get notified."
         open={openModal.delete}
-        subTitle={`Are you sure you want to delete Programme <strong>“${selectedProgramme?.name}”</strong>? You can’t undo this action.`}
-        title="Delete Programme?"
+        subTitle={`Are you sure you want to delete Level <strong>“${selectedLevel?.name}”</strong>? You can’t undo this action.`}
+        title="Delete Level?"
       />
 
       {/* Success */}
@@ -104,19 +104,19 @@ const ProgrammeList = () => {
         }}
         close={() => {
           handleCloseModal("success");
-          setSelectedProgramme(undefined);
+          setSelectedLevel(undefined);
         }}
         infoText=""
         open={openModal.success}
-        subTitle={`You have successfully added a new Programme <strong>“${selectedProgramme?.name}”</strong>.`}
+        subTitle={`You have successfully added a new Level <strong>“${selectedLevel?.name}”</strong>.`}
         title="Updates Successful"
       />
 
       <Table sx={{ minWidth: 650 }}>
         <TableBody>
-          {programme?.data.map((programme: Programme) => (
+          {levels?.data.map((level: LevelType) => (
             <TableRow
-              key={programme.id}
+              key={level.id}
               sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
             >
               <TableCell
@@ -127,11 +127,8 @@ const ProgrammeList = () => {
                 <Checkbox />
                 <Button
                   onClick={() =>
-                    navigate("/academics/levels", {
-                      state: {
-                        ...location.state,
-                        programme_id: programme.id,
-                      },
+                    navigate(`/academics/departments`, {
+                      state: { level_id: level.id },
                     })
                   }
                   sx={{
@@ -143,16 +140,14 @@ const ProgrammeList = () => {
                     },
                   }}
                 >
-                  {programme.name}
+                  {level.name}
                 </Button>
               </TableCell>
               <TableCell align="right">
-                <IconButton onClick={() => handleOpenModal(programme, "edit")}>
+                <IconButton onClick={() => handleOpenModal(level, "edit")}>
                   <Edit />
                 </IconButton>
-                <IconButton
-                  onClick={() => handleOpenModal(programme, "delete")}
-                >
+                <IconButton onClick={() => handleOpenModal(level, "delete")}>
                   <Delete />
                 </IconButton>
               </TableCell>
@@ -164,4 +159,4 @@ const ProgrammeList = () => {
   );
 };
 
-export default ProgrammeList;
+export default LevelList;

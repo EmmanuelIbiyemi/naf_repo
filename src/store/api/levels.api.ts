@@ -8,8 +8,8 @@ import { appApi } from "./app.api";
 
 const levelsApi = appApi.injectEndpoints({
   endpoints: (builder) => ({
-    getLevels: builder.query<LevelsResponse, null>({
-      query: () => "/level",
+    getLevels: builder.query<LevelsResponse, number>({
+      query: (program_id) => `/level/program/${program_id}`,
       providesTags: ["Levels"],
     }),
     getLevel: builder.query<LevelsResponse, number>({
