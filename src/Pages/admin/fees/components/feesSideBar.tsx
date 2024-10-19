@@ -8,12 +8,11 @@ type NavLink = {
   children?: NavLink[];
 };
 
-const UsersSideBar = () => {
+const FeesSideBar = () => {
   const location = useLocation();
   const [navLinks] = useState<NavLink[]>([
-    { content: "Admins", link: "/users" },
-    { content: "Lecturers", link: "/users/lecturers" },
-    { content: "Students", link: "/users/students" },
+    { content: "Department & Level", link: "/fees" },
+    { content: "Discount & Condition", link: "/fees/discount" },
   ]);
 
   const isCurrentPage = (navLink: NavLink) => {
@@ -34,7 +33,7 @@ const UsersSideBar = () => {
   );
 };
 
-export default UsersSideBar;
+export default FeesSideBar;
 
 const sidebarStyles: SxProps = {
   bgcolor: "#fff",

@@ -3,70 +3,70 @@ import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
 import TableRow from "@mui/material/TableRow";
-import { ExamOfficerFormAction, ExamOfficer } from "../../../../types/examOfficers";
+import { DiscountFormAction, Discount } from "../../../../types/discounts.ts";
 import { Checkbox, IconButton } from "@mui/material";
 import { Delete, Edit } from "@mui/icons-material";
 import { Link } from "react-router-dom";
 import DeleteConfirmationModal from "../../../../components/DeleteConfirmationModal";
 import { useState } from "react";
 import {
-  useDeleteExamOfficerMutation,
-  useGetExamOfficersQuery,
-  useUpdateExamOfficerMutation,
-} from "../../../../store/api/examOfficers.api";
+  useDeleteDiscountMutation,
+  useGetDiscountsQuery,
+  useUpdateDiscountMutation,
+} from "../../../../store/api/discounts.api.ts";
 import FormModal from "../../../../components/FormModal";
-import ExamOfficerForm from "./ExamOfficersForm";
+import DiscountForm from "./DiscountsForm";
 import SuccessModal from "../../../../components/SuccessModal";
 
-const ExamOfficersList = () => {
+const DiscountsList = () => {
   const [openModal, setOpenModal] = useState({
     edit: false,
     success: false,
     delete: false,
   });
-  const [selectedExamOfficer, setSelectedExamOfficer] = useState<ExamOfficer>();
-  const { data: examOfficers } = useGetExamOfficersQuery(null);
-  const [deleteExamOfficer] = useDeleteExamOfficerMutation();
-  const [updateExamOfficer] = useUpdateExamOfficerMutation();
+  const [selectedDiscount, setSelectedDiscount] = useState<Discount>();
+  const { data: discounts } = useGetDiscountsQuery(null);
+  const [deleteDiscount] = useDeleteDiscountMutation();
+  const [updateDiscount] = useUpdateDiscountMutation();
 
-  const handleOpenModal = (examOfficer: ExamOfficer, type: string) => {
-    setSelectedExamOfficer(examOfficer);
+  const handleOpenModal = (discount: Discount, type: string) => {
+    setSelectedDiscount(discount);
     setOpenModal((prev) => ({ ...prev, [type]: true }));
   };
 
   const handleCloseModal = (type: string) => {
-    setSelectedExamOfficer(undefined);
+    setSelectedDiscount(undefined);
     setOpenModal((prev) => ({ ...prev, [type]: false }));
   };
 
-  const handleDelete = async (examOfficer_id: number) => {
+  const handleDelete = async (discount_id: number) => {
     try {
-      await deleteExamOfficer(examOfficer_id).unwrap();
+      await deleteDiscount(discount_id).unwrap();
     } catch (error) {
       console.log(error);
     }
   };
 
-  const handleEditExamOfficer = async (examOfficer: ExamOfficer) => {
+  const handleEditDiscount = async (discount: Discount) => {
     try {
-      await updateExamOfficer(examOfficer).unwrap();
+      await updateDiscount(discount).unwrap();
     } catch (error) {
       console.log(error);
     }
     handleCloseModal("edit");
-    handleOpenModal(examOfficer, "success");
+    handleOpenModal(discount, "success");
   };
 
   return (
     <TableContainer>
-      {/* ADD */}
+      {/* EDIT */}
       <FormModal open={openModal.edit} close={() => handleCloseModal("edit")}>
-        <ExamOfficerForm
+        <DiscountForm
           actions={{
-            submit: handleEditExamOfficer as ExamOfficerFormAction,
+            submit: handleEditDiscount as DiscountFormAction,
             cancel: () => handleCloseModal("edit"),
           }}
-          examOfficer={selectedExamOfficer}
+          discount={selectedDiscount}
         />
       </FormModal>
 
@@ -74,7 +74,7 @@ const ExamOfficersList = () => {
       <DeleteConfirmationModal
         actions={{
           proceed: () => {
-            if (selectedExamOfficer) handleDelete(selectedExamOfficer.id as number);
+            if (selectedDiscount) handleDelete(selectedDiscount.id as number);
             console.log("proceed");
           },
           undo: () => {
@@ -82,10 +82,10 @@ const ExamOfficersList = () => {
           },
         }}
         close={() => handleCloseModal("delete")}
-        infoText="The students enrolled in this ExamOfficer will get notified."
+        infoText="This action cannot be undone."
         open={openModal.delete}
-        subTitle={`Are you sure you want to delete ExamOfficer <strong>“${selectedExamOfficer?.first_name + ' ' + selectedExamOfficer?.last_name}”</strong>? You can’t undo this action.`}
-        title="Delete ExamOfficer?"
+        subTitle={`Are you sure you want to delete the discount with condition "${selectedDiscount?.condition}"?`}
+        title="Delete Discount?"
       />
 
       {/* Success */}
@@ -100,19 +100,19 @@ const ExamOfficersList = () => {
         }}
         close={() => {
           handleCloseModal("success");
-          setSelectedExamOfficer(undefined);
+          setSelectedDiscount(undefined);
         }}
         infoText=""
         open={openModal.success}
-        subTitle={`You have successfully added a new ExamOfficer <strong>“${selectedExamOfficer?.first_name}”</strong>.`}
-        title="Updates Successful"
+        subTitle={`You have successfully updated the discount with condition "${selectedDiscount?.condition}".`}
+        title="Update Successful"
       />
 
       <Table sx={{ minWidth: 650 }}>
         <TableBody>
-          {examOfficers?.data.map((examOfficer: ExamOfficer) => (
+          {discounts?.data.map((discount: Discount) => (
             <TableRow
-              key={examOfficer.id}
+              key={discount.id}
               sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
             >
               <TableCell
@@ -121,18 +121,18 @@ const ExamOfficersList = () => {
                 sx={{ alignItems: "center", display: "flex", gap: "1rem" }}
               >
                 <Checkbox />
-                <Link
-                  to={`/examOfficers/${examOfficer.id}`}
-                  style={{ textTransform: "capitalize" }}
-                >
-                  {examOfficer.first_name}
+                <Link to={`/discounts/${discount.id}`}>
+                  Condition: {discount.condition}
                 </Link>
               </TableCell>
+              <TableCell>GPA: {discount.gpa}</TableCell>
+              <TableCell>Discount: {discount.discount_percentage}%</TableCell>
+              <TableCell>{discount.description}</TableCell>
               <TableCell align="right">
-                <IconButton onClick={() => handleOpenModal(examOfficer, "edit")}>
+                <IconButton onClick={() => handleOpenModal(discount, "edit")}>
                   <Edit />
                 </IconButton>
-                <IconButton onClick={() => handleOpenModal(examOfficer, "delete")}>
+                <IconButton onClick={() => handleOpenModal(discount, "delete")}>
                   <Delete />
                 </IconButton>
               </TableCell>
@@ -144,4 +144,4 @@ const ExamOfficersList = () => {
   );
 };
 
-export default ExamOfficersList;
+export default DiscountsList;

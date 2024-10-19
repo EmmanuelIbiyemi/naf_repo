@@ -1,22 +1,20 @@
 import {
-  LevelCourseCreateType,
-  LevelCreateType,
-  LevelsResponse,
-  LevelType,
+  LevelResponse,
+  Level,
 } from "../../types/levels";
 import { appApi } from "./app.api";
 
 const levelsApi = appApi.injectEndpoints({
   endpoints: (builder) => ({
-    getLevels: builder.query<LevelsResponse, null>({
-      query: () => "/level",
+    getLevels: builder.query<LevelResponse, null>({
+      query: () => "/level/program/1",
       providesTags: ["Levels"],
     }),
-    getLevel: builder.query<LevelsResponse, number>({
-      query: (level_id) => `/level/${level_id}`,
+    getLevel: builder.query<LevelResponse, number>({
+      query: (level_id) => `/level/1/${level_id}`,
       providesTags: ["Levels"],
     }),
-    addLevel: builder.mutation<LevelsResponse, LevelCreateType>({
+    addLevel: builder.mutation<LevelResponse, Level>({
       query: (level) => ({
         url: `/level`,
         method: "POST",
@@ -24,7 +22,7 @@ const levelsApi = appApi.injectEndpoints({
       }),
       invalidatesTags: ["Levels"],
     }),
-    updateLevel: builder.mutation<LevelsResponse, LevelType>({
+    updateLevel: builder.mutation<LevelResponse, Level>({
       query: (level) => ({
         url: `/level/${level.id}`,
         method: "PUT",
@@ -32,7 +30,7 @@ const levelsApi = appApi.injectEndpoints({
       }),
       invalidatesTags: ["Levels"],
     }),
-    deleteLevel: builder.mutation<LevelsResponse, number>({
+    deleteLevel: builder.mutation<LevelResponse, number>({
       query: (level_id) => ({
         url: `/level/${level_id}`,
         method: "DELETE",
@@ -41,14 +39,14 @@ const levelsApi = appApi.injectEndpoints({
     }),
 
     // Levels
-    getProgramLevels: builder.query<LevelsResponse, number>({
+    getProgramLevels: builder.query<LevelResponse, number>({
       query: (program_id) => `/level/programs/${program_id}`,
       providesTags: ["Programmes", "Levels"],
     }),
 
     // Course
     getLevelCourses: builder.query<
-      LevelsResponse,
+      LevelResponse,
       {
         level_id: number;
         page: number;
@@ -60,7 +58,7 @@ const levelsApi = appApi.injectEndpoints({
       providesTags: ["Levels"],
     }),
     getLevelApplicants: builder.query<
-      LevelsResponse,
+      LevelResponse,
       {
         level_id: number;
         page: number;
@@ -71,7 +69,7 @@ const levelsApi = appApi.injectEndpoints({
         `/level/${level_id}/participants?page=${page}&per_page=${per_page}`,
       providesTags: ["Levels", "Participants"],
     }),
-    addLevelCourse: builder.mutation<LevelsResponse, LevelCourseCreateType>({
+    addLevelCourse: builder.mutation<LevelResponse, Level>({
       query: (level) => ({
         url: `/level/course`,
         method: "POST",
@@ -80,7 +78,7 @@ const levelsApi = appApi.injectEndpoints({
       invalidatesTags: ["Levels"],
     }),
     deleteLevelCourse: builder.mutation<
-      LevelsResponse,
+      LevelResponse,
       { course_id: number; level_id: number }
     >({
       query: ({ level_id, course_id }) => ({

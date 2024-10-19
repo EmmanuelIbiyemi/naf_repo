@@ -1,37 +1,39 @@
+import { useEffect, useRef, useState } from "react";
 import { Box } from "@mui/material";
 import PageHeader from "../../../../components/PageHeader";
 import EmptyState from "../../../../components/EmptyState";
 import FormModal from "../../../../components/FormModal";
-import { useEffect, useRef, useState } from "react";
-import ExamOfficerForm from "./ExamOfficersForm";
-import ExamOfficerList from "./ExamOfficersList";
+import FeeForm from "./FeesForm";
 import {
-  ExamOfficer,
-  ExamOfficerFormAction
-} from "../../../../types/examOfficers";
+  Fee,
+  FeeFormAction
+} from "../../../../types/fees";
 import { useAppDispatch } from "../../../../store/hooks";
 import { setPageName } from "../../../../store/app.slice";
 import SuccessModal from "../../../../components/SuccessModal";
 import {
-  useAddExamOfficerMutation,
-  useGetExamOfficersQuery,
-} from "../../../../store/api/examOfficers.api";
+  useAddFeeMutation,
+  useGetLevelFeesQuery,
+} from "../../../../store/api/fees.api";
+import FeesList from "./FeesList";
+import LevelSelector from "../components/levelSelector";
 
-const ExamOfficersPage = () => {
+const FeesPage = () => {
   const [openModal, setOpenModal] = useState({
     add: false,
     success: false,
   });
-  const [examOfficerName, setExamOfficerName] = useState("");
-  const [selectedExamOfficer, setSelectedExamOfficer] = useState<ExamOfficer>();
-  const { data: examOfficers } = useGetExamOfficersQuery(null);
+  const [feeName, setFeeName] = useState("");
+  const [selectedFee, setSelectedFee] = useState<Fee>();
+  const [selectedLevel, setSelectedLevel] = useState<string | null>(null);
+  const { data: fees, refetch: refetchFees } = useGetLevelFeesQuery(selectedLevel);
   const containerRef = useRef<HTMLDivElement>(null);
-  const [addExamOfficer] = useAddExamOfficerMutation();
+  const [addFee] = useAddFeeMutation();
 
   // set page name
   const dispatch = useAppDispatch();
   useEffect(() => {
-    dispatch(setPageName("Academics/Exam Officers"));
+    dispatch(setPageName("Fees Management / Department & Level"));
   }, [dispatch]);
 
   const handleOpenModal = (type: string) => {
@@ -39,30 +41,35 @@ const ExamOfficersPage = () => {
   };
 
   const handleCloseModal = (type: string) => {
-    setSelectedExamOfficer(undefined);
+    setSelectedFee(undefined);
     setOpenModal((prev) => ({ ...prev, [type]: false }));
   };
 
-  const handleAddExamOfficer = async (examOfficer: ExamOfficer) => {
+  const handleAddFee = async (fee: Fee) => {
     try {
-      await addExamOfficer(examOfficer).unwrap();
+      await addFee(fee).unwrap();
       handleCloseModal("add");
       handleOpenModal("success");
-      setExamOfficerName(examOfficer.first_name + ' ' + examOfficer.last_name);
+      setFeeName(fee.name);
+      refetchFees();
     } catch (error) {
       console.log(error);
     }
   };
 
+  const handleLevelChange = (levelId: string | null) => {
+    setSelectedLevel(levelId);
+  };
+
   return (
     <Box ref={containerRef} className="content-container">
       <FormModal open={openModal.add} close={() => handleCloseModal("add")}>
-        <ExamOfficerForm
+        <FeeForm
           actions={{
-            submit: handleAddExamOfficer as ExamOfficerFormAction,
+            submit: handleAddFee as FeeFormAction,
             cancel: () => handleCloseModal("add"),
           }}
-          examOfficer={selectedExamOfficer}
+          fee={selectedFee}
         />
       </FormModal>
 
@@ -77,18 +84,18 @@ const ExamOfficersPage = () => {
         }}
         close={() => {
           handleCloseModal("success");
-          setSelectedExamOfficer(undefined);
+          setSelectedFee(undefined);
         }}
-        infoText="The instructors added in this examOfficer will get notified."
+        infoText="The instructors added in this fee will get notified."
         open={openModal.success}
-        subTitle={`You have successfully added a new examOfficer <strong>“${examOfficerName}”</strong>.`}
+        subTitle={`You have successfully added a new fee <strong>"${feeName}"</strong>.`}
         title="Updates Successful"
       />
 
       <PageHeader
         button={{
           action: () => setOpenModal((prev) => ({ ...prev, add: true })),
-          text: "Add ExamOfficers",
+          text: "Add Fees",
         }}
       />
       <Box
@@ -99,12 +106,16 @@ const ExamOfficersPage = () => {
           padding: "var(--padding)",
         }}
       >
-        {examOfficers?.data.length ? (
-          <ExamOfficerList />
+        <LevelSelector 
+          value={selectedLevel}
+          onChange={handleLevelChange}
+        />
+        {fees?.data && fees.data.length > 0 ? (
+          <FeesList level={selectedLevel} />
         ) : (
           <EmptyState
-            title="No ExamOfficers at this time"
-            subTitle="ExamOfficers will appear here after you add them in your school."
+            title="No Fees at this time"
+            subTitle="Fees will appear here after you add them in your school."
           />
         )}
       </Box>
@@ -112,4 +123,4 @@ const ExamOfficersPage = () => {
   );
 };
 
-export default ExamOfficersPage;
+export default FeesPage;

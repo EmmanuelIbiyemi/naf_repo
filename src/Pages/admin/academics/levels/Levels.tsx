@@ -7,28 +7,28 @@ import { useAppDispatch } from "../../../../store/hooks";
 import { setPageName } from "../../../../store/app.slice";
 import SuccessModal from "../../../../components/SuccessModal";
 import {
-  useAddLevelCoordinatorMutation,
-  useGetLevelCoordinatorsQuery,
-} from "../../../../store/api/levelCoordinators.api";
-import { LevelCoordinator, LevelCoordinatorFormAction } from "../../../../types/levelCoordinators";
-import LevelCoordinatorForm from "./LevelCoordinatorsForm";
-import LevelCoordinatorList from "./LevelCoordinatorsList";
+  useAddLevelMutation,
+  useGetLevelsQuery,
+} from "../../../../store/api/levels.api";
+import { Level, LevelFormAction } from "../../../../types/levels";
+import LevelForm from "./LevelsForm";
+import LevelList from "./LevelsList";
 
-const LevelCoordinatorsPage = () => {
+const LevelsPage = () => {
   const [openModal, setOpenModal] = useState({
     add: false,
     success: false,
   });
-  const [levelCoordinatorName, setLevelCoordinatorName] = useState("");
-  const [selectedLevelCoordinator, setSelectedLevelCoordinator] = useState<LevelCoordinator>();
-  const { data: LevelCoordinators } = useGetLevelCoordinatorsQuery(null);
+  const [levelName, setLevelName] = useState("");
+  const [selectedLevel, setSelectedLevel] = useState<Level>();
+  const { data: Levels } = useGetLevelsQuery(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const [addLevelCoordinator] = useAddLevelCoordinatorMutation();
+  const [addLevel] = useAddLevelMutation();
 
   // set page name
   const dispatch = useAppDispatch();
   useEffect(() => {
-    dispatch(setPageName("Users/Level Coordinators"));
+    dispatch(setPageName("Academics/Levels"));
   }, [dispatch]);
 
   const handleOpenModal = (type: string) => {
@@ -36,16 +36,16 @@ const LevelCoordinatorsPage = () => {
   };
 
   const handleCloseModal = (type: string) => {
-    setSelectedLevelCoordinator(undefined);
+    setSelectedLevel(undefined);
     setOpenModal((prev) => ({ ...prev, [type]: false }));
   };
 
-  const handleAddLevelCoordinator = async (levelCoordinator: LevelCoordinator) => {
+  const handleAddLevel = async (level: Level) => {
     try {
-      await addLevelCoordinator(levelCoordinator).unwrap();
+      await addLevel(level).unwrap();
       handleCloseModal("add");
       handleOpenModal("success");
-      setLevelCoordinatorName(levelCoordinator.first_name);
+      setLevelName(level.name);
     } catch (error) {
       console.log(error);
     }
@@ -54,12 +54,12 @@ const LevelCoordinatorsPage = () => {
   return (
     <Box ref={containerRef} className="content-container">
       <FormModal open={openModal.add} close={() => handleCloseModal("add")}>
-        <LevelCoordinatorForm
+        <LevelForm
           actions={{
-            submit: handleAddLevelCoordinator as LevelCoordinatorFormAction,
+            submit: handleAddLevel as LevelFormAction,
             cancel: () => handleCloseModal("add"),
           }}
-          levelCoordinator={selectedLevelCoordinator}
+          level={selectedLevel}
         />
       </FormModal>
 
@@ -74,18 +74,18 @@ const LevelCoordinatorsPage = () => {
         }}
         close={() => {
           handleCloseModal("success");
-          setSelectedLevelCoordinator(undefined);
+          setSelectedLevel(undefined);
         }}
-        infoText="The instructors added in this levelCoordinator will get notified."
+        infoText="The instructors added in this level will get notified."
         open={openModal.success}
-        subTitle={`You have successfully added a new levelCoordinator <strong>“${levelCoordinatorName}”</strong>.`}
+        subTitle={`You have successfully added a new level <strong>“${levelName}”</strong>.`}
         title="Updates Successful"
       />
 
       <PageHeader
         button={{
           action: () => setOpenModal((prev) => ({ ...prev, add: true })),
-          text: "Add LevelCoordinator",
+          text: "Add Level",
         }}
       />
       <Box
@@ -96,12 +96,12 @@ const LevelCoordinatorsPage = () => {
           padding: "var(--padding)",
         }}
       >
-        {LevelCoordinators?.data.length ? (
-          <LevelCoordinatorList />
+        {Levels?.data.length ? (
+          <LevelList />
         ) : (
           <EmptyState
-            title="No LevelCoordinators at this time"
-            subTitle="LevelCoordinators will appear here after you add them in your school."
+            title="No Levels at this time"
+            subTitle="Levels will appear here after you add them in your school."
           />
         )}
       </Box>
@@ -109,4 +109,4 @@ const LevelCoordinatorsPage = () => {
   );
 };
 
-export default LevelCoordinatorsPage;
+export default LevelsPage;

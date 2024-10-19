@@ -3,78 +3,89 @@ import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
 import TableRow from "@mui/material/TableRow";
-import { LevelCoordinator, LevelCoordinatorFormAction, LevelCoordinatorResponse } from "../../../../types/levelCoordinators";
+import { FeeFormAction, Fee } from "../../../../types/fees";
 import { Checkbox, IconButton } from "@mui/material";
 import { Delete, Edit } from "@mui/icons-material";
 import { Link } from "react-router-dom";
 import DeleteConfirmationModal from "../../../../components/DeleteConfirmationModal";
 import { useState } from "react";
 import {
-  useDeleteLevelCoordinatorMutation,
-  useGetLevelCoordinatorsQuery,
-  useUpdateLevelCoordinatorMutation,
-} from "../../../../store/api/levelCoordinators.api";
+  useDeleteFeeMutation,
+  useGetLevelFeesQuery,
+  useUpdateFeeMutation,
+} from "../../../../store/api/fees.api";
 import FormModal from "../../../../components/FormModal";
-import LevelCoordinatorForm from "./LevelCoordinatorsForm";
+import FeeForm from "./FeesForm";
 import SuccessModal from "../../../../components/SuccessModal";
 
-const LevelCoordinatorList = () => {
+interface FeesListProps {
+  level: string | null;
+}
+
+
+const FeesList: React.FC<FeesListProps> = ({ level }) => {
   const [openModal, setOpenModal] = useState({
     edit: false,
     success: false,
     delete: false,
   });
-  const [selectedLevelCoordinator, setSelectedLevelCoordinator] = useState<LevelCoordinator>();
-  const { data: levelCoordinators } = useGetLevelCoordinatorsQuery(null);
-  const [deleteLevelCoordinator] = useDeleteLevelCoordinatorMutation();
-  const [updateLevelCoordinator] = useUpdateLevelCoordinatorMutation();
-
-  const handleOpenModal = (levelCoordinator: LevelCoordinator, type: string) => {
-    setSelectedLevelCoordinator(levelCoordinator);
+  const [selectedFee, setSelectedFee] = useState<Fee>();
+  const { data: fees, isLoading } = useGetLevelFeesQuery(level ? level.toString() : null);
+  const [deleteFee] = useDeleteFeeMutation();
+  const [updateFee] = useUpdateFeeMutation();
+  
+  const handleOpenModal = (fee: Fee, type: string) => {
+    setSelectedFee(fee);
     setOpenModal((prev) => ({ ...prev, [type]: true }));
   };
 
   const handleCloseModal = (type: string) => {
-    setSelectedLevelCoordinator(undefined);
+    setSelectedFee(undefined);
     setOpenModal((prev) => ({ ...prev, [type]: false }));
   };
 
-  const handleDelete = async (levelCoordinator_id: number) => {
+  const handleDelete = async (fee_id: number) => {
     try {
-      await deleteLevelCoordinator(levelCoordinator_id).unwrap();
+      await deleteFee(fee_id).unwrap();
     } catch (error) {
       console.log(error);
     }
   };
 
-  const handleEditLevelCoordinator = async (levelCoordinator: LevelCoordinator) => {
+  const handleEditFee = async (fee: Fee) => {
     try {
-      await updateLevelCoordinator(levelCoordinator).unwrap();
+      await updateFee(fee).unwrap();
     } catch (error) {
       console.log(error);
     }
     handleCloseModal("edit");
-    handleOpenModal(levelCoordinator, "success");
+    handleOpenModal(fee, "success");
   };
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
+  if (!fees?.data || fees.data.length === 0) {
+    return <div>No fees found.</div>;
+  }
 
   return (
     <TableContainer>
-      {/* ADD */}
       <FormModal open={openModal.edit} close={() => handleCloseModal("edit")}>
-        <LevelCoordinatorForm
+        <FeeForm
           actions={{
-            submit: handleEditLevelCoordinator as LevelCoordinatorFormAction,
+            submit: handleEditFee as FeeFormAction,
             cancel: () => handleCloseModal("edit"),
           }}
-          levelCoordinator={selectedLevelCoordinator}
+          fee={selectedFee}
         />
       </FormModal>
 
-      {/* DELETE */}
       <DeleteConfirmationModal
         actions={{
           proceed: () => {
-            if (selectedLevelCoordinator) handleDelete(selectedLevelCoordinator.id as number);
+            if (selectedFee) handleDelete(selectedFee.id as number);
             console.log("proceed");
           },
           undo: () => {
@@ -82,13 +93,12 @@ const LevelCoordinatorList = () => {
           },
         }}
         close={() => handleCloseModal("delete")}
-        infoText="The instructors enrolled in this Level Coordinator will get notified."
+        infoText="The students enrolled in this Fee will get notified."
         open={openModal.delete}
-        subTitle={`Are you sure you want to delete Level Coordinator <strong>"${selectedLevelCoordinator?.first_name} ${selectedLevelCoordinator?.last_name}"</strong>? You can't undo this action.`}
-        title="Delete Level Coordinator?"
+        subTitle={`Are you sure you want to delete Fee <strong>"${selectedFee?.name}"</strong>? You can't undo this action.`}
+        title="Delete Fee?"
       />
 
-      {/* Success */}
       <SuccessModal
         actions={{
           proceed: () => {
@@ -100,19 +110,19 @@ const LevelCoordinatorList = () => {
         }}
         close={() => {
           handleCloseModal("success");
-          setSelectedLevelCoordinator(undefined);
+          setSelectedFee(undefined);
         }}
         infoText=""
         open={openModal.success}
-        subTitle={`You have successfully added a new Level Coordinator <strong>"${selectedLevelCoordinator?.first_name} ${selectedLevelCoordinator?.last_name}"</strong>.`}
+        subTitle={`You have successfully updated the Fee <strong>"${selectedFee?.name}"</strong>.`}
         title="Updates Successful"
       />
 
       <Table sx={{ minWidth: 650 }}>
         <TableBody>
-          {(levelCoordinators as LevelCoordinatorResponse)?.data.map((levelCoordinator: LevelCoordinator) => (
+          {fees.data.map((fee: Fee) => (
             <TableRow
-              key={levelCoordinator.id}
+              key={fee.id}
               sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
             >
               <TableCell
@@ -122,17 +132,21 @@ const LevelCoordinatorList = () => {
               >
                 <Checkbox />
                 <Link
-                  to={`/levelCoordinator/${levelCoordinator.id}`}
+                  to={`/fees/${fee.id}`}
                   style={{ textTransform: "capitalize" }}
                 >
-                  {`${levelCoordinator.first_name} ${levelCoordinator.last_name}`}
+                  {fee.name}
                 </Link>
               </TableCell>
+              <TableCell align="right">{fee.fee}</TableCell>
+              <TableCell align="right">{fee.level}</TableCell>
+              <TableCell align="right">{fee.faculty}</TableCell>
+              <TableCell align="right">{fee.Department}</TableCell>
               <TableCell align="right">
-                <IconButton onClick={() => handleOpenModal(levelCoordinator, "edit")}>
+                <IconButton onClick={() => handleOpenModal(fee, "edit")}>
                   <Edit />
                 </IconButton>
-                <IconButton onClick={() => handleOpenModal(levelCoordinator, "delete")}>
+                <IconButton onClick={() => handleOpenModal(fee, "delete")}>
                   <Delete />
                 </IconButton>
               </TableCell>
@@ -144,4 +158,4 @@ const LevelCoordinatorList = () => {
   );
 };
 
-export default LevelCoordinatorList;
+export default FeesList;

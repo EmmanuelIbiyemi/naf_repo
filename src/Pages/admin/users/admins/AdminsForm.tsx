@@ -8,32 +8,32 @@ import {
 import { LoadingButton } from "@mui/lab";
 import formStyles from "../../../../components/form/form.module.scss";
 import {
-  ExamOfficer
-} from "../../../../types/examOfficers";
+  Admin
+} from "../../../../types/admins";
 
 type Props = {
-  examOfficer?: ExamOfficer
+  admin?: Admin
   actions: {
-    submit: (examOfficer: ExamOfficer) => Promise<void>;
+    submit: (admin: Admin) => Promise<void>;
     cancel: () => void;
   };
 };
 
-const ExamOfficerForm = ({ actions, examOfficer }: Props) => {
+const AdminForm = ({ actions, admin }: Props) => {
 
-  const initialValues: ExamOfficer = {
-    id: examOfficer?.id || 0,
-    first_name: examOfficer?.first_name || "",
-    last_name: examOfficer?.last_name || "",
-    address: examOfficer?.address || "",
-    email: examOfficer?.email || "",
-    phone: examOfficer?.phone || "",
-    photo: examOfficer?.photo || "",
-    role: examOfficer?.role || "",
-    department: examOfficer?.department || "",
-    faculty: examOfficer?.faculty || "",
-    created_at: examOfficer?.created_at || "",
-    updated_at: examOfficer?.updated_at || "",
+  const initialValues: Admin = {
+    id: admin?.id || 0,
+    first_name: admin?.first_name || "",
+    last_name: admin?.last_name || "",
+    address: admin?.address || "",
+    email: admin?.email || "",
+    phone: admin?.phone || "",
+    photo: admin?.photo || "",
+    role: admin?.role || "",
+    department: admin?.department || "",
+    faculty: admin?.faculty || "",
+    created_at: admin?.created_at || "",
+    updated_at: admin?.updated_at || "",
   };
 
   const validationSchema = Yup.object({
@@ -47,8 +47,8 @@ const ExamOfficerForm = ({ actions, examOfficer }: Props) => {
     faculty: Yup.string().required("Faculty is required"),
   });
 
-  const handleSubmit = async (values: ExamOfficer) => {
-    if ((values as ExamOfficer).id == 0) delete (values as ExamOfficer).id;
+  const handleSubmit = async (values: Admin) => {
+    if ((values as Admin).id == 0) delete (values as Admin).id;
     await actions.submit(values);
   };
 
@@ -65,7 +65,7 @@ const ExamOfficerForm = ({ actions, examOfficer }: Props) => {
             component="h2"
             sx={{ marginTop: "1rem", textAlign: "center" }}
           >
-            {examOfficer ? "Update ExamOfficer" : "Add ExamOfficer"}
+            {admin ? "Update Admin" : "Add Admin"}
           </Typography>
           <Box
             sx={{
@@ -146,7 +146,7 @@ const ExamOfficerForm = ({ actions, examOfficer }: Props) => {
               variant="contained"
               disabled={!(isValid && dirty)}
             >
-              {examOfficer ? "Update ExamOfficer" : "Add ExamOfficer"}
+              {admin ? "Update Admin" : "Add Admin"}
             </LoadingButton>
           </Box>
         </Form>
@@ -155,4 +155,4 @@ const ExamOfficerForm = ({ actions, examOfficer }: Props) => {
   );
 };
 
-export default ExamOfficerForm;
+export default AdminForm;

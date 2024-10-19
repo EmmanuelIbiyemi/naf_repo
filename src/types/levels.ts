@@ -1,19 +1,13 @@
-type LevelBaseType = {
+export type Level = {
+  id?: number;
   name: string;
   program_id: number;
 };
-export type LevelType = LevelBaseType & {
-  id?: number;
+
+export type LevelCreateType = Level & {};
+
+export type LevelResponse = {
+  data: Level[];
 };
 
-export type LevelCreateType = LevelBaseType & {};
-
-export type LevelsResponse = {
-  data: LevelType[];
-};
-
-export type LevelCourseCreateType = {
-  level_id: number;
-  course_ids: number[];
-  type: string;
-};
+export type LevelFormAction = (level: Level) => Promise<void>;

@@ -8,12 +8,11 @@ type NavLink = {
   children?: NavLink[];
 };
 
-const UsersSideBar = () => {
+const GradingsSideBar = () => {
   const location = useLocation();
   const [navLinks] = useState<NavLink[]>([
-    { content: "Admins", link: "/users" },
-    { content: "Lecturers", link: "/users/lecturers" },
-    { content: "Students", link: "/users/students" },
+    { content: "Grading Points Setup", link: "/grading" },
+    { content: "Score Categories Setup", link: "/grading/scores" },
   ]);
 
   const isCurrentPage = (navLink: NavLink) => {
@@ -34,7 +33,7 @@ const UsersSideBar = () => {
   );
 };
 
-export default UsersSideBar;
+export default GradingsSideBar;
 
 const sidebarStyles: SxProps = {
   bgcolor: "#fff",

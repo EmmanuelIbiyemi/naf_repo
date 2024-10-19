@@ -21,6 +21,9 @@ const DepartmentsPage = lazy(
 const ProgrammesPage = lazy(
   () => import("./Pages/admin/academics/programmes/Programmes")
 );
+const LevelsPage = lazy(
+  () => import("./Pages/admin/academics/levels/Levels")
+);
 const CoursesPage = lazy(
   () => import("./Pages/admin/academics/courses/Courses")
 );
@@ -33,12 +36,28 @@ const LecturersPage = lazy(
 const StudentsPage = lazy(
   () => import("./Pages/admin/users/students/Students")
 );
-const LevelCoordinatorsPage = lazy(
-  () => import("./Pages/admin/users/level-coordinators/LevelCoordinators")
+const AdminsPage = lazy(
+  () => import("./Pages/admin/users/admins/Admins")
 );
-const ExamOfficersPage = lazy(
-  () => import("./Pages/admin/users/exam-officers/ExamOfficers")
+const AdminFeesPage = lazy(
+  () => import("./Pages/admin/fees/AdminFees")
 );
+const DeptFeesPage = lazy(
+  () => import("./Pages/admin/fees/Dept/Fees")
+);
+const DiscountFeesPage = lazy(
+  () => import("./Pages/admin/fees/Discounts/Discounts")
+);
+const AdminGradingPage = lazy(
+  () => import("./Pages/admin/grading/AdminGrading")
+);
+const GradesPage = lazy(
+  () => import("./Pages/admin/grading/grades/Grades")
+);
+const ScoresPage = lazy(
+  () => import("./Pages/admin/grading/scores/Scores")
+);
+
 const SubjectsPage = lazy(() => import("./Pages/admin/subjects/Subjects"));
 const InstructorsPage = lazy(
   () => import("./Pages/admin/instructors/Instructors")
@@ -126,6 +145,7 @@ export const router = createBrowserRouter([
           { path: "", element: <FacultiesPage /> },
           { path: "departments", element: <DepartmentsPage /> },
           { path: "programmes", element: <ProgrammesPage /> },
+          { path: "levels", element: <LevelsPage /> },
           { path: "courses", element: <CoursesPage /> },
           { path: "page/:name", element: <Page /> },
         ],
@@ -134,10 +154,27 @@ export const router = createBrowserRouter([
         path: "/users",
         element: <AdminUsersPage />,
         children: [
-          { path: "", element: <LecturersPage /> },
+          { path: "", element: <AdminsPage /> },
+          { path: "lecturers", element: <LecturersPage /> },
           { path: "students", element: <StudentsPage /> },
-          { path: "level-coordinators", element: <LevelCoordinatorsPage /> },
-          { path: "exam-officers", element: <ExamOfficersPage /> },
+          { path: "page/:name", element: <Page /> },
+        ],
+      },
+      {
+        path: "/fees",
+        element: <AdminFeesPage />,
+        children: [
+          { path: "", element: <DeptFeesPage /> },
+          { path: "discount", element: <DiscountFeesPage /> },
+          { path: "page/:name", element: <Page /> },
+        ],
+      },
+      {
+        path: "/grading",
+        element: <AdminGradingPage />,
+        children: [
+          { path: "", element: <GradesPage /> },
+          { path: "scores", element: <ScoresPage /> },
           { path: "page/:name", element: <Page /> },
         ],
       },

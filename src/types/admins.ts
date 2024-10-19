@@ -1,4 +1,4 @@
-export type ExamOfficer = {
+export type Admin = {
   id?: number;
   address: string;
   created_at: string;
@@ -13,14 +13,10 @@ export type ExamOfficer = {
   faculty: string;
 };
 
-export type ExamOfficerCreateType = ExamOfficer & {};
+export type AdminCreateType = Admin & {};
 
-export type ExamOfficerFormAction = (examOfficer: ExamOfficer) => Promise<void>;
+export type AdminFormAction = (admin: Admin) => Promise<void>;
 
-
-export type ExamOfficerResponse = {
-  data: ExamOfficer[];
+export type AdminResponse = {
+  data: Admin[];
 };
-
-
-
