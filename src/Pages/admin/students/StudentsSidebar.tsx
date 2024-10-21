@@ -69,7 +69,7 @@ const StudentSidebar = ({
           </Typography>
           <Typography>
             <span>Phone Number</span>
-            <span>{student?.phone_number}</span>
+            <span>{student?.phone}</span>
           </Typography>
         </Box>
         <Box sx={infoSectionStyles}>

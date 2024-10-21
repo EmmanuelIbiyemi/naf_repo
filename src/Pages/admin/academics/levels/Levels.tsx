@@ -1,45 +1,37 @@
 import { Box } from "@mui/material";
 import PageHeader from "../../../../components/PageHeader";
 import EmptyState from "../../../../components/EmptyState";
-import FormModal from "../../../../components/FormModal";
 import { useEffect, useRef, useState } from "react";
-import CourseForm from "./CourseForm";
-import CourseList from "./CourseList";
-import {
-  CourseCombinedType,
-  CourseCreateType,
-  CourseType,
-} from "../../../../types/courses";
 import { useAppDispatch } from "../../../../store/hooks";
 import { setPageName } from "../../../../store/app.slice";
 import SuccessModal from "../../../../components/SuccessModal";
 import {
-  useAddCourseMutation,
-  useAddLevelCourseMutation,
-  useGetCoursesQuery,
-} from "../../../../store/api/courses.api";
-import { useLocation } from "react-router-dom";
+  useAddLevelMutation,
+  useGetLevelsQuery,
+} from "../../../../store/api/levels.api";
+import { LevelType } from "../../../../types/levels";
+import LevelList from "./LevelList";
+import FormModal from "../../../../components/FormModal";
+import LevelForm from "./LevelForm";
 import { FormAction } from "../../../../types/forms";
+import { useLocation } from "react-router-dom";
 
-const CoursesPage = () => {
+const LevelsPage = () => {
   const location = useLocation();
   const [openModal, setOpenModal] = useState({
     add: false,
     success: false,
   });
-  const [courseName, setCourseName] = useState("");
-  const [selectedCourse, setSelectedCourse] = useState<CourseType>();
-  const { data: courses } = useGetCoursesQuery({
-    level_id: location.state.level_id,
-  });
+  const [levelName, setLevelName] = useState("");
+  const [selectedLevel, setSelectedLevel] = useState<LevelType>();
+  const { data: Levels } = useGetLevelsQuery(location.state.programme_id);
   const containerRef = useRef<HTMLDivElement>(null);
-  const [addCourse] = useAddCourseMutation();
-  const [addCourseToLevel] = useAddLevelCourseMutation();
+  const [addLevel] = useAddLevelMutation();
 
   // set page name
   const dispatch = useAppDispatch();
   useEffect(() => {
-    dispatch(setPageName("Academics/Courses"));
+    dispatch(setPageName("Academics/Levels"));
   }, [dispatch]);
 
   const handleOpenModal = (type: string) => {
@@ -47,21 +39,16 @@ const CoursesPage = () => {
   };
 
   const handleCloseModal = (type: string) => {
-    setSelectedCourse(undefined);
+    setSelectedLevel(undefined);
     setOpenModal((prev) => ({ ...prev, [type]: false }));
   };
 
-  const handleAddCourse = async (course: CourseCreateType) => {
+  const handleAddLevel = async (level: LevelType) => {
     try {
-      const response = await addCourse(course).unwrap();
-      await addCourseToLevel({
-        course_ids: [response.data.id as number],
-        level_id: location.state.level_id,
-        type: response.data.type,
-      }).unwrap();
+      await addLevel(level).unwrap();
       handleCloseModal("add");
       handleOpenModal("success");
-      setCourseName(course.name);
+      setLevelName(level.name);
     } catch (error) {
       console.log(error);
     }
@@ -70,12 +57,12 @@ const CoursesPage = () => {
   return (
     <Box ref={containerRef} className="content-container">
       <FormModal open={openModal.add} close={() => handleCloseModal("add")}>
-        <CourseForm
+        <LevelForm
           actions={{
-            submit: handleAddCourse as FormAction<CourseCombinedType>,
+            submit: handleAddLevel as FormAction<LevelType>,
             cancel: () => handleCloseModal("add"),
           }}
-          course={selectedCourse}
+          level={selectedLevel}
         />
       </FormModal>
 
@@ -90,18 +77,18 @@ const CoursesPage = () => {
         }}
         close={() => {
           handleCloseModal("success");
-          setSelectedCourse(undefined);
+          setSelectedLevel(undefined);
         }}
-        infoText="The instructors added in this course will get notified."
+        infoText="The instructors added in this level will get notified."
         open={openModal.success}
-        subTitle={`You have successfully added a new course <strong>“${courseName}”</strong>.`}
+        subTitle={`You have successfully added a new level <strong>“${levelName}”</strong>.`}
         title="Updates Successful"
       />
 
       <PageHeader
         button={{
           action: () => setOpenModal((prev) => ({ ...prev, add: true })),
-          text: "Add Courses",
+          text: "Add Level",
         }}
       />
       <Box
@@ -112,12 +99,12 @@ const CoursesPage = () => {
           padding: "var(--padding)",
         }}
       >
-        {courses?.data.length ? (
-          <CourseList />
+        {Levels?.data.length ? (
+          <LevelList />
         ) : (
           <EmptyState
-            title="No Courses at this time"
-            subTitle="Courses will appear here after you add them in your school."
+            title="No Levels at this time"
+            subTitle="Levels will appear here after you add them in your school."
           />
         )}
       </Box>
@@ -125,4 +112,4 @@ const CoursesPage = () => {
   );
 };
 
-export default CoursesPage;
+export default LevelsPage;

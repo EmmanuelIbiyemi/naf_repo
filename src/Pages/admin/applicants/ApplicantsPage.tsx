@@ -3,40 +3,29 @@ import { setPageName } from "../../../store/app.slice";
 import { useAppDispatch } from "../../../store/hooks";
 import PageHeader from "../../../components/PageHeader";
 import EmptyState from "../../../components/EmptyState";
-import { useState } from "react";
 import ApplicantsList from "./components/ApplicantsList";
-import { ApplicantType } from "../../../types/applicants";
+import { useGetApplicantsQuery } from "../../../store/api/applicants.api";
+import LoadingScreen from "../../../components/LoadingScreen";
+import { useEffect } from "react";
 
 const ApplicationPage = () => {
   // set page name
   const dispatch = useAppDispatch();
-  dispatch(setPageName("Applicants"));
-  const [applicants] = useState<ApplicantType[]>([
-    {
-      id: 1,
-      name: "Application Form HND 24/25",
-      email: "user@email.com",
-      phone: "09012345678",
-      status: "accepted",
-    },
-    {
-      id: 2,
-      name: "Application Form HND 24/25",
-      email: "user@email.com",
-      phone: "09012345678",
-      status: "accepted",
-    },
-    {
-      id: 3,
-      name: "Application Form HND 24/25",
-      email: "user@email.com",
-      phone: "09012345678",
-      status: "accepted",
-    },
-  ]);
+
+  useEffect(() => {
+    dispatch(setPageName("Applicants"));
+  }, [dispatch]);
+
+  const { data: applicants, isLoading } = useGetApplicantsQuery(null);
 
   return (
     <Box className="content-container">
+      {[isLoading].some((item) => item) ? (
+        <Box sx={{ position: "relative", zIndex: 2000 }}>
+          <LoadingScreen />
+        </Box>
+      ) : null}
+
       <PageHeader />
       <Box
         sx={{
@@ -46,12 +35,12 @@ const ApplicationPage = () => {
           padding: "var(--padding)",
         }}
       >
-        {applicants.length ? (
+        {applicants?.data.length ? (
           <ApplicantsList />
         ) : (
           <EmptyState
             title="Oops! There’s nothing here!"
-            subTitle="Forms will appear here after you add them in your school."
+            subTitle="Applicants will appear here."
           />
         )}
       </Box>

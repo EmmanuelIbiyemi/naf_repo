@@ -3,71 +3,74 @@ import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
 import TableRow from "@mui/material/TableRow";
-import { Faculty, FacultyFormAction } from "../../../../types/faculties";
+import { LevelType } from "../../../../types/levels";
 import { Button, Checkbox, IconButton } from "@mui/material";
 import { Delete, Edit } from "@mui/icons-material";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import DeleteConfirmationModal from "../../../../components/DeleteConfirmationModal";
 import { useState } from "react";
 import {
-  useDeleteFacultyMutation,
-  useGetFacultiesQuery,
-  useUpdateFacultyMutation,
-} from "../../../../store/api/faculties.api";
+  useDeleteLevelMutation,
+  useGetLevelsQuery,
+  useUpdateLevelMutation,
+} from "../../../../store/api/levels.api";
 import FormModal from "../../../../components/FormModal";
-import FacultyForm from "./FacultyForm";
+import LevelForm from "./LevelForm";
 import SuccessModal from "../../../../components/SuccessModal";
+import { FormAction } from "../../../../types/forms";
 
-const FacultyList = () => {
+const LevelList = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [openModal, setOpenModal] = useState({
     edit: false,
     success: false,
     delete: false,
   });
-  const [selectedFaculty, setSelectedFaculty] = useState<Faculty>();
-  const { data: faculty } = useGetFacultiesQuery(null);
-  const [deleteFaculty] = useDeleteFacultyMutation();
-  const [updateFaculty] = useUpdateFacultyMutation();
+  const [selectedLevel, setSelectedLevel] = useState<LevelType>();
+  const { data: levels } = useGetLevelsQuery(location.state.programme_id);
 
-  const handleOpenModal = (faculty: Faculty, type: string) => {
-    setSelectedFaculty(faculty);
+  const [deleteLevel] = useDeleteLevelMutation();
+  const [updateLevel] = useUpdateLevelMutation();
+
+  const handleOpenModal = (level: LevelType, type: string) => {
+    setSelectedLevel(level);
     setOpenModal((prev) => ({ ...prev, [type]: true }));
   };
 
   const handleCloseModal = (type: string) => {
-    setSelectedFaculty(undefined);
+    setSelectedLevel(undefined);
     setOpenModal((prev) => ({ ...prev, [type]: false }));
   };
 
-  const handleDelete = async (faculty_id: number) => {
+  const handleDelete = async (level_id: number) => {
     try {
-      await deleteFaculty(faculty_id).unwrap();
+      await deleteLevel(level_id).unwrap();
     } catch (error) {
       console.log(error);
     }
   };
 
-  const handleEditFaculty = async (faculty: Faculty) => {
+  const handleEditLevel = async (level: LevelType) => {
     try {
-      await updateFaculty(faculty).unwrap();
+      await updateLevel(level).unwrap();
     } catch (error) {
       console.log(error);
     }
     handleCloseModal("edit");
-    handleOpenModal(faculty, "success");
+    handleOpenModal(level, "success");
   };
 
   return (
     <TableContainer>
       {/* ADD */}
       <FormModal open={openModal.edit} close={() => handleCloseModal("edit")}>
-        <FacultyForm
+        <LevelForm
           actions={{
-            submit: handleEditFaculty as FacultyFormAction,
+            submit: handleEditLevel as FormAction<LevelType>,
             cancel: () => handleCloseModal("edit"),
           }}
-          faculty={selectedFaculty}
+          level={selectedLevel}
         />
       </FormModal>
 
@@ -75,7 +78,7 @@ const FacultyList = () => {
       <DeleteConfirmationModal
         actions={{
           proceed: () => {
-            if (selectedFaculty) handleDelete(selectedFaculty.id as number);
+            if (selectedLevel) handleDelete(selectedLevel.id as number);
             console.log("proceed");
           },
           undo: () => {
@@ -83,10 +86,10 @@ const FacultyList = () => {
           },
         }}
         close={() => handleCloseModal("delete")}
-        infoText="The instructors enrolled in this Faculty will get notified."
+        infoText="The instructors enrolled in this Level will get notified."
         open={openModal.delete}
-        subTitle={`Are you sure you want to delete Faculty <strong>“${selectedFaculty?.name}”</strong>? You can’t undo this action.`}
-        title="Delete Faculty?"
+        subTitle={`Are you sure you want to delete Level <strong>“${selectedLevel?.name}”</strong>? You can’t undo this action.`}
+        title="Delete Level?"
       />
 
       {/* Success */}
@@ -101,19 +104,19 @@ const FacultyList = () => {
         }}
         close={() => {
           handleCloseModal("success");
-          setSelectedFaculty(undefined);
+          setSelectedLevel(undefined);
         }}
         infoText=""
         open={openModal.success}
-        subTitle={`You have successfully added a new Faculty <strong>“${selectedFaculty?.name}”</strong>.`}
+        subTitle={`You have successfully added a new Level <strong>“${selectedLevel?.name}”</strong>.`}
         title="Updates Successful"
       />
 
       <Table sx={{ minWidth: 650 }}>
         <TableBody>
-          {faculty?.data.map((faculty: Faculty) => (
+          {levels?.data.map((level: LevelType) => (
             <TableRow
-              key={faculty.id}
+              key={level.id}
               sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
             >
               <TableCell
@@ -124,8 +127,8 @@ const FacultyList = () => {
                 <Checkbox />
                 <Button
                   onClick={() =>
-                    navigate(`/academics/departments`, {
-                      state: { faculty_id: faculty.id },
+                    navigate(`/academics/courses`, {
+                      state: { ...location.state, level_id: level.id },
                     })
                   }
                   sx={{
@@ -137,14 +140,14 @@ const FacultyList = () => {
                     },
                   }}
                 >
-                  {faculty.name}
+                  {level.name}
                 </Button>
               </TableCell>
               <TableCell align="right">
-                <IconButton onClick={() => handleOpenModal(faculty, "edit")}>
+                <IconButton onClick={() => handleOpenModal(level, "edit")}>
                   <Edit />
                 </IconButton>
-                <IconButton onClick={() => handleOpenModal(faculty, "delete")}>
+                <IconButton onClick={() => handleOpenModal(level, "delete")}>
                   <Delete />
                 </IconButton>
               </TableCell>
@@ -156,4 +159,4 @@ const FacultyList = () => {
   );
 };
 
-export default FacultyList;
+export default LevelList;

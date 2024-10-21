@@ -3,10 +3,10 @@ import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
 import TableRow from "@mui/material/TableRow";
-import { CourseFormAction, CourseType } from "../../../../types/courses";
+import { CourseCombinedType, CourseType } from "../../../../types/courses";
 import { Checkbox, IconButton } from "@mui/material";
 import { Delete, Edit } from "@mui/icons-material";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import DeleteConfirmationModal from "../../../../components/DeleteConfirmationModal";
 import { useState } from "react";
 import {
@@ -17,15 +17,19 @@ import {
 import FormModal from "../../../../components/FormModal";
 import CourseForm from "./CourseForm";
 import SuccessModal from "../../../../components/SuccessModal";
+import { FormAction } from "../../../../types/forms";
 
 const CourseList = () => {
+  const location = useLocation();
   const [openModal, setOpenModal] = useState({
     edit: false,
     success: false,
     delete: false,
   });
   const [selectedCourse, setSelectedCourse] = useState<CourseType>();
-  const { data: courses } = useGetCoursesQuery(null);
+  const { data: courses } = useGetCoursesQuery({
+    level_id: location.state.level_id,
+  });
   const [deleteCourse] = useDeleteCourseMutation();
   const [updateCourse] = useUpdateCourseMutation();
 
@@ -63,7 +67,7 @@ const CourseList = () => {
       <FormModal open={openModal.edit} close={() => handleCloseModal("edit")}>
         <CourseForm
           actions={{
-            submit: handleEditCourse as CourseFormAction,
+            submit: handleEditCourse as FormAction<CourseCombinedType>,
             cancel: () => handleCloseModal("edit"),
           }}
           course={selectedCourse}

@@ -18,7 +18,6 @@ type NavLink = {
 };
 const navLinks: NavLink[] = [
   { content: "Dashboard", icon: HomeIcon, link: "/" },
-  { content: "Programs", icon: ClipBoardIcon, link: "/programs" },
   { content: "Academics", icon: ClipBoardIcon, link: "/academics" },
   { content: "Students", icon: ChartIcon, link: "/students" },
   { content: "Instructors", icon: InstructorIcon, link: "/instructors" },
@@ -111,6 +110,7 @@ const sideBarStyles: SxProps = {
   top: 0,
   overflow: "scroll",
   width: "280px",
+  zIndex: 100,
 
   "&::-webkit-scrollbar": {
     display: "none",

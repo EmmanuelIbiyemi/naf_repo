@@ -9,12 +9,15 @@ import {
 } from "./store/auth.slice";
 import { useAppDispatch, useAppSelector } from "./store/hooks";
 import { useEffect } from "react";
+import { Box, LinearProgress } from "@mui/material";
+import { selectIsLoading } from "./store/app.slice";
 
 function App() {
   const user = useAppSelector(selectCurrentUser);
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const lastVisitedPage = useAppSelector(selectLastVisitedPage);
+  const isLoading = useAppSelector(selectIsLoading);
 
   useEffect(() => {
     if (!user) {
@@ -32,7 +35,24 @@ function App() {
   }, [user]);
 
   // check user type
-  return user?.role == "instructor" ? <InstructorLayout /> : <AdminLayout />;
+  return (
+    <Box>
+      {isLoading ? (
+        <Box
+          sx={{
+            color: "lightgreen",
+            position: "fixed",
+            top: 0,
+            width: "100%",
+            zIndex: 100,
+          }}
+        >
+          <LinearProgress color="inherit" sx={{ height: "10px" }} />
+        </Box>
+      ) : null}
+      {user?.role == "instructor" ? <InstructorLayout /> : <AdminLayout />}
+    </Box>
+  );
 }
 
 export default App;

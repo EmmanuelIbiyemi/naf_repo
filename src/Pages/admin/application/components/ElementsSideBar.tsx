@@ -8,8 +8,8 @@ const ElementsSideBar = () => {
     <Box sx={elementSidebarStyles}>
       <Typography variant="h5">Form Elements</Typography>
       <Box sx={elementContainerStyles}>
-        {formElements.map((el) => (
-          <Draggable key={el.type} id={el.type}>
+        {formElements.map((el, i) => (
+          <Draggable key={`${el.type}-${i}`} id={el.type}>
             <img src={el.image} alt="" /> <span>{el.text}</span>
           </Draggable>
         ))}

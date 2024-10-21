@@ -5,6 +5,7 @@ import { LoadingButton } from "@mui/lab";
 import formStyles from "../../../components/form/form.module.scss";
 import {
   InstructorCombinedType,
+  InstructorCreateType,
   InstructorType,
 } from "../../../types/instructors";
 
@@ -17,24 +18,20 @@ type Props = {
 };
 
 const InstructorForm = ({ actions, instructor }: Props) => {
-  const initialValues: InstructorCombinedType = {
-    id: instructor?.id,
+  const initialValues: InstructorCreateType = {
     first_name: instructor?.first_name || "",
     last_name: instructor?.last_name || "",
     email: instructor?.email || "",
-    password: "",
     phone: instructor?.phone || "",
+    photo: instructor?.photo || "",
     address: instructor?.address || "",
     created_at: instructor?.created_at || "",
-    photo: instructor?.phone || "",
-    updated_at: instructor?.updated_at || "",
   };
 
   const validationSchema = Yup.object({
     first_name: Yup.string().required("Required"),
     last_name: Yup.string().required("Required"),
     email: Yup.string().required("Required"),
-    password: Yup.string().required("Required"),
     phone: Yup.string().required("Required"),
   });
 

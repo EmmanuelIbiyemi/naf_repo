@@ -19,10 +19,7 @@ import {
   Typography,
 } from "@mui/material";
 import { PropsWithChildren, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { useAppDispatch } from "../../../../store/hooks";
-import { setCurrentForm } from "../../../../store/forms.slice";
-import { FormType } from "../../../../types/forms";
+import { useLocation, useNavigate } from "react-router-dom";
 
 type Properties = {
   fontFamily: number;
@@ -35,12 +32,9 @@ type Properties = {
   alignCenter: boolean;
 };
 
-type Props = {
-  form: FormType;
-};
-
-const PropertiesSideBar = ({ form }: Props) => {
+const PropertiesSideBar = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [props, setProps] = useState<Properties>({
     fontFamily: 1,
     fontSize: 11,
@@ -51,7 +45,6 @@ const PropertiesSideBar = ({ form }: Props) => {
     alignLeft: false,
     alignRight: false,
   });
-  const dispatch = useAppDispatch();
 
   const handleChange = (event: SelectChangeEvent<number>) => {
     const {
@@ -76,8 +69,7 @@ const PropertiesSideBar = ({ form }: Props) => {
   };
 
   const handlePreviewForm = () => {
-    dispatch(setCurrentForm(form));
-    navigate("/applications/form/preview");
+    navigate("/applications/form/preview", { state: location.state });
   };
 
   return (

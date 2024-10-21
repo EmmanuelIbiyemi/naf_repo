@@ -4,10 +4,11 @@ import TableCell from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
 import TableRow from "@mui/material/TableRow";
 import { CBTSubjectType } from "../../../types/subjects";
-import { Button, SxProps, Typography } from "@mui/material";
+import { Button, IconButton, SxProps, Typography } from "@mui/material";
 import { Dispatch, SetStateAction } from "react";
 import DeleteConfirmationModal from "../../../components/DeleteConfirmationModal";
 import { useNavigate } from "react-router-dom";
+import { Delete, Edit } from "@mui/icons-material";
 
 type Props = {
   subjects: CBTSubjectType[];
@@ -91,13 +92,15 @@ const CBTtList = ({
                   {subject.questions.length} Questions
                 </Typography>
               </TableCell>
-              <TableCell align="right" sx={{ display: "grid", gap: ".6rem" }}>
-                <Button onClick={() => modals.handleOpenEditModal(subject)}>
-                  Edit
-                </Button>
-                <Button onClick={() => modals.handleOpenDeleteModal(subject)}>
-                  Delete
-                </Button>
+              <TableCell align="right" sx={{ display: "flex" }}>
+                <IconButton
+                  onClick={() => modals.handleOpenDeleteModal(subject)}
+                >
+                  <Delete />
+                </IconButton>
+                <IconButton onClick={() => modals.handleOpenEditModal(subject)}>
+                  <Edit />
+                </IconButton>
               </TableCell>
             </TableRow>
           ))}
@@ -112,7 +115,7 @@ export default CBTtList;
 const tableStyles: SxProps = {
   minWidth: 650,
   ".MuiTableRow-root": {
-    bgcolor: "#fff",
+    // bgcolor: "#fff",
     display: "flex",
     justifyContent: "space-between",
     marginBottom: ".6rem",

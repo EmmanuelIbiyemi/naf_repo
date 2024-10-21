@@ -1,6 +1,7 @@
 export type Programme = {
   id?: number;
   name: string;
+  department_id: number;
 };
 
 export type ProgrammeResponse = {

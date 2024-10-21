@@ -1,33 +1,32 @@
-import { BlockType } from "./blocks";
-
 export type FormField = {
-  id: number;
+  id?: number;
   key: string;
-  content: string;
   name: string;
   placeholder: string;
   type: string;
   updated_at?: string;
 };
 
-type Row = {
-  id: number;
+export type FormRow = {
+  id?: number;
   row: FormField[];
+  fields?: FormField[];
   updated_at?: string;
 };
 
-type Section = {
-  id: number;
+export type FormSection = {
+  id?: number;
   name: string;
-  rows: Row[];
+  rows: FormRow[];
   updated_at?: string;
 };
 
 type FormBaseType2 = {
+  id?: number;
   name: string;
   program_id: number;
   fee: number;
-  sections: Section[];
+  sections: FormSection[];
 };
 
 export type FormCreateType2 = FormBaseType2 & {};
@@ -37,15 +36,7 @@ export type FormType2 = FormBaseType2 & {
   updated_at: string;
 };
 
-export type FormType = {
-  id: number;
-  elements: BlockType[];
-  title: string;
-  submitBtn: string;
-  submissions: number;
-  last_edited: string;
-};
-
-export type FormResponse = { data: FormType[] };
+export type FormResponse = { data: FormType2 };
+export type FormsResponse = { data: FormType2[] };
 
 export type FormAction<T> = (object: T) => Promise<void>;
