@@ -16,7 +16,7 @@ type uploadFileModalProps = {
   handleClose: () => void;
   // handleFileChange: (e: React.ChangeEvent<HTMLInputElement>) => Promise<void>;
   handleFileChange: (file: File) => void;
-  handleProcessFileUrl: (fileUrl: string) => void;
+  handleProcessFileUrl?: (fileUrl: string) => void;
 };
 
 const UploadFileModal = ({
@@ -78,37 +78,51 @@ const UploadFileModal = ({
             flexDirection: "column",
           }}
         >
-          <Box
-            sx={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "start",
-              width: "90%",
-              gap: 1,
-            }}
-          >
+          {handleProcessFileUrl ? (
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "start",
+                width: "90%",
+                gap: 1,
+              }}
+            >
+              <Typography
+                variant="h4"
+                sx={{
+                  fontSize: "1.2rem",
+                  textAlign: "center",
+                  color: "#0B0B0B",
+                }}
+              >
+                Media Upload
+              </Typography>
+              <Typography
+                variant="h4"
+                sx={{
+                  fontSize: ".8rem",
+                  textAlign: "center",
+                  marginBottom: "2em",
+                  color: "#6D6D6D",
+                }}
+              >
+                Add your documents here, and you can upload up to 5 files max
+              </Typography>
+            </Box>
+          ) : (
             <Typography
               variant="h4"
               sx={{
                 fontSize: "1.2rem",
-                textAlign: "center",
                 color: "#0B0B0B",
+                width: "90%",
+                marginBottom: "1em",
               }}
             >
-              Media Upload
+              Import CSV
             </Typography>
-            <Typography
-              variant="h4"
-              sx={{
-                fontSize: ".8rem",
-                textAlign: "center",
-                marginBottom: "2em",
-                color: "#6D6D6D",
-              }}
-            >
-              Add your documents here, and you can upload up to 5 files max
-            </Typography>
-          </Box>
+          )}
           <Box
             onDrop={onDrop}
             onDragOver={(e) => e.preventDefault()}
@@ -151,83 +165,85 @@ const UploadFileModal = ({
               </Typography>
             </label>
           </Box>
-          <Box
-            sx={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "start",
-              width: "90%",
-              gap: 1,
-              marginTop: "1.5em",
-            }}
-          >
-            <Typography
-              variant="h4"
-              sx={{
-                fontSize: ".8rem",
-                textAlign: "center",
-                marginBottom: "1em",
-                color: "#6D6D6D",
-              }}
-            >
-              Add your documents here, and you can upload up to 5 files max
-            </Typography>
+          {handleProcessFileUrl && (
             <Box
               sx={{
                 display: "flex",
-                width: "100%",
-                alignItems: "center",
-                marginBottom: ".5rem",
+                flexDirection: "column",
+                alignItems: "start",
+                width: "90%",
+                gap: 1,
+                marginTop: "1.5em",
               }}
             >
-              <span
-                style={{ borderTop: "1px solid #E7E7E7", width: "48%" }}
-              ></span>
               <Typography
-                variant="body2"
+                variant="h4"
                 sx={{
-                  px: 2,
+                  fontSize: ".8rem",
+                  textAlign: "center",
+                  marginBottom: "1em",
                   color: "#6D6D6D",
                 }}
               >
-                OR
+                Add your documents here, and you can upload up to 5 files max
               </Typography>
-              <span
-                style={{ borderTop: "1px solid #E7E7E7", width: "48%" }}
-              ></span>
+              <Box
+                sx={{
+                  display: "flex",
+                  width: "100%",
+                  alignItems: "center",
+                  marginBottom: ".5rem",
+                }}
+              >
+                <span
+                  style={{ borderTop: "1px solid #E7E7E7", width: "48%" }}
+                ></span>
+                <Typography
+                  variant="body2"
+                  sx={{
+                    px: 2,
+                    color: "#6D6D6D",
+                  }}
+                >
+                  OR
+                </Typography>
+                <span
+                  style={{ borderTop: "1px solid #E7E7E7", width: "48%" }}
+                ></span>
+              </Box>
+              <Typography
+                variant="h4"
+                sx={{
+                  fontSize: "1rem",
+                  textAlign: "center",
+                  color: "#0B0B0B",
+                }}
+              >
+                Upload from URL
+              </Typography>
+              <TextField
+                id="fileUrl"
+                placeholder="Add file URL"
+                onChange={(e) => setFileUrl(e.target.value)}
+                value={fileUrl}
+                slotProps={{
+                  input: {
+                    endAdornment: (
+                      <InputAdornment position="start">
+                        <Button
+                          sx={{ color: "#6D6D6D" }}
+                          onClick={() => handleProcessFileUrl(fileUrl)}
+                        >
+                          Upload
+                        </Button>
+                      </InputAdornment>
+                    ),
+                  },
+                }}
+                sx={{ width: "100%" }}
+              />
             </Box>
-            <Typography
-              variant="h4"
-              sx={{
-                fontSize: "1rem",
-                textAlign: "center",
-                color: "#0B0B0B",
-              }}
-            >
-              Upload from URL
-            </Typography>
-            <TextField
-              id="fileUrl"
-              placeholder="Add file URL"
-              onChange={(e) => setFileUrl(e.target.value)}
-              value={fileUrl}
-              slotProps={{
-                input: {
-                  endAdornment: (
-                    <InputAdornment position="start">
-                      <Button
-                        sx={{ color: "#6D6D6D" }}
-                        onClick={() => handleProcessFileUrl(fileUrl)}
-                      >
-                        Upload
-                      </Button>
-                    </InputAdornment>
-                  ),
-                },
-              }}
-              sx={{ width: "100%" }}
-            />
-          </Box>
+          )}
         </Box>
       </Box>
     </Modal>

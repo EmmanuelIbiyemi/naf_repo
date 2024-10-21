@@ -9,7 +9,7 @@ type ShareWithModalProps = {
   open: boolean;
   handleClose: () => void;
   // handleSelectedRecipients: (recipients: number[]) => void;
-  noteId: number | null;
+  noteId?: number | null;
   participants: ParticipantData[];
 };
 
@@ -261,7 +261,7 @@ const ShareWithModal = ({
         open={showShareWithList}
         handleClose={handleShareWithListClose}
         // handleSelectedRecipients={handleSelectedRecipients}
-        noteId={noteId}
+        noteId={noteId ?? null}
         participants={participants}
       />
     </>

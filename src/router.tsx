@@ -76,6 +76,9 @@ const CreateNotePage = lazy(
 const CoursesTestsPage = lazy(
   () => import("./Pages/instructor/courses/cbt/Tests")
 );
+const InputQuestionsManually = lazy(
+  () => import("./Pages/instructor/courses/cbt/stepmodals/ManualInputQuestions")
+);
 const ReportsPage = lazy(() => import("./Pages/instructor/reports/Reports"));
 const LiveClassesPage = lazy(
   () => import("./Pages/instructor/classes/LiveClasses")
@@ -156,6 +159,7 @@ export const router = createBrowserRouter([
           { path: "notes/new", element: <CreateNotePage /> },
           { path: "tests", element: <CoursesTestsPage /> },
           { path: "classes", element: <LiveClassesPage /> },
+          { path: "tests/manual-input", element: <InputQuestionsManually /> },
         ],
       },
 

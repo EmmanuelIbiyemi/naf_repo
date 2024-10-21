@@ -5,20 +5,14 @@ import { useAppDispatch } from "../../../../store/hooks";
 import { setPageName } from "../../../../store/app.slice";
 import { useFormik } from "formik";
 import * as yup from "yup";
-// import {
-//   useAddCourseMutation,
-//   useGetCoursesQuery,
-// } from "../../../store/api/courses.api";
 
 import CustomSuccessModal from "../../../../components/CustomSuccessModal";
-import NotesUploadModal from "../notes/NotesUploadModal";
 import CoursesItemList from "../CoursesItemList";
 import SuccessModal from "../../../../components/SuccessModal";
 import DeleteConfirmationModal from "../../../../components/DeleteConfirmationModal";
 import GenerateReportModal from "./GenerateReportModal";
 import { media } from "../../../../types/media";
-// import { note } from "../../../../types/notes";
-// import FormModal from "../../../../components/FormModal";
+import CreateTestModal from "./stepmodals/CreateTestModal";
 
 interface TestType {
   content: string;
@@ -31,7 +25,7 @@ interface TestType {
 
 const Tests = () => {
   const containerRef = useRef<HTMLDivElement>(null);
-  const [openModal, setOpenModal] = useState(false);
+  const [openCreateTestModal, setOpenCreateTestModal] = useState(false);
   const [openGenerateReportModal, setOpenGenerateReportModal] = useState(false);
   const [openActionsModal, setOpenActionsModal] = useState({
     edit: false,
@@ -40,8 +34,8 @@ const Tests = () => {
   });
   const [selectedTests, setSelectedTests] = useState<TestType | undefined>();
 
-  const handleUploadModalOpen = () => setOpenModal(true);
-  const handleUploadModalClose = () => setOpenModal(false);
+  const handleOpenCreateTestModal = () => setOpenCreateTestModal(true);
+  const handleCloseCreateTestModal = () => setOpenCreateTestModal(false);
   const handleOpenGenerateReportModal = () => setOpenGenerateReportModal(true);
   const handleCloseGenerateReportModal = () =>
     setOpenGenerateReportModal(false);
@@ -119,31 +113,6 @@ const Tests = () => {
   //   }
   // };
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const handleFileChange = async (file: any) => {
-    try {
-      const formData = new FormData();
-      formData.append("file", file);
-      console.log(file);
-
-      // const response = await uploadResource(formData).unwrap();
-      // formik.setFieldValue("resources", [
-      //   ...formik.values.resources,
-      //   ...response.resources.map((resource) => resource.id),
-      // ]);
-      formik.setFieldValue("fileName", file.name);
-      setOpenFileSuccessModal(true);
-    } catch (error) {
-      console.log(error);
-    }
-    setOpenModal(false);
-    setOpenFileSuccessModal(true);
-  };
-
-  const handleProcessFileUrl = (fileUrl: string) => {
-    console.log(fileUrl);
-  };
-
   return (
     <Box
       ref={containerRef}
@@ -160,11 +129,9 @@ const Tests = () => {
           course={selectedTests}
         />
       </FormModal> */}
-      <NotesUploadModal
-        open={openModal}
-        handleClose={handleUploadModalClose}
-        handleFileChange={handleFileChange}
-        handleProcessFileUrl={handleProcessFileUrl}
+      <CreateTestModal
+        open={openCreateTestModal}
+        handleClose={handleCloseCreateTestModal}
       />
 
       <CustomSuccessModal
@@ -191,7 +158,7 @@ const Tests = () => {
             text: "Generate Report",
           }}
           additionalButton={{
-            action: handleUploadModalOpen,
+            action: handleOpenCreateTestModal,
             text: "Create New Test",
           }}
         />

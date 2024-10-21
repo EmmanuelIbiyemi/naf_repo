@@ -25,7 +25,7 @@ type ShareWithListProps = {
   open: boolean;
   handleClose: () => void;
   // handleSelectedRecipients: (recipients: number[]) => void;
-  noteId: number | null;
+  noteId?: number | null;
   participants: ParticipantData[];
 };
 
@@ -51,7 +51,7 @@ const ShareWithList = ({
       participants: [],
     },
     validationSchema: yup.object({
-      note_id: yup.number().required(),
+      // note_id: yup.number(),
       participants: yup
         .array()
         .of(
@@ -63,8 +63,12 @@ const ShareWithList = ({
     }),
     onSubmit: async (values: shareNoteInput) => {
       try {
-        await shareNote(values).unwrap();
-        handleOpenSuccessModal();
+        if (noteId != null) {
+          await shareNote(values).unwrap();
+          handleOpenSuccessModal();
+        } else {
+          console.log(values);
+        }
       } catch (error) {
         console.error(error);
       }
