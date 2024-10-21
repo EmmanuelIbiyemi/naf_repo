@@ -5,6 +5,7 @@ export type CourseBaseType = {
   credit_unit: number;
   name: string;
   semester: string;
+  type: string;
 };
 
 export type CourseType = CourseBaseType & {
@@ -23,7 +24,6 @@ export type CoursesResponse = {
 };
 
 export type CourseCombinedType = CourseCreateType | CourseType;
-export type CourseFormAction = (course: CourseCombinedType) => Promise<void>;
 
 type CourseContent = {
   id: number;

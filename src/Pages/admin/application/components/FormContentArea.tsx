@@ -3,25 +3,43 @@ import cursorIcon from "../../../../assets/cursor.svg";
 import { FocusEvent } from "react";
 import { useDroppable } from "@dnd-kit/core";
 import FormBuilder from "./FormBuilder";
-import { FormType } from "../../../../types/forms";
+import {
+  useGetFormQuery,
+  useUpdateFormMutation,
+} from "../../../../store/api/form.api";
+import { useLocation } from "react-router-dom";
 
-type Props = {
-  form: FormType;
-  setForm: React.Dispatch<React.SetStateAction<FormType>>;
-};
+const FormContentArea = () => {
+  const location = useLocation();
+  const { data: form } = useGetFormQuery(location.state);
+  const [updateForm] = useUpdateFormMutation();
 
-const FormContentArea = ({ form, setForm }: Props) => {
   const { setNodeRef } = useDroppable({
     id: "droppable",
   });
 
-  const handleFormPropsChange = (e: FocusEvent<HTMLSpanElement>) => {
-    const target = e.currentTarget;
-    if (target && target.id) {
-      setForm((prev) => ({
-        ...prev,
-        [target.id]: target.textContent?.trim() || "",
-      }));
+  const handleFormPropsChange = async (e: FocusEvent, type: string) => {
+    if (form?.data) {
+      let name = "";
+      if (type == "name")
+        name = `${form.data.name.split("::")[0]}::${
+          e.currentTarget.textContent
+        }`;
+      else
+        name = `${e.currentTarget.textContent}::${
+          form.data.name.split("::")[1]
+        }`;
+
+      try {
+        await updateForm({
+          id: form.data.id,
+          fee: form.data.fee,
+          name,
+          program_id: form.data.program_id,
+        });
+      } catch (error) {
+        console.log(error);
+      }
     }
   };
 
@@ -31,10 +49,12 @@ const FormContentArea = ({ form, setForm }: Props) => {
         <Box sx={{ padding: "1.5rem" }}>
           <Typography variant="h5" sx={{ fontWeight: 300 }}>
             <span
-              id="title"
+              id="name"
               contentEditable="true"
-              onBlur={handleFormPropsChange}
-              dangerouslySetInnerHTML={{ __html: form.title }}
+              onBlur={(e) => handleFormPropsChange(e, "name")}
+              dangerouslySetInnerHTML={{
+                __html: form?.data.name.split("::")[0] as string,
+              }}
             />
           </Typography>
         </Box>
@@ -45,9 +65,9 @@ const FormContentArea = ({ form, setForm }: Props) => {
             position: "relative",
           }}
         >
-          {form.elements.length ? (
+          {form?.data.sections[0].rows.length ? (
             <Box sx={{ padding: "1.5rem" }}>
-              <FormBuilder form={form} setForm={setForm} />
+              <FormBuilder />
             </Box>
           ) : (
             <Box sx={emptyDropAreaStyles}>
@@ -73,8 +93,10 @@ const FormContentArea = ({ form, setForm }: Props) => {
             <span
               id="submitBtn"
               contentEditable="true"
-              onBlur={handleFormPropsChange}
-              dangerouslySetInnerHTML={{ __html: form.submitBtn }}
+              onBlur={(e) => handleFormPropsChange(e, "name")}
+              dangerouslySetInnerHTML={{
+                __html: form?.data.name.split("::")[1] as string,
+              }}
             />
           </Button>
         </Box>

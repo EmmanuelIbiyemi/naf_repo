@@ -7,9 +7,9 @@ import {
   Department,
   DepartmentFormAction,
 } from "../../../../types/departments";
-import { Checkbox, IconButton } from "@mui/material";
+import { Button, Checkbox, IconButton } from "@mui/material";
 import { Delete, Edit } from "@mui/icons-material";
-import { Link } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import DeleteConfirmationModal from "../../../../components/DeleteConfirmationModal";
 import { useState } from "react";
 import {
@@ -22,13 +22,17 @@ import DepartmentForm from "./DepartmentForm";
 import SuccessModal from "../../../../components/SuccessModal";
 
 const DepartmentList = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
   const [openModal, setOpenModal] = useState({
     edit: false,
     success: false,
     delete: false,
   });
   const [selectedDepartment, setSelectedDepartment] = useState<Department>();
-  const { data: department } = useGetDepartmentsQuery(1);
+  const { data: departments } = useGetDepartmentsQuery(
+    location.state?.faculty_id
+  );
   const [deleteDepartment] = useDeleteDepartmentMutation();
   const [updateDepartment] = useUpdateDepartmentMutation();
 
@@ -114,7 +118,7 @@ const DepartmentList = () => {
 
       <Table sx={{ minWidth: 650 }}>
         <TableBody>
-          {department?.data.map((department: Department) => (
+          {departments?.data.map((department: Department) => (
             <TableRow
               key={department.id}
               sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
@@ -125,12 +129,26 @@ const DepartmentList = () => {
                 sx={{ alignItems: "center", display: "flex", gap: "1rem" }}
               >
                 <Checkbox />
-                <Link
-                  to={`/department/${department.id}`}
-                  style={{ textTransform: "capitalize" }}
+                <Button
+                  onClick={() =>
+                    navigate("/academics/programmes", {
+                      state: {
+                        ...location.state,
+                        department_id: department.id,
+                      },
+                    })
+                  }
+                  sx={{
+                    "&.MuiButton-root": {
+                      border: "none",
+                      color: "inherit",
+                      padding: 0,
+                      textTransform: "capitalize",
+                    },
+                  }}
                 >
                   {department.name}
-                </Link>
+                </Button>
               </TableCell>
               <TableCell align="right">
                 <IconButton onClick={() => handleOpenModal(department, "edit")}>

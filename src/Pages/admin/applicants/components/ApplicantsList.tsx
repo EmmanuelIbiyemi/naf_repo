@@ -5,6 +5,7 @@ import TableContainer from "@mui/material/TableContainer";
 import TableRow from "@mui/material/TableRow";
 import { ApplicantType } from "../../../../types/applicants";
 import {
+  Box,
   Button,
   Chip,
   IconButton,
@@ -17,36 +18,26 @@ import {
 import { useState } from "react";
 import DeleteConfirmationModal from "../../../../components/DeleteConfirmationModal";
 import { Check, Delete } from "@mui/icons-material";
+import LoadingScreen from "../../../../components/LoadingScreen";
+import {
+  useDeleteApplicantMutation,
+  useGetApplicantsQuery,
+  useUpdateApplicantStatusMutation,
+} from "../../../../store/api/applicants.api";
 
 const ApplicantList = () => {
-  const [openModal, setOpenModal] = useState(false);
+  const [openModal, setOpenModal] = useState({
+    edit: false,
+    delete: false,
+    success: false,
+  });
   const [selectedApplicant, setSelectedApplicant] = useState<ApplicantType>();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
-
-  const [applicants, setApplicants] = useState<ApplicantType[]>([
-    {
-      id: 1,
-      name: "John Doe",
-      email: "user@email.com",
-      phone: "09012345678",
-      status: "Applied",
-    },
-    {
-      id: 2,
-      name: "John Doe",
-      email: "user@email.com",
-      phone: "09012345678",
-      status: "Applied",
-    },
-    {
-      id: 3,
-      name: "John Doe",
-      email: "user@email.com",
-      phone: "09012345678",
-      status: "Applied",
-    },
-  ]);
+  const { data: applicants, isLoading } = useGetApplicantsQuery(null);
+  const [deleteApplicant, deleteState] = useDeleteApplicantMutation();
+  const [updateApplicantStatus, updateState] =
+    useUpdateApplicantStatusMutation();
 
   const menuList = [
     {
@@ -71,61 +62,84 @@ const ApplicantList = () => {
     },
   ];
 
-  const handleOpenModal = (applicant: ApplicantType) => {
+  const handleOpenModal = (applicant: ApplicantType, type: string) => {
     setSelectedApplicant(applicant);
-    setOpenModal(true);
+    setOpenModal((prev) => ({ ...prev, [type]: true }));
   };
 
-  const handleDelete = (id: number) => {
-    setApplicants((prev) => prev.filter((ap) => ap.id != id));
+  const handleCloseModal = (type: string) => {
+    setOpenModal((prev) => ({ ...prev, [type]: false }));
+    if (type == "success") setSelectedApplicant(undefined);
   };
 
-  const handleClick = (
+  const handleDeleteApplicant = async (id: number) => {
+    try {
+      await deleteApplicant(id).unwrap();
+    } catch (error) {
+      console.log(error);
+    }
+    handleCloseModal("delete");
+  };
+
+  const handleOpenMenu = (
     event: React.MouseEvent<HTMLDivElement>,
     applicant: ApplicantType
   ) => {
     setAnchorEl(event.currentTarget);
     setSelectedApplicant(applicant);
   };
-  const handleClose = () => {
+
+  const handleCloseMenu = () => {
     setAnchorEl(null);
   };
 
-  const handleChangeStatus = (id: number, status: string) => {
-    handleClose();
-    const foundApplicant = applicants.find((ap) => ap.id == id);
-    if (foundApplicant) foundApplicant.status = status;
+  const handleChangeStatus = async (id: number, status: string) => {
+    handleCloseMenu();
+    try {
+      await updateApplicantStatus({ applicant_id: id, status }).unwrap();
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (
     <TableContainer>
+      {[isLoading, deleteState.isLoading, updateState.isLoading].some(
+        (item) => item
+      ) ? (
+        <Box sx={{ position: "relative", zIndex: 2000 }}>
+          <LoadingScreen />
+        </Box>
+      ) : null}
+
       <DeleteConfirmationModal
         actions={{
           proceed: () => {
-            if (selectedApplicant) handleDelete(selectedApplicant.id);
+            if (selectedApplicant) handleDeleteApplicant(selectedApplicant.id);
             console.log("proceed");
           },
           undo: () => {
             console.log("cancel");
           },
         }}
-        close={() => setOpenModal(false)}
-        infoText="The students enrolled in this subject will get notified."
-        open={openModal}
-        subTitle={`Are you sure you want to delete subject`}
-        title="Delete Course?"
+        close={() => handleCloseModal("delete")}
+        infoText=""
+        open={openModal.delete}
+        subTitle={`Are you sure you want to delete Applicant`}
+        title="Delete Applicant?"
       />
+
       <Menu
         anchorEl={anchorEl}
         open={open}
-        onClose={handleClose}
+        onClose={handleCloseMenu}
         sx={menuStyles}
       >
         <Typography variant="h6" sx={{ padding: ".5rem 1rem" }}>
           Change Status
         </Typography>
         {menuList.map((li) => (
-          <MenuItem key={li.label} onClick={handleClose}>
+          <MenuItem key={li.label} onClick={handleCloseMenu}>
             <Chip
               sx={{ bgcolor: li.bgcolor, color: li.color }}
               label={li.label}
@@ -134,7 +148,7 @@ const ApplicantList = () => {
                 handleChangeStatus(selectedApplicant?.id || 1, li.label)
               }
             />
-            {selectedApplicant?.status.toLowerCase() ==
+            {selectedApplicant?.status?.toLowerCase() ==
             li.label.toLowerCase() ? (
               <Check />
             ) : null}
@@ -165,7 +179,7 @@ const ApplicantList = () => {
           </TableRow>
         </TableHead>
         <TableBody>
-          {applicants.map((applicant) => (
+          {applicants?.data.map((applicant) => (
             <TableRow
               key={applicant.id}
               sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
@@ -179,34 +193,38 @@ const ApplicantList = () => {
                     textTransform: "capitalize",
                   }}
                 >
-                  {applicant.name}
+                  {applicant.data.first_name + " " + applicant.data.last_name}
                 </Button>
               </TableCell>
               <TableCell component="th" scope="row">
-                {applicant.email}
+                {applicant.data.email}
               </TableCell>
               <TableCell component="th" scope="row">
-                {applicant.phone}
+                {applicant.data.phone}
               </TableCell>
               <TableCell component="th" scope="row">
                 <Chip
-                  label={applicant.status}
+                  label={applicant.status || "Applied"}
                   clickable
                   sx={{
                     bgcolor: menuList.find(
                       (li) =>
-                        li.label.toLowerCase() == applicant.status.toLowerCase()
+                        li.label.toLowerCase() ==
+                        applicant.status?.toLowerCase()
                     )?.bgcolor,
                     color: menuList.find(
                       (li) =>
-                        li.label.toLowerCase() == applicant.status.toLowerCase()
+                        li.label.toLowerCase() ==
+                        applicant.status?.toLowerCase()
                     )?.color,
                   }}
-                  onClick={(event) => handleClick(event, applicant)}
+                  onClick={(event) => handleOpenMenu(event, applicant)}
                 />
               </TableCell>
               <TableCell align="center">
-                <IconButton onClick={() => handleOpenModal(applicant)}>
+                <IconButton
+                  onClick={() => handleOpenModal(applicant, "delete")}
+                >
                   <Delete />
                 </IconButton>
               </TableCell>

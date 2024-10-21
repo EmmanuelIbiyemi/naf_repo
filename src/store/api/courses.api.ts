@@ -4,19 +4,29 @@ import {
   CoursesResponse,
   CourseType,
 } from "../../types/courses";
+import { LevelCourseCreateType, LevelsResponse } from "../../types/levels";
 import { appApi } from "./app.api";
+
+type Pagination = {
+  page?: number;
+  per_page?: number;
+};
 
 const coursesApi = appApi.injectEndpoints({
   endpoints: (builder) => ({
-    getCourses: builder.query<CoursesResponse, null>({
-      query: () => "/course",
+    getCourses: builder.query<
+      CoursesResponse,
+      Pagination & { level_id: number }
+    >({
+      query: ({ page = 1, per_page = 10, level_id }) =>
+        `level/${level_id}/courses?page=${page}&per_page=${per_page}`,
       providesTags: ["Courses"],
     }),
     getCourse: builder.query<CoursesResponse, number>({
       query: (course_id) => `/course/${course_id}`,
       providesTags: ["Courses"],
     }),
-    addCourse: builder.mutation<CoursesResponse, CourseCreateType>({
+    addCourse: builder.mutation<{ data: CourseType }, CourseCreateType>({
       query: (course) => ({
         url: `/course`,
         method: "POST",
@@ -47,6 +57,25 @@ const coursesApi = appApi.injectEndpoints({
       }),
       invalidatesTags: ["Courses"],
     }),
+
+    addLevelCourse: builder.mutation<LevelsResponse, LevelCourseCreateType>({
+      query: (level) => ({
+        url: `/level/course`,
+        method: "POST",
+        body: level,
+      }),
+      invalidatesTags: ["Levels", "Courses"],
+    }),
+    deleteLevelCourse: builder.mutation<
+      LevelsResponse,
+      { course_id: number; level_id: number }
+    >({
+      query: ({ level_id, course_id }) => ({
+        url: `/level/${level_id}/course/${course_id}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["Levels"],
+    }),
   }),
   overrideExisting: false,
 });
@@ -58,4 +87,6 @@ export const {
   useDeleteCourseMutation,
   useAddCourseInstructorMutation,
   useGetCourseQuery,
+  useAddLevelCourseMutation,
+  useDeleteLevelCourseMutation,
 } = coursesApi;

@@ -21,7 +21,8 @@ const courses: CourseType[] = [
     code: "CSC101",
     name: "Introduction to Computer Science",
     credit_unit: 3,
-    semester: "Fall",
+    semester: "First Semester",
+    type: "elective",
     instructors: [
       {
         id: 1,
@@ -43,7 +44,8 @@ const courses: CourseType[] = [
     code: "MATH201",
     name: "Calculus I",
     credit_unit: 4,
-    semester: "Spring",
+    semester: "Second Semester",
+    type: "Core",
     instructors: [
       {
         id: 1,
@@ -77,8 +79,7 @@ const StudentsForm = ({ actions, student }: Props) => {
     last_name: student ? student.last_name : "",
     courses: student ? student.courses : [],
     email: student ? student.email : "",
-    password: student ? student.password : "",
-    phone_number: student ? student.phone_number : "",
+    phone: student ? student.phone : "",
   };
 
   const validationSchema = Yup.object({
@@ -88,8 +89,7 @@ const StudentsForm = ({ actions, student }: Props) => {
       .min(1, "Please select at least one course")
       .required("Required"),
     email: Yup.string().required("Required"),
-    password: Yup.string().required("Required"),
-    phone_number: Yup.string().required("Required"),
+    phone: Yup.string().required("Required"),
   });
 
   const handleSubmit = async (values: StudentCombinedType) => {
@@ -142,7 +142,7 @@ const StudentsForm = ({ actions, student }: Props) => {
             </Box>
             <Box>
               <label htmlFor="phone-number">Phone Number</label>
-              <Field id="phone-number" name="phone_number" placeholder="+234" />
+              <Field id="phone-number" name="phone" placeholder="+234" />
             </Box>
           </Box>
           <Box
@@ -162,7 +162,7 @@ const StudentsForm = ({ actions, student }: Props) => {
                   }}
                   multiple
                   name="courses"
-                  value={values.courses.map((c) => c.name) || []}
+                  value={values.courses?.map((c) => c.name) || []}
                   onChange={(event) => {
                     const {
                       target: { value },
@@ -190,14 +190,6 @@ const StudentsForm = ({ actions, student }: Props) => {
                 </Select>
               </FormControl>
             </Box>
-            <Box>
-              <label htmlFor="password">Create Password</label>
-              <Field
-                id="password"
-                name="password"
-                placeholder="Set default password for user"
-              />
-            </Box>
           </Box>
           <Box className={formStyles.btn_group}>
             <Button
@@ -213,7 +205,7 @@ const StudentsForm = ({ actions, student }: Props) => {
               variant="contained"
               disabled={!(isValid && dirty)}
             >
-              Add Student
+              {student ? "Edit Student" : "Add Student"}
             </LoadingButton>
           </Box>
         </Form>
