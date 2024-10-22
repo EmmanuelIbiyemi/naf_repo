@@ -122,6 +122,7 @@ const sideBarStyles: SxProps = {
   top: 0,
   overflow: "scroll",
   width: "280px",
+  zIndex: 100,
 
   "&::-webkit-scrollbar": {
     display: "none",

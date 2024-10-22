@@ -2,57 +2,53 @@ import { Box } from "@mui/material";
 import PageHeader from "../../../components/PageHeader";
 import EmptyState from "../../../components/EmptyState";
 import FormModal from "../../../components/FormModal";
-import { useState } from "react";
-import InstructorForm from "./InstructorsForm";
-import InstructorList from "./InstructorsList";
+import { useEffect, useState } from "react";
+import StudentsForm from "./StudentsForm";
+import StudentList from "./StudentsList";
 import { useAppDispatch } from "../../../store/hooks";
 import { setPageName } from "../../../store/app.slice";
 import SuccessModal from "../../../components/SuccessModal";
+import { StudentCreateType, StudentType } from "../../../types/students";
 import {
-  InstructorCombinedType,
-  InstructorCreateType,
-  InstructorEditFuncType,
-  InstructorType,
-} from "../../../types/instructors";
-import {
-  useAddInstructorMutation,
-  useGetInstructorsQuery,
-} from "../../../store/api/instructors.api";
+  useAddStudentMutation,
+  useGetStudentsQuery,
+} from "../../../store/api/students.api";
 import LoadingScreen from "../../../components/LoadingScreen";
 
-const InstructorsPage = () => {
+const StudentsPage = () => {
   const [openModal, setOpenModal] = useState({
     add: false,
     edit: false,
     success: false,
     delete: true,
   });
-  const [selectedInstructor, setSelectedInstructor] =
-    useState<InstructorCombinedType>();
-  const { data: instructors, isLoading } = useGetInstructorsQuery(null);
-  const [addInstructor, addState] = useAddInstructorMutation();
+  const [selectedStudent, setSelectedStudent] = useState<StudentCreateType>();
+  const { data: students, isLoading } = useGetStudentsQuery(null);
+  const [addStudent, addState] = useAddStudentMutation();
 
   // set page name
   const dispatch = useAppDispatch();
-  dispatch(setPageName("Instructors"));
+  useEffect(() => {
+    dispatch(setPageName("Students"));
+  }, []);
 
   const handleOpenModal = (type: string) => {
-    if (type == "add") setSelectedInstructor(undefined);
+    if (type == "add") setSelectedStudent(undefined);
     setOpenModal((prev) => ({ ...prev, [type]: true }));
   };
 
   const handleCloseModal = (type: string) => {
     setOpenModal((prev) => ({ ...prev, [type]: false }));
-    if (type == "success") setSelectedInstructor(undefined);
+    if (type == "success") setSelectedStudent(undefined);
   };
 
-  const handleAddInstructor = async (instructor: InstructorCreateType) => {
+  const handleAddStudent = async (student: StudentCreateType) => {
     try {
-      await addInstructor(instructor).unwrap();
+      await addStudent(student).unwrap();
     } catch (error) {
       console.log(error);
     }
-    setSelectedInstructor(instructor);
+    setSelectedStudent(student);
     handleCloseModal("add");
     handleOpenModal("success");
   };
@@ -64,20 +60,18 @@ const InstructorsPage = () => {
           <LoadingScreen />
         </Box>
       ) : null}
-
       <FormModal
         open={openModal.add || openModal.edit}
         close={() => {
           handleCloseModal("add");
-          handleCloseModal("edit");
         }}
       >
-        <InstructorForm
+        <StudentsForm
           actions={{
-            submit: handleAddInstructor as InstructorEditFuncType,
+            submit: handleAddStudent,
             cancel: () => handleCloseModal("add"),
           }}
-          instructor={selectedInstructor as InstructorType}
+          student={selectedStudent as StudentType}
         />
       </FormModal>
 
@@ -91,16 +85,16 @@ const InstructorsPage = () => {
           },
         }}
         close={() => handleCloseModal("success")}
-        infoText="The instructor added will get notified via mail."
+        infoText="The student added will get notified via mail."
         open={openModal.success}
-        subTitle={`You have successfully added a new instructor to your school.`}
+        subTitle={`You have successfully added a new student to your school.`}
         title="Updates Successful"
       />
 
       <PageHeader
         button={{
           action: () => handleOpenModal("add"),
-          text: "Add Instructors",
+          text: "Add Student",
         }}
       />
       <Box
@@ -111,15 +105,15 @@ const InstructorsPage = () => {
           padding: "var(--padding)",
         }}
       >
-        {instructors?.data.length ? (
-          <InstructorList
-            selectedInstructor={selectedInstructor as InstructorType}
-            setSelectedInstructor={setSelectedInstructor}
+        {students?.data.length ? (
+          <StudentList
+            selectedStudent={selectedStudent as StudentType}
+            setSelectedStudent={setSelectedStudent}
           />
         ) : (
           <EmptyState
-            title="No Instructors at this time"
-            subTitle="Instructors will appear here after you add them in your school."
+            title="No Students at this time"
+            subTitle="Students will appear here after you add them in your school."
           />
         )}
       </Box>
@@ -127,4 +121,4 @@ const InstructorsPage = () => {
   );
 };
 
-export default InstructorsPage;
+export default StudentsPage;

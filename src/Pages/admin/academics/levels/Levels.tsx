@@ -1,7 +1,6 @@
 import { Box } from "@mui/material";
 import PageHeader from "../../../../components/PageHeader";
 import EmptyState from "../../../../components/EmptyState";
-import FormModal from "../../../../components/FormModal";
 import { useEffect, useRef, useState } from "react";
 import { useAppDispatch } from "../../../../store/hooks";
 import { setPageName } from "../../../../store/app.slice";
@@ -10,18 +9,22 @@ import {
   useAddLevelMutation,
   useGetLevelsQuery,
 } from "../../../../store/api/levels.api";
-import { Level, LevelFormAction } from "../../../../types/levels";
-import LevelForm from "./LevelsForm";
-import LevelList from "./LevelsList";
+import { LevelType } from "../../../../types/levels";
+import LevelList from "./LevelList";
+import FormModal from "../../../../components/FormModal";
+import LevelForm from "./LevelForm";
+import { FormAction } from "../../../../types/forms";
+import { useLocation } from "react-router-dom";
 
 const LevelsPage = () => {
+  const location = useLocation();
   const [openModal, setOpenModal] = useState({
     add: false,
     success: false,
   });
   const [levelName, setLevelName] = useState("");
-  const [selectedLevel, setSelectedLevel] = useState<Level>();
-  const { data: Levels } = useGetLevelsQuery(null);
+  const [selectedLevel, setSelectedLevel] = useState<LevelType>();
+  const { data: Levels } = useGetLevelsQuery(location.state.programme_id);
   const containerRef = useRef<HTMLDivElement>(null);
   const [addLevel] = useAddLevelMutation();
 
@@ -40,7 +43,7 @@ const LevelsPage = () => {
     setOpenModal((prev) => ({ ...prev, [type]: false }));
   };
 
-  const handleAddLevel = async (level: Level) => {
+  const handleAddLevel = async (level: LevelType) => {
     try {
       await addLevel(level).unwrap();
       handleCloseModal("add");
@@ -56,7 +59,7 @@ const LevelsPage = () => {
       <FormModal open={openModal.add} close={() => handleCloseModal("add")}>
         <LevelForm
           actions={{
-            submit: handleAddLevel as LevelFormAction,
+            submit: handleAddLevel as FormAction<LevelType>,
             cancel: () => handleCloseModal("add"),
           }}
           level={selectedLevel}

@@ -7,7 +7,6 @@ export type Student = {
   email: string;
   phone: string;
   courses: CourseType[];
-  password: string;
 };
 
 export type StudentCreateType = Student & {};
@@ -18,3 +17,7 @@ export type StudentResponse = {
   data: Student[];
 };
 
+export type StudentsResponse = { data: StudentType[] };
+
+export type StudentCombinedType = StudentCreateType | StudentType;
+export type StudentEditFuncType = (student: StudentCombinedType) => void;

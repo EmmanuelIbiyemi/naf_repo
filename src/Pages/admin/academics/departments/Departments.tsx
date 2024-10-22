@@ -16,6 +16,7 @@ import {
 } from "../../../../types/departments";
 import DepartmentForm from "./DepartmentForm";
 import DepartmentList from "./DepartmentList";
+import { useLocation } from "react-router-dom";
 
 const DepartmentsPage = () => {
   const [openModal, setOpenModal] = useState({
@@ -24,7 +25,10 @@ const DepartmentsPage = () => {
   });
   const [departmentName, setDepartmentName] = useState("");
   const [selectedDepartment, setSelectedDepartment] = useState<Department>();
-  const { data: Departments } = useGetDepartmentsQuery(1);
+  const location = useLocation();
+  const { data: departments } = useGetDepartmentsQuery(
+    location.state?.faculty_id
+  );
   const containerRef = useRef<HTMLDivElement>(null);
   const [addDepartment] = useAddDepartmentMutation();
 
@@ -32,7 +36,7 @@ const DepartmentsPage = () => {
   const dispatch = useAppDispatch();
   useEffect(() => {
     dispatch(setPageName("Academics/Departments"));
-  }, [dispatch]);
+  }, []);
 
   const handleOpenModal = (type: string) => {
     setOpenModal((prev) => ({ ...prev, [type]: true }));
@@ -99,7 +103,7 @@ const DepartmentsPage = () => {
           padding: "var(--padding)",
         }}
       >
-        {Departments?.data.length ? (
+        {departments?.data.length ? (
           <DepartmentList />
         ) : (
           <EmptyState

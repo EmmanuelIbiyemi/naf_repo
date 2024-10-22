@@ -1,39 +1,39 @@
 import {
-  Student,
   StudentCreateType,
-  StudentResponse,
-} from "../../types/students.ts";
-import { appApi } from "./app.api.ts";
+  StudentsResponse,
+  StudentType,
+} from "../../types/students";
+import { appApi } from "./app.api";
 
 const studentsApi = appApi.injectEndpoints({
   endpoints: (builder) => ({
-    getStudents: builder.query<StudentResponse, null>({
+    getStudents: builder.query<StudentsResponse, null>({
       query: () => "/participant",
       providesTags: ["Students"],
     }),
-    getStudent: builder.query<StudentResponse, number>({
-      query: (participant_id) => `/participant/${participant_id}`,
+    getStudent: builder.query<StudentsResponse, number>({
+      query: (student_id) => `/participant/${student_id}`,
       providesTags: ["Students"],
     }),
-    addStudent: builder.mutation<StudentResponse, StudentCreateType>({
-      query: (participant) => ({
+    addStudent: builder.mutation<StudentsResponse, StudentCreateType>({
+      query: (student) => ({
         url: `/participant`,
         method: "POST",
-        body: participant,
+        body: student,
       }),
       invalidatesTags: ["Students"],
     }),
-    updateStudent: builder.mutation<StudentResponse, Student>({
-      query: (participant) => ({
-        url: `/participant/${participant.id}`,
+    updateStudent: builder.mutation<StudentsResponse, StudentType>({
+      query: (student) => ({
+        url: `/participant/${student.id}`,
         method: "PUT",
-        body: participant,
+        body: student,
       }),
       invalidatesTags: ["Students"],
     }),
-    deleteStudent: builder.mutation<StudentResponse, number>({
-      query: (participant_id) => ({
-        url: `/participant/${participant_id}`,
+    deleteStudent: builder.mutation<StudentsResponse, number>({
+      query: (student_id) => ({
+        url: `/participant/${student_id}`,
         method: "DELETE",
       }),
       invalidatesTags: ["Students"],

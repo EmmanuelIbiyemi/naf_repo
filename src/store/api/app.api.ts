@@ -24,6 +24,8 @@ export const appApi = createApi({
     "Discounts",
     "Scores",
     "Grades",
+    "Students",
+    "Applicants",
   ],
   endpoints: () => ({}),
 });

@@ -3,56 +3,50 @@ import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
 import TableRow from "@mui/material/TableRow";
-import {
-  InstructorEditFuncType,
-  InstructorType,
-} from "../../../types/instructors";
+import { StudentEditFuncType, StudentType } from "../../../types/students";
 import { Box, Button, Checkbox, IconButton, TableHead } from "@mui/material";
 import { Delete, Edit } from "@mui/icons-material";
 import DeleteConfirmationModal from "../../../components/DeleteConfirmationModal";
 import { useState } from "react";
-import InstructorSidebar from "./InstructorsSidebar";
+import StudentSidebar from "./StudentsSidebar";
 import {
-  useDeleteInstructorMutation,
-  useGetInstructorsQuery,
-  useUpdateInstructorMutation,
-} from "../../../store/api/instructors.api";
-import LoadingScreen from "../../../components/LoadingScreen";
-import SuccessModal from "../../../components/SuccessModal";
+  useDeleteStudentMutation,
+  useGetStudentsQuery,
+  useUpdateStudentMutation,
+} from "../../../store/api/students.api";
 import FormModal from "../../../components/FormModal";
-import InstructorForm from "./InstructorsForm";
+import StudentsForm from "./StudentsForm";
+import SuccessModal from "../../../components/SuccessModal";
+import LoadingScreen from "../../../components/LoadingScreen";
 
 type Props = {
-  selectedInstructor: InstructorType | undefined;
-  setSelectedInstructor: (instructor: InstructorType | undefined) => void;
+  selectedStudent: StudentType | undefined;
+  setSelectedStudent: (student: StudentType | undefined) => void;
 };
 
-const InstructorList = ({
-  selectedInstructor,
-  setSelectedInstructor,
-}: Props) => {
+const StudentList = ({ selectedStudent, setSelectedStudent }: Props) => {
   const [openModal, setOpenModal] = useState({
     edit: false,
     delete: false,
     success: false,
   });
   const [openSidebar, setOpenSidebar] = useState(false);
-  const { data: instructors, isLoading } = useGetInstructorsQuery(null);
-  const [deleteInstructor, deleteState] = useDeleteInstructorMutation();
-  const [updateInstructor, updateState] = useUpdateInstructorMutation();
+  const { data: students, isLoading } = useGetStudentsQuery(null);
+  const [deleteStudent, deleteState] = useDeleteStudentMutation();
+  const [updateStudent, updateState] = useUpdateStudentMutation();
 
-  const handleOpenModal = (instructor: InstructorType, type: string) => {
-    setSelectedInstructor(instructor);
+  const handleOpenModal = (student: StudentType, type: string) => {
+    setSelectedStudent(student);
     setOpenModal((prev) => ({ ...prev, [type]: true }));
   };
 
   const handleCloseModal = (type: string) => {
     setOpenModal((prev) => ({ ...prev, [type]: false }));
-    if (type == "success") setSelectedInstructor(undefined);
+    if (type == "success") setSelectedStudent(undefined);
   };
 
-  const handleViewInstructor = (instructor: InstructorType) => {
-    setSelectedInstructor(instructor);
+  const handleViewStudent = (student: StudentType) => {
+    setSelectedStudent(student);
     setOpenSidebar(true);
   };
 
@@ -60,23 +54,23 @@ const InstructorList = ({
     setOpenSidebar(state);
   };
 
-  const handleDeleteInstructor = async (id: number) => {
+  const handleDeleteStudent = async (id: number) => {
     try {
-      await deleteInstructor(id).unwrap();
+      await deleteStudent(id).unwrap();
     } catch (error) {
       console.log(error);
     }
     handleCloseModal("delete");
   };
 
-  const handleEditInstructor = async (instructor: InstructorType) => {
+  const handleEditStudent = async (student: StudentType) => {
     try {
-      await updateInstructor(instructor).unwrap();
+      await updateStudent(student).unwrap();
     } catch (error) {
       console.log(error);
     }
     handleCloseModal("edit");
-    handleOpenModal(instructor, "success");
+    handleOpenModal(student, "success");
   };
 
   return (
@@ -88,20 +82,18 @@ const InstructorList = ({
           <LoadingScreen />
         </Box>
       ) : null}
-
-      <InstructorSidebar
+      <StudentSidebar
         open={openSidebar}
-        instructor={selectedInstructor as InstructorType}
+        student={selectedStudent as StudentType}
         toggleDrawer={toggleDrawer}
         openEditModal={() =>
-          handleOpenModal(selectedInstructor as InstructorType, "edit")
+          handleOpenModal(selectedStudent as StudentType, "edit")
         }
       />
       <DeleteConfirmationModal
         actions={{
           proceed: () => {
-            if (selectedInstructor)
-              handleDeleteInstructor(selectedInstructor.id as number);
+            if (selectedStudent) handleDeleteStudent(selectedStudent.id);
             console.log("proceed");
           },
           undo: () => {
@@ -111,8 +103,8 @@ const InstructorList = ({
         close={() => handleCloseModal("delete")}
         infoText=""
         open={openModal.delete}
-        subTitle={`Are you sure you want to delete <strong>“${selectedInstructor?.first_name} ${selectedInstructor?.last_name}”</strong>? You can’t undo this action.`}
-        title="Delete Instructor?"
+        subTitle={`Are you sure you want to delete <strong>“${selectedStudent?.first_name} ${selectedStudent?.last_name}”</strong>? You can’t undo this action.`}
+        title="Delete Student?"
       />
 
       <SuccessModal
@@ -132,12 +124,12 @@ const InstructorList = ({
       />
 
       <FormModal open={openModal.edit} close={() => handleCloseModal("edit")}>
-        <InstructorForm
+        <StudentsForm
           actions={{
-            submit: handleEditInstructor as InstructorEditFuncType,
+            submit: handleEditStudent as StudentEditFuncType,
             cancel: () => handleCloseModal("edit"),
           }}
-          instructor={selectedInstructor as InstructorType}
+          student={selectedStudent as StudentType}
         />
       </FormModal>
 
@@ -159,13 +151,14 @@ const InstructorList = ({
             <TableCell>Name</TableCell>
             <TableCell>Email Address</TableCell>
             <TableCell>Phone Number</TableCell>
+            <TableCell>Courses</TableCell>
             <TableCell align="center">Actions</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
-          {instructors?.data.map((instructor) => (
+          {students?.data.map((student) => (
             <TableRow
-              key={instructor.id}
+              key={student.id}
               sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
             >
               <TableCell component="th" scope="row">
@@ -180,25 +173,26 @@ const InstructorList = ({
                       padding: 0,
                       textTransform: "capitalize",
                     }}
-                    onClick={() => handleViewInstructor(instructor)}
+                    onClick={() => handleViewStudent(student)}
                   >
-                    {instructor.first_name} {instructor.last_name}
+                    {student.first_name} {student.last_name}
                   </Button>
                 </Box>
               </TableCell>
               <TableCell component="th" scope="row">
-                {instructor.email}
+                {student.email}
               </TableCell>
               <TableCell component="th" scope="row">
-                {instructor.phone}
+                {student.phone}
+              </TableCell>
+              <TableCell component="th" scope="row">
+                {student.courses?.map((c) => c.name).join(", ")}
               </TableCell>
               <TableCell align="right">
-                <IconButton onClick={() => handleOpenModal(instructor, "edit")}>
+                <IconButton onClick={() => handleOpenModal(student, "edit")}>
                   <Edit />
                 </IconButton>
-                <IconButton
-                  onClick={() => handleOpenModal(instructor, "delete")}
-                >
+                <IconButton onClick={() => handleOpenModal(student, "delete")}>
                   <Delete />
                 </IconButton>
               </TableCell>
@@ -210,4 +204,4 @@ const InstructorList = ({
   );
 };
 
-export default InstructorList;
+export default StudentList;

@@ -7,11 +7,13 @@ type InstructorBase = {
   last_name: string;
   phone: string;
   photo: string;
-  updated_at: string;
 };
 
-export type InstructorType = InstructorBase & { id?: number };
-export type InstructorCreateType = InstructorBase & { password: string };
+export type InstructorType = InstructorBase & {
+  id?: number;
+  updated_at: string;
+};
+export type InstructorCreateType = InstructorBase & {};
 
 export type InstructorsResponse = { data: InstructorType[] };
 
