@@ -1,98 +1,104 @@
 import { Box, Button, SxProps, Typography } from "@mui/material";
-import headingIcon from "../../../assets/heading.svg";
-import paragraphIcon from "../../../assets/paragraph2.svg";
-import ImageIcon from "../../../assets/image.svg";
-import videoIcon from "../../../assets/video.svg";
-import buttonIcon from "../../../assets/button.svg";
-import {
-  DndContext,
-  DragEndEvent,
-  DragOverlay,
-  useDroppable,
-} from "@dnd-kit/core";
 import { PageType } from "../../../types/pages";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import PageBuilder from "./components/PageBuilder";
-import Draggable from "./components/PageBuilderItem";
+import {
+  Article,
+  Badge,
+  Height,
+  HMobiledata,
+  Image,
+  LocalParking,
+  MilitaryTech,
+  Newspaper,
+  SmartDisplay,
+  Timeline,
+  ViewCarousel,
+} from "@mui/icons-material";
 
 const elements = [
-  { id: 1, name: "Heading", type: "heading", icon: headingIcon },
-  { id: 2, name: "Paragraph", type: "paragraph", icon: paragraphIcon },
-  { id: 3, name: "Image", type: "image", icon: ImageIcon },
-  { id: 4, name: "Video", type: "video", icon: videoIcon },
-  { id: 4, name: "Button", type: "button", icon: buttonIcon },
+  { id: 1, name: "Banner", type: "banner", icon: ViewCarousel },
+  { id: 2, name: "History", type: "history", icon: Timeline },
+  { id: 3, name: "Courses", type: "courses", icon: Article },
+  { id: 5, name: "News", type: "news", icon: Newspaper },
+  { id: 6, name: "Image", type: "image", icon: Image },
+  { id: 7, name: "Video", type: "video", icon: SmartDisplay },
+  { id: 8, name: "Heading", type: "heading", icon: HMobiledata },
+  { id: 9, name: "Text", type: "text", icon: LocalParking },
+  // { id: 10, name: "Title", type: "title", icon: Title },
+  // { id: 11, name: "Sub Title", type: "subtitle", icon: LocalParking },
+  { id: 12, name: "Commandants", type: "commandants", icon: MilitaryTech },
+  { id: 13, name: "Staffs", type: "staffs", icon: Badge },
+  { id: 14, name: "Big space", type: "big space", icon: Height },
+  { id: 15, name: "Small space", type: "small space", icon: Height },
 ];
 
 const Page = () => {
   //   const { name } = useParams();
   //   console.log(name);
-  const [activeId, setActiveId] = useState<string | null>(null);
-  const { setNodeRef } = useDroppable({
-    id: "page-droppable",
-  });
   const [page, setPage] = useState<PageType>({
     id: 1,
     elements: [],
     title: "about",
   });
 
-  const loremIpsum =
-    "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.";
-
   const addElement = (type: string) => {
     setPage((prev) => {
       const els = [...prev.elements];
       els.push({
         id: prev.elements.length + 1,
-        content: type == "paragraph" ? loremIpsum : "Type something",
+        content: elements.find((el) => el.type === type)?.name as string,
         type,
       });
       return { ...prev, elements: els };
     });
   };
-  const handleDragEnd = (event: DragEndEvent) => {
-    if (event.over && event.over.id === "page-droppable") {
-      console.log(event.active.id);
-      addElement(event.active.id as string);
-    }
+
+  const handleClick = (type: string) => {
+    addElement(type);
   };
 
-  const handleDragStart = (event: DragEndEvent) => {
-    setActiveId(event.active.id as string);
-  };
+  useEffect(() => {
+    console.log(page);
+  }, [page]);
 
   return (
-    <Box sx={contentStyles}>
-      <DndContext onDragEnd={handleDragEnd} onDragStart={handleDragStart}>
-        <Box>
-          <Box sx={headerStyles}>
-            <Button onClick={() => {}}>Back</Button>
-            <Button variant="contained" onClick={() => {}}>
-              Save Changes
+    <Box sx={contentStyles} className="hide_scrollbar">
+      <Box className="hide_scrollbar">
+        <Box sx={headerStyles}>
+          <Button onClick={() => {}}>Back</Button>
+          <Button variant="contained" onClick={() => {}}>
+            Save Changes
+          </Button>
+        </Box>
+        <Box
+          sx={{
+            bgcolor: "#fff",
+            height: "calc(100% - 78px)",
+            border: "1px solid rgba(204, 204, 204, 0.5)",
+            borderRadius: "var(--border-radius)",
+          }}
+          className="hide_scrollbar"
+        >
+          <PageBuilder page={page} setPage={setPage} />
+        </Box>
+      </Box>
+      <Box sx={sidebarContentStyles} className="hide_scrollbar">
+        <Typography variant="h6" sx={{ marginBottom: "1rem" }}>
+          Blocks
+        </Typography>
+        <Box sx={elementSideBar}>
+          {elements.map((el, i) => (
+            <Button
+              onClick={() => handleClick(el.type)}
+              key={`element-${el.id}-${i}`}
+            >
+              <el.icon />
+              <span>{el.name}</span>
             </Button>
-          </Box>
-          <Box ref={setNodeRef} sx={{ bgcolor: "#fff", minHeight: "100%" }}>
-            <PageBuilder page={page} setPage={setPage} />
-          </Box>
+          ))}
         </Box>
-        <Box sx={sidebarContentStyles}>
-          <Typography variant="h6">Blocks</Typography>
-          <Box sx={elementSideBar}>
-            {elements.map((el) => (
-              <Draggable key={el.type} id={el.type}>
-                <img src={el.icon} alt="" height={40} />
-                <span>{el.name}</span>
-              </Draggable>
-            ))}
-          </Box>
-          {/* DragOverlay */}
-          <DragOverlay>
-            {activeId ? (
-              <Button sx={{ cursor: "move" }}>{activeId}</Button>
-            ) : null}
-          </DragOverlay>
-        </Box>
-      </DndContext>
+      </Box>
     </Box>
   );
 };
@@ -102,7 +108,7 @@ export default Page;
 const contentStyles: SxProps = {
   display: "grid",
   gap: "2rem",
-  gridTemplateColumns: "1fr 245px",
+  gridTemplateColumns: "1fr 300px",
   paddingInline: "2rem 0rem",
   height: "100%",
 };
@@ -118,9 +124,7 @@ const sidebarContentStyles: SxProps = {
   bgcolor: "#fff",
   borderLeft: "1px solid rgba(204, 204, 204, 0.5)",
   padding: "1rem",
-  position: "sticky",
-  top: 0,
-  height: "100%",
+  maxHeight: "100%",
 };
 
 const elementSideBar: SxProps = {
@@ -128,13 +132,11 @@ const elementSideBar: SxProps = {
   gap: "1rem",
   gridTemplateColumns: "1fr 1fr",
   gridAutoRows: "100px",
-  height: "100%",
-  marginTop: "2rem",
+  height: "100vh",
 
   button: {
     bgcolor: "rgba(245, 245, 245, 1)",
     color: "inherit",
-    cursor: "move",
     display: "grid",
     placeContent: "center",
     placeItems: "center",

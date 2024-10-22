@@ -651,9 +651,6 @@ const formBuilderStyles: SxProps = {
       borderColor: "rgba(43, 135, 251, 1)",
       borderRadius: "var(--border-radius)",
     },
-    "&:hover .delete_btn": {
-      opacity: 1,
-    },
     ">*": {
       padding: ".7rem 1rem",
     },
@@ -662,7 +659,6 @@ const formBuilderStyles: SxProps = {
   ".delete_btn": {
     bgcolor: "rgba(229, 72, 77, 1)",
     color: "#fff",
-    opacity: 0,
     position: "absolute",
     right: "-75px",
     top: "50%",
