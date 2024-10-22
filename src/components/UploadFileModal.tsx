@@ -120,7 +120,7 @@ const UploadFileModal = ({
                 marginBottom: "1em",
               }}
             >
-              Import CSV
+              Import Docx
             </Typography>
           )}
           <Box

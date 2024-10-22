@@ -7,8 +7,9 @@ import ShareWithModal from "../../../../../components/ShareWithModal";
 import {
   useAddQuizMutation,
   useCreateAssessmentMutation,
+  useCreateQuestionManuallyMutation,
 } from "../../../../../store/api/quizzes.api";
-import { CreateQuiz } from "../../../../../types/quizzes";
+import { CreateQuiz, ManualUploadQuestion } from "../../../../../types/quizzes";
 
 interface ModalProps {
   formData: TestFormData;
@@ -18,6 +19,7 @@ interface ModalProps {
   handleNext: () => void;
   disabledInput?: boolean;
   participants?: ParticipantData[];
+  uploadPayload?: ManualUploadQuestion | null;
 }
 
 const handleChange = (
@@ -52,6 +54,7 @@ const Step2Content: React.FC<ModalProps> = ({
   handleNext,
   disabledInput,
   participants,
+  uploadPayload,
 }) => {
   const [openShareModal, setOpenShareModal] = useState(false);
   const [disableUploadQuestions, setDisableUploadQuestions] = useState(true);
@@ -60,11 +63,12 @@ const Step2Content: React.FC<ModalProps> = ({
     setOpenShareModal(false);
   };
   const [createQuiz, { isLoading }] = useAddQuizMutation();
+  const [uploadManualQuestion, { isLoading: isUploadingQuestions }] =
+    useCreateQuestionManuallyMutation();
   const [createAssessment, { isLoading: isCreatingAssessment }] =
     useCreateAssessmentMutation();
 
   const handleCreateQuiz = async () => {
-    // const createQuizData = {}
     const createQuizData: CreateQuiz = {
       name: formData.subject,
       instructions: "",
@@ -81,9 +85,24 @@ const Step2Content: React.FC<ModalProps> = ({
         name: formData.subject,
         quiz_id: createQuizResponse.data.id,
       });
+      onChange({ quizId: createQuizResponse.data.id });
       onChange({ assessmentId: createAssessmentResponse.data?.data.id });
       setDisableUploadQuestions(false);
       setCreateTest(true);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const handleUploadQuestions = async () => {
+    if (!uploadPayload) {
+      console.error("Upload payload is missing");
+      return;
+    }
+
+    try {
+      await uploadManualQuestion(uploadPayload).unwrap();
+      setOpenShareModal(true);
     } catch (error) {
       console.error(error);
     }
@@ -235,8 +254,8 @@ const Step2Content: React.FC<ModalProps> = ({
             {disabledInput ? (
               <Button
                 variant="contained"
-                disabled={!isFormValid(formData)}
-                onClick={() => setOpenShareModal(true)}
+                disabled={uploadPayload === null || isUploadingQuestions}
+                onClick={handleUploadQuestions}
               >
                 Continue
               </Button>
@@ -261,6 +280,7 @@ const Step2Content: React.FC<ModalProps> = ({
         open={openShareModal}
         handleClose={handleCloseShareModal}
         participants={participants || []}
+        quizId={formData.quizId}
       />
     </Box>
   );

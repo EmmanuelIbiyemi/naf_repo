@@ -25,7 +25,7 @@ const mediasApi = appApi.injectEndpoints({
       query: (media_id) => `/media/${media_id}`,
       providesTags: ["Media"],
     }),
-    addMedia: builder.mutation<{ data: MediaType }, FormData>({
+    addMedia: builder.mutation<MediaResponse, FormData>({
       query: (media) => ({
         url: `/media`,
         method: "POST",

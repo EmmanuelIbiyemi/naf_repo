@@ -15,6 +15,7 @@ import QuizzesItemsList from "../QuizzesItemsList";
 import { QuizzesResponse } from "../../../../types/quizzes";
 import { useGetQuizzesQuery } from "../../../../store/api/quizzes.api";
 import { useGetCoursesQuery } from "../../../../store/api/courses.api";
+import { useGetParticipantsQuery } from "../../../../store/api/participants.api";
 
 const Tests = () => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -28,6 +29,9 @@ const Tests = () => {
   const [selectedTests, setSelectedTests] = useState<
     QuizzesResponse | undefined
   >();
+
+  const { data: participants, isLoading: isFetchingParticipants } =
+    useGetParticipantsQuery(null);
 
   const handleOpenCreateTestModal = () => setOpenCreateTestModal(true);
   const handleCloseCreateTestModal = () => setOpenCreateTestModal(false);
@@ -127,11 +131,12 @@ const Tests = () => {
           course={selectedTests}
         />
       </FormModal> */}
-      {isLoading && <LinearProgress />}
+      {isLoading || (isFetchingParticipants && <LinearProgress />)}
       <CreateTestModal
         open={openCreateTestModal}
         handleClose={handleCloseCreateTestModal}
         courses={courses?.data}
+        participants={participants?.data ?? []}
       />
 
       <CustomSuccessModal

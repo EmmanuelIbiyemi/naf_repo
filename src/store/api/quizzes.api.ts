@@ -1,7 +1,11 @@
 import {
   AssessmentResponse,
   CreateQuiz,
+  FileUploadQuestionResponse,
+  ManualUploadQuestion,
+  ManualUploadQuestionResponse,
   QuizzesResponse,
+  shareQuizInput,
 } from "../../types/quizzes";
 import { appApi } from "./app.api";
 
@@ -17,7 +21,7 @@ const quizzesApi = appApi.injectEndpoints({
         method: "POST",
         body: values,
       }),
-      invalidatesTags: ["Courses"],
+      invalidatesTags: ["Quiz"],
     }),
     createAssessment: builder.mutation<
       { data: AssessmentResponse },
@@ -28,7 +32,37 @@ const quizzesApi = appApi.injectEndpoints({
         method: "POST",
         body: values,
       }),
-      invalidatesTags: ["Courses"],
+      invalidatesTags: ["Quiz"],
+    }),
+    createQuestionFromFile: builder.mutation<
+      { data: FileUploadQuestionResponse },
+      { file_url: string; assessment_id: number }
+    >({
+      query: (values) => ({
+        url: `/question/bulk/file`,
+        method: "POST",
+        body: values,
+      }),
+      invalidatesTags: ["Quiz"],
+    }),
+    createQuestionManually: builder.mutation<
+      { data: ManualUploadQuestionResponse },
+      ManualUploadQuestion
+    >({
+      query: (values) => ({
+        url: `/question/bulk`,
+        method: "POST",
+        body: values,
+      }),
+      invalidatesTags: ["Quiz"],
+    }),
+    shareQuiz: builder.mutation<{ message: string }, shareQuizInput>({
+      query: (body) => ({
+        url: `/quiz/publish`,
+        method: "POST",
+        body: body,
+      }),
+      invalidatesTags: ["Notes"],
     }),
   }),
 });
@@ -37,4 +71,7 @@ export const {
   useGetQuizzesQuery,
   useAddQuizMutation,
   useCreateAssessmentMutation,
+  useCreateQuestionFromFileMutation,
+  useCreateQuestionManuallyMutation,
+  useShareQuizMutation,
 } = quizzesApi;

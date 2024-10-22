@@ -20,12 +20,15 @@ import * as yup from "yup";
 import { shareNoteInput } from "../types/notes";
 import { useShareNoteMutation } from "../store/api/notes.api";
 import SuccessModal from "./SuccessModal";
+import { shareQuizInput } from "../types/quizzes";
+import { useShareQuizMutation } from "../store/api/quizzes.api";
 
 type ShareWithListProps = {
   open: boolean;
   handleClose: () => void;
   // handleSelectedRecipients: (recipients: number[]) => void;
   noteId?: number | null;
+  quizId?: number | null;
   participants: ParticipantData[];
 };
 
@@ -34,20 +37,23 @@ const ShareWithList = ({
   handleClose,
   // handleSelectedRecipients,
   noteId,
+  quizId,
   participants,
 }: ShareWithListProps) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedUsers, setSelectedUsers] = useState<number[]>([]);
-  const [shareNote, { isLoading }] = useShareNoteMutation();
+  const [shareNote, { isLoading: isSharingNote }] = useShareNoteMutation();
+  const [shareQuiz, { isLoading: isSharingQuiz }] = useShareQuizMutation();
   const [openSuccessModal, setOpenSuccessModal] = useState(false);
   const handleOpenSuccessModal = () => setOpenSuccessModal(true);
   const handleCloseSuccessModal = () => {
     setOpenSuccessModal(false);
     handleClose();
   };
-  const formik = useFormik<shareNoteInput>({
+  const formik = useFormik<shareNoteInput | shareQuizInput>({
     initialValues: {
       note_id: noteId || 0,
+      quiz_id: quizId || 0,
       participants: [],
     },
     validationSchema: yup.object({
@@ -61,17 +67,31 @@ const ShareWithList = ({
         )
         .required("At least one participant is required"),
     }),
-    onSubmit: async (values: shareNoteInput) => {
+    onSubmit: async () => {
       try {
+        console.log(noteId);
+        console.log(quizId);
         if (noteId != null) {
-          await shareNote(values).unwrap();
+          await shareNote({
+            note_id: noteId,
+            participants: formik.values.participants,
+          }).unwrap();
+        }
+        if (quizId != null) {
+          console.log({
+            quiz_id: quizId,
+            participants: formik.values.participants,
+          });
+          await shareQuiz({
+            quiz_id: quizId,
+            participants: formik.values.participants,
+          }).unwrap();
           handleOpenSuccessModal();
-        } else {
-          console.log(values);
         }
       } catch (error) {
         console.error(error);
       }
+      console.log("submitted");
     },
   });
 
@@ -196,10 +216,14 @@ const ShareWithList = ({
             <Button
               variant="contained"
               color="primary"
+              disabled={
+                isSharingNote ||
+                isSharingQuiz ||
+                formik.values.participants.length === 0
+              }
               type="submit"
-              disabled={isLoading || formik.values.participants.length === 0}
             >
-              {isLoading ? "Sharing" : "Continue"}
+              {isSharingNote || isSharingQuiz ? "Sharing" : "Continue"}
             </Button>
           </Box>
         </Box>

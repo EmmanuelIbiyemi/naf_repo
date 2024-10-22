@@ -13,6 +13,8 @@ export interface TestFormData {
   type: string;
   questions?: TestQuestion[];
   assessmentId: number;
+  quizId: number;
+  file: string;
 }
 
 export interface Step4ContentProps {

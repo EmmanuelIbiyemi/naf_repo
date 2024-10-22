@@ -1,3 +1,6 @@
+import { options } from "./options";
+import { Participant } from "./participants";
+
 export interface QuizzesResponse {
   assessments: unknown;
   code: string;
@@ -26,10 +29,45 @@ export interface CreateQuiz {
   show_result: boolean;
 }
 
+export interface FileUploadQuestionResponse {
+  body: string;
+  created_at: string;
+  id: number;
+  options: options;
+  updated_at: string;
+}
+
+export interface ManualUploadQuestion {
+  questions: {
+    body: string;
+    options: { body: string; is_answer: boolean }[];
+  }[];
+  assessment_id: number;
+}
+
+export interface ManualUploadQuestionResponse {
+  body: string;
+  created_at: string;
+  id: number;
+  options: {
+    body: string;
+    created_at: string;
+    id: number;
+    is_answer: boolean;
+    updated_at: string;
+  }[];
+  updated_at: string;
+}
+
 export interface AssessmentResponse {
   created_at: string;
   id: number;
   name: string;
   questions: unknown;
   updated_at: string;
+}
+
+export interface shareQuizInput {
+  quiz_id: number;
+  participants: Participant;
 }
