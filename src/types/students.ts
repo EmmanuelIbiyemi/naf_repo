@@ -1,6 +1,6 @@
 import { CourseType } from "./courses";
 
-export type Student = {
+export type StudentType = {
   id?: number;
   first_name: string;
   last_name: string;
@@ -9,13 +9,9 @@ export type Student = {
   courses: CourseType[];
 };
 
-export type StudentCreateType = Student & {};
+export type StudentCreateType = StudentType & {};
 
-export type StudentFormAction = (lecturer: Student) => Promise<void>;
-
-export type StudentResponse = {
-  data: Student[];
-};
+export type StudentFormAction = (lecturer: StudentType) => Promise<void>;
 
 export type StudentsResponse = { data: StudentType[] };
 

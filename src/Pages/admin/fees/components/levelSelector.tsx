@@ -1,6 +1,6 @@
 import React from 'react';
 import { Autocomplete, TextField, Box } from '@mui/material';
-import { Level } from '../../../../types/levels';
+import { LevelType } from '../../../../types/levels';
 import { useGetLevelsQuery } from '../../../../store/api/levels.api';
 
 interface LevelSelectorProps {
@@ -9,12 +9,12 @@ interface LevelSelectorProps {
 }
 
 const LevelSelector: React.FC<LevelSelectorProps> = ({ value, onChange }) => {
-  const { data: levelsData, isLoading, error } = useGetLevelsQuery(null);
+  const { data: levelsData, isLoading, error } = useGetLevelsQuery(0);
 
   if (isLoading) return <div>Loading levels...</div>;
   if (error) return <div>Error loading levels</div>;
 
-  const handleLevelChange = (_event: React.SyntheticEvent, newValue: Level | null) => {
+  const handleLevelChange = (_event: React.SyntheticEvent, newValue: LevelType | null) => {
     onChange(newValue?.id ? newValue.id.toString() : null);
   };
 
@@ -24,7 +24,7 @@ const LevelSelector: React.FC<LevelSelectorProps> = ({ value, onChange }) => {
         options={levelsData?.data ?? []}
         value={levelsData?.data.find(level => level.id?.toString() === value) ?? null}
         onChange={handleLevelChange}
-        getOptionLabel={(option: Level) => option.name}
+        getOptionLabel={(option: LevelType) => option.name}
         renderInput={(params) => (
           <TextField
             {...params}

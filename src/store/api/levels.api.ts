@@ -7,11 +7,11 @@ const levelsApi = appApi.injectEndpoints({
       query: (program_id) => `/level/program/${program_id}`,
       providesTags: ["Levels"],
     }),
-    getLevel: builder.query<LevelResponse, number>({
+    getLevel: builder.query<LevelsResponse, number>({
       query: (level_id) => `/level/1/${level_id}`,
       providesTags: ["Levels"],
     }),
-    addLevel: builder.mutation<LevelResponse, Level>({
+    addLevel: builder.mutation<LevelsResponse, LevelCreateType>({
       query: (level) => ({
         url: `/level`,
         method: "POST",
@@ -19,7 +19,7 @@ const levelsApi = appApi.injectEndpoints({
       }),
       invalidatesTags: ["Levels"],
     }),
-    updateLevel: builder.mutation<LevelResponse, Level>({
+    updateLevel: builder.mutation<LevelsResponse, LevelType>({
       query: (level) => ({
         url: `/level/${level.id}`,
         method: "PUT",
@@ -27,7 +27,7 @@ const levelsApi = appApi.injectEndpoints({
       }),
       invalidatesTags: ["Levels"],
     }),
-    deleteLevel: builder.mutation<LevelResponse, number>({
+    deleteLevel: builder.mutation<LevelsResponse, number>({
       query: (level_id) => ({
         url: `/level/${level_id}`,
         method: "DELETE",

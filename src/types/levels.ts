@@ -1,13 +1,13 @@
-export type Level = {
+export type LevelType = {
   id?: number;
   name: string;
   program_id: number;
 };
 
-export type LevelCreateType = Level & {};
+export type LevelCreateType = LevelType & {};
 
-export type LevelResponse = {
-  data: Level[];
+export type LevelsResponse = {
+  data: LevelType[];
 };
 
-export type LevelFormAction = (level: Level) => Promise<void>;
+export type LevelFormAction = (level: LevelType) => Promise<void>;
