@@ -82,7 +82,6 @@ const PreviewPostPage = lazy(
   () => import("./Pages/admin/application copy/PreviewPost")
 );
 const Page = lazy(() => import("./Pages/admin/page/Page"));
-const LevelsPage = lazy(() => import("./Pages/admin/academics/levels/Levels"));
 
 // Instructor
 
