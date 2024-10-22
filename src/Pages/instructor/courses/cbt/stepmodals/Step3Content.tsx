@@ -34,7 +34,7 @@ const Step3Content = ({ onImportCSV, onInputManually }: ModalProps) => {
             }}
             onClick={onImportCSV}
           >
-            Import CSV
+            Import Docx
           </Button>
         </Box>
         <Box

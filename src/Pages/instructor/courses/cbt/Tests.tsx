@@ -1,4 +1,4 @@
-import { Box } from "@mui/material";
+import { Box, LinearProgress } from "@mui/material";
 import { useEffect, useRef, useState } from "react";
 import InstructorPageHeader from "../../../../components/layout/InstructorPageHeader";
 import { useAppDispatch } from "../../../../store/hooks";
@@ -7,21 +7,14 @@ import { useFormik } from "formik";
 import * as yup from "yup";
 
 import CustomSuccessModal from "../../../../components/CustomSuccessModal";
-import CoursesItemList from "../CoursesItemList";
 import SuccessModal from "../../../../components/SuccessModal";
 import DeleteConfirmationModal from "../../../../components/DeleteConfirmationModal";
 import GenerateReportModal from "./GenerateReportModal";
-import { media } from "../../../../types/media";
 import CreateTestModal from "./stepmodals/CreateTestModal";
-
-interface TestType {
-  content: string;
-  created_at: string;
-  id: number;
-  media: media;
-  title: string;
-  updated_at: string;
-}
+import QuizzesItemsList from "../QuizzesItemsList";
+import { QuizzesResponse } from "../../../../types/quizzes";
+import { useGetQuizzesQuery } from "../../../../store/api/quizzes.api";
+import { useGetCoursesQuery } from "../../../../store/api/courses.api";
 
 const Tests = () => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -32,7 +25,9 @@ const Tests = () => {
     success: false,
     delete: false,
   });
-  const [selectedTests, setSelectedTests] = useState<TestType | undefined>();
+  const [selectedTests, setSelectedTests] = useState<
+    QuizzesResponse | undefined
+  >();
 
   const handleOpenCreateTestModal = () => setOpenCreateTestModal(true);
   const handleCloseCreateTestModal = () => setOpenCreateTestModal(false);
@@ -40,13 +35,16 @@ const Tests = () => {
   const handleCloseGenerateReportModal = () =>
     setOpenGenerateReportModal(false);
   const [openFileSuccessModal, setOpenFileSuccessModal] = useState(false);
+  const { data: quizzes, isLoading } = useGetQuizzesQuery(null);
+  const { data: courses, isLoading: isGettingCourses } =
+    useGetCoursesQuery(null);
 
   const handleDelete = (noteId: number) => {
     console.log(noteId);
     setOpenActionsModal((prev) => ({ ...prev, delete: true }));
   };
 
-  const handleOpenActionsModal = (course: TestType, type: string) => {
+  const handleOpenActionsModal = (course: QuizzesResponse, type: string) => {
     setSelectedTests(course);
     setOpenActionsModal((prev) => ({ ...prev, [type]: true }));
   };
@@ -56,7 +54,7 @@ const Tests = () => {
     setOpenActionsModal((prev) => ({ ...prev, [type]: false }));
   };
 
-  const handleEditActionsModal = async (note: TestType) => {
+  const handleEditActionsModal = async (note: QuizzesResponse) => {
     console.log(note);
     handleCloseActionsModal("edit");
     handleOpenActionsModal(note, "success");
@@ -129,9 +127,11 @@ const Tests = () => {
           course={selectedTests}
         />
       </FormModal> */}
+      {isLoading && <LinearProgress />}
       <CreateTestModal
         open={openCreateTestModal}
         handleClose={handleCloseCreateTestModal}
+        courses={courses?.data}
       />
 
       <CustomSuccessModal
@@ -160,6 +160,7 @@ const Tests = () => {
           additionalButton={{
             action: handleOpenCreateTestModal,
             text: "Create New Test",
+            isLoading: isGettingCourses,
           }}
         />
         <GenerateReportModal
@@ -167,8 +168,8 @@ const Tests = () => {
           handleClose={handleCloseGenerateReportModal}
         />
         <Box>
-          <CoursesItemList
-            lists={notes}
+          <QuizzesItemsList
+            lists={quizzes?.data || []}
             handleOpenActionsModal={handleOpenActionsModal}
             handleEditActionsModal={handleEditActionsModal}
             menu={true}
@@ -187,7 +188,7 @@ const Tests = () => {
           close={() => handleCloseActionsModal("delete")}
           infoText="The students enrolled in this Course will get notified."
           open={openActionsModal.delete}
-          subTitle={`Are you sure you want to delete Course <strong>"${selectedTests?.title}"</strong>? You can't undo this action.`}
+          subTitle={`Are you sure you want to delete Course <strong>"${selectedTests?.name}"</strong>? You can't undo this action.`}
           title="Delete Course?"
         />
 
@@ -206,204 +207,12 @@ const Tests = () => {
           }}
           infoText=""
           open={openActionsModal.success}
-          subTitle={`You have successfully added a new Course <strong>"${selectedTests?.title}"</strong>.`}
+          subTitle={`You have successfully added a new Course <strong>"${selectedTests?.name}"</strong>.`}
           title="Updates Successful"
         />
       </Box>
     </Box>
   );
 };
-
-const notes = [
-  {
-    id: 1,
-    name: "B.Tech Specialization in Health Informatics",
-    created_at: "22/09",
-    updated_at: "25/09",
-    content: "string",
-    media: [],
-    title: "Title",
-  },
-  {
-    id: 2,
-    name: "B.Tech Specialization in Health Informatic",
-    created_at: "22/09",
-    updated_at: "25/09",
-    content: "string",
-    media: [],
-    title: "Title",
-  },
-  {
-    id: 3,
-    name: "B.Tech Specialization in Health Informats",
-    created_at: "22/09",
-    updated_at: "25/09",
-    content: "string",
-    media: [],
-    title: "Title",
-  },
-  {
-    id: 4,
-    name: "B.Tech Specialization in Health Informatics",
-    created_at: "22/09",
-    updated_at: "25/09",
-    content: "string",
-    media: [],
-    title: "Title",
-  },
-  {
-    id: 5,
-    name: "B.Tech Specialization in Health Informatics",
-    created_at: "22/09",
-    updated_at: "25/09",
-    content: "string",
-    media: [],
-    title: "Title",
-  },
-  {
-    id: 6,
-    name: "B.Tech Specialization in Health Informatics",
-    created_at: "22/09",
-    updated_at: "25/09",
-    content: "string",
-    media: [],
-    title: "Title",
-  },
-  {
-    id: 7,
-    name: "B.Tech Specialization in Health Informatics",
-    created_at: "22/09",
-    updated_at: "25/09",
-    content: "string",
-    media: [],
-    title: "Title",
-  },
-  {
-    id: 8,
-    name: "B.Tech Specialization in Health Informatics",
-    created_at: "22/09",
-    updated_at: "25/09",
-    content: "string",
-    media: [],
-    title: "Title",
-  },
-  {
-    id: 9,
-    name: "B.Tech Specialization in Health Informatics",
-    created_at: "22/09",
-    updated_at: "25/09",
-    content: "string",
-    media: [],
-    title: "Title",
-  },
-  {
-    id: 10,
-    name: "B.Tech Specialization in Health Informatics",
-    created_at: "22/09",
-    updated_at: "25/09",
-    content: "string",
-    media: [],
-    title: "Title",
-  },
-  {
-    id: 11,
-    name: "B.Tech Specialization in Health Informatics",
-    created_at: "22/09",
-    updated_at: "25/09",
-    content: "string",
-    media: [],
-    title: "Title",
-  },
-  {
-    id: 12,
-    name: "B.Tech Specialization in Health Informatics",
-    created_at: "22/09",
-    updated_at: "25/09",
-    content: "string",
-    media: [],
-    title: "Title",
-  },
-  {
-    id: 13,
-    name: "B.Tech Specialization in Health Informatics",
-    created_at: "22/09",
-    updated_at: "25/09",
-    content: "string",
-    media: [],
-    title: "Title",
-  },
-  {
-    id: 14,
-    name: "B.Tech Specialization in Health Informatics",
-    created_at: "22/09",
-    updated_at: "25/09",
-    content: "string",
-    media: [],
-    title: "Title",
-  },
-  {
-    id: 15,
-    name: "B.Tech Specialization in Health Informatics",
-    created_at: "22/09",
-    updated_at: "25/09",
-    content: "string",
-    media: [],
-    title: "Title",
-  },
-  {
-    id: 16,
-    name: "B.Tech Specialization in Health Informatics",
-    created_at: "22/09",
-    updated_at: "25/09",
-    content: "string",
-    media: [],
-    title: "Title",
-  },
-  {
-    id: 17,
-    name: "B.Tech Specialization in Health Informatics",
-    created_at: "22/09",
-    updated_at: "25/09",
-    content: "string",
-    media: [],
-    title: "Title",
-  },
-  {
-    id: 18,
-    name: "B.Tech Specialization in Health Informatics",
-    created_at: "22/09",
-    updated_at: "25/09",
-    content: "string",
-    media: [],
-    title: "Title",
-  },
-  {
-    id: 19,
-    name: "B.Tech Specialization in Health Informatics",
-    created_at: "22/09",
-    updated_at: "25/09",
-    content: "string",
-    media: [],
-    title: "Title",
-  },
-  {
-    id: 20,
-    name: "B.Tech Specialization in Health Informatics",
-    created_at: "22/09",
-    updated_at: "25/09",
-    content: "string",
-    media: [],
-    title: "Title",
-  },
-  {
-    id: 21,
-    name: "B.Tech Specialization in Health Informatics",
-    created_at: "22/09",
-    updated_at: "25/09",
-    content: "string",
-    media: [],
-    title: "Title",
-  },
-];
 
 export default Tests;

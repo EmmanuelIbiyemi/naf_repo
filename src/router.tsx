@@ -1,11 +1,7 @@
 /* eslint-disable react-refresh/only-export-components */
 import { createBrowserRouter } from "react-router-dom";
 import { lazy } from "react";
-<<<<<<< HEAD
-import Page from "./Pages/admin/page/Page";
 import ReportsExpanded from "./Pages/instructor/reports/ReportsExpanded";
-=======
->>>>>>> dev
 
 // Admin
 

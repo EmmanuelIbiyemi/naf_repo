@@ -42,36 +42,42 @@ const CoursesSidebar = ({ course }: courseProps) => {
   };
 
   return (
-    <Box className="sidebar" sx={sideBarStyles}>
-      <Box sx={navLinkStyles}>
-        {navLinks.map((item) => (
-          <Box key={`navlink-${item.content + 1}`}>
-            <Link
-              className={location.pathname.includes(item.link) ? "active" : ""}
-              to={item.link}
-            >
-              {item.content}
-            </Link>
-            {isCurrentPage(item) && item.children ? (
-              <Box sx={childLinkStyles}>
-                {item.children.map((child) => (
-                  <Box
-                    className={isCurrentChildLink(child) ? "active" : ""}
-                    onClick={() => navigate(child.link, { state: { course } })}
-                  >
-                    <ChevronRight /> {child.content}
-                  </Box>
-                  // <Link
-                  //   key={`child-link-${child.content}`}
-                  //   to={child.link}
-                  //   className={isCurrentChildLink(child) ? "active" : ""}
-                  // >
-                  // </Link>
-                ))}
-              </Box>
-            ) : null}
-          </Box>
-        ))}
+    <Box sx={{ position: "relative", height: "100%" }}>
+      <Box className="sidebar" sx={sideBarStyles}>
+        <Box sx={navLinkStyles}>
+          {navLinks.map((item) => (
+            <Box key={`navlink-${item.content + 1}`}>
+              <Link
+                className={
+                  location.pathname.includes(item.link) ? "active" : ""
+                }
+                to={item.link}
+              >
+                {item.content}
+              </Link>
+              {isCurrentPage(item) && item.children ? (
+                <Box sx={childLinkStyles}>
+                  {item.children.map((child) => (
+                    <Box
+                      className={isCurrentChildLink(child) ? "active" : ""}
+                      onClick={() =>
+                        navigate(child.link, { state: { course } })
+                      }
+                    >
+                      <ChevronRight /> {child.content}
+                    </Box>
+                    // <Link
+                    //   key={`child-link-${child.content}`}
+                    //   to={child.link}
+                    //   className={isCurrentChildLink(child) ? "active" : ""}
+                    // >
+                    // </Link>
+                  ))}
+                </Box>
+              ) : null}
+            </Box>
+          ))}
+        </Box>
       </Box>
     </Box>
   );
@@ -83,12 +89,12 @@ const sideBarStyles: SxProps = {
   bgcolor: "#fff",
   color: "primary.contrastText",
   //   padding: "2rem",
-  position: "fixed",
+  position: "sticky",
   height: "100vh",
   top: 100,
   left: 0,
   overflow: "scroll",
-  marginLeft: "280px",
+  // marginLeft: "280px",
   width: "220px",
 
   "&::-webkit-scrollbar": {

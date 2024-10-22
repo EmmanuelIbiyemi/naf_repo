@@ -15,6 +15,7 @@ import Step4Content from "./Step4Content";
 import { TestFormData } from "./testformtypes";
 import UploadFileModal from "../../../../../components/UploadFileModal";
 import { ParticipantData } from "../../../../../types/participants";
+import { CourseType } from "../../../../../types/courses";
 
 const initialFormData: TestFormData = {
   subject: 0,
@@ -39,6 +40,7 @@ interface CreateTestModalProps {
   formData?: TestFormData;
   activeStep?: number;
   participants?: ParticipantData[];
+  courses?: CourseType[];
 }
 
 const CreateTestModal: React.FC<CreateTestModalProps> = ({
@@ -47,11 +49,12 @@ const CreateTestModal: React.FC<CreateTestModalProps> = ({
   formData,
   activeStep = 0,
   participants,
+  courses = [],
 }) => {
   const [currentActiveStep, setCurrentActiveStep] = useState(activeStep);
   const [openCSVModal, setOpenCSVModal] = useState(false);
   const [localFormData, setLocalFormData] = useState<TestFormData>(
-    formData || initialFormData
+    formData ? formData : initialFormData
   );
   const navigate = useNavigate();
 
@@ -195,6 +198,7 @@ const CreateTestModal: React.FC<CreateTestModalProps> = ({
                     localFormData.questions.length > 0
                   }
                   participants={participants}
+                  subjects={courses}
                 />
                 {currentActiveStep !== 4 && (
                   <Box
