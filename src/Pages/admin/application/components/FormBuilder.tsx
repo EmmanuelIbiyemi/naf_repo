@@ -27,7 +27,7 @@ import {
 } from "../../../../store/api/form.api";
 import { useLocation } from "react-router-dom";
 import { useAppDispatch } from "../../../../store/hooks";
-import { setLoading } from "../../../../store/app.slice";
+import { setBuilderLoading } from "../../../../store/app.slice";
 
 const getElementId = (id: string) => {
   const [, sectionId, rowId, elId] = id.split("-");
@@ -58,7 +58,7 @@ const FormBuilder = ({
   const handleInput = async (e: FocusEvent) => {
     const target = e.currentTarget;
     const elKey = getElementKey(target.id);
-    dispatch(setLoading(true));
+    dispatch(setBuilderLoading(true));
     try {
       const response = await getFormFieldByKey(elKey).unwrap();
       console.log(response);
@@ -69,13 +69,13 @@ const FormBuilder = ({
     } catch (error) {
       console.log(error);
     }
-    dispatch(setLoading(false));
+    dispatch(setBuilderLoading(false));
   };
 
   const handleLabelInput = async (e: FocusEvent) => {
     const target = e.currentTarget;
     const elKey = getElementKey(target.id);
-    dispatch(setLoading(true));
+    dispatch(setBuilderLoading(true));
     try {
       const response = await getFormFieldByKey(elKey).unwrap();
       console.log(response);
@@ -86,12 +86,12 @@ const FormBuilder = ({
     } catch (error) {
       console.log(error);
     }
-    dispatch(setLoading(false));
+    dispatch(setBuilderLoading(false));
   };
 
   const handleAddRemoveChange = async (id: string, type: string) => {
     const elKey = getElementKey(id);
-    dispatch(setLoading(true));
+    dispatch(setBuilderLoading(true));
 
     try {
       const response = await getFormFieldByKey(elKey).unwrap();
@@ -121,7 +121,7 @@ const FormBuilder = ({
     } catch (error) {
       console.log(error);
     }
-    dispatch(setLoading(false));
+    dispatch(setBuilderLoading(false));
   };
 
   const handleOptionChange = async (
@@ -131,7 +131,7 @@ const FormBuilder = ({
   ) => {
     const text = e.currentTarget.textContent;
     const elKey = getElementKey(id);
-    dispatch(setLoading(true));
+    dispatch(setBuilderLoading(true));
 
     try {
       const response = await getFormFieldByKey(elKey).unwrap();
@@ -150,18 +150,18 @@ const FormBuilder = ({
     } catch (error) {
       console.log(error);
     }
-    dispatch(setLoading(false));
+    dispatch(setBuilderLoading(false));
   };
 
   const handleDelete = async (id: string) => {
     const [, rowId] = getElementId(id);
-    dispatch(setLoading(true));
+    dispatch(setBuilderLoading(true));
     try {
       await deleteRow(+rowId).unwrap();
     } catch (error) {
       console.log(error);
     }
-    dispatch(setLoading(false));
+    dispatch(setBuilderLoading(false));
   };
 
   const displayEl = (elId: string, element: FormField) => {

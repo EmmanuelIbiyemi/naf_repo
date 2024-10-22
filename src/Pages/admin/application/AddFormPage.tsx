@@ -1,5 +1,5 @@
 import { Box, Button, SxProps } from "@mui/material";
-import { setLoading, setPageName } from "../../../store/app.slice";
+import { setBuilderLoading, setPageName } from "../../../store/app.slice";
 import { useAppDispatch } from "../../../store/hooks";
 import ElementsSideBar from "./components/ElementsSideBar";
 import FormContentArea from "./components/FormContentArea";
@@ -32,7 +32,7 @@ const AddFormPage = () => {
 
   const addElement = async (type: string) => {
     const element = formElements.find((el) => el.type == type);
-    dispatch(setLoading(true));
+    dispatch(setBuilderLoading(true));
     if (element) {
       try {
         if (form?.data) {
@@ -60,7 +60,7 @@ const AddFormPage = () => {
       } catch (error) {
         console.log(error);
       }
-      dispatch(setLoading(false));
+      dispatch(setBuilderLoading(false));
     }
   };
 

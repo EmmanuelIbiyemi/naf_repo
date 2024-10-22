@@ -18,13 +18,14 @@ import { ParticipantData } from "../../../../../types/participants";
 import { CourseType } from "../../../../../types/courses";
 
 const initialFormData: TestFormData = {
-  subject: 0,
+  subject: "",
   totalQuestions: 0,
   passingPercentage: 0,
   scheduleDate: "",
   expirationDate: "",
   type: "",
   questions: [],
+  assessmentId: 0,
 };
 
 const steps = [
@@ -73,7 +74,7 @@ const CreateTestModal: React.FC<CreateTestModalProps> = ({
       const formData = new FormData();
       formData.append("file", file); // Attach the file to FormData
 
-      setLocalFormData((prevData) => ({ ...prevData, questionsFileId: file }));
+      // setLocalFormData((prevData) => ({ ...prevData, questionsFileId: file }));
       //   setFormData((prevData) => ({ ...prevData, questionsFileId: uploadedFileId }));
 
       setOpenCSVModal(false);
