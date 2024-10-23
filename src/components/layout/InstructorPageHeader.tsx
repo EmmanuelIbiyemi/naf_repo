@@ -12,6 +12,7 @@ type Props = {
   additionalButton?: {
     text: string;
     action: () => void;
+    isLoading?: boolean;
   };
 };
 
@@ -96,6 +97,7 @@ const InstructorPageHeader = ({
               onClick={additionalButton.action}
               variant="contained"
               sx={{ textTransform: "capitalize" }}
+              disabled={additionalButton?.isLoading ?? false}
             >
               {additionalButton.text}
             </Button>

@@ -10,14 +10,16 @@ import {
 import { useAppDispatch, useAppSelector } from "./store/hooks";
 import { useEffect } from "react";
 import { Box, LinearProgress } from "@mui/material";
-import { selectIsLoading } from "./store/app.slice";
+import { selectBuilderLoading, selectPageLoading } from "./store/app.slice";
+import LoadingScreen from "./components/LoadingScreen";
 
 function App() {
   const user = useAppSelector(selectCurrentUser);
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const lastVisitedPage = useAppSelector(selectLastVisitedPage);
-  const isLoading = useAppSelector(selectIsLoading);
+  const isBuilderLoading = useAppSelector(selectBuilderLoading);
+  const isPageLoading = useAppSelector(selectPageLoading);
 
   useEffect(() => {
     if (!user) {
@@ -37,7 +39,21 @@ function App() {
   // check user type
   return (
     <Box>
-      {isLoading ? (
+      {isPageLoading ? (
+        <Box
+          sx={{
+            color: "lightgreen",
+            position: "fixed",
+            top: 0,
+            width: "100%",
+            zIndex: 101,
+          }}
+        >
+          <LoadingScreen />
+        </Box>
+      ) : null}
+
+      {isBuilderLoading ? (
         <Box
           sx={{
             color: "lightgreen",

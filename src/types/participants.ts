@@ -1,22 +1,24 @@
-export type Participant = {
-  id?: number;
+
+import { CoursesResponse } from "./courses";
+
+interface Participants {
+  id: number;
+}
+
+export type ParticipantData = {
   address: string;
+  courses: CoursesResponse;
   created_at: string;
   email: string;
   first_name: string;
+  id: number;
   last_name: string;
+  level: string;
+  matric_number: string;
   phone: string;
   photo: string;
-  role: string;
+  signature: string;
   updated_at: string;
-  department: string;
-  faculty: string;
 };
 
-export type ParticipantCreateType = Participant & {};
-
-export type ParticipantFormAction = (participant: Participant) => Promise<void>;
-
-export type ParticipantResponse = {
-  data: Participant[];
-};
+export type Participant = Participants[];

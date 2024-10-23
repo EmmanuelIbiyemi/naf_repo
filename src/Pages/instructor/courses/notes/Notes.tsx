@@ -1,4 +1,5 @@
-import { Box } from "@mui/material";
+
+import { Box, LinearProgress } from "@mui/material";
 import { useEffect, useRef, useState } from "react";
 import InstructorPageHeader from "../../../../components/layout/InstructorPageHeader";
 import { useAppDispatch } from "../../../../store/hooks";
@@ -15,15 +16,10 @@ import NotesUploadModal from "./NotesUploadModal";
 import CoursesItemList from "../CoursesItemList";
 import SuccessModal from "../../../../components/SuccessModal";
 import DeleteConfirmationModal from "../../../../components/DeleteConfirmationModal";
+
+import { useGetCourseNotesQuery } from "../../../../store/api/notes.api";
+import { note } from "../../../../types/notes";
 // import FormModal from "../../../../components/FormModal";
-
-interface NoteType {
-  id: number;
-  name: string;
-  created: string;
-  modified: string;
-}
-
 const Notes = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [openModal, setOpenModal] = useState(false);
@@ -32,18 +28,25 @@ const Notes = () => {
     success: false,
     delete: false,
   });
-  const [selectedNotes, setSelectedNotes] = useState<NoteType | undefined>();
+  const [selectedNotes, setSelectedNotes] = useState<note | undefined>();
+  const locationData = location.pathname.split("/");
+  const courseId = locationData[locationData.length - 2];
 
   const handleUploadModalOpen = () => setOpenModal(true);
   const handleUploadModalClose = () => setOpenModal(false);
   const [openFileSuccessModal, setOpenFileSuccessModal] = useState(false);
+
+  const { data: note, isLoading: isGettingNotes } = useGetCourseNotesQuery(
+    parseInt(courseId)
+  );
 
   const handleDelete = (noteId: number) => {
     console.log(noteId);
     setOpenActionsModal((prev) => ({ ...prev, delete: true }));
   };
 
-  const handleOpenActionsModal = (course: NoteType, type: string) => {
+
+  const handleOpenActionsModal = (course: note, type: string) => {
     setSelectedNotes(course);
     setOpenActionsModal((prev) => ({ ...prev, [type]: true }));
   };
@@ -53,7 +56,8 @@ const Notes = () => {
     setOpenActionsModal((prev) => ({ ...prev, [type]: false }));
   };
 
-  const handleEditActionsModal = async (note: NoteType) => {
+
+  const handleEditActionsModal = async (note: note) => {
     console.log(note);
     handleCloseActionsModal("edit");
     handleOpenActionsModal(note, "success");
@@ -140,6 +144,7 @@ const Notes = () => {
       component="form"
       onSubmit={formik.handleSubmit}
     >
+      {isGettingNotes && <LinearProgress />}
       {/* <FormModal open={openActionsModal.edit} close={() => handleCloseActionsModal("edit")}>
         <NotesForm
           actions={{
@@ -186,7 +191,8 @@ const Notes = () => {
         />
         <Box>
           <CoursesItemList
-            lists={notes}
+
+            lists={note?.data || []}
             handleOpenActionsModal={handleOpenActionsModal}
             handleEditActionsModal={handleEditActionsModal}
           />
@@ -204,7 +210,7 @@ const Notes = () => {
           close={() => handleCloseActionsModal("delete")}
           infoText="The students enrolled in this Course will get notified."
           open={openActionsModal.delete}
-          subTitle={`Are you sure you want to delete Course <strong>"${selectedNotes?.name}"</strong>? You can't undo this action.`}
+          subTitle={`Are you sure you want to delete Course <strong>"${selectedNotes?.title}"</strong>? You can't undo this action.`}
           title="Delete Course?"
         />
 
@@ -223,141 +229,12 @@ const Notes = () => {
           }}
           infoText=""
           open={openActionsModal.success}
-          subTitle={`You have successfully added a new Course <strong>"${selectedNotes?.name}"</strong>.`}
+          subTitle={`You have successfully added a new Course <strong>"${selectedNotes?.title}"</strong>.`}
           title="Updates Successful"
         />
       </Box>
     </Box>
   );
 };
-
-const notes = [
-  {
-    id: 1,
-    name: "B.Tech Specialization in Health Informatics",
-    created: "22/09",
-    modified: "25/09",
-  },
-  {
-    id: 2,
-    name: "B.Tech Specialization in Health Informatic",
-    created: "22/09",
-    modified: "25/09",
-  },
-  {
-    id: 3,
-    name: "B.Tech Specialization in Health Informats",
-    created: "22/09",
-    modified: "25/09",
-  },
-  {
-    id: 4,
-    name: "B.Tech Specialization in Health Informatics",
-    created: "22/09",
-    modified: "25/09",
-  },
-  {
-    id: 5,
-    name: "B.Tech Specialization in Health Informatics",
-    created: "22/09",
-    modified: "25/09",
-  },
-  {
-    id: 6,
-    name: "B.Tech Specialization in Health Informatics",
-    created: "22/09",
-    modified: "25/09",
-  },
-  {
-    id: 7,
-    name: "B.Tech Specialization in Health Informatics",
-    created: "22/09",
-    modified: "25/09",
-  },
-  {
-    id: 8,
-    name: "B.Tech Specialization in Health Informatics",
-    created: "22/09",
-    modified: "25/09",
-  },
-  {
-    id: 9,
-    name: "B.Tech Specialization in Health Informatics",
-    created: "22/09",
-    modified: "25/09",
-  },
-  {
-    id: 10,
-    name: "B.Tech Specialization in Health Informatics",
-    created: "22/09",
-    modified: "25/09",
-  },
-  {
-    id: 11,
-    name: "B.Tech Specialization in Health Informatics",
-    created: "22/09",
-    modified: "25/09",
-  },
-  {
-    id: 12,
-    name: "B.Tech Specialization in Health Informatics",
-    created: "22/09",
-    modified: "25/09",
-  },
-  {
-    id: 13,
-    name: "B.Tech Specialization in Health Informatics",
-    created: "22/09",
-    modified: "25/09",
-  },
-  {
-    id: 14,
-    name: "B.Tech Specialization in Health Informatics",
-    created: "22/09",
-    modified: "25/09",
-  },
-  {
-    id: 15,
-    name: "B.Tech Specialization in Health Informatics",
-    created: "22/09",
-    modified: "25/09",
-  },
-  {
-    id: 16,
-    name: "B.Tech Specialization in Health Informatics",
-    created: "22/09",
-    modified: "25/09",
-  },
-  {
-    id: 17,
-    name: "B.Tech Specialization in Health Informatics",
-    created: "22/09",
-    modified: "25/09",
-  },
-  {
-    id: 18,
-    name: "B.Tech Specialization in Health Informatics",
-    created: "22/09",
-    modified: "25/09",
-  },
-  {
-    id: 19,
-    name: "B.Tech Specialization in Health Informatics",
-    created: "22/09",
-    modified: "25/09",
-  },
-  {
-    id: 20,
-    name: "B.Tech Specialization in Health Informatics",
-    created: "22/09",
-    modified: "25/09",
-  },
-  {
-    id: 21,
-    name: "B.Tech Specialization in Health Informatics",
-    created: "22/09",
-    modified: "25/09",
-  },
-];
 
 export default Notes;

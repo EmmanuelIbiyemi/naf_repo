@@ -1,6 +1,7 @@
 /* eslint-disable react-refresh/only-export-components */
 import { createBrowserRouter } from "react-router-dom";
 import { lazy } from "react";
+import ReportsExpanded from "./Pages/instructor/reports/ReportsExpanded";
 
 // Admin
 
@@ -107,6 +108,11 @@ const CreateNotePage = lazy(
 const CoursesTestsPage = lazy(
   () => import("./Pages/instructor/courses/cbt/Tests")
 );
+
+const InputQuestionsManually = lazy(
+  () => import("./Pages/instructor/courses/cbt/stepmodals/ManualInputQuestions")
+);
+
 const ReportsPage = lazy(() => import("./Pages/instructor/reports/Reports"));
 const LiveClassesPage = lazy(
   () => import("./Pages/instructor/classes/LiveClasses")
@@ -214,10 +220,16 @@ export const router = createBrowserRouter([
           { path: "notes/new", element: <CreateNotePage /> },
           { path: "tests", element: <CoursesTestsPage /> },
           { path: "classes", element: <LiveClassesPage /> },
+
+          { path: "tests/manual-input", element: <InputQuestionsManually /> },
+
         ],
       },
 
       { path: "/instructor/reports", element: <ReportsPage /> },
+
+      { path: "/instructor/reports/:id", element: <ReportsExpanded /> },
+
       { path: "classes", element: <LiveClassesPage /> },
       { path: "/instructor/post", element: <PostPage /> },
       { path: "/instructor/posts/add", element: <AddPostPage /> },

@@ -4,16 +4,26 @@ import { Close, East } from "@mui/icons-material";
 import ShareWithList from "./ShareWithList";
 import linkIcon from "../assets/linkIcon.svg";
 
+import { ParticipantData } from "../types/participants";
+
 type ShareWithModalProps = {
   open: boolean;
   handleClose: () => void;
-  handleSelectedRecipients: (recipients: number[]) => void;
+
+  // handleSelectedRecipients: (recipients: number[]) => void;
+  noteId?: number | null;
+  quizId?: number | null;
+  participants: ParticipantData[];
 };
 
 const ShareWithModal = ({
   open,
   handleClose,
-  handleSelectedRecipients,
+
+  // handleSelectedRecipients,
+  noteId,
+  quizId,
+  participants,
 }: ShareWithModalProps) => {
   const [shareOption, setShareOption] = useState<string | null>(null);
   const [showShareWithList, setShowShareWithList] = useState(false);
@@ -78,7 +88,7 @@ const ShareWithModal = ({
           </Box>
 
           <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-            <Button
+            {/* <Button
               variant={shareOption === "everyone" ? "contained" : "outlined"}
               onClick={() => handleOptionClick("everyone")}
               sx={{
@@ -127,7 +137,7 @@ const ShareWithModal = ({
                   }}
                 />
               </Box>
-            </Button>
+            </Button> */}
 
             <Button
               variant={
@@ -255,7 +265,10 @@ const ShareWithModal = ({
       <ShareWithList
         open={showShareWithList}
         handleClose={handleShareWithListClose}
-        handleSelectedRecipients={handleSelectedRecipients}
+        // handleSelectedRecipients={handleSelectedRecipients}
+        noteId={noteId ?? null}
+        quizId={quizId ?? null}
+        participants={participants}
       />
     </>
   );

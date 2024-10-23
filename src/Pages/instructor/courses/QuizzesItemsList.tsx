@@ -14,35 +14,32 @@ import {
 } from "@mui/material";
 import { Delete, Edit, MoreVert } from "@mui/icons-material";
 import CustomPagination from "../../../components/CustomPagination";
-import { note } from "../../../types/notes";
-import { useNavigate } from "react-router-dom";
+// import { useNavigate } from "react-router-dom";
+import { QuizzesResponse } from "../../../types/quizzes";
 
 type ListProps = {
-  lists: note[];
+  lists: QuizzesResponse[];
   menu?: boolean;
   deleteIcon?: boolean;
   edit?: boolean;
-  handleOpenActionsModal: (list: note, type: string) => void;
-  handleEditActionsModal: (list: note) => void;
-
+  handleOpenActionsModal: (list: QuizzesResponse, type: string) => void;
+  handleEditActionsModal: (list: QuizzesResponse) => void;
 };
 
 const ITEMS_PER_PAGE = 10;
 
-const CoursesItemList = ({
+const QuizzesItemsList = ({
   lists,
   menu,
   deleteIcon,
   edit,
-
   handleOpenActionsModal,
   handleEditActionsModal,
 }: ListProps) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
-
-  const navigate = useNavigate();
+  //   const navigate = useNavigate();
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
   };
@@ -88,13 +85,12 @@ const CoursesItemList = ({
                   sx={{ alignItems: "center", display: "flex", gap: "1rem" }}
                 >
                   <Checkbox />
-
                   <Box
-                    onClick={() => navigate(`${list.id}`, { state: { lists } })}
-                    sx={{ cursor: "pointer" }}
+                  // onClick={() => navigate(`${list.id}`, { state: { lists } })}
+                  // sx={{ cursor: "pointer" }}
                   >
                     <Typography variant="body2" sx={{ color: "#474747" }}>
-                      {list.title}
+                      {list.name}
                     </Typography>
                   </Box>
                   {/* <Link
@@ -158,4 +154,4 @@ const CoursesItemList = ({
   );
 };
 
-export default CoursesItemList;
+export default QuizzesItemsList;

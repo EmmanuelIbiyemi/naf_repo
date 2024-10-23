@@ -1,54 +1,57 @@
-import { Box } from "@mui/material";
+
+import { Box, LinearProgress } from "@mui/material";
+
 import { useEffect, useRef, useState } from "react";
 import InstructorPageHeader from "../../../../components/layout/InstructorPageHeader";
 import { useAppDispatch } from "../../../../store/hooks";
 import { setPageName } from "../../../../store/app.slice";
 import { useFormik } from "formik";
 import * as yup from "yup";
-// import {
-//   useAddCourseMutation,
-//   useGetCoursesQuery,
-// } from "../../../store/api/courses.api";
-
 import CustomSuccessModal from "../../../../components/CustomSuccessModal";
-import NotesUploadModal from "../notes/NotesUploadModal";
-import CoursesItemList from "../CoursesItemList";
 import SuccessModal from "../../../../components/SuccessModal";
 import DeleteConfirmationModal from "../../../../components/DeleteConfirmationModal";
 import GenerateReportModal from "./GenerateReportModal";
-// import FormModal from "../../../../components/FormModal";
-
-interface TestType {
-  id: number;
-  name: string;
-  created: string;
-  modified: string;
-}
+import CreateTestModal from "./stepmodals/CreateTestModal";
+import QuizzesItemsList from "../QuizzesItemsList";
+import { QuizzesResponse } from "../../../../types/quizzes";
+import { useGetQuizzesQuery } from "../../../../store/api/quizzes.api";
+import { useGetCoursesQuery } from "../../../../store/api/courses.api";
+import { useGetParticipantsQuery } from "../../../../store/api/participants.api";
 
 const Tests = () => {
   const containerRef = useRef<HTMLDivElement>(null);
-  const [openModal, setOpenModal] = useState(false);
+  const [openCreateTestModal, setOpenCreateTestModal] = useState(false);
   const [openGenerateReportModal, setOpenGenerateReportModal] = useState(false);
   const [openActionsModal, setOpenActionsModal] = useState({
     edit: false,
     success: false,
     delete: false,
   });
-  const [selectedTests, setSelectedTests] = useState<TestType | undefined>();
 
-  const handleUploadModalOpen = () => setOpenModal(true);
-  const handleUploadModalClose = () => setOpenModal(false);
+  const [selectedTests, setSelectedTests] = useState<
+    QuizzesResponse | undefined
+  >();
+
+  const { data: participants, isLoading: isFetchingParticipants } =
+    useGetParticipantsQuery(null);
+
+  const handleOpenCreateTestModal = () => setOpenCreateTestModal(true);
+  const handleCloseCreateTestModal = () => setOpenCreateTestModal(false);
   const handleOpenGenerateReportModal = () => setOpenGenerateReportModal(true);
   const handleCloseGenerateReportModal = () =>
     setOpenGenerateReportModal(false);
   const [openFileSuccessModal, setOpenFileSuccessModal] = useState(false);
 
+  const { data: quizzes, isLoading } = useGetQuizzesQuery(null);
+  const { data: courses, isLoading: isGettingCourses } =
+    useGetCoursesQuery(null);
   const handleDelete = (noteId: number) => {
     console.log(noteId);
     setOpenActionsModal((prev) => ({ ...prev, delete: true }));
   };
 
-  const handleOpenActionsModal = (course: TestType, type: string) => {
+
+  const handleOpenActionsModal = (course: QuizzesResponse, type: string) => {
     setSelectedTests(course);
     setOpenActionsModal((prev) => ({ ...prev, [type]: true }));
   };
@@ -58,7 +61,7 @@ const Tests = () => {
     setOpenActionsModal((prev) => ({ ...prev, [type]: false }));
   };
 
-  const handleEditActionsModal = async (note: TestType) => {
+  const handleEditActionsModal = async (note: QuizzesResponse) => {
     console.log(note);
     handleCloseActionsModal("edit");
     handleOpenActionsModal(note, "success");
@@ -115,31 +118,6 @@ const Tests = () => {
   //   }
   // };
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const handleFileChange = async (file: any) => {
-    try {
-      const formData = new FormData();
-      formData.append("file", file);
-      console.log(file);
-
-      // const response = await uploadResource(formData).unwrap();
-      // formik.setFieldValue("resources", [
-      //   ...formik.values.resources,
-      //   ...response.resources.map((resource) => resource.id),
-      // ]);
-      formik.setFieldValue("fileName", file.name);
-      setOpenFileSuccessModal(true);
-    } catch (error) {
-      console.log(error);
-    }
-    setOpenModal(false);
-    setOpenFileSuccessModal(true);
-  };
-
-  const handleProcessFileUrl = (fileUrl: string) => {
-    console.log(fileUrl);
-  };
-
   return (
     <Box
       ref={containerRef}
@@ -156,11 +134,13 @@ const Tests = () => {
           course={selectedTests}
         />
       </FormModal> */}
-      <NotesUploadModal
-        open={openModal}
-        handleClose={handleUploadModalClose}
-        handleFileChange={handleFileChange}
-        handleProcessFileUrl={handleProcessFileUrl}
+
+      {isLoading || (isFetchingParticipants && <LinearProgress />)}
+      <CreateTestModal
+        open={openCreateTestModal}
+        handleClose={handleCloseCreateTestModal}
+        courses={courses?.data}
+        participants={participants?.data ?? []}
       />
 
       <CustomSuccessModal
@@ -187,8 +167,10 @@ const Tests = () => {
             text: "Generate Report",
           }}
           additionalButton={{
-            action: handleUploadModalOpen,
+
+            action: handleOpenCreateTestModal,
             text: "Create New Test",
+            isLoading: isGettingCourses,
           }}
         />
         <GenerateReportModal
@@ -196,8 +178,9 @@ const Tests = () => {
           handleClose={handleCloseGenerateReportModal}
         />
         <Box>
-          <CoursesItemList
-            lists={notes}
+
+          <QuizzesItemsList
+            lists={quizzes?.data || []}
             handleOpenActionsModal={handleOpenActionsModal}
             handleEditActionsModal={handleEditActionsModal}
             menu={true}
@@ -232,7 +215,7 @@ const Tests = () => {
           close={() => {
             handleCloseActionsModal("success");
             setSelectedTests(undefined);
-          }}
+         }}
           infoText=""
           open={openActionsModal.success}
           subTitle={`You have successfully added a new Course <strong>"${selectedTests?.name}"</strong>.`}
@@ -242,134 +225,5 @@ const Tests = () => {
     </Box>
   );
 };
-
-const notes = [
-  {
-    id: 1,
-    name: "B.Tech Specialization in Health Informatics",
-    created: "22/09",
-    modified: "25/09",
-  },
-  {
-    id: 2,
-    name: "B.Tech Specialization in Health Informatic",
-    created: "22/09",
-    modified: "25/09",
-  },
-  {
-    id: 3,
-    name: "B.Tech Specialization in Health Informats",
-    created: "22/09",
-    modified: "25/09",
-  },
-  {
-    id: 4,
-    name: "B.Tech Specialization in Health Informatics",
-    created: "22/09",
-    modified: "25/09",
-  },
-  {
-    id: 5,
-    name: "B.Tech Specialization in Health Informatics",
-    created: "22/09",
-    modified: "25/09",
-  },
-  {
-    id: 6,
-    name: "B.Tech Specialization in Health Informatics",
-    created: "22/09",
-    modified: "25/09",
-  },
-  {
-    id: 7,
-    name: "B.Tech Specialization in Health Informatics",
-    created: "22/09",
-    modified: "25/09",
-  },
-  {
-    id: 8,
-    name: "B.Tech Specialization in Health Informatics",
-    created: "22/09",
-    modified: "25/09",
-  },
-  {
-    id: 9,
-    name: "B.Tech Specialization in Health Informatics",
-    created: "22/09",
-    modified: "25/09",
-  },
-  {
-    id: 10,
-    name: "B.Tech Specialization in Health Informatics",
-    created: "22/09",
-    modified: "25/09",
-  },
-  {
-    id: 11,
-    name: "B.Tech Specialization in Health Informatics",
-    created: "22/09",
-    modified: "25/09",
-  },
-  {
-    id: 12,
-    name: "B.Tech Specialization in Health Informatics",
-    created: "22/09",
-    modified: "25/09",
-  },
-  {
-    id: 13,
-    name: "B.Tech Specialization in Health Informatics",
-    created: "22/09",
-    modified: "25/09",
-  },
-  {
-    id: 14,
-    name: "B.Tech Specialization in Health Informatics",
-    created: "22/09",
-    modified: "25/09",
-  },
-  {
-    id: 15,
-    name: "B.Tech Specialization in Health Informatics",
-    created: "22/09",
-    modified: "25/09",
-  },
-  {
-    id: 16,
-    name: "B.Tech Specialization in Health Informatics",
-    created: "22/09",
-    modified: "25/09",
-  },
-  {
-    id: 17,
-    name: "B.Tech Specialization in Health Informatics",
-    created: "22/09",
-    modified: "25/09",
-  },
-  {
-    id: 18,
-    name: "B.Tech Specialization in Health Informatics",
-    created: "22/09",
-    modified: "25/09",
-  },
-  {
-    id: 19,
-    name: "B.Tech Specialization in Health Informatics",
-    created: "22/09",
-    modified: "25/09",
-  },
-  {
-    id: 20,
-    name: "B.Tech Specialization in Health Informatics",
-    created: "22/09",
-    modified: "25/09",
-  },
-  {
-    id: 21,
-    name: "B.Tech Specialization in Health Informatics",
-    created: "22/09",
-    modified: "25/09",
-  },
-];
 
 export default Tests;

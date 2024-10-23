@@ -1,10 +1,10 @@
 import { Box, Button, Typography } from "@mui/material";
-import { CourseContents } from "../../../types/courses";
+import { CourseBaseType, CourseType } from "../../../types/courses";
 import { AccessTime, CalendarToday } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 
 type Props = {
-  course: CourseContents;
+  course: CourseBaseType & CourseType;
 };
 
 const CoursesCard = ({ course }: Props) => {
@@ -31,7 +31,7 @@ const CoursesCard = ({ course }: Props) => {
           lineHeight: "25.2px",
         }}
       >
-        {course.topic}
+        {course.name}
       </Typography>
       <Typography
         variant="body2"
@@ -42,7 +42,7 @@ const CoursesCard = ({ course }: Props) => {
           fontWeight: 300,
         }}
       >
-        Course: {course.course}
+        Course: {course.code}
       </Typography>
       <Typography
         variant="body2"
@@ -53,7 +53,7 @@ const CoursesCard = ({ course }: Props) => {
           fontWeight: 300,
         }}
       >
-        Subject: {course.subject}
+        Subject: {course.name}
       </Typography>
       <Box sx={{ display: "flex", gap: 2 }}>
         <Typography
@@ -68,7 +68,7 @@ const CoursesCard = ({ course }: Props) => {
             gap: 1,
           }}
         >
-          <CalendarToday /> {course.days}
+          <CalendarToday /> Mon - Thur
         </Typography>
         <Typography
           variant="body2"
@@ -82,7 +82,7 @@ const CoursesCard = ({ course }: Props) => {
             gap: 1,
           }}
         >
-          <AccessTime /> {course.time}
+          <AccessTime /> 12:30 AM - 01:40 PM
         </Typography>
       </Box>
       <Typography
@@ -94,13 +94,14 @@ const CoursesCard = ({ course }: Props) => {
           fontWeight: 300,
         }}
       >
-        Students: {course.num_of_students}
+        Students: 120
       </Typography>
       <Button
         variant="contained"
         color="primary"
         sx={{ width: "100%", fontSize: ".8rem" }}
-        onClick={() => navigate(`${course.id}/details`)}
+
+        onClick={() => navigate(`${course.id}/details`, { state: { course } })}
       >
         View Details
       </Button>
