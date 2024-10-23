@@ -1,6 +1,11 @@
 /* eslint-disable react-refresh/only-export-components */
 import { createBrowserRouter } from "react-router-dom";
 import { lazy } from "react";
+<<<<<<< HEAD
+import Page from "./Pages/admin/page/Page";
+import ReportsExpanded from "./Pages/instructor/reports/ReportsExpanded";
+=======
+>>>>>>> dev
 
 // Admin
 
@@ -65,6 +70,22 @@ const CoursesDetailsPage = lazy(
 );
 const CoursesParicipantsPage = lazy(
   () => import("./Pages/instructor/courses/Participants")
+);
+const CoursesNotesPage = lazy(
+  () => import("./Pages/instructor/courses/notes/Notes")
+);
+const CreateNotePage = lazy(
+  () => import("./Pages/instructor/courses/notes/NewNote")
+);
+const CoursesTestsPage = lazy(
+  () => import("./Pages/instructor/courses/cbt/Tests")
+);
+const InputQuestionsManually = lazy(
+  () => import("./Pages/instructor/courses/cbt/stepmodals/ManualInputQuestions")
+);
+const ReportsPage = lazy(() => import("./Pages/instructor/reports/Reports"));
+const LiveClassesPage = lazy(
+  () => import("./Pages/instructor/classes/LiveClasses")
 );
 const SettingsPage = lazy(() => import("./Pages/instructor/settings/Settings"));
 
@@ -131,12 +152,27 @@ export const router = createBrowserRouter([
             element: <CoursesDetailsPage />,
           },
           {
-            path: "participants",
+            path: "students",
             element: <CoursesParicipantsPage />,
           },
-          // { path: "/instructor/courses/:id", element: <CoursesDetailsPage /> },
+          {
+            path: "notes",
+            element: <CoursesNotesPage />,
+          },
+          { path: "notes/new", element: <CreateNotePage /> },
+          { path: "tests", element: <CoursesTestsPage /> },
+          { path: "classes", element: <LiveClassesPage /> },
+          { path: "tests/manual-input", element: <InputQuestionsManually /> },
         ],
       },
+
+      { path: "/instructor/reports", element: <ReportsPage /> },
+      { path: "/instructor/reports/:id", element: <ReportsExpanded /> },
+      { path: "classes", element: <LiveClassesPage /> },
+      { path: "/instructor/post", element: <PostPage /> },
+      { path: "/instructor/posts/add", element: <AddPostPage /> },
+      { path: "/instructor/post/preview", element: <PreviewPostPage /> },
+
       // { path: "/students", element: <StudentsPage /> },
       // { path: "/instructors", element: <InstructorsPage /> },
       // { path: "/applications", element: <FormsPage /> },

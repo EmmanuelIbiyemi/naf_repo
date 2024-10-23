@@ -16,7 +16,7 @@ type NavLink = {
   children?: NavLink[];
 };
 const navLinks: NavLink[] = [
-  { content: "Dashboard", icon: HomeIcon, link: "/instructor/" },
+  { content: "Dashboard", icon: HomeIcon, link: "/instructor" },
   { content: "Courses", icon: ClipBoardIcon, link: "/instructor/courses" },
   { content: "Reports", icon: reportsIcon, link: "/instructor/reports" },
   {
@@ -31,7 +31,6 @@ const SideBar = () => {
   const location = useLocation();
 
   const isCurrentPage = (navLink: NavLink) => {
-    console.log(navLink.link);
     if (navLink.content.toLowerCase() !== "") {
       if (location.pathname === navLink.link) return true;
     } else if (location.pathname.includes(navLink.link)) {
