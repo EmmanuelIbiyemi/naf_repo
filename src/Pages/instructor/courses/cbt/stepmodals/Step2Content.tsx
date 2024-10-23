@@ -4,6 +4,12 @@ import { TestFormData } from "./testformtypes";
 import { AccessTime, CalendarToday } from "@mui/icons-material";
 import { ParticipantData } from "../../../../../types/participants";
 import ShareWithModal from "../../../../../components/ShareWithModal";
+import {
+  useAddQuizMutation,
+  useCreateAssessmentMutation,
+  useCreateQuestionManuallyMutation,
+} from "../../../../../store/api/quizzes.api";
+import { CreateQuiz, ManualUploadQuestion } from "../../../../../types/quizzes";
 
 interface ModalProps {
   formData: TestFormData;
@@ -13,6 +19,7 @@ interface ModalProps {
   handleNext: () => void;
   disabledInput?: boolean;
   participants?: ParticipantData[];
+  uploadPayload?: ManualUploadQuestion | null;
 }
 
 const handleChange = (
@@ -47,10 +54,58 @@ const Step2Content: React.FC<ModalProps> = ({
   handleNext,
   disabledInput,
   participants,
+  uploadPayload,
 }) => {
   const [openShareModal, setOpenShareModal] = useState(false);
+  const [disableUploadQuestions, setDisableUploadQuestions] = useState(true);
+  const [createTest, setCreateTest] = useState(false);
   const handleCloseShareModal = () => {
     setOpenShareModal(false);
+  };
+  const [createQuiz, { isLoading }] = useAddQuizMutation();
+  const [uploadManualQuestion, { isLoading: isUploadingQuestions }] =
+    useCreateQuestionManuallyMutation();
+  const [createAssessment, { isLoading: isCreatingAssessment }] =
+    useCreateAssessmentMutation();
+
+  const handleCreateQuiz = async () => {
+    const createQuizData: CreateQuiz = {
+      name: formData.subject,
+      instructions: "",
+      time_allowed: 60,
+      start_date: formData.scheduleDate,
+      expiry_date: formData.expirationDate,
+      obtainable_score: formData.passingPercentage,
+      type: formData.type,
+      show_result: true,
+    };
+    try {
+      const createQuizResponse = await createQuiz(createQuizData).unwrap();
+      const createAssessmentResponse = await createAssessment({
+        name: formData.subject,
+        quiz_id: createQuizResponse.data.id,
+      });
+      onChange({ quizId: createQuizResponse.data.id });
+      onChange({ assessmentId: createAssessmentResponse.data?.data.id });
+      setDisableUploadQuestions(false);
+      setCreateTest(true);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const handleUploadQuestions = async () => {
+    if (!uploadPayload) {
+      console.error("Upload payload is missing");
+      return;
+    }
+
+    try {
+      await uploadManualQuestion(uploadPayload).unwrap();
+      setOpenShareModal(true);
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   return (
@@ -188,23 +243,32 @@ const Step2Content: React.FC<ModalProps> = ({
               variant="outlined"
               onClick={handleNext}
               sx={{ color: "#9A9A9A" }}
-              disabled={!isFormValid(formData) || disabledInput}
+              disabled={
+                !isFormValid(formData) ||
+                disabledInput ||
+                disableUploadQuestions
+              }
             >
               {disabledInput ? "Questions Uploaded" : "Upload Question(s)"}
             </Button>
             {disabledInput ? (
               <Button
                 variant="contained"
-                disabled={!isFormValid(formData)}
-                onClick={() => setOpenShareModal(true)}
+                disabled={uploadPayload === null || isUploadingQuestions}
+                onClick={handleUploadQuestions}
               >
                 Continue
               </Button>
             ) : (
               <Button
                 variant="contained"
-                disabled={!isFormValid(formData)}
-                onClick={handleNext}
+                disabled={
+                  !isFormValid(formData) ||
+                  isLoading ||
+                  createTest ||
+                  isCreatingAssessment
+                }
+                onClick={handleCreateQuiz}
               >
                 Continue
               </Button>
@@ -216,6 +280,7 @@ const Step2Content: React.FC<ModalProps> = ({
         open={openShareModal}
         handleClose={handleCloseShareModal}
         participants={participants || []}
+        quizId={formData.quizId}
       />
     </Box>
   );

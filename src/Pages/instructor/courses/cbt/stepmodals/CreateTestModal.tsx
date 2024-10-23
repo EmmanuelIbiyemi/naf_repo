@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Close, East, West } from "@mui/icons-material";
 import {
@@ -11,49 +11,69 @@ import {
 import Step1Content from "./Step1Content";
 import Step2Content from "./Step2Content";
 import Step3Content from "./Step3Content";
-import Step4Content from "./Step4Content";
+// import Step4Content from "./Step4Content";
 import { TestFormData } from "./testformtypes";
 import UploadFileModal from "../../../../../components/UploadFileModal";
 import { ParticipantData } from "../../../../../types/participants";
+import { CourseType } from "../../../../../types/courses";
+import { useAddMediaMutation } from "../../../../../store/api/media.api";
+import { useCreateQuestionFromFileMutation } from "../../../../../store/api/quizzes.api";
+import { ManualUploadQuestion } from "../../../../../types/quizzes";
 
 const initialFormData: TestFormData = {
-  subject: 0,
+  subject: "",
   totalQuestions: 0,
   passingPercentage: 0,
   scheduleDate: "",
   expirationDate: "",
   type: "",
   questions: [],
+  assessmentId: 0,
+  file: "",
+  quizId: 0,
 };
 
 const steps = [
   { title: "Select Subject", component: Step1Content },
   { title: "Test Specifications", component: Step2Content },
   { title: "Import Questions", component: Step3Content },
-  { title: "Review and Confirm", component: Step4Content },
+  // { title: "Review and Confirm", component: Step4Content },
 ];
 
 interface CreateTestModalProps {
   open: boolean;
   handleClose: () => void;
   formData?: TestFormData;
+  uploadPayload?: ManualUploadQuestion | null;
   activeStep?: number;
   participants?: ParticipantData[];
+  courses?: CourseType[];
 }
 
 const CreateTestModal: React.FC<CreateTestModalProps> = ({
   open,
   handleClose,
   formData,
+  uploadPayload,
   activeStep = 0,
   participants,
+  courses = [],
 }) => {
   const [currentActiveStep, setCurrentActiveStep] = useState(activeStep);
   const [openCSVModal, setOpenCSVModal] = useState(false);
   const [localFormData, setLocalFormData] = useState<TestFormData>(
-    formData || initialFormData
+    formData ? formData : initialFormData
   );
+
+  useEffect(() => {
+    if (formData) {
+      setLocalFormData(formData);
+    }
+  }, [formData]);
+
   const navigate = useNavigate();
+  const [uploadMedia] = useAddMediaMutation();
+  const [createQuestionFromFile] = useCreateQuestionFromFileMutation();
 
   const handleNext = () => {
     setCurrentActiveStep((prevStep) =>
@@ -65,46 +85,6 @@ const CreateTestModal: React.FC<CreateTestModalProps> = ({
     setCurrentActiveStep((prevStep) => Math.max(prevStep - 1, 0));
   };
 
-  const handleFileChange = async (file: File) => {
-    try {
-      const formData = new FormData();
-      formData.append("file", file); // Attach the file to FormData
-
-      setLocalFormData((prevData) => ({ ...prevData, questionsFileId: file }));
-      //   setFormData((prevData) => ({ ...prevData, questionsFileId: uploadedFileId }));
-
-      setOpenCSVModal(false);
-      handleNext();
-    } catch (error) {
-      console.error("File upload failed:", error);
-    }
-  };
-
-  //   const handleFileChange = async (
-  //     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  //     file: any
-  //   ) => {
-  //     try {
-  //       const formData = new FormData();
-  //       formData.append("file", file);
-  //       console.log(file);
-
-  //       // const response = await uploadResource(formData).unwrap();
-  //       // formik.setFieldValue("resources", [
-  //       //   ...formik.values.resources,
-  //       //   ...response.resources.map((resource) => resource.id),
-  //       // ]);
-  //       setFormData((prevData) => ({ ...prevData, file }));
-  //       setOpenCSVModal(false);
-  //       handleBack();
-  //     } catch (error) {
-  //       console.log(error);
-  //     }
-  //   };
-  //   const handleFileChange = (questions: TestFormData["questions"]) => {
-  //     setFormData((prevData) => ({ ...prevData, questions }));
-  //   };
-
   const handleInputManually = () => {
     navigate("manual-input", { state: { localFormData } });
     handleClose();
@@ -114,13 +94,35 @@ const CreateTestModal: React.FC<CreateTestModalProps> = ({
     setLocalFormData((prevData) => ({ ...prevData, ...newData }));
   };
 
-  const handleSubmit = () => {
-    if (localFormData.subject && localFormData.totalQuestions > 0) {
-      console.log("Final form data:", formData);
-    } else {
-      alert("Please complete all required fields.");
+  const handleFileChange = async (file: File) => {
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      const uploadMediaResponse = await uploadMedia(formData).unwrap();
+      const fileUrl = uploadMediaResponse.media[0].url;
+      if (fileUrl) {
+        setLocalFormData((prevData) => ({ ...prevData, file: fileUrl }));
+        await createQuestionFromFile({
+          assessment_id: localFormData.assessmentId,
+          file_url: localFormData.file,
+        });
+      } else {
+        console.error("File URL not found in the response.");
+      }
+      setOpenCSVModal(false);
+      handleBack();
+    } catch (error) {
+      console.error("File upload failed:", error);
     }
   };
+
+  // const handleSubmit = () => {
+  //   if (localFormData.subject && localFormData.totalQuestions > 0) {
+  //     console.log("Final form data:", formData);
+  //   } else {
+  //     alert("Please complete all required fields.");
+  //   }
+  // };
 
   const StepContent = steps[currentActiveStep].component;
 
@@ -188,13 +190,17 @@ const CreateTestModal: React.FC<CreateTestModalProps> = ({
                   onChange={handleFormChange}
                   onImportCSV={() => setOpenCSVModal(true)}
                   onInputManually={handleInputManually}
-                  onSubmit={handleSubmit}
+                  // onSubmit={handleSubmit}
                   handleNext={handleNext}
+                  uploadPayload={uploadPayload}
                   disabledInput={
-                    localFormData.questions &&
-                    localFormData.questions.length > 0
+                    (!!localFormData.questions &&
+                      localFormData.questions.length > 0) ||
+                    (!!localFormData.file && localFormData.file !== "") ||
+                    !!uploadPayload // Add this condition to check for uploadPayload
                   }
                   participants={participants}
+                  subjects={courses}
                 />
                 {currentActiveStep !== 4 && (
                   <Box

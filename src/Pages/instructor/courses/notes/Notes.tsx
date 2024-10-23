@@ -38,8 +38,6 @@ const Notes = () => {
     parseInt(courseId)
   );
 
-  console.log(note);
-
   const handleDelete = (noteId: number) => {
     console.log(noteId);
     setOpenActionsModal((prev) => ({ ...prev, delete: true }));

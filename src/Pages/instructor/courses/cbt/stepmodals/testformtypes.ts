@@ -5,13 +5,16 @@ export interface TestQuestion {
 }
 
 export interface TestFormData {
-  subject: number;
+  subject: string;
   totalQuestions: number;
   passingPercentage: number;
   scheduleDate: string;
   expirationDate: string;
   type: string;
   questions?: TestQuestion[];
+  assessmentId: number;
+  quizId: number;
+  file: string;
 }
 
 export interface Step4ContentProps {

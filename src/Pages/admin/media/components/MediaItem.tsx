@@ -1,15 +1,40 @@
 import { Box, IconButton, SxProps, Typography } from "@mui/material";
 import DeleteIcon from "../../../../assets/deleteIcon";
+import { MediaType } from "../../../../types/media";
+// import { useEffect, useState } from "react";
 
 type Props = {
-  image: string;
+  media: MediaType;
   deleteItem: () => void;
 };
-const MediaItem = ({ image, deleteItem }: Props) => {
+const MediaItem = ({ media, deleteItem }: Props) => {
+  // const [fileSize, setFileSize] = useState<string | null>(null);
+
+  // useEffect(() => {
+  //   const getFileSize = async () => {
+  //     try {
+  //       const response = await fetch(media.url, { method: "HEAD" });
+
+  //       if (response.ok) {
+  //         const size = response.headers.get("Content-Length");
+  //         setFileSize(size);
+  //       } else {
+  //         console.error("Failed to fetch file size");
+  //       }
+  //     } catch (error) {
+  //       console.error("Error fetching file size:", error);
+  //     }
+  //   };
+
+  //   getFileSize();
+  // }, []);
+
+  const extension = media.name.substring(media.name.lastIndexOf(".") + 1);
+
   return (
     <Box sx={mediaItemStyles}>
       <Box sx={mediaThumbStyles}>
-        <img src={image} alt="Media thumbnail" />
+        <img src={media.url} alt="Media thumbnail" />
       </Box>
       <Box
         sx={{
@@ -19,9 +44,10 @@ const MediaItem = ({ image, deleteItem }: Props) => {
         }}
       >
         <Box>
-          <Typography>Amphibious_courses</Typography>
+          <Typography>{media.name}</Typography>
           <Typography sx={{ fontSize: ".8rem" }}>
-            1.1mb JPEG image file
+            {/* {fileSize} {extension} {media.type} file */}
+            1.1mb {extension} {media.type} file
           </Typography>
         </Box>
         <IconButton onClick={deleteItem}>

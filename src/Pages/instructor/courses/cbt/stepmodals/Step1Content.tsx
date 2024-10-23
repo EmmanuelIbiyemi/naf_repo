@@ -10,41 +10,34 @@ import {
 } from "@mui/material";
 import { Search } from "@mui/icons-material";
 import { TestFormData } from "./testformtypes";
+import { CourseType } from "../../../../../types/courses";
 
 interface ModalProps {
   formData: TestFormData;
   onChange: (newData: Partial<TestFormData>) => void;
   onImportCSV: () => void;
   onInputManually: () => void;
+  subjects?: CourseType[];
 }
 
-const subjects = [
-  { id: 1, subject: "B.Tech Specialization in Health Informatics" },
-  { id: 2, subject: "B.Tech Specialization in Health Informatics" },
-  { id: 3, subject: "B.Tech Specialization in Health Informatics" },
-  { id: 4, subject: "B.Tech Specialization in Health Informatics" },
-  { id: 5, subject: "B.Tech Specialization in Health Informatics" },
-  { id: 6, subject: "B.Tech Specialization in Health Informatics" },
-  { id: 7, subject: "C.Tech Specialization in Health Informatics" },
-  { id: 8, subject: "D.Tech Specialization in Health Informatics" },
-  { id: 9, subject: "E.Tech Specialization in Health Informatics" },
-  { id: 10, subject: "F.Tech Specialization in Health Informatics" },
-];
-
-const Step1Content: React.FC<ModalProps> = ({ formData, onChange }) => {
+const Step1Content: React.FC<ModalProps> = ({
+  formData,
+  onChange,
+  subjects,
+}) => {
   const [searchTerm, setSearchTerm] = useState("");
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const selectedSubject = event.target.value;
-    onChange({ subject: parseInt(selectedSubject) });
+    onChange({ subject: selectedSubject });
   };
 
   const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(event.target.value);
   };
 
-  const filteredSubjects = subjects.filter((subj) =>
-    subj.subject.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredSubjects = subjects?.filter((subj) =>
+    subj.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
@@ -94,11 +87,11 @@ const Step1Content: React.FC<ModalProps> = ({ formData, onChange }) => {
         />
         <Box sx={{ maxHeight: "35vh", overflowY: "scroll" }}>
           <RadioGroup value={formData.subject} onChange={handleChange}>
-            {filteredSubjects.map((subject) => (
+            {filteredSubjects?.map((subject) => (
               <FormControlLabel
-                value={subject.id}
+                value={subject.name}
                 control={<Radio />}
-                label={subject.subject}
+                label={subject.name}
                 key={subject.id}
                 sx={{
                   color: "#6A6A6A",
