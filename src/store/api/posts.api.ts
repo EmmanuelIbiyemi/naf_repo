@@ -1,4 +1,4 @@
-import { PostCreateType, PostResponse, PostType } from "../../types/posts";
+import { PostCreateType, PostResponse } from "../../types/posts";
 import { appApi } from "./app.api";
 
 const postsApi = appApi.injectEndpoints({
@@ -19,6 +19,10 @@ const postsApi = appApi.injectEndpoints({
       query: () => `/post/categories`,
       providesTags: ["Posts"],
     }),
+    getPostByCategory: builder.query<PostResponse, string>({
+      query: (tag) => `post/category/page?tag=${tag}`,
+      providesTags: ["Posts"],
+    }),
     getPostCategoriesByTag: builder.query<PostResponse, string>({
       query: (tag) => `post/category/page?tag=${tag}`,
       providesTags: ["Posts"],
@@ -31,7 +35,7 @@ const postsApi = appApi.injectEndpoints({
       }),
       invalidatesTags: ["Posts"],
     }),
-    updatePost: builder.mutation<PostResponse, PostType>({
+    updatePost: builder.mutation<PostResponse, PostCreateType>({
       query: (post) => ({
         url: `/post/${post.id}`,
         method: "PUT",
@@ -46,12 +50,9 @@ const postsApi = appApi.injectEndpoints({
       }),
       invalidatesTags: ["Posts"],
     }),
-    deletePostBlock: builder.mutation<
-      PostResponse,
-      { block_id: number; post_id: number }
-    >({
-      query: ({ block_id, post_id }) => ({
-        url: `/post/${post_id}/block/${block_id}`,
+    deletePostBlock: builder.mutation<PostResponse, number>({
+      query: (block_id) => ({
+        url: `/post/block/${block_id}`,
         method: "DELETE",
       }),
       invalidatesTags: ["Posts"],
@@ -65,5 +66,7 @@ export const {
   useAddPostMutation,
   useUpdatePostMutation,
   useDeletePostMutation,
+  useDeletePostBlockMutation,
   useGetPostQuery,
+  useGetPostByCategoryQuery,
 } = postsApi;

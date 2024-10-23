@@ -1,25 +1,5 @@
 import { BlockType } from "./blocks";
 
-type Media = {
-  created_at: string;
-  id: number;
-  name: string;
-  type: string;
-  updated_at: string;
-  url: string;
-};
-
-export type Block = {
-  caption: string;
-  content: string;
-  id: number;
-  link: string;
-  media: Media[];
-  position: number;
-  title: string;
-  type: string;
-};
-
 export type Category = {
   created_at: string;
   id: number;
@@ -28,26 +8,23 @@ export type Category = {
 };
 
 export type PostBaseType = {
-  blocks: Block[];
-  categories?: Category[];
-  date: string;
+  id?: number;
+  blocks: BlockType[];
+  date?: string;
   featured_image?: string;
-  slug: string;
-  tags?: Category[];
+  slug?: string;
   title: string;
 };
 
-export type PostCreateType = PostBaseType & {};
+export type PostCreateType = PostBaseType & {
+  categories?: string[];
+  tags?: string[];
+};
 export type PostType = PostBaseType & {
-  id?: number;
   created_at?: string;
   updated_at?: string;
+  categories?: Category[];
+  tags?: Category[];
 };
 
-export type PostType2 = {
-  id: number;
-  elements: BlockType[];
-  title: string;
-};
-
-export type PostResponse = { data: PostType[] };
+export type PostResponse = { post: PostType[] };

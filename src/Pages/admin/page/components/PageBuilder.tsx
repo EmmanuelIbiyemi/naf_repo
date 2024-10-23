@@ -14,26 +14,34 @@ import {
 } from "@mui/icons-material";
 import { ChangeEvent, MouseEvent } from "react";
 import DeleteIcon from "../../../../assets/deleteIcon";
-import { PageType } from "../../../../types/pages";
+import { PostType } from "../../../../types/posts";
+import { useDeletePostBlockMutation } from "../../../../store/api/posts.api";
 
 type ActionProp = {
   id: number;
-  setPage: React.Dispatch<React.SetStateAction<PageType>>;
+  setPage: React.Dispatch<React.SetStateAction<PostType>>;
 };
 
 const ActionButtons = ({ id, setPage }: ActionProp) => {
-  const handleMoveUp = (post_id: number) => {
-    console.log(post_id);
+  const [deleteBlock] = useDeletePostBlockMutation();
+  const handleMoveUp = (block_id: number) => {
+    console.log(block_id);
   };
 
-  const handleMoveDown = (post_id: number) => {
-    console.log(post_id);
+  const handleMoveDown = (block_id: number) => {
+    console.log(block_id);
   };
 
-  const handleDelete = (id: number) => {
+  const handleDelete = async (block_id: number) => {
+    try {
+      await deleteBlock(block_id).unwrap();
+    } catch (error) {
+      console.log(error);
+    }
+
     setPage((prev) => {
-      prev.elements = prev.elements.filter((el) => el.id != id);
-      return { ...prev };
+      const newBlocks = prev.blocks.filter((el) => el.id != id);
+      return { ...prev, blocks: newBlocks };
     });
   };
 
@@ -53,8 +61,8 @@ const ActionButtons = ({ id, setPage }: ActionProp) => {
 };
 
 type Props = {
-  page: PageType;
-  setPage: React.Dispatch<React.SetStateAction<PageType>>;
+  page: PostType;
+  setPage: React.Dispatch<React.SetStateAction<PostType>>;
 };
 
 const PageBuilder = ({ page, setPage }: Props) => {
@@ -82,7 +90,7 @@ const PageBuilder = ({ page, setPage }: Props) => {
               }}
             >
               <Typography variant="h5" id={`element-${element.id}`}>
-                {element.content}
+                {element.type}
               </Typography>
               <ActionButtons id={element.id} setPage={setPage} />
             </Box>
@@ -112,7 +120,7 @@ const PageBuilder = ({ page, setPage }: Props) => {
               }}
             >
               <Typography variant="h5" id={`element-${element.id}`}>
-                {element.content}
+                {element.type}
               </Typography>
               <ActionButtons id={element.id} setPage={setPage} />
             </Box>
@@ -142,7 +150,7 @@ const PageBuilder = ({ page, setPage }: Props) => {
               }}
             >
               <Typography variant="h5" id={`element-${element.id}`}>
-                {element.content}
+                {element.type}
               </Typography>
               <ActionButtons id={element.id} setPage={setPage} />
             </Box>
@@ -172,7 +180,7 @@ const PageBuilder = ({ page, setPage }: Props) => {
               }}
             >
               <Typography variant="h5" id={`element-${element.id}`}>
-                {element.content}
+                {element.type}
               </Typography>
               <ActionButtons id={element.id} setPage={setPage} />
             </Box>
@@ -194,21 +202,15 @@ const PageBuilder = ({ page, setPage }: Props) => {
       case "image":
         el = (
           <Box sx={imageEl}>
-            <Box sx={{ marginBottom: "1rem" }}>
-              <Box sx={{ display: "flex", justifyContent: "space-between" }}>
-                <Typography variant="h5" id={`element-${element.id}`}>
-                  {element.content}
-                </Typography>
-                <ActionButtons id={element.id} setPage={setPage} />
-              </Box>
-              <FormControl
-                fullWidth
-                sx={{
-                  marginTop: "1rem",
-                }}
-              >
-                <TextField label="Title" />
-              </FormControl>
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                marginBottom: "1rem",
+              }}
+            >
+              <span></span>
+              <ActionButtons id={element.id} setPage={setPage} />
             </Box>
             <Box
               id={`element-${element.id}`}
@@ -227,7 +229,7 @@ const PageBuilder = ({ page, setPage }: Props) => {
             <Box sx={{ marginBottom: "1rem" }}>
               <Box sx={{ display: "flex", justifyContent: "space-between" }}>
                 <Typography variant="h5" id={`element-${element.id}`}>
-                  {element.content}
+                  {element.type}
                 </Typography>
                 <ActionButtons id={element.id} setPage={setPage} />
               </Box>
@@ -262,12 +264,33 @@ const PageBuilder = ({ page, setPage }: Props) => {
               }}
             >
               <Typography variant="h5" id={`element-${element.id}`}>
-                {element.content}
+                {element.type}
               </Typography>
               <ActionButtons id={element.id} setPage={setPage} />
             </Box>
             <FormControl fullWidth>
-              <TextField label="Content" />
+              <TextField label="" />
+            </FormControl>
+          </Box>
+        );
+        break;
+      case "title":
+        el = (
+          <Box>
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                marginBottom: "1rem",
+              }}
+            >
+              <Typography variant="h5" id={`element-${element.id}`}>
+                {element.type}
+              </Typography>
+              <ActionButtons id={element.id} setPage={setPage} />
+            </Box>
+            <FormControl fullWidth>
+              <TextField label="" />
             </FormControl>
           </Box>
         );
@@ -283,12 +306,33 @@ const PageBuilder = ({ page, setPage }: Props) => {
               }}
             >
               <Typography variant="h5" id={`element-${element.id}`}>
-                {element.content}
+                {element.type}
               </Typography>
               <ActionButtons id={element.id} setPage={setPage} />
             </Box>
             <FormControl fullWidth>
-              <TextField label="Content" />
+              <TextField label="" />
+            </FormControl>
+          </Box>
+        );
+        break;
+      case "subtitle":
+        el = (
+          <Box>
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                marginBottom: "1rem",
+              }}
+            >
+              <Typography variant="h5" id={`element-${element.id}`}>
+                {element.type}
+              </Typography>
+              <ActionButtons id={element.id} setPage={setPage} />
+            </Box>
+            <FormControl fullWidth>
+              <TextField label="" />
             </FormControl>
           </Box>
         );
@@ -302,7 +346,7 @@ const PageBuilder = ({ page, setPage }: Props) => {
             }}
           >
             <Typography variant="h5" id={`element-${element.id}`}>
-              {element.content}
+              {element.type}
             </Typography>
             <ActionButtons id={element.id} setPage={setPage} />
           </Box>
@@ -317,7 +361,7 @@ const PageBuilder = ({ page, setPage }: Props) => {
             }}
           >
             <Typography variant="h5" id={`element-${element.id}`}>
-              {element.content}
+              {element.type}
             </Typography>
             <ActionButtons id={element.id} setPage={setPage} />
           </Box>
@@ -332,7 +376,7 @@ const PageBuilder = ({ page, setPage }: Props) => {
             }}
           >
             <Typography variant="h5" id={`element-${element.id}`}>
-              {element.content}
+              {element.type}
             </Typography>
             <ActionButtons id={element.id} setPage={setPage} />
           </Box>
@@ -347,7 +391,7 @@ const PageBuilder = ({ page, setPage }: Props) => {
             }}
           >
             <Typography variant="h5" id={`element-${element.id}`}>
-              {element.content}
+              {element.type}
             </Typography>
             <ActionButtons id={element.id} setPage={setPage} />
           </Box>
@@ -363,9 +407,7 @@ const PageBuilder = ({ page, setPage }: Props) => {
   };
 
   return (
-    <Box sx={formBuilderStyles}>
-      {page.elements?.map((el) => displayEl(el))}
-    </Box>
+    <Box sx={formBuilderStyles}>{page.blocks?.map((el) => displayEl(el))}</Box>
   );
 };
 

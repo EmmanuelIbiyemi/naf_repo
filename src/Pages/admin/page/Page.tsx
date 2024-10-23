@@ -1,102 +1,149 @@
 import { Box, Button, SxProps, Typography } from "@mui/material";
-import { PageType } from "../../../types/pages";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import PageBuilder from "./components/PageBuilder";
+import { useNavigate, useParams } from "react-router-dom";
 import {
-  Article,
-  Badge,
-  Height,
-  HMobiledata,
-  Image,
-  LocalParking,
-  MilitaryTech,
-  Newspaper,
-  SmartDisplay,
-  Timeline,
-  ViewCarousel,
-} from "@mui/icons-material";
-
-const elements = [
-  { id: 1, name: "Banner", type: "banner", icon: ViewCarousel },
-  { id: 2, name: "History", type: "history", icon: Timeline },
-  { id: 3, name: "Courses", type: "courses", icon: Article },
-  { id: 5, name: "News", type: "news", icon: Newspaper },
-  { id: 6, name: "Image", type: "image", icon: Image },
-  { id: 7, name: "Video", type: "video", icon: SmartDisplay },
-  { id: 8, name: "Heading", type: "heading", icon: HMobiledata },
-  { id: 9, name: "Text", type: "text", icon: LocalParking },
-  // { id: 10, name: "Title", type: "title", icon: Title },
-  // { id: 11, name: "Sub Title", type: "subtitle", icon: LocalParking },
-  { id: 12, name: "Commandants", type: "commandants", icon: MilitaryTech },
-  { id: 13, name: "Staffs", type: "staffs", icon: Badge },
-  { id: 14, name: "Big space", type: "big space", icon: Height },
-  { id: 15, name: "Small space", type: "small space", icon: Height },
-];
+  useGetPostByCategoryQuery,
+  useAddPostMutation,
+  useUpdatePostMutation,
+} from "../../../store/api/posts.api";
+import { PostType, PostCreateType } from "../../../types/posts";
+import { elements } from "./page-elements";
+import { BlockType } from "../../../types/blocks";
+import LoadingScreen from "../../../components/LoadingScreen";
 
 const Page = () => {
-  //   const { name } = useParams();
-  //   console.log(name);
-  const [page, setPage] = useState<PageType>({
-    id: 1,
-    elements: [],
-    title: "about",
-  });
+  const navigate = useNavigate();
+  const { name: pageName } = useParams();
+  const [addPost] = useAddPostMutation();
+  const [updatePost] = useUpdatePostMutation();
 
-  const addElement = (type: string) => {
-    setPage((prev) => {
-      const els = [...prev.elements];
-      els.push({
-        id: prev.elements.length + 1,
-        content: elements.find((el) => el.type === type)?.name as string,
-        type,
-      });
-      return { ...prev, elements: els };
-    });
-  };
+  const { data: pageData, isLoading } = useGetPostByCategoryQuery(
+    pageName as string,
+    { skip: !pageName }
+  );
 
-  const handleClick = (type: string) => {
-    addElement(type);
-  };
+  const [post, setPost] = useState<PostType | null>(null);
 
   useEffect(() => {
-    console.log(page);
-  }, [page]);
+    const initializePost = async () => {
+      if (!pageName) return;
+
+      if (pageData?.post?.[0]) {
+        setPost(pageData.post[0]);
+      } else if (!pageData?.post?.[0]) {
+        try {
+          const newPost: PostCreateType = {
+            title: pageName,
+            slug: pageName.toLowerCase(),
+            blocks: [],
+            categories: ["page", pageName],
+            tags: ["page", pageName],
+            featured_image: "",
+          };
+
+          const result = await addPost(newPost).unwrap();
+          if (result.post) {
+            setPost(result.post[0]);
+          }
+        } catch (error) {
+          console.error("Failed to create post:", error);
+        }
+      }
+    };
+
+    initializePost();
+  }, [pageData, pageName, addPost]);
+
+  const addBlock = useCallback((type: string) => {
+    setPost((prev) => {
+      if (!prev) return null;
+
+      const newBlock: BlockType = {
+        id: (prev.blocks?.[prev.blocks.length - 1]?.id ?? 0) + 1,
+        content: elements.find((el) => el.type === type)?.name ?? "",
+        type,
+        caption: "",
+        link: "",
+        media: [],
+        position: (prev.blocks?.length ?? 0) + 1,
+        title: "",
+      };
+
+      return {
+        ...prev,
+        blocks: [...(prev.blocks ?? []), newBlock],
+      };
+    });
+  }, []);
+
+  const handleSave = useCallback(async () => {
+    if (!post) return;
+    const payload: PostCreateType = {
+      ...post,
+      categories: post.categories?.map((cat) => cat.name),
+      tags: post.tags?.map((tag) => tag.name),
+    };
+
+    try {
+      await updatePost(payload).unwrap();
+    } catch (error) {
+      console.error("Failed to save post:", error);
+    }
+  }, [post, updatePost]);
+
+  const handleBack = useCallback(() => {
+    navigate(-1);
+  }, [navigate]);
+
+  if (isLoading) {
+    return <LoadingScreen />;
+  }
 
   return (
-    <Box sx={contentStyles} className="hide_scrollbar">
-      <Box className="hide_scrollbar">
+    <Box sx={contentStyles}>
+      <Box sx={{ paddingBottom: "2rem" }}>
         <Box sx={headerStyles}>
-          <Button onClick={() => {}}>Back</Button>
-          <Button variant="contained" onClick={() => {}}>
+          <Button onClick={handleBack}>Back</Button>
+          <Button variant="contained" onClick={handleSave} disabled={!post}>
             Save Changes
           </Button>
         </Box>
-        <Box
-          sx={{
-            bgcolor: "#fff",
-            height: "calc(100% - 78px)",
-            border: "1px solid rgba(204, 204, 204, 0.5)",
-            borderRadius: "var(--border-radius)",
-          }}
-          className="hide_scrollbar"
-        >
-          <PageBuilder page={page} setPage={setPage} />
+        <Box sx={blockContainerStyles}>
+          {post && (
+            <PageBuilder
+              page={post}
+              setPage={(newPost) => {
+                if (typeof newPost === "function") {
+                  setPost((prev) => {
+                    if (!prev) return prev;
+                    return newPost(prev);
+                  });
+                } else {
+                  setPost(newPost);
+                }
+              }}
+            />
+          )}
         </Box>
       </Box>
-      <Box sx={sidebarContentStyles} className="hide_scrollbar">
-        <Typography variant="h6" sx={{ marginBottom: "1rem" }}>
-          Blocks
-        </Typography>
-        <Box sx={elementSideBar}>
-          {elements.map((el, i) => (
-            <Button
-              onClick={() => handleClick(el.type)}
-              key={`element-${el.id}-${i}`}
-            >
-              <el.icon />
-              <span>{el.name}</span>
-            </Button>
-          ))}
+      <Box sx={sidebarContentStyles}>
+        <Box>
+          <Typography variant="h6" sx={{ marginBottom: "1rem" }}>
+            Blocks
+          </Typography>
+          <Box sx={elementSideBar}>
+            {elements.map((el) => (
+              <Button
+                key={el.id}
+                onClick={() => addBlock(el.type)}
+                disabled={!post}
+              >
+                <el.icon />
+                <span>{el.name}</span>
+              </Button>
+            ))}
+          </Box>
         </Box>
       </Box>
     </Box>
@@ -120,11 +167,19 @@ const headerStyles: SxProps = {
   paddingBlock: "1rem",
 };
 
+const blockContainerStyles: SxProps = {
+  bgcolor: "#fff",
+  border: "1px solid rgba(204, 204, 204, 0.5)",
+  borderRadius: "var(--border-radius)",
+  position: "sticky",
+  top: 0,
+};
+
 const sidebarContentStyles: SxProps = {
   bgcolor: "#fff",
   borderLeft: "1px solid rgba(204, 204, 204, 0.5)",
-  padding: "1rem",
-  maxHeight: "100%",
+
+  ">div": { position: "sticky", top: 0, padding: "1rem" },
 };
 
 const elementSideBar: SxProps = {
@@ -132,7 +187,6 @@ const elementSideBar: SxProps = {
   gap: "1rem",
   gridTemplateColumns: "1fr 1fr",
   gridAutoRows: "100px",
-  height: "100vh",
 
   button: {
     bgcolor: "rgba(245, 245, 245, 1)",
