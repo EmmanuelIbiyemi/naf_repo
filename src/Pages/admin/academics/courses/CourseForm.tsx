@@ -38,6 +38,7 @@ const CourseForm = ({ actions, course }: Props) => {
     code: course?.code || "",
     credit_unit: course?.credit_unit || 2,
     semester: course?.semester || "",
+    type: course?.type || "",
     instructor_ids: isEditMode
       ? course.instructors.map((ins) => ins.id).filter((id) => id !== undefined)
       : course?.instructor_ids || [],
@@ -48,6 +49,7 @@ const CourseForm = ({ actions, course }: Props) => {
     code: Yup.string().required("Required"),
     credit_unit: Yup.number().required("Required"),
     semester: Yup.string().required("Required"),
+    type: Yup.string().required("Required"),
     instructor_ids: Yup.array()
       .min(1, "Please select at least one instructor")
       .required("Required"),
@@ -129,7 +131,13 @@ const CourseForm = ({ actions, course }: Props) => {
             </Box>
           </Box>
 
-          <Box>
+          <Box
+            sx={{
+              display: "grid",
+              gap: "1rem",
+              gridTemplateColumns: "1fr 1fr",
+            }}
+          >
             <Box>
               <FormControl fullWidth>
                 <label htmlFor="instructor_ids">Assign Instructors(s)</label>
@@ -173,6 +181,34 @@ const CourseForm = ({ actions, course }: Props) => {
                   {instructors?.data.map((instructor) => (
                     <MenuItem key={instructor.id} value={instructor.id}>
                       {`${instructor.first_name} ${instructor.last_name}`}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Box>
+            <Box>
+              <FormControl fullWidth>
+                <label htmlFor="type">Course Type</label>
+                <Select
+                  sx={{
+                    padding: 0,
+                    ".MuiSelect-select": { p: "5px", minHeight: "25px" },
+                  }}
+                  id="type"
+                  name="type"
+                  value={values.type}
+                  onChange={(event) => {
+                    const {
+                      target: { value },
+                    } = event;
+
+                    setFieldValue("type", value);
+                  }}
+                  input={<OutlinedInput />}
+                >
+                  {["Elective", "Core"].map((type) => (
+                    <MenuItem key={type} value={type.toLowerCase()}>
+                      {type}
                     </MenuItem>
                   ))}
                 </Select>

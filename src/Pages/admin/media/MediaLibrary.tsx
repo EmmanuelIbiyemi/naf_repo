@@ -2,6 +2,7 @@ import { TabContext, TabList, TabPanel } from "@mui/lab";
 import {
   Box,
   Button,
+  CircularProgress,
   Dialog,
   Divider,
   IconButton,
@@ -9,59 +10,71 @@ import {
   Tab,
   Typography,
 } from "@mui/material";
-import {
-  CSSProperties,
-  SyntheticEvent,
-  useCallback,
-  useMemo,
-  useState,
-} from "react";
+import { CSSProperties, useCallback, useEffect, useState } from "react";
 import { useDropzone } from "react-dropzone";
 import MediaItem from "./components/MediaItem";
-import thumb1 from "/images/amphibious.png";
-import thumb2 from "/images/image1.png";
-import thumb3 from "/images/image2.png";
 import { Close } from "@mui/icons-material";
 import uploadIcon from "../../../assets/upload-file.svg";
 import SuccessModal from "../../../components/SuccessModal";
 import DeleteConfirmationModal from "../../../components/DeleteConfirmationModal";
+import {
+  useAddMediaMutation,
+  useDeleteMediaMutation,
+  useGetAllByTypeMediaQuery,
+  useGetAllMediaQuery,
+} from "../../../store/api/media.api";
+import { useAppDispatch } from "../../../store/hooks";
+import { setPageLoading } from "../../../store/app.slice";
+import { MediaType } from "../../../types/media";
+import EmptyState from "../../../components/EmptyState";
 
 const MediaLibrary = () => {
+  const tabs = [
+    { id: "1", name: "All Media" },
+    { id: "2", name: "Videos" },
+    { id: "3", name: "Images" },
+  ];
   const [tab, setTab] = useState("1");
-  const [mediaArray] = useState([1, 2, 3, 4, 5]);
+  const dispatch = useAppDispatch();
+  const {
+    data: allMedia,
+    isFetching: allLoading,
+    isError: allError,
+  } = useGetAllMediaQuery({ per_page: 100 });
+  const {
+    data: images,
+    isFetching: imagesLoading,
+    isError: imagesError,
+  } = useGetAllByTypeMediaQuery({
+    mediaType: "image",
+  });
+  const {
+    data: videos,
+    isFetching: videosLoading,
+    isError: videosError,
+  } = useGetAllByTypeMediaQuery({
+    mediaType: "video",
+  });
+  const [deleteMedia] = useDeleteMediaMutation();
+  const [addMedia] = useAddMediaMutation();
   const [openModal, setOpenModal] = useState({
     add: false,
     success: false,
     delete: false,
   });
   const [files, setFiles] = useState<File[]>([]);
+  const [startUpload, setStartUpload] = useState(false);
+  const [selectedMedia, setSelectedMedia] = useState<MediaType>();
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
     setFiles(acceptedFiles);
+    setStartUpload(true);
   }, []);
 
-  const {
-    getRootProps,
-    getInputProps,
-    isFocused,
-    isDragAccept,
-    isDragActive,
-    isDragReject,
-  } = useDropzone({ onDrop, maxFiles: 5 });
-
-  const style = useMemo(
-    () => ({
-      ...baseStyle,
-      ...(isFocused ? focusedStyle : {}),
-      ...(isDragAccept ? acceptStyle : {}),
-      ...(isDragReject ? rejectStyle : {}),
-    }),
-    [isFocused, isDragAccept, isDragReject]
-  );
-
-  const handleChange = (_: SyntheticEvent, newValue: string) => {
-    setTab(newValue);
-  };
+  const { getInputProps, getRootProps, isDragActive } = useDropzone({
+    onDrop,
+    maxFiles: 5,
+  });
 
   const handleOpenModal = (type: string) => {
     setOpenModal((prev) => ({ ...prev, [type]: true }));
@@ -69,11 +82,53 @@ const MediaLibrary = () => {
 
   const handleCloseModal = (type: string) => {
     setOpenModal((prev) => ({ ...prev, [type]: false }));
+    setFiles([]);
   };
 
-  const handleDeleteMedia = (id: number) => {
-    console.log(id);
+  const handleDeleteMedia = async (id: number) => {
+    dispatch(setPageLoading(true));
+    try {
+      await deleteMedia(id).unwrap();
+    } catch (error) {
+      console.log(error);
+    }
+    handleOpenModal("success");
+    dispatch(setPageLoading(false));
   };
+
+  const handleDeleteAction = (media: MediaType) => {
+    handleOpenModal("delete");
+    setSelectedMedia(media);
+  };
+
+  useEffect(() => {
+    if (startUpload && files.length) {
+      files.forEach(async (file, i) => {
+        try {
+          const form = new FormData();
+          form.append("file", file);
+          const response = await addMedia(form).unwrap();
+          console.log(response);
+        } catch (error) {
+          console.log(error);
+        }
+        setFiles((prev) => prev.filter((_, j) => i != j));
+      });
+    }
+  }, [startUpload]);
+
+  useEffect(() => {
+    if (!files.length) setStartUpload(false);
+  }, [files]);
+
+  useEffect(() => {
+    dispatch(setPageLoading(true));
+  }, []);
+
+  useEffect(() => {
+    if (!allLoading && !imagesLoading && !videosLoading)
+      dispatch(setPageLoading(false));
+  }, [allLoading, imagesLoading, videosLoading]);
 
   return (
     <Box sx={contentStyles}>
@@ -98,8 +153,7 @@ const MediaLibrary = () => {
       <DeleteConfirmationModal
         actions={{
           proceed: () => {
-            handleDeleteMedia(1);
-            handleOpenModal("success");
+            if (selectedMedia) handleDeleteMedia(selectedMedia.id);
             console.log("proceed");
           },
           undo: () => {
@@ -109,13 +163,13 @@ const MediaLibrary = () => {
         close={() => handleCloseModal("delete")}
         infoText=""
         open={openModal.delete}
-        subTitle={`Are you sure you want to delete subject <strong>“...”</strong>? You can’t undo this action.`}
+        subTitle={`Are you sure you want to delete media ? You can’t undo this action.`}
         title="Delete Media?"
       />
 
       <Dialog
         open={openModal.add}
-        onClose={() => handleOpenModal("add")}
+        onClose={() => handleCloseModal("add")}
         scroll="body"
       >
         <Box sx={modalContentStyles}>
@@ -132,24 +186,32 @@ const MediaLibrary = () => {
                 Add your documents here, and you can upload up to 5 files max
               </Typography>
             </Box>
-            <IconButton>
+            <IconButton onClick={() => handleCloseModal("add")}>
               <Close />
             </IconButton>
           </Box>
           <div
-            {...getRootProps(style)}
+            {...getRootProps()}
             className="dashed_border"
             style={dropzoneStyles}
           >
-            <img src={uploadIcon} alt="" height={40} />
+            {!files.length ? (
+              <Box sx={{ textAlign: "center" }}>
+                <img src={uploadIcon} alt="" height={40} />
+                <p>Drop the files here ...</p>
+              </Box>
+            ) : null}
 
             <input {...getInputProps()} />
             {isDragActive ? (
               <p>Drop the files here ...</p>
             ) : files ? (
-              <Box>
-                {files.map((file) => (
-                  <img key={file.name} src={URL.createObjectURL(file)} />
+              <Box sx={selectedMediaContainer} className="hide_scrollbar">
+                {files.map((file, i) => (
+                  <Box key={file.name + i}>
+                    <img src={URL.createObjectURL(file)} />
+                    <CircularProgress />
+                  </Box>
                 ))}
               </Box>
             ) : (
@@ -195,35 +257,60 @@ const MediaLibrary = () => {
       <Box sx={{ width: "100%", position: "relative" }}>
         <TabContext value={tab}>
           <Box>
-            <TabList onChange={handleChange} aria-label="lab API tabs example">
-              <Tab label="All Media" value="1" />
-              <Tab label="Videos" value="2" />
-              <Tab label="Images" value="3" />
+            <TabList
+              onChange={(_, newValue) => setTab(newValue)}
+              aria-label="lab API tabs example"
+            >
+              {tabs.map((tab) => (
+                <Tab key={`tab-${tab.id}`} label={tab.name} value={tab.id} />
+              ))}
             </TabList>
           </Box>
           <TabPanel value="1" sx={TabStyles}>
-            {mediaArray.map(() => (
-              <MediaItem
-                image={thumb1}
-                deleteItem={() => handleOpenModal("delete")}
+            {allMedia?.media.length ? (
+              allMedia?.media?.map((media) => (
+                <MediaItem
+                  key={`mediaitem-${media.id}`}
+                  media={media}
+                  deleteItem={() => handleDeleteAction(media)}
+                />
+              ))
+            ) : (
+              <EmptyState
+                title={allError ? "Could Not Fetch Media" : "No Media yet"}
+                subTitle="Courses will appear here after you add them in your school."
               />
-            ))}
+            )}
           </TabPanel>
           <TabPanel value="2" sx={TabStyles}>
-            {mediaArray.map(() => (
-              <MediaItem
-                image={thumb2}
-                deleteItem={() => handleOpenModal("delete")}
-              />
-            ))}
+            {videos?.media.length ? (
+              videos?.media?.map((media) => (
+                <MediaItem
+                  key={`mediaitem-${media.id}`}
+                  media={media}
+                  deleteItem={() => handleDeleteAction(media)}
+                />
+              ))
+            ) : (
+              <Typography sx={{ marginLeft: "1rem" }}>
+                {videosError ? "Could Not Fetch Media" : "No Media yet"}
+              </Typography>
+            )}
           </TabPanel>
           <TabPanel value="3" sx={TabStyles}>
-            {mediaArray.map(() => (
-              <MediaItem
-                image={thumb3}
-                deleteItem={() => handleOpenModal("delete")}
-              />
-            ))}
+            {images?.media.length ? (
+              images?.media?.map((media) => (
+                <MediaItem
+                  key={`mediaitem-${media.id}`}
+                  media={media}
+                  deleteItem={() => handleDeleteAction(media)}
+                />
+              ))
+            ) : (
+              <Typography sx={{ marginLeft: "1rem" }}>
+                {imagesError ? "Could Not Fetch Media" : "No Media yet"}
+              </Typography>
+            )}
           </TabPanel>
         </TabContext>
       </Box>
@@ -235,6 +322,15 @@ export default MediaLibrary;
 
 const contentStyles: SxProps = {
   paddingInline: "2rem",
+  ".MuiTabPanel-root": {
+    position: "relative !important",
+
+    "&[hidden]": {
+      position: "absolute !important",
+      top: 0,
+      zIndex: -1,
+    },
+  },
 };
 
 const headerStyles: SxProps = {
@@ -242,6 +338,8 @@ const headerStyles: SxProps = {
   display: "flex",
   justifyContent: "space-between",
   paddingBlock: "1rem",
+  position: "relative",
+  zIndex: 1,
 };
 
 const TabStyles: SxProps = {
@@ -253,34 +351,6 @@ const TabStyles: SxProps = {
   width: "100%",
 };
 
-const baseStyle = {
-  flex: 1,
-  display: "flex",
-  flexDirection: "column",
-  alignItems: "center",
-  padding: "20px",
-  borderWidth: 2,
-  borderRadius: 2,
-  borderColor: "#eeeeee",
-  borderStyle: "dashed",
-  backgroundColor: "#fafafa",
-  color: "#bdbdbd",
-  outline: "none",
-  transition: "border .24s ease-in-out",
-};
-
-const focusedStyle = {
-  borderColor: "#2196f3",
-};
-
-const acceptStyle = {
-  borderColor: "#00e676",
-};
-
-const rejectStyle = {
-  borderColor: "#ff1744",
-};
-
 const dropzoneStyles: CSSProperties = {
   borderRadius: "var(--border-radius)",
   cursor: "pointer",
@@ -289,6 +359,33 @@ const dropzoneStyles: CSSProperties = {
   placeItems: "center",
   placeContent: "center",
   height: "200px",
+};
+
+const selectedMediaContainer: SxProps = {
+  display: "flex",
+  gap: "1rem",
+  maxHeight: "100%",
+  maxWidth: "100%",
+
+  ">div": {
+    borderRadius: "var(--border-radius)",
+    display: "grid",
+    flexShrink: 0,
+    height: "100px",
+    overflow: "hidden",
+    placeItems: "center",
+    position: "relative",
+    width: "100px",
+
+    ".MuiCircularProgress-root": {
+      color: "#fff",
+    },
+
+    img: {
+      objectFit: "cover",
+      position: "absolute",
+    },
+  },
 };
 
 const modalContentStyles: SxProps = {

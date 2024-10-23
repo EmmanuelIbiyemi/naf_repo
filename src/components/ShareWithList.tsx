@@ -17,64 +17,77 @@ import linkIcon from "../assets/linkIcon.svg";
 import { ParticipantData } from "../types/participants";
 import { useFormik } from "formik";
 import * as yup from "yup";
-import { shareNoteInput } from "../types/notes";
 import { useShareNoteMutation } from "../store/api/notes.api";
 import SuccessModal from "./SuccessModal";
+import { useShareQuizMutation } from "../store/api/quizzes.api";
 
 type ShareWithListProps = {
   open: boolean;
   handleClose: () => void;
-  // handleSelectedRecipients: (recipients: number[]) => void;
-  noteId: number | null;
+  noteId?: number | null;
+  quizId?: number | null;
   participants: ParticipantData[];
 };
 
 const ShareWithList = ({
   open,
   handleClose,
-  // handleSelectedRecipients,
   noteId,
+  quizId,
   participants,
 }: ShareWithListProps) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedUsers, setSelectedUsers] = useState<number[]>([]);
-  const [shareNote, { isLoading }] = useShareNoteMutation();
+  const [shareNote, { isLoading: isSharingNote }] = useShareNoteMutation();
+  const [shareQuiz, { isLoading: isSharingQuiz }] = useShareQuizMutation();
   const [openSuccessModal, setOpenSuccessModal] = useState(false);
+
+  useEffect(() => {
+    if (!open) {
+      setSelectedUsers([]);
+      setSearchTerm("");
+    }
+  }, [open]);
+
   const handleOpenSuccessModal = () => setOpenSuccessModal(true);
   const handleCloseSuccessModal = () => {
     setOpenSuccessModal(false);
     handleClose();
   };
-  const formik = useFormik<shareNoteInput>({
+
+  const formik = useFormik({
     initialValues: {
-      note_id: noteId || 0,
       participants: [],
     },
     validationSchema: yup.object({
-      note_id: yup.number().required(),
       participants: yup
         .array()
-        .of(
-          yup.object({
-            id: yup.number().required(),
-          })
-        )
+        .min(1, "At least one participant is required")
         .required("At least one participant is required"),
     }),
-    onSubmit: async (values: shareNoteInput) => {
+    onSubmit: async () => {
       try {
-        await shareNote(values).unwrap();
-        handleOpenSuccessModal();
+        if (noteId) {
+          // For notes, keep the original format with objects containing id
+          await shareNote({
+            note_id: noteId,
+            participants: selectedUsers.map((id) => ({ id })),
+          }).unwrap();
+          handleOpenSuccessModal();
+        }
+        if (quizId) {
+          // For quizzes, just send the array of ids
+          await shareQuiz({
+            quiz_id: quizId,
+            participants: selectedUsers, // This will send just the array of numbers
+          }).unwrap();
+          handleOpenSuccessModal();
+        }
       } catch (error) {
-        console.error(error);
+        console.error("Share failed:", error);
       }
     },
   });
-
-  useEffect(() => {
-    formik.setFieldValue("note_id", noteId);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [noteId]);
 
   const handleToggleUser = (userId: number) => {
     const updatedUsers = selectedUsers.includes(userId)
@@ -82,10 +95,15 @@ const ShareWithList = ({
       : [...selectedUsers, userId];
 
     setSelectedUsers(updatedUsers);
-    formik.setFieldValue(
-      "participants",
-      updatedUsers.map((id) => ({ id }))
-    );
+    formik.setFieldValue("participants", updatedUsers);
+  };
+
+  const handleSelectAll = () => {
+    const allUserIds = participants.map((user) => user.id);
+    const newSelection =
+      selectedUsers.length === participants.length ? [] : allUserIds;
+    setSelectedUsers(newSelection);
+    formik.setFieldValue("participants", newSelection);
   };
 
   const filteredUsers = participants.filter((user) => {
@@ -120,7 +138,7 @@ const ShareWithList = ({
           >
             <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
               <Box sx={{ width: "2.5em" }}>
-                <img src={linkIcon} style={{ width: "100%" }} />
+                <img src={linkIcon} style={{ width: "100%" }} alt="Share" />
               </Box>
               <Typography
                 variant="h6"
@@ -140,10 +158,8 @@ const ShareWithList = ({
             placeholder="Search for a user"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            slotProps={{
-              input: {
-                startAdornment: <Search color="action" sx={{ mr: 1 }} />,
-              },
+            InputProps={{
+              startAdornment: <Search color="action" sx={{ mr: 1 }} />,
             }}
             sx={{ mb: 2 }}
           />
@@ -152,13 +168,7 @@ const ShareWithList = ({
             <Typography variant="body2">Select All</Typography>
             <Checkbox
               checked={selectedUsers.length === participants.length}
-              onChange={() =>
-                setSelectedUsers(
-                  selectedUsers.length === participants.length
-                    ? []
-                    : participants.map((u) => u.id)
-                )
-              }
+              onChange={handleSelectAll}
             />
           </Box>
 
@@ -167,8 +177,8 @@ const ShareWithList = ({
               <ListItem
                 key={user.id}
                 dense
-                //   button
                 onClick={() => handleToggleUser(user.id)}
+                sx={{ cursor: "pointer" }}
               >
                 <ListItemIcon>
                   <Checkbox
@@ -179,11 +189,17 @@ const ShareWithList = ({
                   />
                 </ListItemIcon>
                 <ListItemText
-                  primary={`${user.first_name} ${user.first_name}`}
+                  primary={`${user.first_name} ${user.last_name}`}
                 />
               </ListItem>
             ))}
           </List>
+
+          {formik.touched.participants && formik.errors.participants && (
+            <Typography color="error" sx={{ mb: 2 }}>
+              {formik.errors.participants}
+            </Typography>
+          )}
 
           <Box sx={{ display: "flex", justifyContent: "space-between" }}>
             <Button variant="text" onClick={handleClose}>
@@ -192,10 +208,12 @@ const ShareWithList = ({
             <Button
               variant="contained"
               color="primary"
+              disabled={
+                isSharingNote || isSharingQuiz || selectedUsers.length === 0
+              }
               type="submit"
-              disabled={isLoading || formik.values.participants.length === 0}
             >
-              {isLoading ? "Sharing" : "Continue"}
+              {isSharingNote || isSharingQuiz ? "Sharing..." : "Continue"}
             </Button>
           </Box>
         </Box>
@@ -209,12 +227,12 @@ const ShareWithList = ({
             console.log("undo");
           },
         }}
-        close={() => {
-          handleCloseSuccessModal();
-        }}
+        close={handleCloseSuccessModal}
         infoText=""
         open={openSuccessModal}
-        subTitle={`You have successfully shared a new note to your students`}
+        subTitle={`You have successfully shared a ${
+          noteId ? "note" : "quiz"
+        } to your students`}
         title="Successful"
       />
     </>

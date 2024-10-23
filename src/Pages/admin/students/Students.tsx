@@ -2,17 +2,18 @@ import { Box } from "@mui/material";
 import PageHeader from "../../../components/PageHeader";
 import EmptyState from "../../../components/EmptyState";
 import FormModal from "../../../components/FormModal";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import StudentsForm from "./StudentsForm";
 import StudentList from "./StudentsList";
 import { useAppDispatch } from "../../../store/hooks";
 import { setPageName } from "../../../store/app.slice";
 import SuccessModal from "../../../components/SuccessModal";
+import { StudentCreateType, StudentType } from "../../../types/students";
 import {
-  StudentCreateType,
-  StudentEditFuncType,
-  StudentType,
-} from "../../../types/students";
+  useAddStudentMutation,
+  useGetStudentsQuery,
+} from "../../../store/api/students.api";
+import LoadingScreen from "../../../components/LoadingScreen";
 
 const StudentsPage = () => {
   const [openModal, setOpenModal] = useState({
@@ -22,13 +23,17 @@ const StudentsPage = () => {
     delete: true,
   });
   const [selectedStudent, setSelectedStudent] = useState<StudentCreateType>();
-  const [students, setStudents] = useState<StudentType[] | []>([]);
+  const { data: students, isLoading } = useGetStudentsQuery(null);
+  const [addStudent, addState] = useAddStudentMutation();
 
   // set page name
   const dispatch = useAppDispatch();
-  dispatch(setPageName("Students"));
+  useEffect(() => {
+    dispatch(setPageName("Students"));
+  }, []);
 
   const handleOpenModal = (type: string) => {
+    if (type == "add") setSelectedStudent(undefined);
     setOpenModal((prev) => ({ ...prev, [type]: true }));
   };
 
@@ -37,54 +42,34 @@ const StudentsPage = () => {
     if (type == "success") setSelectedStudent(undefined);
   };
 
-  const handleAddStudent = (student: StudentCreateType) => {
-    setStudents((prev) => [...prev, { ...student, id: prev.length + 1 }]);
+  const handleAddStudent = async (student: StudentCreateType) => {
+    try {
+      await addStudent(student).unwrap();
+    } catch (error) {
+      console.log(error);
+    }
     setSelectedStudent(student);
     handleCloseModal("add");
     handleOpenModal("success");
   };
 
-  const handleEditStudent = (student: StudentType) => {
-    setStudents((prev) => {
-      const temp = [...prev];
-      const foundStudentIndex = students.findIndex(
-        (crs) => crs.id == student.id
-      );
-      temp[foundStudentIndex] = { ...student };
-      return temp;
-    });
-    handleCloseModal("edit");
-    setSelectedStudent(student);
-    handleOpenModal("success");
-  };
-
-  const handleDeleteStudent = (id: number) => {
-    setStudents((prev) => prev.filter((crs) => crs.id != id));
-  };
-
-  const handleOpenEditModal = (student: StudentType) => {
-    setSelectedStudent(student);
-    handleOpenModal("edit");
-  };
-
   return (
     <Box className="content-container">
+      {[isLoading, addState.isLoading].some((item) => item) ? (
+        <Box sx={{ position: "relative", zIndex: 2000 }}>
+          <LoadingScreen />
+        </Box>
+      ) : null}
       <FormModal
         open={openModal.add || openModal.edit}
         close={() => {
           handleCloseModal("add");
-          handleCloseModal("edit");
         }}
       >
         <StudentsForm
           actions={{
-            submit: openModal.add
-              ? handleAddStudent
-              : (handleEditStudent as StudentEditFuncType),
-            cancel: () =>
-              openModal.add
-                ? handleCloseModal("add")
-                : handleCloseModal("edit"),
+            submit: handleAddStudent,
+            cancel: () => handleCloseModal("add"),
           }}
           student={selectedStudent as StudentType}
         />
@@ -102,7 +87,7 @@ const StudentsPage = () => {
         close={() => handleCloseModal("success")}
         infoText="The student added will get notified via mail."
         open={openModal.success}
-        subTitle={`You have successfully added a new participant to your school.`}
+        subTitle={`You have successfully added a new student to your school.`}
         title="Updates Successful"
       />
 
@@ -120,11 +105,8 @@ const StudentsPage = () => {
           padding: "var(--padding)",
         }}
       >
-        {students.length ? (
+        {students?.data.length ? (
           <StudentList
-            students={students}
-            editStudent={handleOpenEditModal}
-            deleteStudent={handleDeleteStudent}
             selectedStudent={selectedStudent as StudentType}
             setSelectedStudent={setSelectedStudent}
           />

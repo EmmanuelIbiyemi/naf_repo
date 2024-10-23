@@ -1,7 +1,6 @@
 /* eslint-disable react-refresh/only-export-components */
 import { createBrowserRouter } from "react-router-dom";
 import { lazy } from "react";
-import Page from "./Pages/admin/page/Page";
 import ReportsExpanded from "./Pages/instructor/reports/ReportsExpanded";
 
 // Admin
@@ -9,7 +8,6 @@ import ReportsExpanded from "./Pages/instructor/reports/ReportsExpanded";
 const App = lazy(() => import("./App"));
 const Login = lazy(() => import("./Pages/login/Login"));
 const Dashboard = lazy(() => import("./Pages/admin/dashboard/Dashboard"));
-const ProgramPage = lazy(() => import("./Pages/admin/programs/Programs"));
 const AdminAcademicsPage = lazy(
   () => import("./Pages/admin/academics/Academics")
 );
@@ -31,7 +29,7 @@ const InstructorsPage = lazy(
   () => import("./Pages/admin/instructors/Instructors")
 );
 const FormsPage = lazy(() => import("./Pages/admin/application/FormsPage"));
-const AddFormPage = lazy(() => import("./Pages/admin/application/AddForm"));
+const AddFormPage = lazy(() => import("./Pages/admin/application/AddFormPage"));
 const PreviewFormPage = lazy(
   () => import("./Pages/admin/application/PreviewForm")
 );
@@ -51,6 +49,8 @@ const AddPostPage = lazy(
 const PreviewPostPage = lazy(
   () => import("./Pages/admin/application copy/PreviewPost")
 );
+const Page = lazy(() => import("./Pages/admin/page/Page"));
+const LevelsPage = lazy(() => import("./Pages/admin/academics/levels/Levels"));
 
 // Instructor
 
@@ -76,6 +76,9 @@ const CreateNotePage = lazy(
 const CoursesTestsPage = lazy(
   () => import("./Pages/instructor/courses/cbt/Tests")
 );
+const InputQuestionsManually = lazy(
+  () => import("./Pages/instructor/courses/cbt/stepmodals/ManualInputQuestions")
+);
 const ReportsPage = lazy(() => import("./Pages/instructor/reports/Reports"));
 const LiveClassesPage = lazy(
   () => import("./Pages/instructor/classes/LiveClasses")
@@ -92,7 +95,6 @@ export const router = createBrowserRouter([
     element: <App />,
     children: [
       { path: "/", element: <Dashboard /> },
-      { path: "/programs", element: <ProgramPage /> },
       { path: "/courses", element: <CoursesPage /> },
       { path: "/courses/:id", element: <SubjectsPage /> },
       { path: "/courses/:id", element: <SubjectsPage /> },
@@ -115,7 +117,7 @@ export const router = createBrowserRouter([
           { path: "departments", element: <DepartmentsPage /> },
           { path: "programmes", element: <ProgrammesPage /> },
           { path: "courses", element: <CoursesPage /> },
-          { path: "page/:name", element: <Page /> },
+          { path: "levels", element: <LevelsPage /> },
         ],
       },
       {
@@ -156,6 +158,7 @@ export const router = createBrowserRouter([
           { path: "notes/new", element: <CreateNotePage /> },
           { path: "tests", element: <CoursesTestsPage /> },
           { path: "classes", element: <LiveClassesPage /> },
+          { path: "tests/manual-input", element: <InputQuestionsManually /> },
         ],
       },
 

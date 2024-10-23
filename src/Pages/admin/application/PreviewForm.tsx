@@ -1,21 +1,35 @@
 import { Box, Button, SxProps, Typography } from "@mui/material";
-import { useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useRef, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import SuccessModal from "../../../components/SuccessModal";
 import FormBuilder from "./components/FormBuilder";
-import { useAppDispatch, useAppSelector } from "../../../store/hooks";
-import { addForm, selectCurrentForm } from "../../../store/forms.slice";
+import { useAppDispatch } from "../../../store/hooks";
+import { addForm } from "../../../store/forms.slice";
+import { useGetFormQuery } from "../../../store/api/form.api";
+import { setPageName } from "../../../store/app.slice";
+import "./components/elements.scss";
 
 const PreviewFormPage = () => {
+  // set page name
+  const dispatch = useAppDispatch();
+  useEffect(() => {
+    dispatch(setPageName("Preview Form"));
+  }, [dispatch]);
+
   const navigate = useNavigate();
   const [openModal, setOpenModal] = useState(false);
   const elRef = useRef<HTMLDivElement>(null);
-  const dispatch = useAppDispatch();
-  const selectedForm = useAppSelector(selectCurrentForm);
+  const location = useLocation();
+  const { data: form } = useGetFormQuery(location.state);
 
-  const handleOpenModal = () => {
-    setOpenModal(true);
+  const handleSubmit = async () => {
+    console.log(form?.data);
+    navigate("/applications/form");
   };
+
+  useEffect(() => {
+    if (!location.state) navigate("/applications");
+  }, [location]);
 
   return (
     <Box sx={formContentContainerStyles}>
@@ -23,7 +37,7 @@ const PreviewFormPage = () => {
         <SuccessModal
           actions={{
             proceed: () => {
-              if (selectedForm) dispatch(addForm(selectedForm));
+              if (form?.data) dispatch(addForm(form?.data));
               navigate("/applications");
             },
             undo: () => {
@@ -41,17 +55,15 @@ const PreviewFormPage = () => {
         <Box sx={{ padding: "1.5rem" }}>
           <Typography variant="h5" sx={{ fontWeight: 300 }}>
             <span
-              dangerouslySetInnerHTML={{ __html: selectedForm?.title || "" }}
+              dangerouslySetInnerHTML={{
+                __html: form?.data?.name.split("::")[0] || "",
+              }}
             />
           </Typography>
         </Box>
         <Box sx={dropAreaStyles}>
-          {selectedForm ? (
-            <FormBuilder
-              form={selectedForm}
-              setForm={() => {}}
-              allowDelete={false}
-            />
+          {form?.data ? (
+            <FormBuilder allowDelete={false} isPreview={true} />
           ) : null}
         </Box>
         <Box
@@ -65,7 +77,7 @@ const PreviewFormPage = () => {
           <Button variant="contained">
             <span
               dangerouslySetInnerHTML={{
-                __html: selectedForm?.submitBtn || "",
+                __html: form?.data?.name.split("::")[1] || "",
               }}
             />
           </Button>
@@ -75,7 +87,7 @@ const PreviewFormPage = () => {
         sx={{ display: "flex", justifyContent: "space-between", width: "100%" }}
       >
         <Button onClick={() => navigate(-1)}>Back</Button>
-        <Button variant="contained" onClick={handleOpenModal}>
+        <Button variant="contained" onClick={handleSubmit}>
           Share
         </Button>
       </Box>

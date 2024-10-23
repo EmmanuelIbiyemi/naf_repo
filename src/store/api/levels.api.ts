@@ -1,15 +1,10 @@
-import {
-  LevelCourseCreateType,
-  LevelCreateType,
-  LevelsResponse,
-  LevelType,
-} from "../../types/levels";
+import { LevelCreateType, LevelsResponse, LevelType } from "../../types/levels";
 import { appApi } from "./app.api";
 
 const levelsApi = appApi.injectEndpoints({
   endpoints: (builder) => ({
-    getLevels: builder.query<LevelsResponse, null>({
-      query: () => "/level",
+    getLevels: builder.query<LevelsResponse, number>({
+      query: (program_id) => `/level/program/${program_id}`,
       providesTags: ["Levels"],
     }),
     getLevel: builder.query<LevelsResponse, number>({
@@ -39,56 +34,6 @@ const levelsApi = appApi.injectEndpoints({
       }),
       invalidatesTags: ["Levels"],
     }),
-
-    // Levels
-    getProgramLevels: builder.query<LevelsResponse, number>({
-      query: (program_id) => `/level/programs/${program_id}`,
-      providesTags: ["Programmes", "Levels"],
-    }),
-
-    // Course
-    getLevelCourses: builder.query<
-      LevelsResponse,
-      {
-        level_id: number;
-        page: number;
-        per_page: number;
-      }
-    >({
-      query: ({ level_id, page, per_page }) =>
-        `/level/${level_id}/courses?page=${page}&per_page=${per_page}`,
-      providesTags: ["Levels"],
-    }),
-    getLevelApplicants: builder.query<
-      LevelsResponse,
-      {
-        level_id: number;
-        page: number;
-        per_page: number;
-      }
-    >({
-      query: ({ level_id, page, per_page }) =>
-        `/level/${level_id}/participants?page=${page}&per_page=${per_page}`,
-      providesTags: ["Levels", "Participants"],
-    }),
-    addLevelCourse: builder.mutation<LevelsResponse, LevelCourseCreateType>({
-      query: (level) => ({
-        url: `/level/course`,
-        method: "POST",
-        body: level,
-      }),
-      invalidatesTags: ["Levels"],
-    }),
-    deleteLevelCourse: builder.mutation<
-      LevelsResponse,
-      { course_id: number; level_id: number }
-    >({
-      query: ({ level_id, course_id }) => ({
-        url: `/level/${level_id}/course/${course_id}`,
-        method: "DELETE",
-      }),
-      invalidatesTags: ["Levels"],
-    }),
   }),
   overrideExisting: false,
 });
@@ -98,5 +43,4 @@ export const {
   useAddLevelMutation,
   useUpdateLevelMutation,
   useDeleteLevelMutation,
-  useAddLevelCourseMutation,
 } = levelsApi;

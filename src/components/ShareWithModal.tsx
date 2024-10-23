@@ -9,7 +9,8 @@ type ShareWithModalProps = {
   open: boolean;
   handleClose: () => void;
   // handleSelectedRecipients: (recipients: number[]) => void;
-  noteId: number | null;
+  noteId?: number | null;
+  quizId?: number | null;
   participants: ParticipantData[];
 };
 
@@ -18,6 +19,7 @@ const ShareWithModal = ({
   handleClose,
   // handleSelectedRecipients,
   noteId,
+  quizId,
   participants,
 }: ShareWithModalProps) => {
   const [shareOption, setShareOption] = useState<string | null>(null);
@@ -261,7 +263,8 @@ const ShareWithModal = ({
         open={showShareWithList}
         handleClose={handleShareWithListClose}
         // handleSelectedRecipients={handleSelectedRecipients}
-        noteId={noteId}
+        noteId={noteId ?? null}
+        quizId={quizId ?? null}
         participants={participants}
       />
     </>

@@ -4,9 +4,9 @@ import TableCell from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
 import TableRow from "@mui/material/TableRow";
 import { Faculty, FacultyFormAction } from "../../../../types/faculties";
-import { Checkbox, IconButton } from "@mui/material";
+import { Button, Checkbox, IconButton } from "@mui/material";
 import { Delete, Edit } from "@mui/icons-material";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import DeleteConfirmationModal from "../../../../components/DeleteConfirmationModal";
 import { useState } from "react";
 import {
@@ -19,6 +19,7 @@ import FacultyForm from "./FacultyForm";
 import SuccessModal from "../../../../components/SuccessModal";
 
 const FacultyList = () => {
+  const navigate = useNavigate();
   const [openModal, setOpenModal] = useState({
     edit: false,
     success: false,
@@ -121,12 +122,23 @@ const FacultyList = () => {
                 sx={{ alignItems: "center", display: "flex", gap: "1rem" }}
               >
                 <Checkbox />
-                <Link
-                  to={`/faculty/${faculty.id}`}
-                  style={{ textTransform: "capitalize" }}
+                <Button
+                  onClick={() =>
+                    navigate(`/academics/departments`, {
+                      state: { faculty_id: faculty.id },
+                    })
+                  }
+                  sx={{
+                    "&.MuiButton-root": {
+                      border: "none",
+                      color: "inherit",
+                      padding: 0,
+                      textTransform: "capitalize",
+                    },
+                  }}
                 >
                   {faculty.name}
-                </Link>
+                </Button>
               </TableCell>
               <TableCell align="right">
                 <IconButton onClick={() => handleOpenModal(faculty, "edit")}>

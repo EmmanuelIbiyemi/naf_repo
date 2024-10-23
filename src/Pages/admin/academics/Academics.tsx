@@ -2,18 +2,21 @@ import { Box, SxProps } from "@mui/material";
 import { Outlet } from "react-router-dom";
 import { useAppDispatch } from "../../../store/hooks";
 import { setPageName } from "../../../store/app.slice";
-import AcademicsSideBar from "./components/AcademicsSideBar";
+import { useEffect } from "react";
+// import AcademicsSideBar from "./components/AcademicsSideBar";
 
 const Academics = () => {
   // set page name
   const dispatch = useAppDispatch();
-  dispatch(setPageName("Academics"));
+  useEffect(() => {
+    dispatch(setPageName("Academics"));
+  }, []);
 
   return (
     <Box sx={layoutStyles}>
-      <Box>
+      {/* <Box>
         <AcademicsSideBar />
-      </Box>
+      </Box> */}
       <Outlet />
     </Box>
   );
@@ -22,7 +25,7 @@ const Academics = () => {
 export default Academics;
 
 const layoutStyles: SxProps = {
-  display: "grid",
-  gridTemplateColumns: "225px 1fr",
+  // display: "grid",
+  // gridTemplateColumns: "225px 1fr",
   height: "100%",
 };
