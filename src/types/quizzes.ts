@@ -1,5 +1,5 @@
 import { options } from "./options";
-import { Participant } from "./participants";
+// import { Participant } from "./participants";
 
 export interface QuizzesResponse {
   assessments: unknown;
@@ -69,5 +69,5 @@ export interface AssessmentResponse {
 
 export interface shareQuizInput {
   quiz_id: number;
-  participants: Participant;
+  participants: number[];
 }

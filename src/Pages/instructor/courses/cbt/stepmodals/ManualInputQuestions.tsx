@@ -169,7 +169,7 @@ const ManualInputQuestions: React.FC = () => {
             Input Questions Manually
           </Typography>
           <Typography variant="subtitle1">
-            Test for: {formData.subject || "Loading..."}
+            List of test that have been created in the course “Sosososo And So”
           </Typography>
         </Box>
         <Box sx={{ display: "flex", gap: 2 }}>
