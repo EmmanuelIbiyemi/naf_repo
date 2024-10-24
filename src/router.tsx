@@ -79,6 +79,12 @@ const CoursesTestsPage = lazy(
 const InputQuestionsManually = lazy(
   () => import("./Pages/instructor/courses/cbt/stepmodals/ManualInputQuestions")
 );
+const CoursesTestParticipantsPage = lazy(
+  () => import("./Pages/instructor/courses/cbt/TestParticipants")
+);
+const CoursesViewParticipantDetailsPage = lazy(
+  () => import("./Pages/instructor/courses/cbt/ViewQuizAnswers")
+);
 const ReportsPage = lazy(() => import("./Pages/instructor/reports/Reports"));
 const LiveClassesPage = lazy(
   () => import("./Pages/instructor/classes/LiveClasses")
@@ -157,6 +163,14 @@ export const router = createBrowserRouter([
           },
           { path: "notes/new", element: <CreateNotePage /> },
           { path: "tests", element: <CoursesTestsPage /> },
+          {
+            path: "tests/:testId",
+            element: <CoursesTestParticipantsPage />,
+          },
+          {
+            path: "tests/:testId/details/:id",
+            element: <CoursesViewParticipantDetailsPage />,
+          },
           { path: "classes", element: <LiveClassesPage /> },
           { path: "tests/manual-input", element: <InputQuestionsManually /> },
         ],

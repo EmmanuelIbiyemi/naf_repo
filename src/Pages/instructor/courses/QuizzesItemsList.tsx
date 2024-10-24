@@ -14,7 +14,7 @@ import {
 } from "@mui/material";
 import { Delete, Edit, MoreVert } from "@mui/icons-material";
 import CustomPagination from "../../../components/CustomPagination";
-// import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { QuizzesResponse } from "../../../types/quizzes";
 
 type ListProps = {
@@ -39,7 +39,7 @@ const QuizzesItemsList = ({
   const [currentPage, setCurrentPage] = useState(1);
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
-  //   const navigate = useNavigate();
+  const navigate = useNavigate();
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
   };
@@ -86,8 +86,8 @@ const QuizzesItemsList = ({
                 >
                   <Checkbox />
                   <Box
-                  // onClick={() => navigate(`${list.id}`, { state: { lists } })}
-                  // sx={{ cursor: "pointer" }}
+                    onClick={() => navigate(`${list.id}`, { state: { lists } })}
+                    sx={{ cursor: "pointer" }}
                   >
                     <Typography variant="body2" sx={{ color: "#474747" }}>
                       {list.name}

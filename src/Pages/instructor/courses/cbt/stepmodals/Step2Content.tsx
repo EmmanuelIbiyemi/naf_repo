@@ -56,6 +56,8 @@ const Step2Content: React.FC<ModalProps> = ({
   participants,
   uploadPayload,
 }) => {
+  const locationData = location.pathname.split("/");
+  const courseId = locationData[locationData.length - 2];
   const [openShareModal, setOpenShareModal] = useState(false);
   const [disableUploadQuestions, setDisableUploadQuestions] = useState(true);
   const [createTest, setCreateTest] = useState(false);
@@ -69,7 +71,7 @@ const Step2Content: React.FC<ModalProps> = ({
     useCreateAssessmentMutation();
 
   const handleCreateQuiz = async () => {
-    const createQuizData: CreateQuiz = {
+    const createQuizData: CreateQuiz & { course_id: number } = {
       name: formData.subject,
       instructions: "",
       time_allowed: 60,
@@ -78,7 +80,9 @@ const Step2Content: React.FC<ModalProps> = ({
       obtainable_score: formData.passingPercentage,
       type: formData.type,
       show_result: true,
+      course_id: parseInt(courseId),
     };
+    console.log(createQuizData);
     try {
       const createQuizResponse = await createQuiz(createQuizData).unwrap();
       const createAssessmentResponse = await createAssessment({

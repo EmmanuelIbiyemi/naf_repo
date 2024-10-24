@@ -32,7 +32,6 @@ const Tests = () => {
 
   const { data: participants, isLoading: isFetchingParticipants } =
     useGetParticipantsQuery(null);
-
   const handleOpenCreateTestModal = () => setOpenCreateTestModal(true);
   const handleCloseCreateTestModal = () => setOpenCreateTestModal(false);
   const handleOpenGenerateReportModal = () => setOpenGenerateReportModal(true);
