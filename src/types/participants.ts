@@ -1,3 +1,4 @@
+
 import { CoursesResponse } from "./courses";
 
 interface Participants {

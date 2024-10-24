@@ -78,6 +78,7 @@ const UploadFileModal = ({
             flexDirection: "column",
           }}
         >
+
           {handleProcessFileUrl ? (
             <Box
               sx={{
@@ -165,6 +166,7 @@ const UploadFileModal = ({
               </Typography>
             </label>
           </Box>
+
           {handleProcessFileUrl && (
             <Box
               sx={{

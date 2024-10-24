@@ -1,11 +1,12 @@
+
 import { Box, LinearProgress } from "@mui/material";
+
 import { useEffect, useRef, useState } from "react";
 import InstructorPageHeader from "../../../../components/layout/InstructorPageHeader";
 import { useAppDispatch } from "../../../../store/hooks";
 import { setPageName } from "../../../../store/app.slice";
 import { useFormik } from "formik";
 import * as yup from "yup";
-
 import CustomSuccessModal from "../../../../components/CustomSuccessModal";
 import SuccessModal from "../../../../components/SuccessModal";
 import DeleteConfirmationModal from "../../../../components/DeleteConfirmationModal";
@@ -26,6 +27,7 @@ const Tests = () => {
     success: false,
     delete: false,
   });
+
   const [selectedTests, setSelectedTests] = useState<
     QuizzesResponse | undefined
   >();
@@ -39,14 +41,15 @@ const Tests = () => {
   const handleCloseGenerateReportModal = () =>
     setOpenGenerateReportModal(false);
   const [openFileSuccessModal, setOpenFileSuccessModal] = useState(false);
+
   const { data: quizzes, isLoading } = useGetQuizzesQuery(null);
   const { data: courses, isLoading: isGettingCourses } =
     useGetCoursesQuery(null);
-
   const handleDelete = (noteId: number) => {
     console.log(noteId);
     setOpenActionsModal((prev) => ({ ...prev, delete: true }));
   };
+
 
   const handleOpenActionsModal = (course: QuizzesResponse, type: string) => {
     setSelectedTests(course);
@@ -131,6 +134,7 @@ const Tests = () => {
           course={selectedTests}
         />
       </FormModal> */}
+
       {isLoading || (isFetchingParticipants && <LinearProgress />)}
       <CreateTestModal
         open={openCreateTestModal}
@@ -163,6 +167,7 @@ const Tests = () => {
             text: "Generate Report",
           }}
           additionalButton={{
+
             action: handleOpenCreateTestModal,
             text: "Create New Test",
             isLoading: isGettingCourses,
@@ -173,6 +178,7 @@ const Tests = () => {
           handleClose={handleCloseGenerateReportModal}
         />
         <Box>
+
           <QuizzesItemsList
             lists={quizzes?.data || []}
             handleOpenActionsModal={handleOpenActionsModal}
@@ -209,7 +215,7 @@ const Tests = () => {
           close={() => {
             handleCloseActionsModal("success");
             setSelectedTests(undefined);
-          }}
+         }}
           infoText=""
           open={openActionsModal.success}
           subTitle={`You have successfully added a new Course <strong>"${selectedTests?.name}"</strong>.`}

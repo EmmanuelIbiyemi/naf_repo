@@ -1,4 +1,5 @@
 import { Box } from "@mui/material";
+
 import { useEffect, useRef, useState } from "react";
 import { useFormik } from "formik";
 import * as yup from "yup";
@@ -233,9 +234,11 @@ const Reports = () => {
           title="Updates Successful"
         />
       </Box>
+
     </Box>
   );
 };
+
 
 const notes = [
   {
@@ -428,5 +431,4 @@ const notes = [
     title: "Title",
   },
 ];
-
 export default Reports;

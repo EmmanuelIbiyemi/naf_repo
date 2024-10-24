@@ -3,11 +3,13 @@ import { Modal, Box, IconButton, Typography, Button } from "@mui/material";
 import { Close, East } from "@mui/icons-material";
 import ShareWithList from "./ShareWithList";
 import linkIcon from "../assets/linkIcon.svg";
+
 import { ParticipantData } from "../types/participants";
 
 type ShareWithModalProps = {
   open: boolean;
   handleClose: () => void;
+
   // handleSelectedRecipients: (recipients: number[]) => void;
   noteId?: number | null;
   quizId?: number | null;
@@ -17,6 +19,7 @@ type ShareWithModalProps = {
 const ShareWithModal = ({
   open,
   handleClose,
+
   // handleSelectedRecipients,
   noteId,
   quizId,

@@ -1,4 +1,6 @@
+
 import { Box, Button, LinearProgress } from "@mui/material";
+
 import { useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import CustomMarkdownEditor from "../../../../components/layout/CustomMarkdownEditor";
@@ -8,6 +10,7 @@ import ShareWithModal from "../../../../components/ShareWithModal";
 import { useAddNoteMutation } from "../../../../store/api/notes.api";
 import { noteInput } from "../../../../types/notes";
 import { useGetParticipantsQuery } from "../../../../store/api/participants.api";
+
 
 const NewNote = () => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -77,6 +80,7 @@ const NewNote = () => {
           <Box sx={{ padding: "1.5rem" }}>
             <input
               type="text"
+
               name="title"
               id="title"
               onChange={formik.handleChange}
@@ -111,6 +115,7 @@ const NewNote = () => {
                 width: "11em",
                 alignSelf: "end",
               }}
+
               type="submit"
               // onClick={handleOpenModal}
             >
@@ -121,6 +126,7 @@ const NewNote = () => {
         <Box>
           <CustomMarkdownEditor
             placeholder="Start writing something here..."
+
             value={formik.values.content}
             onChange={(markdown) => formik.setFieldValue("content", markdown)}
           />
@@ -132,6 +138,7 @@ const NewNote = () => {
         // handleSelectedRecipients={handleSelectedRecipients}
         noteId={noteId}
         participants={participants?.data ?? []}
+
       />
     </Box>
   );

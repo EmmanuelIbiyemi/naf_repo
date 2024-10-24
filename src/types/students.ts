@@ -1,17 +1,17 @@
 import { CourseType } from "./courses";
 
-type StudentBase = {
+export type StudentType = {
+  id?: number;
   first_name: string;
   last_name: string;
   email: string;
   phone: string;
   courses: CourseType[];
 };
-export type StudentCreateType = StudentBase;
 
-export type StudentType = StudentBase & {
-  id: number;
-};
+export type StudentCreateType = StudentType & {};
+
+export type StudentFormAction = (lecturer: StudentType) => Promise<void>;
 
 export type StudentsResponse = { data: StudentType[] };
 
