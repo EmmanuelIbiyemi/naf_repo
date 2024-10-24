@@ -10,7 +10,7 @@ const Academics = () => {
   // set page name
   const dispatch = useAppDispatch();
   useEffect(() => {
-    dispatch(setPageName("Academics"));
+    dispatch(setPageName("Academics / Faculties"));
   }, []);
 
   return (
