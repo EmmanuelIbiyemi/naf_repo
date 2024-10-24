@@ -1,3 +1,4 @@
+
 import { Box, LinearProgress } from "@mui/material";
 import { useEffect, useRef, useState } from "react";
 import InstructorPageHeader from "../../../../components/layout/InstructorPageHeader";
@@ -15,10 +16,10 @@ import NotesUploadModal from "./NotesUploadModal";
 import CoursesItemList from "../CoursesItemList";
 import SuccessModal from "../../../../components/SuccessModal";
 import DeleteConfirmationModal from "../../../../components/DeleteConfirmationModal";
+
 import { useGetCourseNotesQuery } from "../../../../store/api/notes.api";
 import { note } from "../../../../types/notes";
 // import FormModal from "../../../../components/FormModal";
-
 const Notes = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [openModal, setOpenModal] = useState(false);
@@ -34,6 +35,7 @@ const Notes = () => {
   const handleUploadModalOpen = () => setOpenModal(true);
   const handleUploadModalClose = () => setOpenModal(false);
   const [openFileSuccessModal, setOpenFileSuccessModal] = useState(false);
+
   const { data: note, isLoading: isGettingNotes } = useGetCourseNotesQuery(
     parseInt(courseId)
   );
@@ -42,6 +44,7 @@ const Notes = () => {
     console.log(noteId);
     setOpenActionsModal((prev) => ({ ...prev, delete: true }));
   };
+
 
   const handleOpenActionsModal = (course: note, type: string) => {
     setSelectedNotes(course);
@@ -52,6 +55,7 @@ const Notes = () => {
     setSelectedNotes(undefined);
     setOpenActionsModal((prev) => ({ ...prev, [type]: false }));
   };
+
 
   const handleEditActionsModal = async (note: note) => {
     console.log(note);
@@ -187,6 +191,7 @@ const Notes = () => {
         />
         <Box>
           <CoursesItemList
+
             lists={note?.data || []}
             handleOpenActionsModal={handleOpenActionsModal}
             handleEditActionsModal={handleEditActionsModal}

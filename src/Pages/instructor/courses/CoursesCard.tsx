@@ -100,6 +100,7 @@ const CoursesCard = ({ course }: Props) => {
         variant="contained"
         color="primary"
         sx={{ width: "100%", fontSize: ".8rem" }}
+
         onClick={() => navigate(`${course.id}/details`, { state: { course } })}
       >
         View Details

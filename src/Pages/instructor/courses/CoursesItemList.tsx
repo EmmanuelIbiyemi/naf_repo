@@ -24,6 +24,7 @@ type ListProps = {
   edit?: boolean;
   handleOpenActionsModal: (list: note, type: string) => void;
   handleEditActionsModal: (list: note) => void;
+
 };
 
 const ITEMS_PER_PAGE = 10;
@@ -33,12 +34,14 @@ const CoursesItemList = ({
   menu,
   deleteIcon,
   edit,
+
   handleOpenActionsModal,
   handleEditActionsModal,
 }: ListProps) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
+
   const navigate = useNavigate();
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
@@ -85,6 +88,7 @@ const CoursesItemList = ({
                   sx={{ alignItems: "center", display: "flex", gap: "1rem" }}
                 >
                   <Checkbox />
+
                   <Box
                     onClick={() => navigate(`${list.id}`, { state: { lists } })}
                     sx={{ cursor: "pointer" }}

@@ -3,12 +3,14 @@ import logo from "../../assets/logo.png";
 import { Link, useLocation } from "react-router-dom";
 import HomeIcon from "../../assets/homeIcon";
 import ChartIcon from "../../assets/chartIcon";
-import InstructorIcon from "../../assets/instructorIcon";
 import BankIcon from "../../assets/bankIcon";
 import SettingsIcon from "../../assets/settingsIcon";
 import { ElementType } from "react";
 import ClipBoardIcon from "../../assets/clipboardIcon";
+import SchoolIcon from "../../assets/schoolIcon";
 import { ChevronLeft, ChevronRight } from "@mui/icons-material";
+import Credit from "../../assets/Credit";
+import GraduationScroll from "../../assets/graduation-scroll";
 
 type NavLink = {
   content: string;
@@ -19,8 +21,8 @@ type NavLink = {
 const navLinks: NavLink[] = [
   { content: "Dashboard", icon: HomeIcon, link: "/" },
   { content: "Academics", icon: ClipBoardIcon, link: "/academics" },
-  { content: "Students", icon: ChartIcon, link: "/students" },
-  { content: "Instructors", icon: InstructorIcon, link: "/instructors" },
+  { content: "Participants", icon: ChartIcon, link: "/participants" },
+  { content: "Users", icon: SchoolIcon, link: "/users" },
   {
     content: "Applications",
     icon: BankIcon,
@@ -35,25 +37,35 @@ const navLinks: NavLink[] = [
       { content: "Student Exam", icon: ChevronLeft, link: "/applications/cbt" },
     ],
   },
+  { content: "Fees Management", icon: Credit, link: "/fees" },
+  { content: "Grading System", icon: GraduationScroll, link: "/grading" },
   { content: "Settings", icon: SettingsIcon, link: "/settings" },
 ];
 
 const SideBar = () => {
   const location = useLocation();
 
-  const isCurrentPage = (navLink: NavLink) => {
-    if (navLink.content.toLowerCase() !== "dashboard") {
-      if (location.pathname === navLink.link) return true;
-    } else {
-      if (location.pathname === "/") return true;
-    }
+const isCurrentPage = (navLink: NavLink) => {
+  const currentPath = location.pathname.toLowerCase();
+  const navLinkPath = navLink.link.toLowerCase();
 
-    if (navLink.children) {
-      return navLink.children.some((child) => isCurrentChildLink(child));
+  // Check if the current page matches exactly or is a subdirectory of the link
+  if (navLink.content.toLowerCase() !== "dashboard") {
+    if (currentPath === navLinkPath || currentPath.startsWith(`${navLinkPath}/`)) {
+      return true;
     }
+  } else {
+    if (currentPath === "/") return true;
+  }
 
-    return false;
-  };
+  // Check for child links
+  if (navLink.children) {
+    return navLink.children.some((child) => isCurrentChildLink(child));
+  }
+
+  return false;
+};
+
 
   const isCurrentChildLink = (childLink: NavLink) => {
     return location.pathname === childLink.link;
