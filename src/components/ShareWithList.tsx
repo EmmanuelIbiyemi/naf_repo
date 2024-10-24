@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import {
   Box,
@@ -83,6 +82,9 @@ const ShareWithList = ({
             participants: selectedUsers, // This will send just the array of numbers
           }).unwrap();
           handleOpenSuccessModal();
+        }
+        if (noteId === null && quizId === null) {
+          console.log("Shared with: ", selectedUsers);
         }
       } catch (error) {
         console.error("Share failed:", error);
