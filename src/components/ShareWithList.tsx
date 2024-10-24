@@ -20,6 +20,7 @@ import * as yup from "yup";
 import { useShareNoteMutation } from "../store/api/notes.api";
 import SuccessModal from "./SuccessModal";
 import { useShareQuizMutation } from "../store/api/quizzes.api";
+import { useNavigate } from "react-router-dom";
 
 type ShareWithListProps = {
   open: boolean;
@@ -41,6 +42,7 @@ const ShareWithList = ({
   const [shareNote, { isLoading: isSharingNote }] = useShareNoteMutation();
   const [shareQuiz, { isLoading: isSharingQuiz }] = useShareQuizMutation();
   const [openSuccessModal, setOpenSuccessModal] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (!open) {
@@ -85,6 +87,7 @@ const ShareWithList = ({
         }
         if (noteId === null && quizId === null) {
           console.log("Shared with: ", selectedUsers);
+          navigate("/instructor/posts");
         }
       } catch (error) {
         console.error("Share failed:", error);
