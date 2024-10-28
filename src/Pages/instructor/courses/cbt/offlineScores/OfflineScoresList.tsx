@@ -6,14 +6,22 @@ import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TablePagination from "@mui/material/TablePagination";
 import TableRow from "@mui/material/TableRow";
-import { VisibilityOutlined } from "@mui/icons-material";
-import { Box } from "@mui/material";
-import { useNavigate } from "react-router-dom";
+import { Delete, Edit, MoreVert } from "@mui/icons-material";
+import { Box, IconButton, Menu, MenuItem } from "@mui/material";
+// import { useNavigate } from "react-router-dom";
 
 const OfflineScoresList = () => {
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
-  const navigate = useNavigate();
+  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+  const open = Boolean(anchorEl);
+  // const navigate = useNavigate();
+  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
 
   const handleChangePage = (_event: unknown, newPage: number) => {
     setPage(newPage);
@@ -55,9 +63,8 @@ const OfflineScoresList = () => {
               <TableRow key={row.id}>
                 <TableCell sx={{ border: "none" }}>{row.studentId}</TableCell>
                 <TableCell sx={{ border: "none" }}>{row.name}</TableCell>
-                <TableCell sx={{ border: "none" }}>
-                  {row.dateSubmitted}
-                </TableCell>
+                <TableCell sx={{ border: "none" }}>{row.course}</TableCell>
+                <TableCell sx={{ border: "none" }}>{row.date}</TableCell>
                 <TableCell sx={{ border: "none" }}>{row.performance}</TableCell>
                 <TableCell
                   sx={{
@@ -65,12 +72,37 @@ const OfflineScoresList = () => {
                     alignItems: "center",
                     gap: 1,
                     color: "#2C62EE",
-                    cursor: "pointer",
                     border: "none",
                   }}
-                  onClick={() => navigate(`details/${row.id}`)}
                 >
-                  <VisibilityOutlined /> View Details{" "}
+                  <IconButton>
+                    <Edit />
+                  </IconButton>
+                  <IconButton>
+                    <Delete />
+                  </IconButton>
+                  <IconButton
+                    // onClick={() => handleOpenActionsModal(list, "delete")}
+                    aria-controls={open ? "basic-menu" : undefined}
+                    aria-haspopup="true"
+                    aria-expanded={open ? "true" : undefined}
+                    onClick={handleClick}
+                  >
+                    <MoreVert />
+                    <Menu
+                      id="basic-menu"
+                      anchorEl={anchorEl}
+                      open={open}
+                      onClose={handleClose}
+                      MenuListProps={{
+                        "aria-labelledby": "basic-button",
+                      }}
+                    >
+                      <MenuItem onClick={handleClose}>Profile</MenuItem>
+                      <MenuItem onClick={handleClose}>My account</MenuItem>
+                      <MenuItem onClick={handleClose}>Logout</MenuItem>
+                    </Menu>
+                  </IconButton>
                 </TableCell>
               </TableRow>
             ))}
@@ -93,8 +125,9 @@ const OfflineScoresList = () => {
 const tableHead = [
   { id: 1, label: "Student ID", minWidth: 170 },
   { id: 2, label: "Name", minWidth: 100 },
-  { id: 3, label: "Date Submitted", minWidth: 170 },
-  { id: 4, label: "Performance", minWidth: 170 },
+  { id: 2, label: "Course", minWidth: 100 },
+  { id: 3, label: "Date", minWidth: 170 },
+  { id: 4, label: "Score", minWidth: 170 },
   { id: 5, label: "Actions", minWidth: 170 },
 ];
 
@@ -103,105 +136,120 @@ const tableBody = [
     id: 1,
     studentId: "TIPSGHM 2022336",
     name: "Harsh Kadyan",
-    dateSubmitted: "23 - 09 - 2024",
+    course: "Mathematics 101",
+    date: "23 - 09 - 2024",
     performance: "79%",
   },
   {
     id: 2,
     studentId: "TIPSGHM 2022336",
     name: "Harsh Kadyan",
-    dateSubmitted: "23 - 09 - 2024",
+    course: "Mathematics 101",
+    date: "23 - 09 - 2024",
     performance: "79%",
   },
   {
     id: 3,
     studentId: "TIPSGHM 2022336",
     name: "Harsh Kadyan",
-    dateSubmitted: "23 - 09 - 2024",
+    course: "Mathematics 101",
+    date: "23 - 09 - 2024",
     performance: "79%",
   },
   {
     id: 4,
     studentId: "TIPSGHM 2022336",
     name: "Harsh Kadyan",
-    dateSubmitted: "23 - 09 - 2024",
+    course: "Mathematics 101",
+    date: "23 - 09 - 2024",
     performance: "79%",
   },
   {
     id: 5,
     studentId: "TIPSGHM 2022336",
     name: "Harsh Kadyan",
-    dateSubmitted: "23 - 09 - 2024",
+    course: "Mathematics 101",
+    date: "23 - 09 - 2024",
     performance: "79%",
   },
   {
     id: 6,
     studentId: "TIPSGHM 2022336",
     name: "Harsh Kadyan",
-    dateSubmitted: "23 - 09 - 2024",
+    course: "Mathematics 101",
+    date: "23 - 09 - 2024",
     performance: "79%",
   },
   {
     id: 7,
     studentId: "TIPSGHM 2022336",
     name: "Harsh Kadyan",
-    dateSubmitted: "23 - 09 - 2024",
+    course: "Mathematics 101",
+    date: "23 - 09 - 2024",
     performance: "79%",
   },
   {
     id: 8,
     studentId: "TIPSGHM 2022336",
     name: "Harsh Kadyan",
-    dateSubmitted: "23 - 09 - 2024",
+    course: "Mathematics 101",
+    date: "23 - 09 - 2024",
     performance: "79%",
   },
   {
     id: 9,
     studentId: "TIPSGHM 2022336",
     name: "Harsh Kadyan",
-    dateSubmitted: "23 - 09 - 2024",
+    course: "Mathematics 101",
+    date: "23 - 09 - 2024",
     performance: "79%",
   },
   {
     id: 10,
     studentId: "TIPSGHM 2022336",
     name: "Harsh Kadyan",
-    dateSubmitted: "23 - 09 - 2024",
+    course: "Mathematics 101",
+    date: "23 - 09 - 2024",
     performance: "79%",
   },
   {
     id: 11,
     studentId: "TIPSGHM 2022336",
     name: "Harsh Kadyan",
-    dateSubmitted: "23 - 09 - 2024",
+    course: "Mathematics 101",
+    date: "23 - 09 - 2024",
     performance: "79%",
   },
   {
     id: 12,
     studentId: "TIPSGHM 2022336",
     name: "Harsh Kadyan",
-    dateSubmitted: "23 - 09 - 2024",
+    course: "Mathematics 101",
+    date: "23 - 09 - 2024",
     performance: "79%",
   },
   {
     id: 13,
     studentId: "TIPSGHM 2022336",
     name: "Harsh Kadyan",
-    dateSubmitted: "23 - 09 - 2024",
+    course: "Mathematics 101",
+    date: "23 - 09 - 2024",
     performance: "79%",
   },
   {
     id: 14,
     studentId: "TIPSGHM 2022336",
     name: "Harsh Kadyan",
-    dateSubmitted: "23 - 09 - 2024",
+    course: "Mathematics 101",
+    date: "23 - 09 - 2024",
     performance: "79%",
   },
   {
     id: 15,
     studentId: "TIPSGHM 2022336",
     name: "Harsh Kadyan",
-    dateSubmitted: "23 - 09 - 2024",
+    course: "Mathematics 101",
+    date: "23 - 09 - 2024",
     performance: "79%",
   },
 ];

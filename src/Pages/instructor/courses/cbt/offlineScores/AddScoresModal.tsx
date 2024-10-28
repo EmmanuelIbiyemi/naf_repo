@@ -16,6 +16,8 @@ import { Close } from "@mui/icons-material";
 import { useFormik } from "formik";
 import * as yup from "yup";
 import { CoursesResponse } from "../../../../../types/courses";
+import SuccessModal from "../../../../../components/SuccessModal";
+import { useState } from "react";
 
 interface AddScoresModalProps {
   open: boolean;
@@ -51,9 +53,17 @@ const AddScoresModal = ({
     validationSchema: validationSchema,
     onSubmit: (values) => {
       console.log(values);
-      handleClose();
+      handleOpenSuccessModal();
     },
   });
+
+  const [openSuccessModal, setOpenSuccessModal] = useState(false);
+
+  const handleOpenSuccessModal = () => setOpenSuccessModal(true);
+  const handleCloseSuccessModal = () => {
+    setOpenSuccessModal(false);
+    handleClose();
+  };
 
   return (
     <Dialog
@@ -185,6 +195,21 @@ const AddScoresModal = ({
           </Stack>
         </form>
       </DialogContent>
+      <SuccessModal
+        actions={{
+          proceed: () => {
+            console.log("proceed");
+          },
+          undo: () => {
+            console.log("undo");
+          },
+        }}
+        close={handleCloseSuccessModal}
+        infoText=""
+        open={openSuccessModal}
+        subTitle={`Offline score has been successfully updated!`}
+        title="Successful"
+      />
     </Dialog>
   );
 };

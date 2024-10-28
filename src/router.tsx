@@ -228,7 +228,7 @@ export const router = createBrowserRouter([
             element: <CoursesTestParticipantsPage />,
           },
           {
-            path: "tests/:testId/details/:id",
+            path: "tests/:testId/detail/:id",
             element: <CoursesViewParticipantDetailsPage />,
           },
           { path: "classes", element: <LiveClassesPage /> },

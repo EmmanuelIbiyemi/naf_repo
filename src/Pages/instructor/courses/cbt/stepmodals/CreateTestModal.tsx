@@ -19,6 +19,7 @@ import { CourseType } from "../../../../../types/courses";
 import { useAddMediaMutation } from "../../../../../store/api/media.api";
 import { useCreateQuestionFromFileMutation } from "../../../../../store/api/quizzes.api";
 import { ManualUploadQuestion } from "../../../../../types/quizzes";
+import ShareWithModal from "../../../../../components/ShareWithModal";
 
 const initialFormData: TestFormData = {
   subject: "",
@@ -74,6 +75,10 @@ const CreateTestModal: React.FC<CreateTestModalProps> = ({
   const navigate = useNavigate();
   const [uploadMedia] = useAddMediaMutation();
   const [createQuestionFromFile] = useCreateQuestionFromFileMutation();
+  const [openShareModal, setOpenShareModal] = useState(false);
+  const handleCloseShareModal = () => {
+    setOpenShareModal(false);
+  };
 
   const handleNext = () => {
     setCurrentActiveStep((prevStep) =>
@@ -98,19 +103,31 @@ const CreateTestModal: React.FC<CreateTestModalProps> = ({
     try {
       const formData = new FormData();
       formData.append("file", file);
+
       const uploadMediaResponse = await uploadMedia(formData).unwrap();
       const fileUrl = uploadMediaResponse.media[0].url;
+
       if (fileUrl) {
-        setLocalFormData((prevData) => ({ ...prevData, file: fileUrl }));
+        // First update the state
+        await new Promise<void>((resolve) => {
+          setLocalFormData((prevData) => {
+            const newData = { ...prevData, file: fileUrl };
+            resolve();
+            return newData;
+          });
+        });
+
         await createQuestionFromFile({
           assessment_id: localFormData.assessmentId,
-          file_url: localFormData.file,
+          file_url: fileUrl,
         });
+
+        setOpenShareModal(true);
+
+        handleBack();
       } else {
         console.error("File URL not found in the response.");
       }
-      setOpenCSVModal(false);
-      handleBack();
     } catch (error) {
       console.error("File upload failed:", error);
     }
@@ -251,6 +268,12 @@ const CreateTestModal: React.FC<CreateTestModalProps> = ({
         open={openCSVModal}
         handleClose={() => setOpenCSVModal(false)}
         handleFileChange={handleFileChange}
+      />
+      <ShareWithModal
+        open={openShareModal}
+        handleClose={handleCloseShareModal}
+        participants={participants || []}
+        quizId={localFormData.quizId}
       />
     </>
   );

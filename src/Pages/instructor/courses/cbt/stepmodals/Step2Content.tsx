@@ -82,7 +82,6 @@ const Step2Content: React.FC<ModalProps> = ({
       show_result: true,
       course_id: parseInt(courseId),
     };
-    console.log(createQuizData);
     try {
       const createQuizResponse = await createQuiz(createQuizData).unwrap();
       const createAssessmentResponse = await createAssessment({
@@ -99,13 +98,15 @@ const Step2Content: React.FC<ModalProps> = ({
   };
 
   const handleUploadQuestions = async () => {
-    if (!uploadPayload) {
-      console.error("Upload payload is missing");
+    if (!uploadPayload && !formData.file) {
+      console.error("Upload payload or file is missing");
       return;
     }
 
     try {
-      await uploadManualQuestion(uploadPayload).unwrap();
+      if (uploadPayload) {
+        await uploadManualQuestion(uploadPayload).unwrap();
+      }
       setOpenShareModal(true);
     } catch (error) {
       console.error(error);

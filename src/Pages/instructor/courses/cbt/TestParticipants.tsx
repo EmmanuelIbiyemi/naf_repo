@@ -47,7 +47,7 @@ const Students = () => {
                 fontWeight: 300,
               }}
             >
-              List of students enrolled in the course “Sosososo And So”
+              List of students that submitted the test “Sosososo And So”
             </Typography>
             <Box
               sx={{

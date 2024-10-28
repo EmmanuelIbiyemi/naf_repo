@@ -17,9 +17,9 @@ const quizzesApi = appApi.injectEndpoints({
     }),
     getCourseQuizzes: builder.query<
       { data: QuizzesResponse[] },
-      { course_id: number | null }
+      { course_id: number }
     >({
-      query: (course_id) => ({
+      query: ({ course_id }) => ({
         url: `/quiz?course_id=${course_id}`,
       }),
       providesTags: ["Quiz"],
