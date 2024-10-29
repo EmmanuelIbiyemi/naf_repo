@@ -18,7 +18,7 @@ const Page = () => {
   const [addPost] = useAddPostMutation();
   const [updatePost, updateState] = useUpdatePostMutation();
 
-  const { data: pageData, isLoading } = useGetPostByCategoryQuery(
+  const { data: pageData, isFetching } = useGetPostByCategoryQuery(
     pageName as string,
     { skip: !pageName }
   );
@@ -58,10 +58,10 @@ const Page = () => {
   const addBlock = useCallback((type: string) => {
     setPost((prev) => {
       if (!prev) return null;
-
+      const content = elements.find((el) => el.type === type)?.name ?? "";
       const newBlock: BlockType = {
         id: (prev.blocks?.[prev.blocks.length - 1]?.id ?? 0) + 1,
-        content: elements.find((el) => el.type === type)?.name ?? "",
+        content: `${content}::::`,
         type,
         caption: "",
         link: "",
@@ -96,13 +96,13 @@ const Page = () => {
     navigate(-1);
   }, [navigate]);
 
-  if (isLoading) {
+  if (isFetching) {
     return <LoadingScreen />;
   }
 
   return (
     <Box sx={contentStyles}>
-      {updateState.isLoading ? <LoadingScreen /> : null}
+      {updateState.isLoading || isFetching ? <LoadingScreen /> : null}
       <Box sx={{ paddingBottom: "2rem" }}>
         <Box sx={headerStyles}>
           <Button onClick={handleBack}>Back</Button>

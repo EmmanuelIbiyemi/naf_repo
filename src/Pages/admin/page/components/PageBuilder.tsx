@@ -12,7 +12,7 @@ import {
   ArrowUpward,
   CloudUploadOutlined,
 } from "@mui/icons-material";
-import { ChangeEvent, MouseEvent } from "react";
+import { ChangeEvent, MouseEvent, useCallback } from "react";
 import DeleteIcon from "../../../../assets/deleteIcon";
 import { PostType } from "../../../../types/posts";
 import { useDeletePostBlockMutation } from "../../../../store/api/posts.api";
@@ -130,13 +130,63 @@ const PageBuilder = ({ page, setPage }: Props) => {
     const target = event.target;
     console.log(target.files);
   };
+  const updateBlock = useCallback(
+    (newBlock: BlockType) => {
+      setPage((prev) => {
+        if (!prev) return prev;
 
-  // const handleChange = (e: ChangeEvent) => {
-  //   console.log(e.target.value);
-  // };
+        const updatedBlocks = prev.blocks.map((block) =>
+          block.id === newBlock.id ? newBlock : block
+        );
+
+        return {
+          ...prev,
+          blocks: updatedBlocks,
+        };
+      });
+    },
+    [page]
+  );
+
+  const handleChange = (
+    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+    type: string,
+    elId: number
+  ) => {
+    const foundBlock = page.blocks.find((block) => block.id === elId);
+    if (foundBlock) {
+      const content = foundBlock.content.split("::");
+      const value = e.target.value;
+
+      switch (type) {
+        case "title":
+          content[0] = value;
+          break;
+        case "subTitle":
+          content[1] = value;
+          break;
+        case "buttonText":
+          content[2] = value;
+          break;
+      }
+
+      const newBlock: BlockType = {
+        ...foundBlock,
+        content: content.join("::"),
+      };
+      updateBlock(newBlock);
+    }
+  };
+
+  const capitalizeText = (text: string) => {
+    const allTexts = text.split(" ");
+    return allTexts.map((t) => t[0].toUpperCase() + t.substring(1)).join(" ");
+  };
 
   const displayEl = (element: BlockType) => {
     let el;
+    const content = element.content.split("::");
+
     switch (element.type) {
       case "banner":
         el = (
@@ -149,7 +199,7 @@ const PageBuilder = ({ page, setPage }: Props) => {
               }}
             >
               <Typography variant="h5" id={`element-${element.id}`}>
-                {element.type}
+                {capitalizeText(element.type)}
               </Typography>
               <ActionButtons block={element} setPage={setPage} />
             </Box>
@@ -161,9 +211,21 @@ const PageBuilder = ({ page, setPage }: Props) => {
                 gridTemplateColumns: "1fr 1fr",
               }}
             >
-              <TextField label="Title" />
-              <TextField label="Sub title" />
-              <TextField label="Button text" />
+              <TextField
+                label="Title"
+                defaultValue={content[0]}
+                onBlur={(e) => handleChange(e, "title", element.id)}
+              />
+              <TextField
+                label="Sub title"
+                defaultValue={content[1]}
+                onBlur={(e) => handleChange(e, "subTitle", element.id)}
+              />
+              <TextField
+                label="Button text"
+                defaultValue={content[2]}
+                onBlur={(e) => handleChange(e, "buttonText", element.id)}
+              />
             </FormControl>
           </Box>
         );
@@ -179,7 +241,7 @@ const PageBuilder = ({ page, setPage }: Props) => {
               }}
             >
               <Typography variant="h5" id={`element-${element.id}`}>
-                {element.type}
+                {capitalizeText(element.type)}
               </Typography>
               <ActionButtons block={element} setPage={setPage} />
             </Box>
@@ -191,9 +253,21 @@ const PageBuilder = ({ page, setPage }: Props) => {
                 gridTemplateColumns: "1fr 1fr",
               }}
             >
-              <TextField label="Title" />
-              <TextField label="Sub title" />
-              <TextField label="Button text" />
+              <TextField
+                label="Title"
+                defaultValue={content[0]}
+                onBlur={(e) => handleChange(e, "title", element.id)}
+              />
+              <TextField
+                label="Sub title"
+                defaultValue={content[1]}
+                onBlur={(e) => handleChange(e, "subTitle", element.id)}
+              />
+              <TextField
+                label="Button text"
+                defaultValue={content[2]}
+                onBlur={(e) => handleChange(e, "buttonText", element.id)}
+              />
             </FormControl>
           </Box>
         );
@@ -209,22 +283,10 @@ const PageBuilder = ({ page, setPage }: Props) => {
               }}
             >
               <Typography variant="h5" id={`element-${element.id}`}>
-                {element.type}
+                {capitalizeText(element.type)}
               </Typography>
               <ActionButtons block={element} setPage={setPage} />
             </Box>
-            <FormControl
-              fullWidth
-              sx={{
-                display: "grid",
-                gap: ".4rem",
-                gridTemplateColumns: "1fr 1fr",
-              }}
-            >
-              <TextField label="Title" />
-              <TextField label="Sub title" />
-              <TextField label="Button text" />
-            </FormControl>
           </Box>
         );
         break;
@@ -239,7 +301,25 @@ const PageBuilder = ({ page, setPage }: Props) => {
               }}
             >
               <Typography variant="h5" id={`element-${element.id}`}>
-                {element.type}
+                {capitalizeText(element.type)}
+              </Typography>
+              <ActionButtons block={element} setPage={setPage} />
+            </Box>
+          </Box>
+        );
+        break;
+      case "news section":
+        el = (
+          <Box>
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                marginBottom: "1rem",
+              }}
+            >
+              <Typography variant="h5" id={`element-${element.id}`}>
+                {capitalizeText(element.type)}
               </Typography>
               <ActionButtons block={element} setPage={setPage} />
             </Box>
@@ -251,9 +331,21 @@ const PageBuilder = ({ page, setPage }: Props) => {
                 gridTemplateColumns: "1fr 1fr",
               }}
             >
-              <TextField label="Title" />
-              <TextField label="Sub title" />
-              <TextField label="Button text" />
+              <TextField
+                label="Title"
+                defaultValue={content[0]}
+                onBlur={(e) => handleChange(e, "title", element.id)}
+              />
+              <TextField
+                label="Sub title"
+                defaultValue={content[1]}
+                onBlur={(e) => handleChange(e, "subTitle", element.id)}
+              />
+              <TextField
+                label="Button text"
+                defaultValue={content[2]}
+                onBlur={(e) => handleChange(e, "buttonText", element.id)}
+              />
             </FormControl>
           </Box>
         );
@@ -268,7 +360,9 @@ const PageBuilder = ({ page, setPage }: Props) => {
                 marginBottom: "1rem",
               }}
             >
-              <span></span>
+              <Typography variant="h5" id={`element-${element.id}`}>
+                {capitalizeText(element.type)}
+              </Typography>
               <ActionButtons block={element} setPage={setPage} />
             </Box>
             <Box
@@ -288,18 +382,10 @@ const PageBuilder = ({ page, setPage }: Props) => {
             <Box sx={{ marginBottom: "1rem" }}>
               <Box sx={{ display: "flex", justifyContent: "space-between" }}>
                 <Typography variant="h5" id={`element-${element.id}`}>
-                  {element.type}
+                  {capitalizeText(element.type)}
                 </Typography>
                 <ActionButtons block={element} setPage={setPage} />
               </Box>
-              <FormControl
-                fullWidth
-                sx={{
-                  marginTop: "1rem",
-                }}
-              >
-                <TextField label="Title" />
-              </FormControl>
             </Box>
             <Box
               id={`element-${element.id}`}
@@ -323,12 +409,16 @@ const PageBuilder = ({ page, setPage }: Props) => {
               }}
             >
               <Typography variant="h5" id={`element-${element.id}`}>
-                {element.type}
+                {capitalizeText(element.type)}
               </Typography>
               <ActionButtons block={element} setPage={setPage} />
             </Box>
             <FormControl fullWidth>
-              <TextField label="" />
+              <TextField
+                label=""
+                defaultValue={content[0]}
+                onBlur={(e) => handleChange(e, "title", element.id)}
+              />
             </FormControl>
           </Box>
         );
@@ -344,12 +434,16 @@ const PageBuilder = ({ page, setPage }: Props) => {
               }}
             >
               <Typography variant="h5" id={`element-${element.id}`}>
-                {element.type}
+                {capitalizeText(element.type)}
               </Typography>
               <ActionButtons block={element} setPage={setPage} />
             </Box>
             <FormControl fullWidth>
-              <TextField label="" />
+              <TextField
+                label=""
+                defaultValue={content[0]}
+                onBlur={(e) => handleChange(e, "title", element.id)}
+              />
             </FormControl>
           </Box>
         );
@@ -365,12 +459,16 @@ const PageBuilder = ({ page, setPage }: Props) => {
               }}
             >
               <Typography variant="h5" id={`element-${element.id}`}>
-                {element.type}
+                {capitalizeText(element.type)}
               </Typography>
               <ActionButtons block={element} setPage={setPage} />
             </Box>
             <FormControl fullWidth>
-              <TextField label="" />
+              <TextField
+                label=""
+                defaultValue={content[0]}
+                onBlur={(e) => handleChange(e, "title", element.id)}
+              />
             </FormControl>
           </Box>
         );
@@ -386,43 +484,91 @@ const PageBuilder = ({ page, setPage }: Props) => {
               }}
             >
               <Typography variant="h5" id={`element-${element.id}`}>
-                {element.type}
+                {capitalizeText(element.type)}
               </Typography>
               <ActionButtons block={element} setPage={setPage} />
             </Box>
             <FormControl fullWidth>
-              <TextField label="" />
+              <TextField
+                label=""
+                defaultValue={content[0]}
+                onBlur={(e) => handleChange(e, "title", element.id)}
+              />
             </FormControl>
           </Box>
         );
         break;
       case "commandants":
         el = (
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "space-between",
-            }}
-          >
-            <Typography variant="h5" id={`element-${element.id}`}>
-              {element.type}
-            </Typography>
-            <ActionButtons block={element} setPage={setPage} />
+          <Box>
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                marginBottom: "1rem",
+              }}
+            >
+              <Typography variant="h5" id={`element-${element.id}`}>
+                {capitalizeText(element.type)}
+              </Typography>
+              <ActionButtons block={element} setPage={setPage} />
+            </Box>
+            <FormControl
+              fullWidth
+              sx={{
+                display: "grid",
+                gap: ".4rem",
+                gridTemplateColumns: "1fr 1fr",
+              }}
+            >
+              <TextField
+                label="Title"
+                defaultValue={content[0]}
+                onBlur={(e) => handleChange(e, "title", element.id)}
+              />
+              <TextField
+                label="Sub title"
+                defaultValue={content[1]}
+                onBlur={(e) => handleChange(e, "subTitle", element.id)}
+              />
+            </FormControl>
           </Box>
         );
         break;
       case "staffs":
         el = (
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "space-between",
-            }}
-          >
-            <Typography variant="h5" id={`element-${element.id}`}>
-              {element.type}
-            </Typography>
-            <ActionButtons block={element} setPage={setPage} />
+          <Box>
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                marginBottom: "1rem",
+              }}
+            >
+              <Typography variant="h5" id={`element-${element.id}`}>
+                {capitalizeText(element.type)}
+              </Typography>
+              <ActionButtons block={element} setPage={setPage} />
+            </Box>
+            <FormControl
+              fullWidth
+              sx={{
+                display: "grid",
+                gap: ".4rem",
+                gridTemplateColumns: "1fr 1fr",
+              }}
+            >
+              <TextField
+                label="Title"
+                defaultValue={content[0]}
+                onBlur={(e) => handleChange(e, "title", element.id)}
+              />
+              <TextField
+                label="Sub title"
+                defaultValue={content[1]}
+                onBlur={(e) => handleChange(e, "subTitle", element.id)}
+              />
+            </FormControl>
           </Box>
         );
         break;
@@ -435,7 +581,7 @@ const PageBuilder = ({ page, setPage }: Props) => {
             }}
           >
             <Typography variant="h5" id={`element-${element.id}`}>
-              {element.type}
+              {capitalizeText(element.type)}
             </Typography>
             <ActionButtons block={element} setPage={setPage} />
           </Box>
@@ -450,7 +596,7 @@ const PageBuilder = ({ page, setPage }: Props) => {
             }}
           >
             <Typography variant="h5" id={`element-${element.id}`}>
-              {element.type}
+              {capitalizeText(element.type)}
             </Typography>
             <ActionButtons block={element} setPage={setPage} />
           </Box>
@@ -459,7 +605,7 @@ const PageBuilder = ({ page, setPage }: Props) => {
     }
 
     return (
-      <Box key={`element-${element.content}`} className="element">
+      <Box key={`element-${element.id}`} className="element">
         {el}
       </Box>
     );
