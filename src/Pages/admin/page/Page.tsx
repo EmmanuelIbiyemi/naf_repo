@@ -16,7 +16,7 @@ const Page = () => {
   const navigate = useNavigate();
   const { name: pageName } = useParams();
   const [addPost] = useAddPostMutation();
-  const [updatePost] = useUpdatePostMutation();
+  const [updatePost, updateState] = useUpdatePostMutation();
 
   const { data: pageData, isLoading } = useGetPostByCategoryQuery(
     pageName as string,
@@ -102,6 +102,7 @@ const Page = () => {
 
   return (
     <Box sx={contentStyles}>
+      {updateState.isLoading ? <LoadingScreen /> : null}
       <Box sx={{ paddingBottom: "2rem" }}>
         <Box sx={headerStyles}>
           <Button onClick={handleBack}>Back</Button>

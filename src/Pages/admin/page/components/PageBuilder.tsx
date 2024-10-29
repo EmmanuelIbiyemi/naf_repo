@@ -16,44 +16,99 @@ import { ChangeEvent, MouseEvent } from "react";
 import DeleteIcon from "../../../../assets/deleteIcon";
 import { PostType } from "../../../../types/posts";
 import { useDeletePostBlockMutation } from "../../../../store/api/posts.api";
+import { useAppDispatch } from "../../../../store/hooks";
+import { setBuilderLoading } from "../../../../store/app.slice";
 
 type ActionProp = {
-  id: number;
+  block: BlockType;
   setPage: React.Dispatch<React.SetStateAction<PostType>>;
 };
 
-const ActionButtons = ({ id, setPage }: ActionProp) => {
+const ActionButtons = ({ block, setPage }: ActionProp) => {
+  const dispatch = useAppDispatch();
   const [deleteBlock] = useDeletePostBlockMutation();
-  const handleMoveUp = (block_id: number) => {
-    console.log(block_id);
+
+  const handleMoveUp = (currentPos: number) => {
+    if (currentPos <= 1) return; // Can't move up if already at top
+
+    setPage((prev) => {
+      const newBlocks = [...prev.blocks];
+
+      // Only proceed if both blocks exist
+      if (newBlocks[currentPos - 1] && newBlocks[currentPos - 2]) {
+        //   // Store the blocks we want to swap
+        const currentBlock = { ...newBlocks[currentPos - 1] };
+        const upperBlock = { ...newBlocks[currentPos - 2] };
+        newBlocks[currentPos - 1] = upperBlock;
+        newBlocks[currentPos - 2] = currentBlock;
+
+        // Update all positions to match array indices - create new objects
+        const updatedBlocks = newBlocks.map((block, index) => ({
+          ...block,
+          position: index + 1,
+        }));
+        return {
+          ...prev,
+          blocks: updatedBlocks,
+        };
+      }
+      return prev;
+    });
   };
 
-  const handleMoveDown = (block_id: number) => {
-    console.log(block_id);
+  const handleMoveDown = (currentPos: number) => {
+    if (currentPos <= 0) return; // Can't move up if already at top
+
+    setPage((prev) => {
+      if (!prev || !prev.blocks) return prev;
+
+      const newBlocks = [...prev.blocks];
+
+      // Only proceed if both blocks exist
+      if (newBlocks[currentPos] && newBlocks[currentPos - 1]) {
+        // Store the blocks we want to swap
+        const currentBlock = { ...newBlocks[currentPos] };
+        const upperBlock = { ...newBlocks[currentPos - 1] };
+
+        // Perform the swap
+        newBlocks[currentPos - 1] = currentBlock;
+        newBlocks[currentPos] = upperBlock;
+
+        // Update all positions to match array indices - create new objects
+        const updatedBlocks = newBlocks.map((block, index) => ({
+          ...block,
+          position: index + 1,
+        }));
+
+        return {
+          ...prev,
+          blocks: updatedBlocks,
+        };
+      }
+
+      return prev;
+    });
   };
 
   const handleDelete = async (block_id: number) => {
+    dispatch(setBuilderLoading(true));
     try {
       await deleteBlock(block_id).unwrap();
     } catch (error) {
       console.log(error);
     }
-
-    setPage((prev) => {
-      const newBlocks = prev.blocks.filter((el) => el.id != id);
-      return { ...prev, blocks: newBlocks };
-    });
+    dispatch(setBuilderLoading(false));
   };
 
   return (
     <Box sx={{ display: "flex", gap: ".3rem" }}>
-      <IconButton onClick={() => handleMoveUp(id)}>
+      <IconButton onClick={() => handleMoveUp(block.position)}>
         <ArrowUpward />
       </IconButton>
-      <IconButton onClick={() => handleMoveDown(id)}>
+      <IconButton onClick={() => handleMoveDown(block.position)}>
         <ArrowDownward />
       </IconButton>
-      <IconButton onClick={() => handleDelete(id)} className="delete_btn">
+      <IconButton onClick={() => handleDelete(block.id)} className="delete_btn">
         <DeleteIcon />
       </IconButton>
     </Box>
@@ -76,6 +131,10 @@ const PageBuilder = ({ page, setPage }: Props) => {
     console.log(target.files);
   };
 
+  // const handleChange = (e: ChangeEvent) => {
+  //   console.log(e.target.value);
+  // };
+
   const displayEl = (element: BlockType) => {
     let el;
     switch (element.type) {
@@ -92,7 +151,7 @@ const PageBuilder = ({ page, setPage }: Props) => {
               <Typography variant="h5" id={`element-${element.id}`}>
                 {element.type}
               </Typography>
-              <ActionButtons id={element.id} setPage={setPage} />
+              <ActionButtons block={element} setPage={setPage} />
             </Box>
             <FormControl
               fullWidth
@@ -122,7 +181,7 @@ const PageBuilder = ({ page, setPage }: Props) => {
               <Typography variant="h5" id={`element-${element.id}`}>
                 {element.type}
               </Typography>
-              <ActionButtons id={element.id} setPage={setPage} />
+              <ActionButtons block={element} setPage={setPage} />
             </Box>
             <FormControl
               fullWidth
@@ -152,7 +211,7 @@ const PageBuilder = ({ page, setPage }: Props) => {
               <Typography variant="h5" id={`element-${element.id}`}>
                 {element.type}
               </Typography>
-              <ActionButtons id={element.id} setPage={setPage} />
+              <ActionButtons block={element} setPage={setPage} />
             </Box>
             <FormControl
               fullWidth
@@ -182,7 +241,7 @@ const PageBuilder = ({ page, setPage }: Props) => {
               <Typography variant="h5" id={`element-${element.id}`}>
                 {element.type}
               </Typography>
-              <ActionButtons id={element.id} setPage={setPage} />
+              <ActionButtons block={element} setPage={setPage} />
             </Box>
             <FormControl
               fullWidth
@@ -210,7 +269,7 @@ const PageBuilder = ({ page, setPage }: Props) => {
               }}
             >
               <span></span>
-              <ActionButtons id={element.id} setPage={setPage} />
+              <ActionButtons block={element} setPage={setPage} />
             </Box>
             <Box
               id={`element-${element.id}`}
@@ -231,7 +290,7 @@ const PageBuilder = ({ page, setPage }: Props) => {
                 <Typography variant="h5" id={`element-${element.id}`}>
                   {element.type}
                 </Typography>
-                <ActionButtons id={element.id} setPage={setPage} />
+                <ActionButtons block={element} setPage={setPage} />
               </Box>
               <FormControl
                 fullWidth
@@ -266,7 +325,7 @@ const PageBuilder = ({ page, setPage }: Props) => {
               <Typography variant="h5" id={`element-${element.id}`}>
                 {element.type}
               </Typography>
-              <ActionButtons id={element.id} setPage={setPage} />
+              <ActionButtons block={element} setPage={setPage} />
             </Box>
             <FormControl fullWidth>
               <TextField label="" />
@@ -287,7 +346,7 @@ const PageBuilder = ({ page, setPage }: Props) => {
               <Typography variant="h5" id={`element-${element.id}`}>
                 {element.type}
               </Typography>
-              <ActionButtons id={element.id} setPage={setPage} />
+              <ActionButtons block={element} setPage={setPage} />
             </Box>
             <FormControl fullWidth>
               <TextField label="" />
@@ -308,7 +367,7 @@ const PageBuilder = ({ page, setPage }: Props) => {
               <Typography variant="h5" id={`element-${element.id}`}>
                 {element.type}
               </Typography>
-              <ActionButtons id={element.id} setPage={setPage} />
+              <ActionButtons block={element} setPage={setPage} />
             </Box>
             <FormControl fullWidth>
               <TextField label="" />
@@ -329,7 +388,7 @@ const PageBuilder = ({ page, setPage }: Props) => {
               <Typography variant="h5" id={`element-${element.id}`}>
                 {element.type}
               </Typography>
-              <ActionButtons id={element.id} setPage={setPage} />
+              <ActionButtons block={element} setPage={setPage} />
             </Box>
             <FormControl fullWidth>
               <TextField label="" />
@@ -348,7 +407,7 @@ const PageBuilder = ({ page, setPage }: Props) => {
             <Typography variant="h5" id={`element-${element.id}`}>
               {element.type}
             </Typography>
-            <ActionButtons id={element.id} setPage={setPage} />
+            <ActionButtons block={element} setPage={setPage} />
           </Box>
         );
         break;
@@ -363,7 +422,7 @@ const PageBuilder = ({ page, setPage }: Props) => {
             <Typography variant="h5" id={`element-${element.id}`}>
               {element.type}
             </Typography>
-            <ActionButtons id={element.id} setPage={setPage} />
+            <ActionButtons block={element} setPage={setPage} />
           </Box>
         );
         break;
@@ -378,7 +437,7 @@ const PageBuilder = ({ page, setPage }: Props) => {
             <Typography variant="h5" id={`element-${element.id}`}>
               {element.type}
             </Typography>
-            <ActionButtons id={element.id} setPage={setPage} />
+            <ActionButtons block={element} setPage={setPage} />
           </Box>
         );
         break;
@@ -393,14 +452,14 @@ const PageBuilder = ({ page, setPage }: Props) => {
             <Typography variant="h5" id={`element-${element.id}`}>
               {element.type}
             </Typography>
-            <ActionButtons id={element.id} setPage={setPage} />
+            <ActionButtons block={element} setPage={setPage} />
           </Box>
         );
         break;
     }
 
     return (
-      <Box key={`element-${element.id}`} className="element">
+      <Box key={`element-${element.content}`} className="element">
         {el}
       </Box>
     );

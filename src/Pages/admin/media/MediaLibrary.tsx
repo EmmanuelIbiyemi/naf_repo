@@ -266,7 +266,13 @@ const MediaLibrary = () => {
               ))}
             </TabList>
           </Box>
-          <TabPanel value="1" sx={TabStyles}>
+          <TabPanel
+            value="1"
+            sx={{
+              ...TabStyles,
+              display: allMedia?.media.length ? "grid" : "block",
+            }}
+          >
             {allMedia?.media.length ? (
               allMedia?.media?.map((media) => (
                 <MediaItem
@@ -278,11 +284,17 @@ const MediaLibrary = () => {
             ) : (
               <EmptyState
                 title={allError ? "Could Not Fetch Media" : "No Media yet"}
-                subTitle="Courses will appear here after you add them in your school."
+                subTitle="Media will appear here after you add them in your school."
               />
             )}
           </TabPanel>
-          <TabPanel value="2" sx={TabStyles}>
+          <TabPanel
+            value="2"
+            sx={{
+              ...TabStyles,
+              display: videos?.media.length ? "grid" : "block",
+            }}
+          >
             {videos?.media.length ? (
               videos?.media?.map((media) => (
                 <MediaItem
@@ -292,12 +304,19 @@ const MediaLibrary = () => {
                 />
               ))
             ) : (
-              <Typography sx={{ marginLeft: "1rem" }}>
-                {videosError ? "Could Not Fetch Media" : "No Media yet"}
-              </Typography>
+              <EmptyState
+                title={videosError ? "Could Not Fetch Media" : "No Media yet"}
+                subTitle="Media will appear here after you add them in your school."
+              />
             )}
           </TabPanel>
-          <TabPanel value="3" sx={TabStyles}>
+          <TabPanel
+            value="3"
+            sx={{
+              ...TabStyles,
+              display: images?.media.length ? "grid" : "block",
+            }}
+          >
             {images?.media.length ? (
               images?.media?.map((media) => (
                 <MediaItem
@@ -307,9 +326,10 @@ const MediaLibrary = () => {
                 />
               ))
             ) : (
-              <Typography sx={{ marginLeft: "1rem" }}>
-                {imagesError ? "Could Not Fetch Media" : "No Media yet"}
-              </Typography>
+              <EmptyState
+                title={imagesError ? "Could Not Fetch Media" : "No Media yet"}
+                subTitle="Media will appear here after you add them in your school."
+              />
             )}
           </TabPanel>
         </TabContext>

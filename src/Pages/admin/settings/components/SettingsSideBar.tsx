@@ -12,10 +12,10 @@ const SettingsSideBar = () => {
   const location = useLocation();
   const [navLinks] = useState<NavLink[]>([
     { content: "Media Library", link: "/settings" },
+    { content: "Home Page", link: "/settings/page/home" },
     { content: "About Page", link: "/settings/page/about" },
     { content: "Updates Page", link: "/settings/page/updates" },
     { content: "Courses Page", link: "/settings/page/courses" },
-    { content: "Contact Page", link: "/settings/page/contact" },
   ]);
 
   const isCurrentPage = (navLink: NavLink) => {
