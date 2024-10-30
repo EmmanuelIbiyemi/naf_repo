@@ -41,7 +41,7 @@ function App() {
         case "instructor":
           navigate("/instructor");
           break;
-        case "student":
+        case "participant":
           navigate("/student/dashboard");
           break;
         default:
@@ -56,7 +56,7 @@ function App() {
         return <AdminLayout />;
       case "instructor":
         return <InstructorLayout />;
-      case "student":
+      case "participant":
         return <StudentLayout />;
       default:
         return null;
