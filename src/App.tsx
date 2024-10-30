@@ -42,7 +42,7 @@ function App() {
           navigate("/instructor");
           break;
         case "student":
-          navigate("/student");
+          navigate("/student/dashboard");
           break;
         default:
           navigate("/login");
@@ -64,7 +64,10 @@ function App() {
   };
 
   return (
-    <Box>
+    <Box
+    sx={{
+          fontFamily:'outfit',
+          }}>
       {isPageLoading && (
         <Box
           sx={{
