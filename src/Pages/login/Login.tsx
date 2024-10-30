@@ -1,8 +1,19 @@
-import { Box, Button, Container, SxProps, Typography } from "@mui/material";
+import { useState } from "react";
+import { 
+  Box, 
+  Button, 
+  Container, 
+  SxProps, 
+  Typography,
+  Alert,
+  IconButton,
+  CircularProgress 
+} from "@mui/material";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
 import logo from "../../assets/logo.png";
 import loginBG from "../../assets/login-bg.svg";
 import { Link, useNavigate } from "react-router-dom";
-import { Form, Formik } from "formik";
+import { Form, Formik, FormikHelpers } from "formik";
 import * as Yup from "yup";
 import { LoadingButton } from "@mui/lab";
 import { FormikTextField } from "../../components/form/TextField";
@@ -11,42 +22,90 @@ import { UserLoginType } from "../../types/users";
 import { login } from "../../store/auth.slice";
 import { useAppDispatch } from "../../store/hooks";
 
+interface LoginError {
+  data?: {
+    message?: string;
+  };
+  status?: number;
+}
+
 const Login = () => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const [loginUser] = useLoginMutation();
-  const initialValues = {
+  const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const initialValues: UserLoginType = {
     email: "",
     password: "",
   };
 
   const validationSchema = Yup.object({
-    email: Yup.string().email("Invalid email").required("Required"),
-    password: Yup.string().required("Required"),
+    email: Yup.string()
+      .email("Please enter a valid email address")
+      .required("Email is required"),
+    password: Yup.string()
+      .min(6, "Password must be at least 6 characters")
+      .required("Password is required"),
   });
 
-  const handleSubmit = async (values: UserLoginType) => {
+  const handleSubmit = async (
+    values: UserLoginType, 
+    { setSubmitting }: FormikHelpers<UserLoginType>
+  ) => {
     try {
+      setError(null);
       const response = await loginUser(values).unwrap();
       dispatch(login(response));
       navigate("/");
     } catch (error) {
-      console.log(error);
+      const loginError = error as LoginError;
+      setError(
+        loginError.data?.message || 
+        "Login failed. Please check your credentials and try again."
+      );
+    } finally {
+      setSubmitting(false);
     }
   };
 
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
+
+  // Custom props for FormikTextField components
+  const emailFieldProps = {
+    name: "email" as keyof UserLoginType,
+    label: "Email",
+    placeholder: "Enter your email",
+  };
+
+  const passwordFieldProps = {
+    name: "password" as keyof UserLoginType,
+    label: "Password",
+    placeholder: "Enter your password",
+    type: showPassword ? "text" : "password",
+  };
+
   return (
-    <>
+    <Box sx={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
       <Box sx={containerStyles}>
         <Container
           sx={{
             display: "flex",
             justifyContent: "space-between",
+            alignItems: "center",
           }}
         >
           <Link
             to="/"
-            style={{ alignItems: "center", display: "flex", gap: "1rem" }}
+            style={{ 
+              alignItems: "center", 
+              display: "flex", 
+              gap: "1rem",
+              textDecoration: "none" 
+            }}
           >
             <img src={logo} alt="logo" height={80} />
             <Typography>
@@ -55,57 +114,99 @@ const Login = () => {
               College of Nursing Sciences
             </Typography>
           </Link>
-          <Button>Admin login</Button>
+          <Button variant="outlined" color="inherit">
+            Admin login
+          </Button>
         </Container>
       </Box>
+      
       <Container className="has_bg_image" sx={formContainerStyles}>
         <img
           className="bg"
           src={loginBG}
           alt=""
-          style={{ position: "absolute" }}
+          style={{ position: "absolute", maxWidth: "100%" }}
         />
+        
         <Formik
           initialValues={initialValues}
           validationSchema={validationSchema}
           onSubmit={handleSubmit}
         >
-          <Form>
-            <Box sx={formStyles}>
-              <img src={logo} alt="" width={50} />
-              <Typography sx={{ fontWeight: 700, marginBottom: "2rem" }}>
-                USER LOGIN
-              </Typography>
-              <Box sx={{ display: "grid", gap: "1rem", width: 350 }}>
-                <FormikTextField<UserLoginType> name="email" label="Email" />
-                <FormikTextField<UserLoginType>
-                  name="password"
-                  label="Password"
-                  placeholder="********"
-                  type="password"
-                />
-                <LoadingButton
-                  sx={submitBtnStyles}
-                  type="submit"
-                  variant="contained"
-                >
-                  Next
-                </LoadingButton>
-                <Typography sx={{ color: "rgba(102, 112, 133, 1)" }}>
-                  Don’t have an account?{" "}
-                  <Link
-                    to=""
-                    style={{ color: "rgba(21, 46, 136, 1)", fontWeight: 600 }}
-                  >
-                    Contact Admin
-                  </Link>
+          {({ isSubmitting }) => (
+            <Form>
+              <Box sx={formStyles}>
+                <img src={logo} alt="College logo" width={50} />
+                <Typography variant="h5" sx={{ fontWeight: 700, mb: 3 }}>
+                  USER LOGIN
                 </Typography>
+                
+                {error && (
+                  <Alert 
+                    severity="error" 
+                    onClose={() => setError(null)}
+                    sx={{ mb: 2, width: "100%", maxWidth: 350 }}
+                  >
+                    {error}
+                  </Alert>
+                )}
+
+                <Box sx={{ display: "grid", gap: "1rem", width: 350 }}>
+                  <FormikTextField<UserLoginType> 
+                    {...emailFieldProps}
+                  />
+                  
+                  <Box sx={{ position: "relative" }}>
+                    <FormikTextField<UserLoginType>
+                      {...passwordFieldProps}
+                    />
+                    <IconButton
+                      aria-label="toggle password visibility"
+                      onClick={togglePasswordVisibility}
+                      sx={{
+                        position: "absolute",
+                        right: 8,
+                        top: "20px",
+                        transform: "translateY(-15px)",
+                      }}
+                    >
+                      {showPassword ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
+                  </Box>
+
+                  <LoadingButton
+                    sx={submitBtnStyles}
+                    type="submit"
+                    variant="contained"
+                    loading={isSubmitting}
+                    disabled={isSubmitting}
+                    loadingIndicator={
+                      <CircularProgress color="inherit" size={16} />
+                    }
+                  >
+                    {isSubmitting ? "Signing in..." : "Sign In"}
+                  </LoadingButton>
+
+                  <Typography sx={helpTextStyles}>
+                    Don't have an account?{" "}
+                    <Link
+                      to="/contact"
+                      style={{ 
+                        color: "rgba(21, 46, 136, 1)", 
+                        fontWeight: 600,
+                        textDecoration: "none" 
+                      }}
+                    >
+                      Contact Admin
+                    </Link>
+                  </Typography>
+                </Box>
               </Box>
-            </Box>
-          </Form>
+            </Form>
+          )}
         </Formik>
       </Container>
-    </>
+    </Box>
   );
 };
 
@@ -124,31 +225,47 @@ const containerStyles: SxProps = {
   },
   ".MuiButton-root": {
     fontSize: "1.2rem",
+    "&:hover": {
+      bgcolor: "rgba(255, 255, 255, 0.1)",
+    },
   },
 };
 
 const formContainerStyles: SxProps = {
   display: "grid",
-  height: "100vh",
+  flex: 1,
   placeItems: "center",
+  position: "relative",
+  py: 4,
 };
 
 const formStyles: SxProps = {
   backgroundColor: "#fff",
-  borderRadius: "5px",
+  borderRadius: "8px",
   display: "grid",
   gap: "1rem",
-  paddingBlock: "3rem 5rem",
+  padding: "3rem",
   placeItems: "center",
   position: "relative",
   textAlign: "center",
-  width: 600,
+  width: "100%",
+  maxWidth: 600,
   zIndex: 2,
+  boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)",
 };
 
 const submitBtnStyles: SxProps = {
   fontSize: "1rem",
   marginTop: "2rem",
   padding: ".7rem",
-  textTransform: "capitalize",
+  textTransform: "none",
+  fontWeight: 600,
+};
+
+const helpTextStyles: SxProps = {
+  color: "rgba(102, 112, 133, 1)",
+  fontSize: "0.875rem",
+  "& a:hover": {
+    textDecoration: "underline",
+  },
 };

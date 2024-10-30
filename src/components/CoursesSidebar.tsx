@@ -1,6 +1,11 @@
 import { Box, SxProps } from "@mui/material";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { ChevronRight } from "@mui/icons-material";
+import { CoursesResponse } from "../types/courses";
+
+type courseProps = {
+  course: CoursesResponse | undefined;
+};
 
 type NavLink = {
   content: string;
@@ -9,14 +14,14 @@ type NavLink = {
 };
 const navLinks: NavLink[] = [
   { content: "Course Details", link: "details" },
-  { content: "Course Students", link: "participants" },
+  { content: "Course Students", link: "students" },
   { content: "Course Notes", link: "notes" },
   { content: "CBT Tests", link: "tests" },
-  { content: "Schedules & Batches", link: "schedules" },
 ];
 
-const CoursesSidebar = () => {
+const CoursesSidebar = ({ course }: courseProps) => {
   const location = useLocation();
+  const navigate = useNavigate();
 
   const isCurrentPage = (navLink: NavLink) => {
     if (navLink.content.toLowerCase() !== "") {
@@ -37,31 +42,42 @@ const CoursesSidebar = () => {
   };
 
   return (
-    <Box className="sidebar" sx={sideBarStyles}>
-      <Box sx={navLinkStyles}>
-        {navLinks.map((item) => (
-          <Box key={`navlink-${item.content + 1}`}>
-            <Link
-              className={location.pathname.includes(item.link) ? "active" : ""}
-              to={item.link}
-            >
-              {item.content}
-            </Link>
-            {isCurrentPage(item) && item.children ? (
-              <Box sx={childLinkStyles}>
-                {item.children.map((child) => (
-                  <Link
-                    key={`child-link-${child.content}`}
-                    to={child.link}
-                    className={isCurrentChildLink(child) ? "active" : ""}
-                  >
-                    <ChevronRight /> {child.content}
-                  </Link>
-                ))}
-              </Box>
-            ) : null}
-          </Box>
-        ))}
+    <Box sx={{ position: "relative", height: "100%" }}>
+      <Box className="sidebar" sx={sideBarStyles}>
+        <Box sx={navLinkStyles}>
+          {navLinks.map((item) => (
+            <Box key={`navlink-${item.content + 1}`}>
+              <Link
+                className={
+                  location.pathname.includes(item.link) ? "active" : ""
+                }
+                to={item.link}
+              >
+                {item.content}
+              </Link>
+              {isCurrentPage(item) && item.children ? (
+                <Box sx={childLinkStyles}>
+                  {item.children.map((child) => (
+                    <Box
+                      className={isCurrentChildLink(child) ? "active" : ""}
+                      onClick={() =>
+                        navigate(child.link, { state: { course } })
+                      }
+                    >
+                      <ChevronRight /> {child.content}
+                    </Box>
+                    // <Link
+                    //   key={`child-link-${child.content}`}
+                    //   to={child.link}
+                    //   className={isCurrentChildLink(child) ? "active" : ""}
+                    // >
+                    // </Link>
+                  ))}
+                </Box>
+              ) : null}
+            </Box>
+          ))}
+        </Box>
       </Box>
     </Box>
   );
@@ -73,12 +89,12 @@ const sideBarStyles: SxProps = {
   bgcolor: "#fff",
   color: "primary.contrastText",
   //   padding: "2rem",
-  position: "fixed",
+  position: "sticky",
   height: "100vh",
   top: 100,
   left: 0,
   overflow: "scroll",
-  marginLeft: "280px",
+  // marginLeft: "280px",
   width: "220px",
 
   "&::-webkit-scrollbar": {

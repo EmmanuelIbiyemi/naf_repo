@@ -3,21 +3,25 @@ import { Form, Formik } from "formik";
 import * as Yup from "yup";
 
 type Props = {
+  heading?: string;
+  subHeading?: string;
   button?: {
     text: string;
     action: () => void;
-    heading: string;
-    subHeading: string;
   };
   additionalButton?: {
     text: string;
     action: () => void;
-    heading: string;
-    subHeading: string;
+    isLoading?: boolean;
   };
 };
 
-const InstructorPageHeader = ({ button, additionalButton }: Props) => {
+const InstructorPageHeader = ({
+  button,
+  additionalButton,
+  heading,
+  subHeading,
+}: Props) => {
   const initialValues = {
     filter: "",
     keyword: "",
@@ -60,22 +64,23 @@ const InstructorPageHeader = ({ button, additionalButton }: Props) => {
               <Search />
               <Field name="keyword" placeholder="Search..." />
             </Box> */}
-            {button || additionalButton ? (
-              <Box>
+            {heading && subHeading ? (
+              <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
                 <Typography variant="h4" sx={{ fontSize: "1.4rem" }}>
-                  {button?.heading || additionalButton?.heading}
+                  {heading}
                 </Typography>
                 <Typography variant="body2" sx={{ fontSize: "0.8rem" }}>
-                  {button?.subHeading || additionalButton?.subHeading}
+                  {subHeading}
                 </Typography>
               </Box>
             ) : null}
           </Box>
         </Form>
       </Formik>
-      {button ? (
-        <Box sx={formGroupStyles}>
+      <Box sx={formGroupStyles}>
+        {button ? (
           <Button
+            onClick={button.action}
             variant="contained"
             sx={{
               bgcolor: "#fff",
@@ -83,63 +88,30 @@ const InstructorPageHeader = ({ button, additionalButton }: Props) => {
               textTransform: "capitalize",
             }}
           >
-            Export CSV
-          </Button>
-          <Button
-            onClick={button.action}
-            variant="contained"
-            sx={{ textTransform: "capitalize" }}
-          >
             {button.text}
           </Button>
-        </Box>
-      ) : null}
-      {additionalButton ? (
-        <Box sx={formGroupStyles}>
-          <Button
-            onClick={additionalButton.action}
-            variant="contained"
-            sx={{ textTransform: "capitalize" }}
-          >
-            {additionalButton.text}
-          </Button>
-        </Box>
-      ) : null}
+        ) : null}
+        {additionalButton ? (
+          <Box sx={formGroupStyles}>
+            <Button
+              onClick={additionalButton.action}
+              variant="contained"
+              sx={{ textTransform: "capitalize" }}
+              disabled={additionalButton?.isLoading ?? false}
+            >
+              {additionalButton.text}
+            </Button>
+          </Box>
+        ) : null}
+      </Box>
     </Box>
   );
 };
 
 export default InstructorPageHeader;
 
-// const fieldStyles: SxProps = {
-//   bgcolor: "#fff",
-//   border: "1px solid rgba(204, 204, 204, 0.6)",
-//   display: "inline-flex",
-
-//   "input, select": {
-//     border: "none",
-//     borderRadius: "var(--border-radius)",
-//     padding: ".8rem",
-//   },
-
-//   "select, svg": {
-//     color: "rgba(138, 138, 138, 1)",
-//   },
-// };
-
-// const searchFieldStyles: SxProps = {
-//   ...fieldStyles,
-//   alignItems: "center",
-//   paddingInline: ".8rem",
-
-//   input: {
-//     outline: "none",
-//     width: "400px",
-//   },
-// };
-
 const formGroupStyles: SxProps = {
   alignItems: "center",
   display: "flex",
-  gap: "1rem",
+  gap: 2,
 };

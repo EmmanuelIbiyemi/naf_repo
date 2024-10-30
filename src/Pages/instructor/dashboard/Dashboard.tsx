@@ -3,7 +3,7 @@ import EmptyState from "../../../components/EmptyState";
 import { useRef } from "react";
 import { useAppDispatch } from "../../../store/hooks";
 import { setPageName } from "../../../store/app.slice";
-import InstructorPageHeader from "../../../components/InstructorPageHeader";
+import InstructorPageHeader from "../../../components/layout/InstructorPageHeader";
 
 const Dashboard = () => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -18,9 +18,9 @@ const Dashboard = () => {
         additionalButton={{
           action: () => console.log("Hello"),
           text: "Export Report",
-          heading: "Welcome Back, Amina",
-          subHeading: "Lorem ipsum dolor sit amet consectetur. Tdbks akd",
         }}
+        heading={"Welcome Back, Amina"}
+        subHeading={"Lorem ipsum dolor sit amet consectetur. Tdbks akd"}
       />
       <Box
         sx={{

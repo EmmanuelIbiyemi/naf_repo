@@ -8,7 +8,7 @@ const levelsApi = appApi.injectEndpoints({
       providesTags: ["Levels"],
     }),
     getLevel: builder.query<LevelsResponse, number>({
-      query: (level_id) => `/level/${level_id}`,
+      query: (level_id) => `/level/1/${level_id}`,
       providesTags: ["Levels"],
     }),
     addLevel: builder.mutation<LevelsResponse, LevelCreateType>({

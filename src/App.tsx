@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 import "./App.scss";
 import AdminLayout from "./components/layout/AdminLayout";
 import InstructorLayout from "./components/layout/InstructorLayout";
+import StudentLayout from "./components/layout/StudentLayout";  // Add this import
 import {
   selectCurrentUser,
   selectLastVisitedPage,
@@ -29,17 +30,45 @@ function App() {
   }, [dispatch, user, navigate]);
 
   useEffect(() => {
-    if (user && lastVisitedPage) navigate(lastVisitedPage);
-    // else {
-    //   if (user?.role == "admin") navigate("/");
-    //   else navigate("/instructor");
-    // }
-  }, [user]);
+    if (user && lastVisitedPage) {
+      navigate(lastVisitedPage);
+    } else if (user) {
+      // Default routes based on user role
+      switch (user.role) {
+        case "admin":
+          navigate("/");
+          break;
+        case "instructor":
+          navigate("/instructor");
+          break;
+        case "participant":
+          navigate("/student/dashboard");
+          break;
+        default:
+          navigate("/login");
+      }
+    }
+  }, [user, lastVisitedPage, navigate]);
 
-  // check user type
+  const renderLayout = () => {
+    switch (user?.role) {
+      case "admin":
+        return <AdminLayout />;
+      case "instructor":
+        return <InstructorLayout />;
+      case "participant":
+        return <StudentLayout />;
+      default:
+        return null;
+    }
+  };
+
   return (
-    <Box>
-      {isPageLoading ? (
+    <Box
+    sx={{
+          fontFamily:'outfit',
+          }}>
+      {isPageLoading && (
         <Box
           sx={{
             color: "lightgreen",
@@ -51,9 +80,9 @@ function App() {
         >
           <LoadingScreen />
         </Box>
-      ) : null}
+      )}
 
-      {isBuilderLoading ? (
+      {isBuilderLoading && (
         <Box
           sx={{
             color: "lightgreen",
@@ -65,8 +94,9 @@ function App() {
         >
           <LinearProgress color="inherit" sx={{ height: "10px" }} />
         </Box>
-      ) : null}
-      {user?.role == "instructor" ? <InstructorLayout /> : <AdminLayout />}
+      )}
+      
+      {renderLayout()}
     </Box>
   );
 }
