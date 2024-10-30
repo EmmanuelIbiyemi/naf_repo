@@ -144,6 +144,8 @@ const DepartmentList = () => {
                       color: "inherit",
                       padding: 0,
                       textTransform: "capitalize",
+                      justifyContent: "start",
+                      textAlign: "left",
                     },
                   }}
                 >

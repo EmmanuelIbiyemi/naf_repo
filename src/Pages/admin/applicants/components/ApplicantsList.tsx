@@ -186,11 +186,15 @@ const ApplicantList = () => {
             >
               <TableCell component="th" scope="row">
                 <Button
-                  style={{
-                    border: "none",
-                    color: "inherit",
-                    padding: 0,
-                    textTransform: "capitalize",
+                  sx={{
+                    "&.MuiButton-root": {
+                      border: "none",
+                      color: "inherit",
+                      padding: 0,
+                      textTransform: "capitalize",
+                      justifyContent: "start",
+                      textAlign: "left",
+                    },
                   }}
                 >
                   {applicant.data.first_name + " " + applicant.data.last_name}
