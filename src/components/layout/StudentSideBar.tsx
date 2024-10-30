@@ -17,12 +17,12 @@ type NavLink = {
   children?: NavLink[];
 };
 const navLinks: NavLink[] = [
-  { content: "Dashboard", icon: HomeIcon, link: "/" },
-  { content: "Overview", icon: ViewBoard, link: "/overview" },
-  { content: "Courses", icon: ClipBoardIcon, link: "/courses" },
-  { content: "Reports", icon: ReportsIcon, link: "/reports" },
-  { content: "Live Class", icon: LiveClassIcon, link: "/live-class" },
-  { content: "Settings", icon: SettingsIcon, link: "/settings" },
+  { content: "Dashboard", icon: HomeIcon, link: "/student/dashboard" },
+  { content: "Overview", icon: ViewBoard, link: "/student/overview" },
+  { content: "Courses", icon: ClipBoardIcon, link: "/student/courses" },
+  { content: "Reports", icon: ReportsIcon, link: "/student/reports" },
+  { content: "Live Class", icon: LiveClassIcon, link: "/student/live-class" },
+  { content: "Settings", icon: SettingsIcon, link: "/student/settings" },
 ];
 
 const SideBar = () => {
@@ -33,13 +33,10 @@ const isCurrentPage = (navLink: NavLink) => {
   const navLinkPath = navLink.link.toLowerCase();
 
   // Check if the current page matches exactly or is a subdirectory of the link
-  if (navLink.content.toLowerCase() !== "dashboard") {
     if (currentPath === navLinkPath || currentPath.startsWith(`${navLinkPath}/`)) {
       return true;
     }
-  } else {
-    if (currentPath === "/") return true;
-  }
+
 
   // Check for child links
   if (navLink.children) {

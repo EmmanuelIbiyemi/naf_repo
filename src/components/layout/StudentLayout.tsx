@@ -16,7 +16,9 @@ function StudentLayout() {
 
   return (
     <Box sx={layoutStyles}>
-      <Box sx={{ gridArea: "sidebar" }}>
+      <Box sx={{ gridArea: "sidebar", '@media print': { 
+          display: 'none' 
+        } }}>
         <SideBar />
       </Box>
       <Header />

@@ -119,6 +119,20 @@ const LiveClassesPage = lazy(
 );
 const SettingsPage = lazy(() => import("./Pages/instructor/settings/Settings"));
 
+const StudentDashboard = lazy(() => import("./Pages/student/dashboard/Dashboard"));
+const StudentOverview = lazy(() => import("./Pages/student/overview/Overview"));
+const StudentCourses = lazy(() => import("./Pages/student/studentCourses/StudentCourses"));
+const StudentExamCard = lazy(() => import("./Pages/student/studentCourses/examCard/ExamCard"));
+const StudentCourseForm = lazy(() => import("./Pages/student/studentCourses/courseForm/CourseForm"));
+const StudentEnroll = lazy(() => import("./Pages/student/studentCourses/enroll/EnrollCourses"));
+const StudentCourseDetails = lazy(() => import("./Pages/student/studentCourses/courseDetails/CourseDetails"));
+const StudentCourseNote = lazy(() => import("./Pages/student/studentCourses/courseDetails/Notes/Notes"));
+const StudentCourseSchedule = lazy(() => import("./Pages/student/studentCourses/courseDetails/Schedule/Schedule"));
+const StudentReports = lazy(() => import("./Pages/student/reports/Reports"));
+const StudentSettings = lazy(() => import("./Pages/student/settings/Settings"));
+
+
+
 export const router = createBrowserRouter([
   {
     path: "/login",
@@ -200,7 +214,6 @@ export const router = createBrowserRouter([
       { path: "/instructor", element: <InstructorDashboard /> },
       { path: "/instructor/settings", element: <SettingsPage /> },
       { path: "/instructor/courses", element: <InstructorCoursesPage /> },
-
       {
         path: "/instructor/courses/:id",
         element: <CoursesLayout />,
@@ -220,29 +233,39 @@ export const router = createBrowserRouter([
           { path: "notes/new", element: <CreateNotePage /> },
           { path: "tests", element: <CoursesTestsPage /> },
           { path: "classes", element: <LiveClassesPage /> },
-
           { path: "tests/manual-input", element: <InputQuestionsManually /> },
-
         ],
       },
-
       { path: "/instructor/reports", element: <ReportsPage /> },
-
       { path: "/instructor/reports/:id", element: <ReportsExpanded /> },
-
       { path: "classes", element: <LiveClassesPage /> },
       { path: "/instructor/post", element: <PostPage /> },
       { path: "/instructor/posts/add", element: <AddPostPage /> },
       { path: "/instructor/post/preview", element: <PreviewPostPage /> },
+    ],
+  },
 
-      // { path: "/students", element: <StudentsPage /> },
-      // { path: "/instructors", element: <InstructorsPage /> },
-      // { path: "/applications", element: <FormsPage /> },
-      // { path: "/applications/form", element: <AddFormPage /> },
-      // { path: "/applications/form/preview", element: <PreviewFormPage /> },
-      // { path: "/applications/applicants", element: <ApplicantsPage /> },
-      // { path: "/applications/cbt", element: <CBT /> },
-      // { path: "/applications/cbt/questions", element: <CBTQuestionsPage /> },
+  {
+    path: "/student",
+    element: <App />,
+    children: [
+      { path: "dashboard", element: <StudentDashboard /> },
+      { path: "overview", element: <StudentOverview /> },
+      { path: "courses", element: <StudentCourses /> },
+      { path: "courses/exam-card", element: <StudentExamCard /> },
+      { path: "courses/course-form", element: <StudentCourseForm /> },
+      { path: "courses/add-course", element: <StudentEnroll /> },
+      {
+        path: "courses/details",
+        element: <StudentCourseDetails />,
+        children: [
+          { path: "notes", element: <StudentCourseNote /> },
+          { path: "schedule", element: <StudentCourseSchedule /> },
+        ],
+      },
+      { path: "reports", element: <StudentReports /> },
+      { path: "live-class", element: <CoursesPage /> },
+      { path: "settings", element: <StudentSettings /> },
     ],
   },
 ]);
