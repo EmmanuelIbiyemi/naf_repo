@@ -42,7 +42,7 @@ export const elements = [
   { id: 6, name: "Image", type: BLOCK_TYPES.IMAGE, icon: Image },
   { id: 7, name: "Video", type: BLOCK_TYPES.VIDEO, icon: SmartDisplay },
   { id: 8, name: "Heading", type: BLOCK_TYPES.HEADING, icon: HMobiledata },
-  { id: 9, name: "Text", type: BLOCK_TYPES.TEXT, icon: LocalParking },
+  { id: 9, name: "Paragraph", type: BLOCK_TYPES.TEXT, icon: LocalParking },
   {
     id: 12,
     name: "Commandants",

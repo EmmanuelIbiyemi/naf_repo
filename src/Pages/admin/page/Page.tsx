@@ -96,10 +96,6 @@ const Page = () => {
     navigate(-1);
   }, [navigate]);
 
-  if (isFetching) {
-    return <LoadingScreen />;
-  }
-
   return (
     <Box sx={contentStyles}>
       {updateState.isLoading || isFetching ? <LoadingScreen /> : null}
@@ -134,9 +130,9 @@ const Page = () => {
             Blocks
           </Typography>
           <Box sx={elementSideBar}>
-            {elements.map((el) => (
+            {elements.map((el, i) => (
               <Button
-                key={el.id}
+                key={el.id + "-" + i}
                 onClick={() => addBlock(el.type)}
                 disabled={!post}
               >

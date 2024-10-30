@@ -18,6 +18,8 @@ import { PostType } from "../../../../types/posts";
 import { useDeletePostBlockMutation } from "../../../../store/api/posts.api";
 import { useAppDispatch } from "../../../../store/hooks";
 import { setBuilderLoading } from "../../../../store/app.slice";
+import { useAddMediaMutation } from "../../../../store/api/media.api";
+import { MediaType } from "../../../../types/media";
 
 type ActionProp = {
   block: BlockType;
@@ -94,6 +96,10 @@ const ActionButtons = ({ block, setPage }: ActionProp) => {
     dispatch(setBuilderLoading(true));
     try {
       await deleteBlock(block_id).unwrap();
+      setPage((prev) => ({
+        ...prev,
+        blocks: prev.blocks.filter((block) => block.id !== block_id),
+      }));
     } catch (error) {
       console.log(error);
     }
@@ -121,15 +127,49 @@ type Props = {
 };
 
 const PageBuilder = ({ page, setPage }: Props) => {
+  const [uploadMedia] = useAddMediaMutation();
   const handleOpenFileSelect = (event: MouseEvent<HTMLDivElement>) => {
-    const target = event.target as HTMLDivElement;
+    const target = event.currentTarget as HTMLDivElement;
     target.querySelector("input")?.click();
   };
 
-  const handleSelectImage = (event: ChangeEvent<HTMLInputElement>) => {
+  const handleSelectImage = async (
+    event: ChangeEvent<HTMLInputElement>,
+    blockId: number
+  ) => {
     const target = event.target;
-    console.log(target.files);
+
+    if (target.files) {
+      try {
+        const form = new FormData();
+
+        const files = target.files;
+        for (let i = 0; i < files.length; i++) {
+          form.append("file", files[i]);
+        }
+
+        const response = await uploadMedia(form).unwrap();
+        console.log(response);
+
+        const blocks = page.blocks.map((b) => {
+          if (b.id === blockId)
+            return {
+              ...b,
+              media: response.media.map((m) => ({ id: m.id })),
+            };
+          return b;
+        });
+
+        setPage((prev) => ({
+          ...prev,
+          blocks,
+        }));
+      } catch (error) {
+        console.log(error);
+      }
+    }
   };
+
   const updateBlock = useCallback(
     (newBlock: BlockType) => {
       setPage((prev) => {
@@ -370,8 +410,53 @@ const PageBuilder = ({ page, setPage }: Props) => {
               className="image_el dashed_border"
               onClick={handleOpenFileSelect}
             >
-              <CloudUploadOutlined /> Drag and drop your image here or browse
-              <input type="file" hidden onChange={handleSelectImage} />
+              <input
+                type="file"
+                multiple
+                hidden
+                accept="image/*"
+                onChange={(e) => handleSelectImage(e, element.id)}
+              />
+              {element.media?.length && (element.media[0] as MediaType)?.url ? (
+                <Box
+                  className="hide_scrollbar"
+                  sx={{
+                    display: "flex",
+                    gap: "10px",
+                    height: "100%",
+                    maxWidth: "550px",
+                    overflow: "auto",
+                    ">div": {
+                      flexShrink: "0",
+                      height: "100%",
+                      width: "100px",
+                    },
+                  }}
+                >
+                  {element.media.map((m) => (
+                    <Box className="has_bg_image" key={`media-${m.id}`}>
+                      <img
+                        className="bg"
+                        src={(m as MediaType).url}
+                        alt={(m as MediaType).name}
+                      />
+                    </Box>
+                  ))}
+                </Box>
+              ) : (
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: "1rem",
+                    width: "100%",
+                  }}
+                >
+                  <CloudUploadOutlined /> Drag and drop your image here or
+                  browse
+                </Box>
+              )}
             </Box>
           </Box>
         );
@@ -392,8 +477,53 @@ const PageBuilder = ({ page, setPage }: Props) => {
               className="image_el dashed_border"
               onClick={handleOpenFileSelect}
             >
-              <CloudUploadOutlined /> Drag and drop your image here or browse
-              <input type="file" hidden onChange={handleSelectImage} />
+              <input
+                type="file"
+                multiple
+                hidden
+                accept="video/*"
+                onChange={(e) => handleSelectImage(e, element.id)}
+              />
+              {element.media?.length && (element.media[0] as MediaType)?.url ? (
+                <Box
+                  className="hide_scrollbar"
+                  sx={{
+                    display: "flex",
+                    gap: "10px",
+                    height: "100%",
+                    maxWidth: "500px",
+                    overflow: "auto",
+                    ">div": {
+                      flexShrink: "0",
+                      height: "100%",
+                      width: "100px",
+                    },
+                  }}
+                >
+                  {element.media.map((m) => (
+                    <Box className="has_bg_image" key={`media-${m.id}`}>
+                      <img
+                        className="bg"
+                        src={(m as MediaType).url}
+                        alt={(m as MediaType).name}
+                      />
+                    </Box>
+                  ))}
+                </Box>
+              ) : (
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: "1rem",
+                    width: "100%",
+                  }}
+                >
+                  <CloudUploadOutlined /> Drag and drop your videos here or
+                  browse
+                </Box>
+              )}
             </Box>
           </Box>
         );
@@ -660,7 +790,6 @@ const imageEl: SxProps = {
     cursor: "pointer",
     display: "flex",
     gap: "1rem",
-    justifyContent: "center",
     height: "100px",
     padding: "1rem",
   },

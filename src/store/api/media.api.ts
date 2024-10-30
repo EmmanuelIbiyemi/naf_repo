@@ -1,4 +1,4 @@
-import { MediaResponse, MediaType } from "../../types/media";
+import { MediaResponse } from "../../types/media";
 import { appApi } from "./app.api";
 
 type Pagination = {
@@ -25,21 +25,13 @@ const mediasApi = appApi.injectEndpoints({
       query: (media_id) => `/media/${media_id}`,
       providesTags: ["Media"],
     }),
-    addMedia: builder.mutation<{ data: MediaType }, FormData>({
+    addMedia: builder.mutation<MediaResponse, FormData>({
       query: (media) => ({
         url: `/media`,
         method: "POST",
         body: media,
       }),
-      invalidatesTags: ["Media"],
-    }),
-    updateMedia: builder.mutation<MediaResponse, MediaType>({
-      query: (media) => ({
-        url: `/media/${media.id}`,
-        method: "PUT",
-        body: media,
-      }),
-      invalidatesTags: ["Media"],
+      invalidatesTags: ["Media", "Posts"],
     }),
     deleteMedia: builder.mutation<MediaResponse, number>({
       query: (media_id) => ({
@@ -57,6 +49,5 @@ export const {
   useGetAllByTypeMediaQuery,
   useGetMediaQuery,
   useAddMediaMutation,
-  useUpdateMediaMutation,
   useDeleteMediaMutation,
 } = mediasApi;
