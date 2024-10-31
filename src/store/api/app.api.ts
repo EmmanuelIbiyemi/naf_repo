@@ -32,6 +32,7 @@ export const appApi = createApi({
     "Results",
     "ResultTasks",
     "Transcripts",
+    "LiveClasses",
   ],
   endpoints: () => ({}),
 });

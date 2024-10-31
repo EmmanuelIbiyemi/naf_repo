@@ -1,9 +1,7 @@
 import React, { useEffect } from 'react';
 import {
   School,
-  CreditCard,
   AssignmentTurnedIn,
-  Description,
 } from "@mui/icons-material";
 import { 
   Box, 
