@@ -7,11 +7,13 @@ import {
   useGetFormQuery,
   useUpdateFormMutation,
 } from "../../../../store/api/form.api";
-import { useLocation } from "react-router-dom";
+import { useParams } from "react-router-dom";
 
 const FormContentArea = () => {
-  const location = useLocation();
-  const { data: form } = useGetFormQuery(location.state);
+  const { form_id } = useParams();
+  console.log(form_id);
+
+  const { data: form } = useGetFormQuery(+(form_id || 0));
   const [updateForm] = useUpdateFormMutation();
 
   const { setNodeRef } = useDroppable({
@@ -36,6 +38,7 @@ const FormContentArea = () => {
           fee: form.data.fee,
           name,
           program_id: form.data.program_id,
+          level_id: form.data.level_id,
         });
       } catch (error) {
         console.log(error);

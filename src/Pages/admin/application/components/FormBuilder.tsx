@@ -25,7 +25,7 @@ import {
   useGetFormQuery,
   useUpdateFormFieldMutation,
 } from "../../../../store/api/form.api";
-import { useLocation } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { useAppDispatch } from "../../../../store/hooks";
 import { setBuilderLoading } from "../../../../store/app.slice";
 
@@ -50,8 +50,8 @@ const FormBuilder = ({
 }: Props) => {
   const dispatch = useAppDispatch();
   const [deleteRow] = useDeleteFormRowMutation();
-  const location = useLocation();
-  const { data: form } = useGetFormQuery(location.state);
+  const { form_id } = useParams();
+  const { data: form } = useGetFormQuery(+(form_id || 0));
   const [updateField] = useUpdateFormFieldMutation();
   const [getFormFieldByKey] = useGetFormFieldByKeyMMutation();
 

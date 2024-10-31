@@ -1,5 +1,5 @@
 import * as Yup from "yup";
-import { Form, Formik } from "formik";
+import { Field, Form, Formik } from "formik";
 import {
   Box,
   Button,
@@ -15,16 +15,19 @@ import formStyles from "../../../../components/form/form.module.scss";
 import { useGetFacultiesQuery } from "../../../../store/api/faculties.api";
 import { useGetDepartmentsMMutation } from "../../../../store/api/departments.api";
 import { useGetProgrammesMMutation } from "../../../../store/api/programmes.api";
+import { useGetLevelsMMutation } from "../../../../store/api/levels.api";
 
 type Form = {
   faculty_id: number;
   department_id: number;
   program_id: number;
+  level_id: number;
+  fee: number;
 };
 
 type Props = {
   actions: {
-    submit: (program_id: number) => Promise<void>;
+    submit: (form: Form) => Promise<void>;
     cancel: () => void;
   };
 };
@@ -33,21 +36,25 @@ const AddForm = ({ actions }: Props) => {
   const { data: faculties } = useGetFacultiesQuery(null);
   const [getDepartments, departmentsState] = useGetDepartmentsMMutation();
   const [getPrograms, programsState] = useGetProgrammesMMutation();
+  const [getLevels, levelsState] = useGetLevelsMMutation();
 
   const initialValues = {
     faculty_id: 0,
     department_id: 0,
     program_id: 0,
+    level_id: 0,
+    fee: 0,
   };
 
   const validationSchema = Yup.object({
     faculty_id: Yup.number().not([0]).required("Required"),
     department_id: Yup.number().not([0]).required("Required"),
     program_id: Yup.number().not([0]).required("Required"),
+    level_id: Yup.number().not([0]).required("Required"),
   });
 
   const handleSubmit = async (values: Form) => {
-    await actions.submit(values.program_id);
+    await actions.submit(values);
   };
 
   const handleFacultyChange = async (
@@ -77,6 +84,22 @@ const AddForm = ({ actions }: Props) => {
     setValue("department_id", +value);
     try {
       await getPrograms(+value);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const handleProgramChange = async (
+    event: SelectChangeEvent<number>,
+    setValue: (name: string, value: number) => void
+  ) => {
+    const {
+      target: { value },
+    } = event;
+
+    setValue("program_id", +value);
+    try {
+      await getLevels(+value);
     } catch (error) {
       console.log(error);
     }
@@ -152,13 +175,7 @@ const AddForm = ({ actions }: Props) => {
                 }}
                 name="program_id"
                 value={values.program_id}
-                onChange={(event) => {
-                  const {
-                    target: { value },
-                  } = event;
-
-                  setFieldValue("program_id", value);
-                }}
+                onChange={(e) => handleProgramChange(e, setFieldValue)}
                 input={<OutlinedInput />}
               >
                 <MenuItem value={0}>select program</MenuItem>
@@ -169,6 +186,37 @@ const AddForm = ({ actions }: Props) => {
                 ))}
               </Select>
             </FormControl>
+            <FormControl fullWidth>
+              <label htmlFor="level_id">Level</label>
+              <Select
+                sx={{
+                  padding: 0,
+                  ".MuiSelect-select": { p: "5px", minHeight: "25px" },
+                }}
+                name="level_id"
+                value={values.level_id}
+                onChange={(event) => {
+                  const {
+                    target: { value },
+                  } = event;
+
+                  setFieldValue("level_id", value);
+                }}
+                input={<OutlinedInput />}
+              >
+                <MenuItem value={0}>select level</MenuItem>
+                {levelsState.data?.data.map((p) => (
+                  <MenuItem key={p.name + p.id} value={p.id}>
+                    {p.name}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+
+            <Box>
+              <label htmlFor="fee">Fee</label>
+              <Field type="number" id="fee" name="fee" />
+            </Box>
           </Box>
           <Box className={formStyles.btn_group}>
             <Button

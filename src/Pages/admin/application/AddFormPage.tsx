@@ -11,24 +11,23 @@ import {
   useAddFormRowMutation,
   useGetFormQuery,
 } from "../../../store/api/form.api";
-import { useLocation, useNavigate } from "react-router-dom";
 import { formElements } from "./elements";
+import { useParams } from "react-router-dom";
 
 const AddFormPage = () => {
   // set page name
   const dispatch = useAppDispatch();
-  const location = useLocation();
-  const navigate = useNavigate();
 
   useEffect(() => {
     dispatch(setPageName("Application Form"));
   }, []);
 
   // Use global form
+  const { form_id } = useParams();
   const [activeId, setActiveId] = useState<string | null>(null);
   const [addRow] = useAddFormRowMutation();
   const [addField] = useAddFormFieldMutation();
-  const { data: form } = useGetFormQuery(location.state);
+  const { data: form } = useGetFormQuery(+(form_id || 0));
 
   const addElement = async (type: string) => {
     const element = formElements.find((el) => el.type == type);
@@ -75,10 +74,6 @@ const AddFormPage = () => {
   const handleDragStart = (event: DragEndEvent) => {
     setActiveId(event.active.id as string);
   };
-
-  useEffect(() => {
-    if (!location.state) navigate("/applications");
-  }, [location]);
 
   return (
     <Box className="content-container" sx={pageStyles}>

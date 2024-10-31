@@ -32,9 +32,9 @@ const navLinks: NavLink[] = [
       {
         content: "All Applicants",
         icon: ChevronLeft,
-        link: "/applications/applicants",
+        link: "/applicants",
       },
-      { content: "Student Exam", icon: ChevronLeft, link: "/applications/cbt" },
+      { content: "Student Exam", icon: ChevronLeft, link: "/cbt" },
     ],
   },
   // { content: "Fees Management", icon: Credit, link: "/fees" },

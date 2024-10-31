@@ -3,7 +3,7 @@ import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
 import TableRow from "@mui/material/TableRow";
-import { Box, Button, Checkbox, IconButton, Typography } from "@mui/material";
+import { Box, Checkbox, IconButton, Typography } from "@mui/material";
 import { Delete, Edit } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import DeleteConfirmationModal from "../../../../components/DeleteConfirmationModal";
@@ -43,12 +43,7 @@ const FormList = () => {
 
   const handleEditForm = (form: FormType2) => {
     dispatch(setCurrentForm(form));
-    navigate("/applications/form", { state: form.id });
-  };
-
-  const handleViewForm = (form: FormType2) => {
-    dispatch(setCurrentForm(form));
-    navigate("/applications/applicants", { state: form.id });
+    navigate(`/form/${form.id}`);
   };
 
   return (
@@ -84,22 +79,14 @@ const FormList = () => {
               >
                 <Checkbox />
                 <Box>
-                  <Button
-                    variant="text"
-                    onClick={() => handleViewForm(form)}
+                  <Typography
                     sx={{
-                      "&.MuiButton-root": {
-                        border: "none",
-                        color: "inherit",
-                        padding: 0,
-                        textTransform: "capitalize",
-                        justifyContent: "start",
-                        textAlign: "left",
-                      },
+                      textTransform: "capitalize",
+                      fontWeight: "500 !important",
                     }}
                   >
                     {form.name.split("::")[0]}
-                  </Button>
+                  </Typography>
                   <Typography>
                     {form.fee} submissions * Last Edited on{" "}
                     {dayjs(form.updated_at).format()}
