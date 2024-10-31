@@ -20,44 +20,29 @@ const DepartmentsPage = lazy(
 const ProgrammesPage = lazy(
   () => import("./Pages/admin/academics/programmes/Programmes")
 );
-const LevelsPage = lazy(
-  () => import("./Pages/admin/academics/levels/Levels")
-);
+const LevelsPage = lazy(() => import("./Pages/admin/academics/levels/Levels"));
 const CoursesPage = lazy(
   () => import("./Pages/admin/academics/courses/Courses")
 );
-const AdminUsersPage = lazy(
-  () => import("./Pages/admin/users/Users")
-);
+const AdminUsersPage = lazy(() => import("./Pages/admin/users/Users"));
 const LecturersPage = lazy(
   () => import("./Pages/admin/users/lecturers/Lecturers")
 );
 const StudentsPage = lazy(
   () => import("./Pages/admin/users/students/Students")
 );
-const AdminsPage = lazy(
-  () => import("./Pages/admin/users/admins/Admins")
-);
-const AdminFeesPage = lazy(
-  () => import("./Pages/admin/fees/AdminFees")
-);
-const DeptFeesPage = lazy(
-  () => import("./Pages/admin/fees/Dept/Fees")
-);
+const AdminsPage = lazy(() => import("./Pages/admin/users/admins/Admins"));
+const AdminFeesPage = lazy(() => import("./Pages/admin/fees/AdminFees"));
+const DeptFeesPage = lazy(() => import("./Pages/admin/fees/Dept/Fees"));
 const DiscountFeesPage = lazy(
   () => import("./Pages/admin/fees/Discounts/Discounts")
 );
 const AdminGradingPage = lazy(
   () => import("./Pages/admin/grading/AdminGrading")
 );
-const GradesPage = lazy(
-  () => import("./Pages/admin/grading/grades/Grades")
-);
-const ScoresPage = lazy(
-  () => import("./Pages/admin/grading/scores/Scores")
-);
+const GradesPage = lazy(() => import("./Pages/admin/grading/grades/Grades"));
+const ScoresPage = lazy(() => import("./Pages/admin/grading/scores/Scores"));
 
-const SubjectsPage = lazy(() => import("./Pages/admin/subjects/Subjects"));
 const InstructorsPage = lazy(
   () => import("./Pages/admin/instructors/Instructors")
 );
@@ -112,21 +97,35 @@ const LiveClassesPage = lazy(
 );
 const SettingsPage = lazy(() => import("./Pages/instructor/settings/Settings"));
 
-const StudentDashboard = lazy(() => import("./Pages/student/dashboard/Dashboard"));
+const StudentDashboard = lazy(
+  () => import("./Pages/student/dashboard/Dashboard")
+);
 const StudentOverview = lazy(() => import("./Pages/student/overview/Overview"));
-const StudentCourses = lazy(() => import("./Pages/student/studentCourses/StudentCourses"));
-const StudentExamCard = lazy(() => import("./Pages/student/studentCourses/examCard/ExamCard"));
-const StudentCourseForm = lazy(() => import("./Pages/student/studentCourses/courseForm/CourseForm"));
-const StudentEnroll = lazy(() => import("./Pages/student/studentCourses/enroll/EnrollCourses"));
-const StudentCourseDetails = lazy(() => import("./Pages/student/studentCourses/courseDetails/CourseDetails"));
-const StudentCourseNote = lazy(() => import("./Pages/student/studentCourses/courseDetails/Notes/Notes"));
-const StudentCourseSchedule = lazy(() => import("./Pages/student/studentCourses/courseDetails/Schedule/Schedule"));
+const StudentCourses = lazy(
+  () => import("./Pages/student/studentCourses/StudentCourses")
+);
+const StudentExamCard = lazy(
+  () => import("./Pages/student/studentCourses/examCard/ExamCard")
+);
+const StudentCourseForm = lazy(
+  () => import("./Pages/student/studentCourses/courseForm/CourseForm")
+);
+const StudentEnroll = lazy(
+  () => import("./Pages/student/studentCourses/enroll/EnrollCourses")
+);
+const StudentCourseDetails = lazy(
+  () => import("./Pages/student/studentCourses/courseDetails/CourseDetails")
+);
+const StudentCourseNote = lazy(
+  () => import("./Pages/student/studentCourses/courseDetails/Notes/Notes")
+);
+const StudentCourseSchedule = lazy(
+  () => import("./Pages/student/studentCourses/courseDetails/Schedule/Schedule")
+);
 const StudentCourseCBT = lazy(() => import("./Pages/student/studentCourses/courseDetails/cbtTests/cbtTests"));
 const StudentResults = lazy(() => import("./Pages/student/results/Results"));
 const StudentClass = lazy(() => import("./Pages/student/classes/LiveClasses"));
 const StudentSettings = lazy(() => import("./Pages/student/settings/Settings"));
-
-
 
 export const router = createBrowserRouter([
   {
@@ -139,8 +138,6 @@ export const router = createBrowserRouter([
     children: [
       { path: "/", element: <Dashboard /> },
       { path: "/courses", element: <CoursesPage /> },
-      { path: "/courses/:id", element: <SubjectsPage /> },
-      { path: "/courses/:id", element: <SubjectsPage /> },
       { path: "/instructors", element: <InstructorsPage /> },
       { path: "/applications", element: <FormsPage /> },
       { path: "/applications/form", element: <AddFormPage /> },

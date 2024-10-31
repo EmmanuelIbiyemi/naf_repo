@@ -5,6 +5,11 @@ export type LevelType = {
 };
 
 export type LevelCreateType = LevelType & {};
+export type LevelCourseCreateType = {
+  level_id: number;
+  course_ids: number[];
+  type: string;
+};
 
 export type LevelsResponse = {
   data: LevelType[];

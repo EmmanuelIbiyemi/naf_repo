@@ -3,7 +3,7 @@ import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
 import TableRow from "@mui/material/TableRow";
-import { StudentFormAction, Student } from "../../../../types/students";
+import { StudentFormAction, StudentType } from "../../../../types/students";
 import { Checkbox, IconButton } from "@mui/material";
 import { Delete, Edit } from "@mui/icons-material";
 import { Link } from "react-router-dom";
@@ -24,12 +24,12 @@ const StudentsList = () => {
     success: false,
     delete: false,
   });
-  const [selectedStudent, setSelectedStudent] = useState<Student>();
+  const [selectedStudent, setSelectedStudent] = useState<StudentType>();
   const { data: students } = useGetStudentsQuery(null);
   const [deleteStudent] = useDeleteStudentMutation();
   const [updateStudent] = useUpdateStudentMutation();
 
-  const handleOpenModal = (student: Student, type: string) => {
+  const handleOpenModal = (student: StudentType, type: string) => {
     setSelectedStudent(student);
     setOpenModal((prev) => ({ ...prev, [type]: true }));
   };
@@ -47,7 +47,7 @@ const StudentsList = () => {
     }
   };
 
-  const handleEditStudent = async (student: Student) => {
+  const handleEditStudent = async (student: StudentType) => {
     try {
       await updateStudent(student).unwrap();
     } catch (error) {
@@ -84,7 +84,9 @@ const StudentsList = () => {
         close={() => handleCloseModal("delete")}
         infoText="The students enrolled in this Student will get notified."
         open={openModal.delete}
-        subTitle={`Are you sure you want to delete Student <strong>“${selectedStudent?.first_name + ' ' + selectedStudent?.last_name}”</strong>? You can’t undo this action.`}
+        subTitle={`Are you sure you want to delete Student <strong>“${
+          selectedStudent?.first_name + " " + selectedStudent?.last_name
+        }”</strong>? You can’t undo this action.`}
         title="Delete Student?"
       />
 
@@ -110,7 +112,7 @@ const StudentsList = () => {
 
       <Table sx={{ minWidth: 650 }}>
         <TableBody>
-          {students?.data.map((student: Student) => (
+          {students?.data.map((student: StudentType) => (
             <TableRow
               key={student.id}
               sx={{ "&:last-child td, &:last-child th": { border: 0 } }}

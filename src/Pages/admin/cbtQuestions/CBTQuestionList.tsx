@@ -68,12 +68,15 @@ const CBTQuestiontList = ({
             <TableRow key={question.id} sx={{ "td,th": { border: 0 } }}>
               <TableCell component="th" scope="row">
                 <Button
-                  style={{
-                    border: "none",
-                    color: "inherit",
-                    fontSize: "20px",
-                    padding: 0,
-                    textTransform: "capitalize",
+                  sx={{
+                    "&.MuiButton-root": {
+                      border: "none",
+                      color: "inherit",
+                      padding: 0,
+                      textTransform: "capitalize",
+                      justifyContent: "start",
+                      textAlign: "left",
+                    },
                   }}
                   onClick={() => navigate("/")}
                 >

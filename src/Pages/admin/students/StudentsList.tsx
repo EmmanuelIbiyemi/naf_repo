@@ -93,7 +93,8 @@ const StudentList = ({ selectedStudent, setSelectedStudent }: Props) => {
       <DeleteConfirmationModal
         actions={{
           proceed: () => {
-            if (selectedStudent) handleDeleteStudent(selectedStudent.id);
+            if (selectedStudent)
+              handleDeleteStudent(selectedStudent.id as number);
             console.log("proceed");
           },
           undo: () => {
@@ -167,11 +168,15 @@ const StudentList = ({ selectedStudent, setSelectedStudent }: Props) => {
                 >
                   <Checkbox />
                   <Button
-                    style={{
-                      border: "none",
-                      color: "inherit",
-                      padding: 0,
-                      textTransform: "capitalize",
+                    sx={{
+                      "&.MuiButton-root": {
+                        border: "none",
+                        color: "inherit",
+                        padding: 0,
+                        textTransform: "capitalize",
+                        justifyContent: "start",
+                        textAlign: "left",
+                      },
                     }}
                     onClick={() => handleViewStudent(student)}
                   >

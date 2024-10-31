@@ -21,7 +21,7 @@ type NavLink = {
 const navLinks: NavLink[] = [
   { content: "Dashboard", icon: HomeIcon, link: "/" },
   { content: "Academics", icon: ClipBoardIcon, link: "/academics" },
-  { content: "Participants", icon: ChartIcon, link: "/participants" },
+  { content: "Students", icon: ChartIcon, link: "/students" },
   { content: "Users", icon: SchoolIcon, link: "/users" },
   {
     content: "Applications",
@@ -45,27 +45,29 @@ const navLinks: NavLink[] = [
 const SideBar = () => {
   const location = useLocation();
 
-const isCurrentPage = (navLink: NavLink) => {
-  const currentPath = location.pathname.toLowerCase();
-  const navLinkPath = navLink.link.toLowerCase();
+  const isCurrentPage = (navLink: NavLink) => {
+    const currentPath = location.pathname.toLowerCase();
+    const navLinkPath = navLink.link.toLowerCase();
 
-  // Check if the current page matches exactly or is a subdirectory of the link
-  if (navLink.content.toLowerCase() !== "dashboard") {
-    if (currentPath === navLinkPath || currentPath.startsWith(`${navLinkPath}/`)) {
-      return true;
+    // Check if the current page matches exactly or is a subdirectory of the link
+    if (navLink.content.toLowerCase() !== "dashboard") {
+      if (
+        currentPath === navLinkPath ||
+        currentPath.startsWith(`${navLinkPath}/`)
+      ) {
+        return true;
+      }
+    } else {
+      if (currentPath === "/") return true;
     }
-  } else {
-    if (currentPath === "/") return true;
-  }
 
-  // Check for child links
-  if (navLink.children) {
-    return navLink.children.some((child) => isCurrentChildLink(child));
-  }
+    // Check for child links
+    if (navLink.children) {
+      return navLink.children.some((child) => isCurrentChildLink(child));
+    }
 
-  return false;
-};
-
+    return false;
+  };
 
   const isCurrentChildLink = (childLink: NavLink) => {
     return location.pathname === childLink.link;

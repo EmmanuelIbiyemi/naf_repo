@@ -32,7 +32,7 @@ const Page = () => {
   });
   const [page, setPage] = useState<PageType>({
     id: 1,
-    elements: [],
+    blocks: [],
     title: "about",
   });
 
@@ -41,11 +41,16 @@ const Page = () => {
 
   const addElement = (type: string) => {
     setPage((prev) => {
-      const els = [...prev.elements];
+      const els = [...prev.blocks];
       els.push({
-        id: prev.elements.length + 1,
+        id: prev.blocks.length + 1,
         content: type == "paragraph" ? loremIpsum : "Type something",
         type,
+        caption: "",
+        link: "",
+        media: null,
+        position: 0,
+        title: "",
       });
       return { ...prev, elements: els };
     });

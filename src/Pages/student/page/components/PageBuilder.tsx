@@ -2,7 +2,7 @@ import { Box, IconButton, SxProps, Typography } from "@mui/material";
 import { BlockType } from "../../../../types/blocks";
 import { CloudUploadOutlined } from "@mui/icons-material";
 import { ChangeEvent, FocusEvent, MouseEvent } from "react";
-// import "./elements.scss";
+// import "./blocks.scss";
 import DeleteIcon from "../../../../assets/deleteIcon";
 import { PageType } from "../../../../types/pages";
 
@@ -16,12 +16,12 @@ const PageBuilder = ({ page, setPage }: Props) => {
     const target = e.currentTarget;
     if (target && target.id) {
       setPage((prev) => {
-        const updatedElements = prev.elements.map((el) =>
+        const updatedElements = prev.blocks.map((el) =>
           `element-${el.id}` === target.id
             ? { ...el, content: target.textContent?.trim() || el.content }
             : el
         );
-        return { ...prev, elements: updatedElements };
+        return { ...prev, blocks: updatedElements };
       });
     }
   };
@@ -47,7 +47,7 @@ const PageBuilder = ({ page, setPage }: Props) => {
             contentEditable={"true"}
             onBlur={handleInput}
             dangerouslySetInnerHTML={{
-              __html: page.elements.find((el) => el.id == element.id)
+              __html: page.blocks.find((el) => el.id == element.id)
                 ?.content as string,
             }}
           />
@@ -60,7 +60,7 @@ const PageBuilder = ({ page, setPage }: Props) => {
             contentEditable={"true"}
             onBlur={handleInput}
             dangerouslySetInnerHTML={{
-              __html: page.elements.find((el) => el.id == element.id)
+              __html: page.blocks.find((el) => el.id == element.id)
                 ?.content as string,
             }}
           />
@@ -97,15 +97,13 @@ const PageBuilder = ({ page, setPage }: Props) => {
   const handleDelete = (id: number) => {
     console.log(id);
     setPage((prev) => {
-      prev.elements = prev.elements.filter((el) => el.id != id);
+      prev.blocks = prev.blocks.filter((el) => el.id != id);
       return { ...prev };
     });
   };
 
   return (
-    <Box sx={formBuilderStyles}>
-      {page.elements?.map((el) => displayEl(el))}
-    </Box>
+    <Box sx={formBuilderStyles}>{page.blocks?.map((el) => displayEl(el))}</Box>
   );
 };
 

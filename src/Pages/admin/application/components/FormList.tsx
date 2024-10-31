@@ -88,11 +88,14 @@ const FormList = () => {
                     variant="text"
                     onClick={() => handleViewForm(form)}
                     sx={{
-                      textTransform: "capitalize",
-                      border: "none !important",
-                      padding: "0 !important",
-                      display: "block !important",
-                      textAlign: "left",
+                      "&.MuiButton-root": {
+                        border: "none",
+                        color: "inherit",
+                        padding: 0,
+                        textTransform: "capitalize",
+                        justifyContent: "start",
+                        textAlign: "left",
+                      },
                     }}
                   >
                     {form.name.split("::")[0]}
