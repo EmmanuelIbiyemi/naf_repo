@@ -1,4 +1,4 @@
-import { Help, Notifications } from "@mui/icons-material";
+import { Notifications } from "@mui/icons-material";
 import {
   Box,
   IconButton,
@@ -70,9 +70,6 @@ const Header = () => {
               <Notifications />
             </IconButton>
           )}
-          <IconButton sx={{ marginLeft: ".9rem" }}>
-            <Help />
-          </IconButton>
         </Box>
         <Box sx={flexStyles}>
           <Box

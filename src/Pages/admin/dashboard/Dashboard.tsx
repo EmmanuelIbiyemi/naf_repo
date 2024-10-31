@@ -4,16 +4,17 @@ import {
   BusinessCenter,
   Groups,
   Inventory,
-  VolumeUp,
 } from "@mui/icons-material";
 import { Box, Button, SxProps, Typography } from "@mui/material";
 import { Link, useNavigate } from "react-router-dom";
-import { useAppDispatch } from "../../../store/hooks";
+import { useAppDispatch, useAppSelector } from "../../../store/hooks";
 import { setPageName } from "../../../store/app.slice";
 import { useEffect } from "react";
+import { selectCurrentUser } from "../../../store/auth.slice";
 
 const Dashboard = () => {
   const dispatch = useAppDispatch();
+  const user = useAppSelector(selectCurrentUser);
 
   useEffect(() => {
     dispatch(setPageName("Dashboard"));
@@ -22,7 +23,7 @@ const Dashboard = () => {
   const navigate = useNavigate();
 
   const handleManageSite = () => {
-    navigate("posts");
+    navigate("/settings");
   };
 
   return (
@@ -41,7 +42,7 @@ const Dashboard = () => {
         <Typography
           sx={{ fontSize: "1.3rem", fontWeight: 300, marginTop: ".5rem" }}
         >
-          Amina Rabiu Mustapha
+          {user?.first_name + " " + user?.last_name}
         </Typography>
       </Box>
       <Box
@@ -53,7 +54,7 @@ const Dashboard = () => {
         }}
       >
         {cards.map((card) => (
-          <Link to="/" key={`dashboard-card-${card.id}`}>
+          <Link to={card.link} key={`dashboard-card-${card.id}`}>
             <Box sx={cardStyles}>
               <Box className="icon">{card.icon}</Box>
               <Box>
@@ -104,6 +105,7 @@ const cards = [
     title: "Add other admins",
     description:
       "Create rich course content and coaching products for your students. When you give them a pricing plan, they’ll appear on your site!",
+    link: "/users",
   },
   {
     id: 2,
@@ -111,6 +113,7 @@ const cards = [
     title: "Manage Courses",
     description:
       "Create rich course content and coaching products for your students. When you give them a pricing plan, they’ll appear on your site!",
+    link: "/academics",
   },
   {
     id: 3,
@@ -118,6 +121,7 @@ const cards = [
     title: "Add Instructors",
     description:
       "Create rich course content and coaching products for your students. When you give them a pricing plan, they’ll appear on your site!",
+    link: "/instructors",
   },
   {
     id: 4,
@@ -125,6 +129,7 @@ const cards = [
     title: "View Applications",
     description:
       "Create rich course content and coaching products for your students. When you give them a pricing plan, they’ll appear on your site!",
+    link: "/applicants",
   },
   {
     id: 5,
@@ -132,12 +137,6 @@ const cards = [
     title: "Add Students",
     description:
       "Create rich course content and coaching products for your students. When you give them a pricing plan, they’ll appear on your site!",
-  },
-  {
-    id: 6,
-    icon: <VolumeUp />,
-    title: "Create Announcement",
-    description:
-      "Create rich course content and coaching products for your students. When you give them a pricing plan, they’ll appear on your site!",
+    link: "/users/students",
   },
 ];

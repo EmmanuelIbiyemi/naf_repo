@@ -1,13 +1,12 @@
 import { useState } from "react";
-import { 
-  Box, 
-  Button, 
-  Container, 
-  SxProps, 
+import {
+  Box,
+  Container,
+  SxProps,
   Typography,
   Alert,
   IconButton,
-  CircularProgress 
+  CircularProgress,
 } from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import logo from "../../assets/logo.png";
@@ -51,7 +50,7 @@ const Login = () => {
   });
 
   const handleSubmit = async (
-    values: UserLoginType, 
+    values: UserLoginType,
     { setSubmitting }: FormikHelpers<UserLoginType>
   ) => {
     try {
@@ -62,8 +61,8 @@ const Login = () => {
     } catch (error) {
       const loginError = error as LoginError;
       setError(
-        loginError.data?.message || 
-        "Login failed. Please check your credentials and try again."
+        loginError.data?.message ||
+          "Login failed. Please check your credentials and try again."
       );
     } finally {
       setSubmitting(false);
@@ -100,11 +99,11 @@ const Login = () => {
         >
           <Link
             to="/"
-            style={{ 
-              alignItems: "center", 
-              display: "flex", 
+            style={{
+              alignItems: "center",
+              display: "flex",
               gap: "1rem",
-              textDecoration: "none" 
+              textDecoration: "none",
             }}
           >
             <img src={logo} alt="logo" height={80} />
@@ -114,12 +113,9 @@ const Login = () => {
               College of Nursing Sciences
             </Typography>
           </Link>
-          <Button variant="outlined" color="inherit">
-            Admin login
-          </Button>
         </Container>
       </Box>
-      
+
       <Container className="has_bg_image" sx={formContainerStyles}>
         <img
           className="bg"
@@ -127,7 +123,7 @@ const Login = () => {
           alt=""
           style={{ position: "absolute", maxWidth: "100%" }}
         />
-        
+
         <Formik
           initialValues={initialValues}
           validationSchema={validationSchema}
@@ -137,13 +133,13 @@ const Login = () => {
             <Form>
               <Box sx={formStyles}>
                 <img src={logo} alt="College logo" width={50} />
-                <Typography variant="h5" sx={{ fontWeight: 700, mb: 3 }}>
-                  USER LOGIN
+                <Typography variant="h5" sx={{ fontWeight: 500, mb: 3 }}>
+                  LOGIN
                 </Typography>
-                
+
                 {error && (
-                  <Alert 
-                    severity="error" 
+                  <Alert
+                    severity="error"
                     onClose={() => setError(null)}
                     sx={{ mb: 2, width: "100%", maxWidth: 350 }}
                   >
@@ -152,14 +148,10 @@ const Login = () => {
                 )}
 
                 <Box sx={{ display: "grid", gap: "1rem", width: 350 }}>
-                  <FormikTextField<UserLoginType> 
-                    {...emailFieldProps}
-                  />
-                  
+                  <FormikTextField<UserLoginType> {...emailFieldProps} />
+
                   <Box sx={{ position: "relative" }}>
-                    <FormikTextField<UserLoginType>
-                      {...passwordFieldProps}
-                    />
+                    <FormikTextField<UserLoginType> {...passwordFieldProps} />
                     <IconButton
                       aria-label="toggle password visibility"
                       onClick={togglePasswordVisibility}
@@ -191,10 +183,10 @@ const Login = () => {
                     Don't have an account?{" "}
                     <Link
                       to="/contact"
-                      style={{ 
-                        color: "rgba(21, 46, 136, 1)", 
+                      style={{
+                        color: "rgba(21, 46, 136, 1)",
                         fontWeight: 600,
-                        textDecoration: "none" 
+                        textDecoration: "none",
                       }}
                     >
                       Contact Admin
@@ -259,7 +251,7 @@ const submitBtnStyles: SxProps = {
   marginTop: "2rem",
   padding: ".7rem",
   textTransform: "none",
-  fontWeight: 600,
+  fontWeight: 500,
 };
 
 const helpTextStyles: SxProps = {
