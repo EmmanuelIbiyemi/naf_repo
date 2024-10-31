@@ -1,12 +1,19 @@
 import { Box, SxProps } from "@mui/material";
-import { Outlet } from "react-router-dom";
+import { Outlet, useLocation } from "react-router-dom";
 import CoursesSidebar from "./CoursesSidebar";
+import { useGetCourseQuery } from "../store/api/courses.api";
 
 function CoursesLayout() {
+  const location = useLocation();
+  const locationData = location.pathname.split("/");
+  const courseId = locationData[locationData.length - 2];
+  const { data: courses, isLoading } = useGetCourseQuery(parseInt(courseId));
+
   return (
     <Box sx={layoutStyles}>
+      {isLoading && <Box></Box>}
       <Box sx={{ gridArea: "sidebar" }}>
-        <CoursesSidebar />
+        <CoursesSidebar course={courses} />
       </Box>
       <Box>
         <Outlet />

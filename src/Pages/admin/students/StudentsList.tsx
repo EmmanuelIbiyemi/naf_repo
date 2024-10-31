@@ -93,7 +93,8 @@ const StudentList = ({ selectedStudent, setSelectedStudent }: Props) => {
       <DeleteConfirmationModal
         actions={{
           proceed: () => {
-            if (selectedStudent) handleDeleteStudent(selectedStudent.id);
+            if (selectedStudent)
+              handleDeleteStudent(selectedStudent.id as number);
             console.log("proceed");
           },
           undo: () => {

@@ -11,7 +11,7 @@ import DeleteConfirmationModal from "../../../../components/DeleteConfirmationMo
 import { useState } from "react";
 import {
   useDeleteCourseMutation,
-  useGetCoursesQuery,
+  useGetCoursesByLevelQuery,
   useUpdateCourseMutation,
 } from "../../../../store/api/courses.api";
 import FormModal from "../../../../components/FormModal";
@@ -27,8 +27,8 @@ const CourseList = () => {
     delete: false,
   });
   const [selectedCourse, setSelectedCourse] = useState<CourseType>();
-  const { data: courses } = useGetCoursesQuery({
-    level_id: location.state.level_id,
+  const { data: courses } = useGetCoursesByLevelQuery({
+    level_id: location.state?.level_id || 0,
   });
   const [deleteCourse] = useDeleteCourseMutation();
   const [updateCourse] = useUpdateCourseMutation();

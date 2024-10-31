@@ -1,15 +1,17 @@
 import { InstructorType } from "./instructors";
 
 export type CourseBaseType = {
+  id?: number;
   code: string;
   credit_unit: number;
   name: string;
   semester: string;
   type: string;
+  level_id: number;
+  instructors?: InstructorType[];
 };
 
 export type CourseType = CourseBaseType & {
-  id?: number;
   instructors: InstructorType[];
   created_at: string;
   updated_at: string;

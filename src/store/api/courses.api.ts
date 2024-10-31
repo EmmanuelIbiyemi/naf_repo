@@ -14,12 +14,16 @@ type Pagination = {
 
 const coursesApi = appApi.injectEndpoints({
   endpoints: (builder) => ({
-    getCourses: builder.query<
+    getCoursesByLevel: builder.query<
       CoursesResponse,
       Pagination & { level_id: number }
     >({
       query: ({ page = 1, per_page = 10, level_id }) =>
         `level/${level_id}/courses?page=${page}&per_page=${per_page}`,
+      providesTags: ["Courses"],
+    }),
+    getCourses: builder.query<CoursesResponse, null>({
+      query: () => `/course`,
       providesTags: ["Courses"],
     }),
     getCourse: builder.query<CoursesResponse, number>({
@@ -59,10 +63,10 @@ const coursesApi = appApi.injectEndpoints({
     }),
 
     addLevelCourse: builder.mutation<LevelsResponse, LevelCourseCreateType>({
-      query: (level) => ({
+      query: (course) => ({
         url: `/level/course`,
         method: "POST",
-        body: level,
+        body: course,
       }),
       invalidatesTags: ["Levels", "Courses"],
     }),
@@ -81,6 +85,7 @@ const coursesApi = appApi.injectEndpoints({
 });
 
 export const {
+  useGetCoursesByLevelQuery,
   useGetCoursesQuery,
   useAddCourseMutation,
   useUpdateCourseMutation,

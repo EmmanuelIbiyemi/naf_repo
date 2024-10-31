@@ -13,56 +13,7 @@ import {
 import { LoadingButton } from "@mui/lab";
 import formStyles from "../../../components/form/form.module.scss";
 import { StudentCombinedType, StudentType } from "../../../types/students";
-import { CourseType } from "../../../types/courses";
-
-const courses: CourseType[] = [
-  {
-    id: 1,
-    code: "CSC101",
-    name: "Introduction to Computer Science",
-    credit_unit: 3,
-    semester: "First Semester",
-    type: "elective",
-    instructors: [
-      {
-        id: 1,
-        first_name: "John",
-        last_name: "Doe",
-        email: "john.doe@example.com",
-        phone: "123-456-7890",
-        address: "",
-        created_at: "",
-        photo: "",
-        updated_at: "",
-      },
-    ],
-    created_at: "2023-10-01",
-    updated_at: "2023-10-01",
-  },
-  {
-    id: 2,
-    code: "MATH201",
-    name: "Calculus I",
-    credit_unit: 4,
-    semester: "Second Semester",
-    type: "Core",
-    instructors: [
-      {
-        id: 1,
-        first_name: "John",
-        last_name: "Doe",
-        email: "john.doe@example.com",
-        phone: "123-456-7890",
-        address: "",
-        created_at: "",
-        photo: "",
-        updated_at: "",
-      },
-    ],
-    created_at: "2023-10-02",
-    updated_at: "2023-10-02",
-  },
-];
+import { useGetCoursesQuery } from "../../../store/api/courses.api";
 
 type Props = {
   student?: StudentType;
@@ -73,6 +24,7 @@ type Props = {
 };
 
 const StudentsForm = ({ actions, student }: Props) => {
+  const { data: courses } = useGetCoursesQuery(null);
   const initialValues = {
     id: student?.id,
     first_name: student ? student.first_name : "",
@@ -168,7 +120,7 @@ const StudentsForm = ({ actions, student }: Props) => {
                       target: { value },
                     } = event;
 
-                    const foundCourses = courses.filter((c) =>
+                    const foundCourses = courses?.data.filter((c) =>
                       value.includes(c.name)
                     );
                     setFieldValue("courses", foundCourses);
@@ -182,7 +134,7 @@ const StudentsForm = ({ actions, student }: Props) => {
                     </Box>
                   )}
                 >
-                  {courses.map((option) => (
+                  {courses?.data.map((option) => (
                     <MenuItem key={option.id} value={option.name}>
                       {option.name}
                     </MenuItem>

@@ -1,11 +1,39 @@
 import { AccessTime, CalendarToday } from "@mui/icons-material";
-import { Box, Button, Grid2, Typography } from "@mui/material";
+import { Box, Button, Grid2, LinearProgress, Typography } from "@mui/material";
 import { useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
+import { CourseType } from "../../../types/courses";
+import { useGetCourseQuery } from "../../../store/api/courses.api";
 
 const Details = () => {
   const containerRef = useRef<HTMLDivElement>(null);
+  const location = useLocation();
   const navigate = useNavigate();
+  const locationData = location.pathname.split("/");
+  const courseId = locationData[locationData.length - 2];
+  const { data: courseData, isLoading } = useGetCourseQuery(parseInt(courseId));
+
+  if (isLoading) {
+    return (
+      <div>
+        <LinearProgress />
+      </div>
+    );
+  }
+
+  let course: CourseType | undefined;
+
+  if (location.state?.course) {
+    course = location.state.course as CourseType;
+  } else if (courseData?.data) {
+    course = Array.isArray(courseData.data)
+      ? courseData.data[0]
+      : courseData.data;
+  }
+
+  if (!course) {
+    return <Typography>No course data available.</Typography>;
+  }
 
   return (
     <Box ref={containerRef} className="content-container">
@@ -42,7 +70,7 @@ const Details = () => {
                 marginBottom: ".5em",
               }}
             >
-              Articulate structure of C++ and Java in Semester 1
+              {course?.name}
             </Typography>
             <Typography
               variant="body2"
@@ -53,7 +81,7 @@ const Details = () => {
                 fontWeight: 300,
               }}
             >
-              Course: B.Tech Specialization in Health Informatics
+              {course?.code}
             </Typography>
             <Typography
               variant="body2"
@@ -65,7 +93,7 @@ const Details = () => {
                 margin: ".5em 0",
               }}
             >
-              Subject: Network Engineering
+              {course?.name}
             </Typography>
             <Typography
               variant="body2"
