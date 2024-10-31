@@ -1,16 +1,39 @@
 import { Help, Notifications } from "@mui/icons-material";
-import { Box, IconButton, SxProps, Typography } from "@mui/material";
+import {
+  Box,
+  IconButton,
+  Menu,
+  MenuItem,
+  SxProps,
+  Typography,
+} from "@mui/material";
 import { selectPageName } from "../../store/app.slice";
-import { useAppSelector } from "../../store/hooks";
-import { selectCurrentUser } from "../../store/auth.slice";
+import { useAppDispatch, useAppSelector } from "../../store/hooks";
+import { logout, selectCurrentUser } from "../../store/auth.slice";
 import { useNavigate } from "react-router-dom";
+import { MouseEvent, useState } from "react";
 
 const Header = () => {
   const pageName = useAppSelector(selectPageName);
   const user = useAppSelector(selectCurrentUser);
   const navigate = useNavigate();
-
+  const dispatch = useAppDispatch();
   const [mainPage, subPage] = pageName.split("/");
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const open = Boolean(anchorEl);
+
+  const handleClick = (event: MouseEvent<HTMLDivElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  const logoutUser = () => {
+    handleClose();
+    dispatch(logout());
+    navigate("/login");
+  };
 
   return (
     <Box className="header" sx={headerStyles}>
@@ -20,7 +43,6 @@ const Header = () => {
           color: "rgba(85, 85, 85, 1)",
           fontSize: "1.7rem",
           fontWeight: "500 !important",
-          
         }}
       >
         {mainPage}
@@ -72,9 +94,19 @@ const Header = () => {
               {user?.role || "Admin"}
             </Typography>
           </Box>
-          <Box className="has_bg_image" sx={profileImageStyles}>
+          <Box
+            className="has_bg_image"
+            sx={profileImageStyles}
+            onClick={handleClick}
+          >
             <img className="bg" src="" alt="" />
           </Box>
+          <Menu anchorEl={anchorEl} open={open} onClose={handleClose}>
+            <Typography sx={{ padding: ".8rem 1rem" }}>
+              {user?.email}
+            </Typography>
+            <MenuItem onClick={logoutUser}>Logout</MenuItem>
+          </Menu>
         </Box>
       </Box>
     </Box>
@@ -95,10 +127,9 @@ const headerStyles: SxProps = {
   gridArea: "header",
   justifyContent: "space-between",
   paddingInline: "var(--padding)",
-  '@media print': { 
-          display: 'none' 
-        },
-        
+  "@media print": {
+    display: "none",
+  },
 };
 
 const usernameStyles: SxProps = {
@@ -126,4 +157,5 @@ const profileImageStyles: SxProps = {
   width: "50px",
   borderRadius: "100%",
   overflow: "hidden",
+  cursor: "pointer",
 };
