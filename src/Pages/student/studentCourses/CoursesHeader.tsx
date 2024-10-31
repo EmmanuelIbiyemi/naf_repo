@@ -4,7 +4,7 @@ import DownloadIcon from '@mui/icons-material/Download';
 import { AddCircleOutline } from "@mui/icons-material";
 import { Link } from "react-router-dom"; // or "next/link" if using Next.js
 
-const EnrolledCoursesHeader = () => {
+const CoursesHeader = () => {
   return (
     <Box
       sx={{
@@ -105,4 +105,4 @@ const EnrolledCoursesHeader = () => {
   );
 };
 
-export default EnrolledCoursesHeader;
+export default CoursesHeader;

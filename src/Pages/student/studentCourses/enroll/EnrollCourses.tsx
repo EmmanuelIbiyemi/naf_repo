@@ -1,38 +1,178 @@
-import { Box, Select, FormControl, MenuItem, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper } from "@mui/material";
+import { 
+  Box, 
+  Select, 
+  FormControl, 
+  MenuItem, 
+  Button, 
+  Table, 
+  TableBody, 
+  TableCell, 
+  TableContainer, 
+  TableHead, 
+  TableRow, 
+  Paper,
+  CircularProgress,
+  Alert,
+  Snackbar,
+  Checkbox,
+  Typography
+} from "@mui/material";
 import EmptyState from "../../../../components/EmptyState";
 import { useEffect, useState } from "react";
-import { useAppDispatch } from "../../../../store/hooks";
+import { useAppDispatch, useAppSelector } from "../../../../store/hooks";
 import { setPageName } from "../../../../store/app.slice";
 import { useGetCoursesQuery } from "../../../../store/api/courses.api";
+import { selectCurrentUser } from "../../../../store/auth.slice";
 import Breadcrumb from "../components/Breadcrumb";
-import { Search } from "@mui/icons-material";
+import { Save, Search } from "@mui/icons-material";
+import { 
+  useGetParticipantQuery,
+  useAddCoursesMutation,
+  useDropCoursesMutation 
+} from "../../../../store/api/participants.api";
 
 const EnrollCoursesPage = () => {
-  const { data: courses } = useGetCoursesQuery(null);
   const dispatch = useAppDispatch();
-
-  // Dummy data for dropdowns
-  const faculties = ["Science", "Arts", "Engineering"];
-  const departments = ["Mathematics", "Physics", "Chemistry"];
-  const levels = ["100", "200", "300", "400"];
+    const user1 = useAppSelector(selectCurrentUser);
+  const participantId = user1.id; // Replace with actual ID source
+  const { data: courses, isLoading, error } = useGetCoursesQuery(null);
+  const { data: participantData  } = useGetParticipantQuery(participantId);
+  const user = participantData.data;
+  
+  // API mutations
+  const [addCourses, { isLoading: isEnrolling }] = useAddCoursesMutation();
+  const [dropCourses, { isLoading: isDropping }] = useDropCoursesMutation();
 
   // State for filters
   const [selectedFaculty, setSelectedFaculty] = useState("all");
   const [selectedDepartment, setSelectedDepartment] = useState("all");
   const [selectedLevel, setSelectedLevel] = useState("all");
+  const [filteredCourses, setFilteredCourses] = useState(courses?.data || []);
+  
+  // State for course selection - store as numbers to match API
+  const [selectedCourses, setSelectedCourses] = useState<Set<number>>(
+    new Set(user?.courses?.map(course => Number(course.id)) || [])
+  );
 
-  // Dummy course data
-  const dummyCourses = Array(10).fill({
-    code: "MATH 101",
-    title: "GEOMETRY",
-    creditUnits: "2 CREDIT UNITS",
-    semester: "FIRST SEMESTER",
-    level: "200 LEVEL"
+  // State for notifications
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: "",
+    severity: "success" as "success" | "error"
   });
 
+  // Get unique values for filters
+  const faculties = [...new Set(courses?.data?.map(course => course.faculty) || [])];
+  const departments = [...new Set(courses?.data?.map(course => course.department) || [])];
+  const levels = [...new Set(courses?.data?.map(course => course.level) || [])];
+
+  // Initialize page
   useEffect(() => {
     dispatch(setPageName("Enroll Courses"));
   }, [dispatch]);
+
+  // Update filtered courses when filters change
+  useEffect(() => {
+    if (courses?.data) {
+      let filtered = [...courses.data];
+      
+      if (selectedFaculty !== "all") {
+        filtered = filtered.filter(course => course.faculty === selectedFaculty);
+      }
+      if (selectedDepartment !== "all") {
+        filtered = filtered.filter(course => course.department === selectedDepartment);
+      }
+      if (selectedLevel !== "all") {
+        filtered = filtered.filter(course => course.level === selectedLevel);
+      }
+      
+      setFilteredCourses(filtered);
+    }
+  }, [courses?.data, selectedFaculty, selectedDepartment, selectedLevel]);
+
+  // Initialize selected courses when user data loads
+  useEffect(() => {
+    if (user?.courses) {
+      setSelectedCourses(new Set(user.courses.map(course => Number(course.id))));
+    }
+  }, [user?.courses]);
+
+  const handleCourseToggle = (courseId: number) => {
+    const newSelected = new Set(selectedCourses);
+    if (newSelected.has(courseId)) {
+      newSelected.delete(courseId);
+    } else {
+      newSelected.add(courseId);
+    }
+    setSelectedCourses(newSelected);
+  };
+
+  const handleSaveChanges = async () => {
+  try {
+    const currentEnrolled = new Set(user?.courses?.map(course => Number(course.id)) || []);
+    const selectedCoursesArray = Array.from(selectedCourses);
+    
+    // Find courses to add and remove
+    const coursesToAdd = selectedCoursesArray.filter(id => !currentEnrolled.has(id));
+    const coursesToDrop = Array.from(currentEnrolled).filter(id => !selectedCourses.has(id));
+
+    // Perform operations sequentially instead of in parallel
+    if (coursesToAdd.length > 0) {
+      await addCourses({
+        course_ids: coursesToAdd,
+      }).unwrap();
+    }
+
+    if (coursesToDrop.length > 0) {
+      await dropCourses({
+        course_ids: coursesToDrop,
+      }).unwrap();
+    }
+
+    setSnackbar({
+      open: true,
+      message: "Successfully updated course enrollment",
+      severity: "success"
+    });
+  } catch (error: any) {
+    const errorMessage = error.data?.message || error.message || "Failed to update course enrollment";
+    setSnackbar({
+      open: true,
+      message: errorMessage,
+      severity: "error"
+    });
+    console.error('Error updating courses:', error);
+  }
+};
+  // Rest of your component remains the same...
+  if (isLoading) {
+    return (
+      <Box 
+        className="content-container"
+        sx={{ 
+          display: 'flex', 
+          justifyContent: 'center', 
+          alignItems: 'center', 
+          minHeight: '400px' 
+        }}
+      >
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  if (error) {
+    return (
+      <Box className="content-container">
+        <Alert severity="error">
+          Failed to load courses. Please try again later.
+        </Alert>
+      </Box>
+    );
+  }
+
+  const hasChanges = JSON.stringify(Array.from(selectedCourses).sort()) !== 
+                     JSON.stringify((user?.courses?.map(c => Number(c.id)) || []).sort());
 
   return (
     <Box
@@ -43,6 +183,7 @@ const EnrollCoursesPage = () => {
       }}
       className="content-container"
     >
+      {/* Previous JSX remains the same... */}
       <Breadcrumb />
 
       {/* Filters Section */}
@@ -111,42 +252,72 @@ const EnrollCoursesPage = () => {
           padding: "var(--padding)",
         }}
       >
-        {courses?.data.length || dummyCourses.length ? (
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
+          <Typography variant="subtitle1">
+            Selected Courses: {selectedCourses.size}
+          </Typography>
+          <Button
+            variant="contained"
+            startIcon={<Save />}
+            sx={{ bgcolor: '#023678', color: 'white' }}
+            onClick={handleSaveChanges}
+            disabled={!hasChanges || isEnrolling || isDropping}
+          >
+            {isEnrolling || isDropping ? 'Saving...' : 'Save Changes'}
+          </Button>
+        </Box>
+
+        {filteredCourses.length > 0 ? (
           <TableContainer component={Paper} sx={{ boxShadow: 'none' }}>
             <Table>
               <TableHead>
                 <TableRow>
+                  <TableCell padding="checkbox">
+                    <Checkbox
+                      checked={filteredCourses.length > 0 && 
+                              filteredCourses.every(course => selectedCourses.has(Number(course.id)))}
+                      indeterminate={filteredCourses.some(course => selectedCourses.has(Number(course.id))) &&
+                                   !filteredCourses.every(course => selectedCourses.has(Number(course.id)))}
+                      onChange={(e) => {
+                        if (e.target.checked) {
+                          setSelectedCourses(new Set([...selectedCourses, ...filteredCourses.map(c => Number(c.id))]));
+                        } else {
+                          const newSelected = new Set(selectedCourses);
+                          filteredCourses.forEach(course => newSelected.delete(Number(course.id)));
+                          setSelectedCourses(newSelected);
+                        }
+                      }}
+                    />
+                  </TableCell>
                   <TableCell>COURSE CODE</TableCell>
                   <TableCell>COURSE TITLE</TableCell>
                   <TableCell>CREDIT UNITS</TableCell>
                   <TableCell>SEMESTER</TableCell>
                   <TableCell>LEVEL</TableCell>
-                  <TableCell align="right">ACTION</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
-                {(courses?.data || dummyCourses).map((course, index) => (
-                  <TableRow key={index}>
+                {filteredCourses.map((course) => (
+                  <TableRow 
+                    key={course.id}
+                    hover
+                    onClick={() => handleCourseToggle(Number(course.id))}
+                    sx={{ cursor: 'pointer' }}
+                  >
+                    <TableCell padding="checkbox">
+                      <Checkbox
+                        checked={selectedCourses.has(Number(course.id))}
+                        onChange={(e) => {
+                          e.stopPropagation();
+                          handleCourseToggle(Number(course.id));
+                        }}
+                      />
+                    </TableCell>
                     <TableCell>{course.code}</TableCell>
                     <TableCell>{course.title}</TableCell>
                     <TableCell>{course.creditUnits}</TableCell>
                     <TableCell>{course.semester}</TableCell>
                     <TableCell>{course.level}</TableCell>
-                    <TableCell align="right">
-                      <Button
-                        variant="text"
-                        size="small"
-                        sx={{
-                          color: 'primary.main',
-                          textTransform: 'none',
-                          '&:hover': {
-                            bgcolor: 'primary.50'
-                          }
-                        }}
-                      >
-                        Add
-                      </Button>
-                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -154,11 +325,24 @@ const EnrollCoursesPage = () => {
           </TableContainer>
         ) : (
           <EmptyState
-            title="Oops looks like there's nothing here"
-            subTitle="Information will appear here after you enroll courses"
+            title="No courses found"
+            subTitle="Try adjusting your filters or search criteria"
           />
         )}
       </Box>
+
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={6000}
+        onClose={() => setSnackbar(prev => ({ ...prev, open: false }))}
+      >
+        <Alert 
+          onClose={() => setSnackbar(prev => ({ ...prev, open: false }))} 
+          severity={snackbar.severity}
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };

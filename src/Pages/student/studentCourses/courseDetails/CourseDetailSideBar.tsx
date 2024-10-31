@@ -13,7 +13,7 @@ const CourseDetailSideBar = () => {
   const [navLinks] = useState<NavLink[]>([
     { content: "Course Notes", link: "/student/courses/details/notes" },
     { content: "Course Schedule", link: "/student/courses/details/schedule" },
-    { content: "CBT Tests", link: "/student/courses/details/cbt-test" },
+    { content: "CBT Tests", link: "/student/courses/details/cbt" },
   ]);
 
   const isCurrentPage = (navLink: NavLink) => {

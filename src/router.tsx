@@ -121,7 +121,9 @@ const StudentEnroll = lazy(() => import("./Pages/student/studentCourses/enroll/E
 const StudentCourseDetails = lazy(() => import("./Pages/student/studentCourses/courseDetails/CourseDetails"));
 const StudentCourseNote = lazy(() => import("./Pages/student/studentCourses/courseDetails/Notes/Notes"));
 const StudentCourseSchedule = lazy(() => import("./Pages/student/studentCourses/courseDetails/Schedule/Schedule"));
-const StudentReports = lazy(() => import("./Pages/student/reports/Reports"));
+const StudentCourseCBT = lazy(() => import("./Pages/student/studentCourses/courseDetails/cbtTests/cbtTests"));
+const StudentResults = lazy(() => import("./Pages/student/results/Results"));
+const StudentClass = lazy(() => import("./Pages/student/classes/LiveClasses"));
 const StudentSettings = lazy(() => import("./Pages/student/settings/Settings"));
 
 
@@ -229,9 +231,9 @@ export const router = createBrowserRouter([
       { path: "/instructor/reports", element: <ReportsPage /> },
       { path: "/instructor/reports/:id", element: <ReportsExpanded /> },
       { path: "classes", element: <LiveClassesPage /> },
-      { path: "/instructor/post", element: <PostPage /> },
-      { path: "/instructor/posts/add", element: <AddPostPage /> },
-      { path: "/instructor/post/preview", element: <PreviewPostPage /> },
+      // { path: "/instructor/post", element: <PostPage /> },
+      // { path: "/instructor/posts/add", element: <AddPostPage /> },
+      // { path: "/instructor/post/preview", element: <PreviewPostPage /> },
     ],
   },
 
@@ -246,15 +248,16 @@ export const router = createBrowserRouter([
       { path: "courses/course-form", element: <StudentCourseForm /> },
       { path: "courses/add-course", element: <StudentEnroll /> },
       {
-        path: "courses/details",
+        path: "courses/details/:id",
         element: <StudentCourseDetails />,
         children: [
           { path: "notes", element: <StudentCourseNote /> },
+          { path: "cbt", element: <StudentCourseCBT /> },
           { path: "schedule", element: <StudentCourseSchedule /> },
         ],
       },
-      { path: "reports", element: <StudentReports /> },
-      { path: "live-class", element: <CoursesPage /> },
+      { path: "results", element: <StudentResults /> },
+      { path: "live-class", element: <StudentClass /> },
       { path: "settings", element: <StudentSettings /> },
     ],
   },

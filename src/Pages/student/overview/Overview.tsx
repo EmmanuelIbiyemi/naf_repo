@@ -1,9 +1,11 @@
+import React from 'react';
 import {
   Box,
   Typography,
   Card,
   CardContent,
   SxProps,
+  CircularProgress,
 } from "@mui/material";
 import {
   Book,
@@ -12,6 +14,9 @@ import {
   Grade,
 } from "@mui/icons-material";
 import EmptyState from "../../../components/EmptyState";
+import { useGetParticipantQuery } from '../../../store/api/participants.api';
+import { useAppSelector } from '../../../store/hooks';
+import { selectCurrentUser } from '../../../store/auth.slice';
 
 interface OverviewCardProps {
   icon: React.ReactNode;
@@ -21,7 +26,7 @@ interface OverviewCardProps {
 }
 
 const OverviewCard = ({ icon, label, value, primary }: OverviewCardProps) => (
-  <Card 
+  <Card
     sx={{
       ...cardStyle,
       bgcolor: primary ? "primary.main" : "#fff",
@@ -33,14 +38,14 @@ const OverviewCard = ({ icon, label, value, primary }: OverviewCardProps) => (
         {icon}
       </Box>
       <Box sx={{ flex: 1 }}>
-        <Typography sx={{ 
+        <Typography sx={{
           fontSize: "0.875rem",
           color: primary ? "rgba(255,255,255,0.8)" : "text.secondary",
-          mb: 0.5 
+          mb: 0.5
         }}>
           {label}
         </Typography>
-        <Typography sx={{ 
+        <Typography sx={{
           fontSize: "1.5rem",
           fontWeight: 500
         }}>
@@ -51,8 +56,33 @@ const OverviewCard = ({ icon, label, value, primary }: OverviewCardProps) => (
   </Card>
 );
 
-
 const Overview = () => {
+  // Assuming we're getting the participant ID from somewhere (e.g., context, route params)
+  const user = useAppSelector(selectCurrentUser);
+  const participantId = user.id; // Replace with actual ID source
+  const { data: participantData, isLoading, error } = useGetParticipantQuery(participantId);
+
+  if (isLoading) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', padding: '2rem' }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  if (error || !participantData) {
+    return (
+      <Box sx={{ padding: '2rem' }}>
+        <EmptyState
+          title="Error loading data"
+          subTitle="There was a problem loading your information. Please try again later."
+        />
+      </Box>
+    );
+  }
+
+  const { data: participant } = participantData;
+
   return (
     <Box sx={{ padding: "2rem" }}>
       <Typography variant="h2" sx={sectionTitleStyle}>
@@ -64,23 +94,23 @@ const Overview = () => {
         <OverviewCard
           icon={<Book />}
           label="Registered Courses"
-          value={12}
+          value={participant.courses?.length || 0}
           primary
         />
         <OverviewCard
           icon={<School />}
           label="Level"
-          value="100 Level"
+          value={participant.level || "N/A"}
         />
         <OverviewCard
           icon={<CalendarMonth />}
           label="Semester"
-          value={1}
+          value={1} // Replace with actual semester data if available
         />
         <OverviewCard
           icon={<Grade />}
           label="CGPA"
-          value="N/A"
+          value="N/A" // Replace with actual CGPA if available
         />
       </Box>
 
@@ -89,14 +119,14 @@ const Overview = () => {
         Shared Notes
       </Typography>
       <Typography sx={{ color: "text.secondary", mb: 3 }}>
-        Lorem ipsum dolor sit amet consectetur. Table add
+        Access your course materials and shared resources
       </Typography>
 
       {/* Empty State */}
       <Card sx={{ bgcolor: "#fff", borderRadius: "var(--border-radius)" }}>
         <CardContent>
-          <EmptyState 
-            title="Oops looks like there's nothing here"
+          <EmptyState
+            title="No shared notes available"
             subTitle="Information will appear here after an admin has assigned them to you."
           />
         </CardContent>

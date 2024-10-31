@@ -13,7 +13,7 @@ import {
 } from "@mui/material";
 import { useState } from "react";
 
-interface ReportData {
+interface ResultData {
   matricNo: string;
   fullName: string;
   semester: string;
@@ -34,7 +34,7 @@ interface ReportData {
   cumulativeTcp: number;
 }
 
-const ReportsModal = ({ report }: { report: ReportData }) => {
+const ResultsModal = ({ result }: { result: ResultData }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleClose = () => setIsModalOpen(false);
@@ -45,12 +45,12 @@ const ReportsModal = ({ report }: { report: ReportData }) => {
       <Modal open={isModalOpen} onClose={handleClose}>
         <Box sx={modalStyle}>
           <Box sx={headerStyle}>
-            <Typography variant="h6">MATRIC NO: {report.matricNo}</Typography>
-            <Typography variant="h6">FULL NAME: {report.fullName}</Typography>
-            <Typography variant="body1">SEMESTER: {report.semester}</Typography>
-            <Typography variant="body1">LEVEL: {report.level}</Typography>
-            <Typography variant="body1">SESSION: {report.session}</Typography>
-            <Typography variant="body1">GPA: {report.gpa.toFixed(2)}</Typography>
+            <Typography variant="h6">MATRIC NO: {result.matricNo}</Typography>
+            <Typography variant="h6">FULL NAME: {result.fullName}</Typography>
+            <Typography variant="body1">SEMESTER: {result.semester}</Typography>
+            <Typography variant="body1">LEVEL: {result.level}</Typography>
+            <Typography variant="body1">SESSION: {result.session}</Typography>
+            <Typography variant="body1">GPA: {result.gpa.toFixed(2)}</Typography>
           </Box>
 
           <TableContainer component={Paper} sx={{ marginTop: 2 }}>
@@ -66,7 +66,7 @@ const ReportsModal = ({ report }: { report: ReportData }) => {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {report.courses.map((course) => (
+                {result.courses.map((course) => (
                   <TableRow key={course.sn}>
                     <TableCell>{course.sn}</TableCell>
                     <TableCell>{course.code}</TableCell>
@@ -81,10 +81,10 @@ const ReportsModal = ({ report }: { report: ReportData }) => {
           </TableContainer>
 
           <Box sx={footerStyle}>
-            <Typography variant="body2">TNU: {report.tnu}</Typography>
-            <Typography variant="body2">TCP: {report.tcp}</Typography>
-            <Typography variant="body2">Cumulative TNU: {report.cumulativeTnu}</Typography>
-            <Typography variant="body2">Cumulative TCP: {report.cumulativeTcp}</Typography>
+            <Typography variant="body2">TNU: {result.tnu}</Typography>
+            <Typography variant="body2">TCP: {result.tcp}</Typography>
+            <Typography variant="body2">Cumulative TNU: {result.cumulativeTnu}</Typography>
+            <Typography variant="body2">Cumulative TCP: {result.cumulativeTcp}</Typography>
           </Box>
 
           <Box sx={{ display: "flex", justifyContent: "space-between", marginTop: 2 }}>
@@ -129,4 +129,4 @@ const footerStyle = {
   marginTop: 2,
 };
 
-export default ReportsModal;
+export default ResultsModal;

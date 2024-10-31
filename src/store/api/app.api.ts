@@ -29,6 +29,7 @@ export const appApi = createApi({
     "Notes",
     "Quiz",
     "Media",
+    "Results",
   ],
   endpoints: () => ({}),
 });

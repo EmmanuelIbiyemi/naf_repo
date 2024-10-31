@@ -35,7 +35,7 @@ interface StudentInfo {
   courses: CourseData[];
 }
 
-interface ReportData {
+interface ResultData {
   level: string;
   semester: string;
   session: string;
@@ -43,18 +43,18 @@ interface ReportData {
   studentInfo: StudentInfo;
 }
 
-const Reports = () => {
+const Results = () => {
   const dispatch = useAppDispatch();
   const [selectedLevel, setSelectedLevel] = useState("all");
   const [selectedSemester, setSelectedSemester] = useState("all");
-  const [reportData, setReportData] = useState<ReportData[]>([]);
-  const [selectedReport, setSelectedReport] = useState<ReportData | null>(null);
+  const [resultData, setResultData] = useState<ResultData[]>([]);
+  const [selectedResult, setSelectedResult] = useState<ResultData | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
-    dispatch(setPageName("Reports"));
-    // Fetch report data from an API or database and update the state
-    setReportData([
+    dispatch(setPageName("Results"));
+    // Fetch result data from an API or database and update the state
+    setResultData([
       {
         level: "100",
         semester: "Second",
@@ -71,7 +71,7 @@ const Reports = () => {
           ]
         }
       },
-      // Add more report data as needed
+      // Add more result data as needed
     ]);
   }, []);
 
@@ -83,8 +83,8 @@ const Reports = () => {
     setSelectedSemester(event.target.value as string);
   };
 
-  const handleReportClick = (report: ReportData) => {
-    setSelectedReport(report);
+  const handleResultClick = (result: ResultData) => {
+    setSelectedResult(result);
     setIsModalOpen(true);
   };
 
@@ -94,7 +94,7 @@ const Reports = () => {
 
   const handleDownload = () => {
     // Implement download functionality
-    console.log("Downloading report...");
+    console.log("Downloading result...");
   };
 
   return (
@@ -136,22 +136,22 @@ const Reports = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {reportData
+            {resultData
               .filter(
-                (report) =>
-                  (selectedLevel === "all" || report.level === selectedLevel) &&
-                  (selectedSemester === "all" || report.semester === selectedSemester)
+                (result) =>
+                  (selectedLevel === "all" || result.level === selectedLevel) &&
+                  (selectedSemester === "all" || result.semester === selectedSemester)
               )
-              .map((report) => (
+              .map((result) => (
                 <TableRow
-                  key={report.resultId}
-                  onClick={() => handleReportClick(report)}
+                  key={result.resultId}
+                  onClick={() => handleResultClick(result)}
                   sx={{ cursor: "pointer", "&:hover": { backgroundColor: "#f5f5f5" } }}
                 >
-                  <TableCell>{report.level}</TableCell>
-                  <TableCell>{report.semester}</TableCell>
-                  <TableCell>{report.session}</TableCell>
-                  <TableCell>{report.resultId}</TableCell>
+                  <TableCell>{result.level}</TableCell>
+                  <TableCell>{result.semester}</TableCell>
+                  <TableCell>{result.session}</TableCell>
+                  <TableCell>{result.resultId}</TableCell>
                 </TableRow>
               ))}
           </TableBody>
@@ -164,7 +164,7 @@ const Reports = () => {
         aria-labelledby="result-modal"
       >
         <Box sx={modalStyle}>
-          {selectedReport && (
+          {selectedResult && (
             <Box sx={modalContentStyle}>
               <Grid container spacing={3}>
                 {/* Student Information Section */}
@@ -175,7 +175,7 @@ const Reports = () => {
                         MATRIC NO.:
                       </Typography>
                       <Typography variant="body1">
-                        {selectedReport.studentInfo.matricNo}
+                        {selectedResult.studentInfo.matricNo}
                       </Typography>
                     </Box>
                     <Box sx={infoItemStyle}>
@@ -183,7 +183,7 @@ const Reports = () => {
                         FULL NAME:
                       </Typography>
                       <Typography variant="body1">
-                        {selectedReport.studentInfo.fullName}
+                        {selectedResult.studentInfo.fullName}
                       </Typography>
                     </Box>
                   </Box>
@@ -197,7 +197,7 @@ const Reports = () => {
                         SEMESTER:
                       </Typography>
                       <Typography variant="body1">
-                        {selectedReport.semester}
+                        {selectedResult.semester}
                       </Typography>
                     </Box>
                     <Box sx={infoItemStyle}>
@@ -205,7 +205,7 @@ const Reports = () => {
                         LEVEL:
                       </Typography>
                       <Typography variant="body1">
-                        {selectedReport.level}
+                        {selectedResult.level}
                       </Typography>
                     </Box>
                     <Box sx={infoItemStyle}>
@@ -213,7 +213,7 @@ const Reports = () => {
                         SESSION:
                       </Typography>
                       <Typography variant="body1">
-                        {selectedReport.session}
+                        {selectedResult.session}
                       </Typography>
                     </Box>
                   </Box>
@@ -226,7 +226,7 @@ const Reports = () => {
                   GPA:
                 </Typography>
                 <Typography variant="h6">
-                  {selectedReport.studentInfo.gpa}
+                  {selectedResult.studentInfo.gpa}
                 </Typography>
               </Box>
 
@@ -244,7 +244,7 @@ const Reports = () => {
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {selectedReport.studentInfo.courses.map((course) => (
+                    {selectedResult.studentInfo.courses.map((course) => (
                       <TableRow key={course.sn}>
                         <TableCell>{course.sn}</TableCell>
                         <TableCell>{course.code}</TableCell>
@@ -285,7 +285,7 @@ const Reports = () => {
   );
 };
 
-export default Reports;
+export default Results;
 
 // Styles
 const filterContainerStyle = {
