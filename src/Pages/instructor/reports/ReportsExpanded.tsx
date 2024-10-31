@@ -1,6 +1,7 @@
 import { Box, Typography } from "@mui/material";
 import { useRef } from "react";
 import { useLocation } from "react-router-dom";
+import TestParticipantsList from "../courses/cbt/TestParticipantsList";
 
 const ReportsExpanded = () => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -28,18 +29,26 @@ const ReportsExpanded = () => {
               fontWeight: 600,
             }}
           >
-            Cumulative Report on Health Informatics Course
+            Cumulative Report on Computer Course
           </Typography>
           <Box>
             <Typography
               variant="h4"
               sx={{ color: "#6A6A6A", fontSize: ".8rem" }}
             >
-              Date Generated : 22/09 • Last Modified : 25/09
+              Date Generated : 25/10 • Last Modified : 25/10
             </Typography>
           </Box>
         </Box>
-        <Box sx={{ marginTop: "2em", height: "20em" }}></Box>
+        <Box sx={{ marginTop: "2em", height: "20em" }}>
+          <Typography
+            variant="h4"
+            sx={{ color: "#6A6A6A", fontSize: "1rem", marginBottom: "2em" }}
+          >
+            Below are the students performance on the Computer course CBT Quiz
+          </Typography>
+          <TestParticipantsList />
+        </Box>
       </Box>
     </Box>
   );

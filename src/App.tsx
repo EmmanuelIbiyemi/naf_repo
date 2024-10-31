@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import "./App.scss";
 import AdminLayout from "./components/layout/AdminLayout";
 import InstructorLayout from "./components/layout/InstructorLayout";
@@ -6,6 +6,7 @@ import StudentLayout from "./components/layout/StudentLayout"; // Add this impor
 import {
   selectCurrentUser,
   selectLastVisitedPage,
+  setLastVisitedPage,
   setUserFromLocalStorage,
 } from "./store/auth.slice";
 import { useAppDispatch, useAppSelector } from "./store/hooks";
@@ -48,6 +49,12 @@ function App() {
       }
     }
   }, [user, lastVisitedPage, navigate]);
+
+  const location = useLocation();
+
+  useEffect(() => {
+    dispatch(setLastVisitedPage(location.pathname));
+  }, [location]);
 
   const renderLayout = () => {
     switch (user?.role) {

@@ -49,7 +49,7 @@ const CoursesSidebar = ({ course }: courseProps) => {
             <Box key={`navlink-${item.content + 1}`}>
               <Link
                 className={
-                  location.pathname.includes(item.link) ? "active" : ""
+                  location.pathname.includes(`/${item.link}`) ? "active" : ""
                 }
                 to={item.link}
               >
@@ -63,15 +63,10 @@ const CoursesSidebar = ({ course }: courseProps) => {
                       onClick={() =>
                         navigate(child.link, { state: { course } })
                       }
+                      sx={{ border: "1px solid red" }}
                     >
                       <ChevronRight /> {child.content}
                     </Box>
-                    // <Link
-                    //   key={`child-link-${child.content}`}
-                    //   to={child.link}
-                    //   className={isCurrentChildLink(child) ? "active" : ""}
-                    // >
-                    // </Link>
                   ))}
                 </Box>
               ) : null}

@@ -88,9 +88,30 @@ const LiveClasses = () => {
                   </Grid2>
                 </TabPanel>
                 <TabPanel value="2" sx={TabStyles}>
-                  {scheduledClasses.map(() => (
-                    <Box>Hi</Box>
-                  ))}
+                  <Grid2 container spacing={2}>
+                    {endedClasses.map((item) => (
+                      <Grid2
+                        size={4}
+                        sx={{
+                          border: "1px solid #CCCCCC",
+                          padding: "1em",
+                          borderRadius: "10px",
+                          // width: "100%",
+                          backgroundColor: "transparent",
+                        }}
+                        key={item.id}
+                      >
+                        <LiveClassCard
+                          title={item.title}
+                          batchNo={item.batchNo}
+                          date={item.date}
+                          time={item.time}
+                          status={item.status}
+                          btnAction={() => console.log("Joineed")}
+                        />
+                      </Grid2>
+                    ))}
+                  </Grid2>
                 </TabPanel>
               </TabContext>
             </Box>
@@ -199,6 +220,58 @@ const scheduledClasses = [
   },
   {
     id: 11,
+    title: "How to Make an Array and it’s Types in C++",
+    batchNo: "3CO - JVY",
+    date: "03 Jan 2023",
+    time: "12:40 P:M",
+    status: "Not Started",
+  },
+];
+
+const endedClasses = [
+  {
+    id: 1,
+    title: "How to Make an Array and it’s Types in C++",
+    batchNo: "3CO - JVY",
+    date: "03 Jan 2023",
+    time: "12:40 P:M",
+    status: "Ended",
+  },
+  {
+    id: 2,
+    title: "How to Make an Array and it’s Types in C++",
+    batchNo: "3CO - JVY",
+    date: "03 Jan 2023",
+    time: "12:40 P:M",
+    status: "Ended",
+  },
+
+  {
+    id: 4,
+    title: "How to Make an Array and it’s Types in C++",
+    batchNo: "3CO - JVY",
+    date: "03 Jan 2023",
+    time: "12:40 P:M",
+    status: "Ended",
+  },
+  {
+    id: 5,
+    title: "How to Make an Array and it’s Types in C++",
+    batchNo: "3CO - JVY",
+    date: "03 Jan 2023",
+    time: "12:40 P:M",
+    status: "Ended",
+  },
+  {
+    id: 6,
+    title: "How to Make an Array and it’s Types in C++",
+    batchNo: "3CO - JVY",
+    date: "03 Jan 2023",
+    time: "12:40 P:M",
+    status: "Ended",
+  },
+  {
+    id: 7,
     title: "How to Make an Array and it’s Types in C++",
     batchNo: "3CO - JVY",
     date: "03 Jan 2023",

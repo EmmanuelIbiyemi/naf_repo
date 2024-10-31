@@ -7,7 +7,15 @@ const participantsApi = appApi.injectEndpoints({
       query: () => `/participant`,
       providesTags: ["Participants"],
     }),
+    getCourseParticipants: builder.query<
+      { data: ParticipantData[] },
+      { course_id: number }
+    >({
+      query: ({ course_id }) => `/participant/course/${course_id}`,
+      providesTags: ["Participants"],
+    }),
   }),
 });
 
-export const { useGetParticipantsQuery } = participantsApi;
+export const { useGetParticipantsQuery, useGetCourseParticipantsQuery } =
+  participantsApi;

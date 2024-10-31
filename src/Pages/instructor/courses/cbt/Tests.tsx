@@ -1,4 +1,3 @@
-
 import { Box, LinearProgress } from "@mui/material";
 
 import { useEffect, useRef, useState } from "react";
@@ -14,9 +13,9 @@ import GenerateReportModal from "./GenerateReportModal";
 import CreateTestModal from "./stepmodals/CreateTestModal";
 import QuizzesItemsList from "../QuizzesItemsList";
 import { QuizzesResponse } from "../../../../types/quizzes";
-import { useGetQuizzesQuery } from "../../../../store/api/quizzes.api";
+import { useGetCourseQuizzesQuery } from "../../../../store/api/quizzes.api";
 import { useGetCoursesQuery } from "../../../../store/api/courses.api";
-import { useGetParticipantsQuery } from "../../../../store/api/participants.api";
+import { useGetCourseParticipantsQuery } from "../../../../store/api/participants.api";
 
 const Tests = () => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -32,24 +31,27 @@ const Tests = () => {
     QuizzesResponse | undefined
   >();
 
-  const { data: participants, isLoading: isFetchingParticipants } =
-    useGetParticipantsQuery(null);
-
   const handleOpenCreateTestModal = () => setOpenCreateTestModal(true);
   const handleCloseCreateTestModal = () => setOpenCreateTestModal(false);
   const handleOpenGenerateReportModal = () => setOpenGenerateReportModal(true);
   const handleCloseGenerateReportModal = () =>
     setOpenGenerateReportModal(false);
   const [openFileSuccessModal, setOpenFileSuccessModal] = useState(false);
+  const locationData = location.pathname.split("/");
+  const courseId = locationData[locationData.length - 2];
 
-  const { data: quizzes, isLoading } = useGetQuizzesQuery(null);
+  const { data: participants, isLoading: isFetchingParticipants } =
+    useGetCourseParticipantsQuery({ course_id: parseInt(courseId) });
+
+  const { data: quizzes, isLoading } = useGetCourseQuizzesQuery({
+    course_id: parseInt(courseId),
+  });
   const { data: courses, isLoading: isGettingCourses } =
     useGetCoursesQuery(null);
   const handleDelete = (noteId: number) => {
     console.log(noteId);
     setOpenActionsModal((prev) => ({ ...prev, delete: true }));
   };
-
 
   const handleOpenActionsModal = (course: QuizzesResponse, type: string) => {
     setSelectedTests(course);
@@ -167,7 +169,6 @@ const Tests = () => {
             text: "Generate Report",
           }}
           additionalButton={{
-
             action: handleOpenCreateTestModal,
             text: "Create New Test",
             isLoading: isGettingCourses,
@@ -178,7 +179,6 @@ const Tests = () => {
           handleClose={handleCloseGenerateReportModal}
         />
         <Box>
-
           <QuizzesItemsList
             lists={quizzes?.data || []}
             handleOpenActionsModal={handleOpenActionsModal}
@@ -215,7 +215,7 @@ const Tests = () => {
           close={() => {
             handleCloseActionsModal("success");
             setSelectedTests(undefined);
-         }}
+          }}
           infoText=""
           open={openActionsModal.success}
           subTitle={`You have successfully added a new Course <strong>"${selectedTests?.name}"</strong>.`}

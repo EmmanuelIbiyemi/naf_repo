@@ -71,6 +71,7 @@ export const authSlice = createSlice({
       state.access_token = "";
       state.refresh_token = "";
       state.user = null;
+      state.lastVisitedPage = "";
       localStorage.clear();
       sessionStorage.clear();
     },

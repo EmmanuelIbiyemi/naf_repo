@@ -15,6 +15,15 @@ const quizzesApi = appApi.injectEndpoints({
       query: () => `/quiz`,
       providesTags: ["Quiz"],
     }),
+    getCourseQuizzes: builder.query<
+      { data: QuizzesResponse[] },
+      { course_id: number }
+    >({
+      query: ({ course_id }) => ({
+        url: `/quiz?course_id=${course_id}`,
+      }),
+      providesTags: ["Quiz"],
+    }),
     addQuiz: builder.mutation<{ data: QuizzesResponse }, CreateQuiz>({
       query: (values) => ({
         url: `/quiz`,
@@ -69,6 +78,7 @@ const quizzesApi = appApi.injectEndpoints({
 
 export const {
   useGetQuizzesQuery,
+  useGetCourseQuizzesQuery,
   useAddQuizMutation,
   useCreateAssessmentMutation,
   useCreateQuestionFromFileMutation,

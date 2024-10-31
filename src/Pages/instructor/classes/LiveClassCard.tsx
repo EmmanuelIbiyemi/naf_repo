@@ -98,7 +98,7 @@ const LiveClassCard = ({
             color:
               status === "Ongoing"
                 ? "#F12222"
-                : status === "Not Started"
+                : status === "Not Started" || status === "Ended"
                 ? "#9E9E9Et"
                 : "#0CC740",
             fontSize: ".9rem",
@@ -110,7 +110,7 @@ const LiveClassCard = ({
             backgroundColor:
               status === "Ongoing"
                 ? "#FFDDDD"
-                : status === "Not Started"
+                : status === "Not Started" || status === "Ended"
                 ? "#F1F1F1"
                 : "#DDFFE7",
           }}
@@ -120,7 +120,7 @@ const LiveClassCard = ({
       </Box>
       <Button
         variant="contained"
-        disabled={status === "Not Started"}
+        disabled={status === "Not Started" || status === "Ended"}
         sx={{
           width: "100%",
           backgroundColor: "#141414",
@@ -128,7 +128,7 @@ const LiveClassCard = ({
         }}
         onClick={btnAction}
       >
-        Join now
+        {status === "Ended" ? "Ended" : "Join now"}
       </Button>
     </Box>
   );
