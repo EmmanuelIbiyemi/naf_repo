@@ -4,7 +4,13 @@ import TableCell from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
 import TableRow from "@mui/material/TableRow";
 import { CBTSubjectType } from "../../../types/subjects";
-import { Button, IconButton, SxProps, Typography } from "@mui/material";
+import {
+  Button,
+  Checkbox,
+  IconButton,
+  SxProps,
+  Typography,
+} from "@mui/material";
 import { Dispatch, SetStateAction } from "react";
 import DeleteConfirmationModal from "../../../components/DeleteConfirmationModal";
 import { useNavigate } from "react-router-dom";
@@ -76,6 +82,7 @@ const CBTtList = ({
           {subjects.map((subject) => (
             <TableRow key={subject.id} sx={{ "td,th": { border: 0 } }}>
               <TableCell component="th" scope="row">
+                <Checkbox />
                 <Button
                   sx={{
                     "&.MuiButton-root": {
@@ -87,11 +94,13 @@ const CBTtList = ({
                       textAlign: "left",
                     },
                   }}
-                  onClick={() => navigate("/applications/cbt/questions")}
+                  onClick={() => navigate(`/cbt/${subject.id}`)}
                 >
                   {subject.name}
                 </Button>
-                <Typography sx={{ color: "secondary.light" }}>
+                <Typography
+                  sx={{ color: "secondary.light", paddingLeft: "2.6rem" }}
+                >
                   {subject.questions.length} Questions
                 </Typography>
               </TableCell>

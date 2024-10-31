@@ -2,14 +2,12 @@ import { Box, SxProps } from "@mui/material";
 import logo from "../../assets/logo.png";
 import { Link, useLocation } from "react-router-dom";
 import HomeIcon from "../../assets/homeIcon";
-import ChartIcon from "../../assets/chartIcon";
 import BankIcon from "../../assets/bankIcon";
 import SettingsIcon from "../../assets/settingsIcon";
 import { ElementType } from "react";
 import ClipBoardIcon from "../../assets/clipboardIcon";
 import SchoolIcon from "../../assets/schoolIcon";
 import { ChevronLeft, ChevronRight } from "@mui/icons-material";
-// import Credit from "../../assets/Credit";
 import GraduationScroll from "../../assets/graduation-scroll";
 
 type NavLink = {
@@ -21,7 +19,6 @@ type NavLink = {
 const navLinks: NavLink[] = [
   { content: "Dashboard", icon: HomeIcon, link: "/" },
   { content: "Academics", icon: ClipBoardIcon, link: "/academics" },
-  { content: "Students", icon: ChartIcon, link: "/students" },
   { content: "Users", icon: SchoolIcon, link: "/users" },
   {
     content: "Applications",
@@ -37,7 +34,6 @@ const navLinks: NavLink[] = [
       { content: "Student Exam", icon: ChevronLeft, link: "/cbt" },
     ],
   },
-  // { content: "Fees Management", icon: Credit, link: "/fees" },
   { content: "Grading System", icon: GraduationScroll, link: "/grading" },
   { content: "Settings", icon: SettingsIcon, link: "/settings" },
 ];

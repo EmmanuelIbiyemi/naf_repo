@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 import "./App.scss";
 import AdminLayout from "./components/layout/AdminLayout";
 import InstructorLayout from "./components/layout/InstructorLayout";
-import StudentLayout from "./components/layout/StudentLayout";  // Add this import
+import StudentLayout from "./components/layout/StudentLayout"; // Add this import
 import {
   selectCurrentUser,
   selectLastVisitedPage,
@@ -23,10 +23,9 @@ function App() {
   const isPageLoading = useAppSelector(selectPageLoading);
 
   useEffect(() => {
-    if (!user) {
-      dispatch(setUserFromLocalStorage());
-      if (!user) navigate("/login");
-    }
+    const token = localStorage.getItem("access_token");
+    if (!token) navigate("/login");
+    if (!user) dispatch(setUserFromLocalStorage());
   }, [dispatch, user, navigate]);
 
   useEffect(() => {
@@ -65,9 +64,10 @@ function App() {
 
   return (
     <Box
-    sx={{
-          fontFamily:'outfit',
-          }}>
+      sx={{
+        fontFamily: "outfit",
+      }}
+    >
       {isPageLoading && (
         <Box
           sx={{
@@ -95,7 +95,7 @@ function App() {
           <LinearProgress color="inherit" sx={{ height: "10px" }} />
         </Box>
       )}
-      
+
       {renderLayout()}
     </Box>
   );

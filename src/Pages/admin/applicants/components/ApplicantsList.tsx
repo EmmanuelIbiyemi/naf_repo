@@ -41,24 +41,19 @@ const ApplicantList = () => {
 
   const menuList = [
     {
-      label: "Applied",
+      label: "pending",
       bgcolor: "rgba(220, 220, 220, 1)",
       color: "",
     },
     {
-      label: "Accepted",
+      label: "admit",
       bgcolor: "rgba(72, 156, 33, 0.2)",
       color: "rgba(72, 156, 33, 1)",
     },
     {
-      label: "Rejected",
+      label: "reject",
       bgcolor: "rgba(229, 72, 77, 0.2)",
       color: "rgba(229, 72, 77, 1)",
-    },
-    {
-      label: "In Review",
-      bgcolor: "rgba(19, 41, 106, 0.2)",
-      color: "rgba(19, 41, 106, 1)",
     },
   ];
 
@@ -208,7 +203,7 @@ const ApplicantList = () => {
               </TableCell>
               <TableCell component="th" scope="row">
                 <Chip
-                  label={applicant.status || "Applied"}
+                  label={applicant.status || "Pending"}
                   clickable
                   sx={{
                     bgcolor: menuList.find(

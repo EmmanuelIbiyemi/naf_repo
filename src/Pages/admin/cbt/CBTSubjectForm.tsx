@@ -45,7 +45,7 @@ const CBTSubjectForm = ({ actions, subject }: Props) => {
           </Typography>
           <Box sx={{ marginTop: "1rem" }}>
             <label htmlFor="name">Subject Name</label>
-            <Field id="name" name="name" as="textarea" />
+            <Field id="name" name="name" />
           </Box>
           <Box className={formStyles.btn_group}>
             <Button

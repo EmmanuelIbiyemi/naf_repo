@@ -142,7 +142,7 @@ export const router = createBrowserRouter([
       { path: "/form/:form_id/preview", element: <PreviewFormPage /> },
       { path: "/applicants", element: <ApplicantsPage /> },
       { path: "/cbt", element: <CBT /> },
-      { path: "/cbt/questions", element: <CBTQuestionsPage /> },
+      { path: "/cbt/:subject_id", element: <CBTQuestionsPage /> },
       {
         path: "/academics",
         element: <AdminAcademicsPage />,
