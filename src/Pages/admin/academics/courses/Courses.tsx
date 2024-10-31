@@ -18,11 +18,11 @@ import {
   useAddLevelCourseMutation,
   useGetCoursesByLevelQuery,
 } from "../../../../store/api/courses.api";
-import { useLocation } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { FormAction } from "../../../../types/forms";
 
 const CoursesPage = () => {
-  const location = useLocation();
+  const { level_id } = useParams();
   const [openModal, setOpenModal] = useState({
     add: false,
     success: false,
@@ -30,7 +30,7 @@ const CoursesPage = () => {
   const [courseName, setCourseName] = useState("");
   const [selectedCourse, setSelectedCourse] = useState<CourseType>();
   const { data: courses } = useGetCoursesByLevelQuery({
-    level_id: location.state.level_id,
+    level_id: +(level_id || 0),
   });
   const containerRef = useRef<HTMLDivElement>(null);
   const [addCourse] = useAddCourseMutation();
@@ -55,7 +55,7 @@ const CoursesPage = () => {
     try {
       const response = await addCourse(course).unwrap();
       await addCourseToLevel({
-        level_id: location.state.level_id,
+        level_id: +(level_id || 0),
         course_ids: [course.id as number],
         type: response.data.type,
       }).unwrap();

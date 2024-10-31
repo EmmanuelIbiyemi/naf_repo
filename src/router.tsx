@@ -148,11 +148,16 @@ export const router = createBrowserRouter([
         element: <AdminAcademicsPage />,
         children: [
           { path: "", element: <FacultiesPage /> },
-          { path: "departments", element: <DepartmentsPage /> },
-          { path: "programmes", element: <ProgrammesPage /> },
-          { path: "levels", element: <LevelsPage /> },
-          { path: "courses", element: <CoursesPage /> },
-          { path: "levels", element: <LevelsPage /> },
+          { path: ":faculty_id", element: <DepartmentsPage /> },
+          { path: ":faculty_id/:department_id", element: <ProgrammesPage /> },
+          {
+            path: ":faculty_id/:department_id/:program_id",
+            element: <LevelsPage />,
+          },
+          {
+            path: ":faculty_id/:department_id/:program_id/:level_id",
+            element: <CoursesPage />,
+          },
         ],
       },
       {

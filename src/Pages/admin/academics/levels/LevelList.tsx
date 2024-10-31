@@ -6,7 +6,7 @@ import TableRow from "@mui/material/TableRow";
 import { LevelType } from "../../../../types/levels";
 import { Button, Checkbox, IconButton } from "@mui/material";
 import { Delete, Edit } from "@mui/icons-material";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import DeleteConfirmationModal from "../../../../components/DeleteConfirmationModal";
 import { useState } from "react";
 import {
@@ -20,15 +20,15 @@ import SuccessModal from "../../../../components/SuccessModal";
 import { FormAction } from "../../../../types/forms";
 
 const LevelList = () => {
+  const { faculty_id, department_id, program_id } = useParams();
   const navigate = useNavigate();
-  const location = useLocation();
   const [openModal, setOpenModal] = useState({
     edit: false,
     success: false,
     delete: false,
   });
   const [selectedLevel, setSelectedLevel] = useState<LevelType>();
-  const { data: levels } = useGetLevelsQuery(location.state.programme_id);
+  const { data: levels } = useGetLevelsQuery(+(program_id || 0));
 
   const [deleteLevel] = useDeleteLevelMutation();
   const [updateLevel] = useUpdateLevelMutation();
@@ -127,9 +127,9 @@ const LevelList = () => {
                 <Checkbox />
                 <Button
                   onClick={() =>
-                    navigate(`/academics/courses`, {
-                      state: { ...location.state, level_id: level.id },
-                    })
+                    navigate(
+                      `/academics/${faculty_id}/${department_id}/${program_id}/${level.id}`
+                    )
                   }
                   sx={{
                     "&.MuiButton-root": {

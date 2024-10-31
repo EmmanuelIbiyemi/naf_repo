@@ -16,20 +16,18 @@ import {
 import FormModal from "../../../../components/FormModal";
 import ProgrammeForm from "./ProgrammeForm";
 import SuccessModal from "../../../../components/SuccessModal";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 const ProgrammeList = () => {
+  const { department_id, faculty_id } = useParams();
   const navigate = useNavigate();
-  const location = useLocation();
   const [openModal, setOpenModal] = useState({
     edit: false,
     success: false,
     delete: false,
   });
   const [selectedProgramme, setSelectedProgramme] = useState<Programme>();
-  const { data: programme } = useGetProgrammesQuery(
-    location.state?.department_id
-  );
+  const { data: programme } = useGetProgrammesQuery(+(department_id || 0));
   const [deleteProgramme] = useDeleteProgrammeMutation();
   const [updateProgramme] = useUpdateProgrammeMutation();
 
@@ -127,12 +125,9 @@ const ProgrammeList = () => {
                 <Checkbox />
                 <Button
                   onClick={() =>
-                    navigate("/academics/levels", {
-                      state: {
-                        ...location.state,
-                        programme_id: programme.id,
-                      },
-                    })
+                    navigate(
+                      `/academics/${faculty_id}/${department_id}/${programme.id}`
+                    )
                   }
                   sx={{
                     "&.MuiButton-root": {

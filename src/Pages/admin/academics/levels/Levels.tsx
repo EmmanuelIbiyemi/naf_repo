@@ -14,17 +14,17 @@ import LevelList from "./LevelList";
 import FormModal from "../../../../components/FormModal";
 import LevelForm from "./LevelForm";
 import { FormAction } from "../../../../types/forms";
-import { useLocation } from "react-router-dom";
+import { useParams } from "react-router-dom";
 
 const LevelsPage = () => {
-  const location = useLocation();
+  const { program_id } = useParams();
   const [openModal, setOpenModal] = useState({
     add: false,
     success: false,
   });
   const [levelName, setLevelName] = useState("");
   const [selectedLevel, setSelectedLevel] = useState<LevelType>();
-  const { data: Levels } = useGetLevelsQuery(location.state.programme_id);
+  const { data: Levels } = useGetLevelsQuery(+(program_id || 0));
   const containerRef = useRef<HTMLDivElement>(null);
   const [addLevel] = useAddLevelMutation();
 

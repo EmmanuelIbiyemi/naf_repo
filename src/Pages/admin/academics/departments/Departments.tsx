@@ -16,19 +16,17 @@ import {
 } from "../../../../types/departments";
 import DepartmentForm from "./DepartmentForm";
 import DepartmentList from "./DepartmentList";
-import { useLocation } from "react-router-dom";
+import { useParams } from "react-router-dom";
 
 const DepartmentsPage = () => {
+  const { faculty_id } = useParams();
   const [openModal, setOpenModal] = useState({
     add: false,
     success: false,
   });
   const [departmentName, setDepartmentName] = useState("");
   const [selectedDepartment, setSelectedDepartment] = useState<Department>();
-  const location = useLocation();
-  const { data: departments } = useGetDepartmentsQuery(
-    location.state?.faculty_id
-  );
+  const { data: departments } = useGetDepartmentsQuery(+(faculty_id || 1));
   const containerRef = useRef<HTMLDivElement>(null);
   const [addDepartment] = useAddDepartmentMutation();
 

@@ -123,11 +123,7 @@ const FacultyList = () => {
               >
                 <Checkbox />
                 <Button
-                  onClick={() =>
-                    navigate(`/academics/departments`, {
-                      state: { faculty_id: faculty.id },
-                    })
-                  }
+                  onClick={() => navigate(`/academics/${faculty.id}`)}
                   sx={{
                     "&.MuiButton-root": {
                       border: "none",

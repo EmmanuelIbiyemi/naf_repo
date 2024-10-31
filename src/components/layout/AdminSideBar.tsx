@@ -9,7 +9,7 @@ import { ElementType } from "react";
 import ClipBoardIcon from "../../assets/clipboardIcon";
 import SchoolIcon from "../../assets/schoolIcon";
 import { ChevronLeft, ChevronRight } from "@mui/icons-material";
-import Credit from "../../assets/Credit";
+// import Credit from "../../assets/Credit";
 import GraduationScroll from "../../assets/graduation-scroll";
 
 type NavLink = {
@@ -37,7 +37,7 @@ const navLinks: NavLink[] = [
       { content: "Student Exam", icon: ChevronLeft, link: "/applications/cbt" },
     ],
   },
-  { content: "Fees Management", icon: Credit, link: "/fees" },
+  // { content: "Fees Management", icon: Credit, link: "/fees" },
   { content: "Grading System", icon: GraduationScroll, link: "/grading" },
   { content: "Settings", icon: SettingsIcon, link: "/settings" },
 ];
