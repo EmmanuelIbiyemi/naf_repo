@@ -30,7 +30,7 @@ const AddFormPage = () => {
   const { data: form } = useGetFormQuery(+(form_id || 0));
 
   const addElement = async (type: string) => {
-    const element = formElements.find((el) => el.type == type);
+    const element = formElements.find((el) => el.key == type);
     dispatch(setBuilderLoading(true));
     if (element) {
       try {
@@ -40,38 +40,38 @@ const AddFormPage = () => {
               .id as number,
           }).unwrap();
 
-          const key = `element-${
-            form.data.sections[form.data.sections.length - 1].id
-          }-${row.data.id}`;
+          const names = element.options
+            ? element.name + "::" + element.options?.join("::")
+            : element.name;
 
           await addField({
             formrow_id: row?.data.id as number,
-            key,
-            name: element.text,
+            key: element.key,
+            name: names,
             placeholder: ["dropdown", "single-choice", "multi-choice"].includes(
               element.type
             )
-              ? element.content
-              : "",
-            type,
+              ? element.options?.join("::") || ""
+              : "Type something",
+            type: element.type,
           }).unwrap();
         }
       } catch (error) {
         console.log(error);
       }
-      dispatch(setBuilderLoading(false));
     }
+    dispatch(setBuilderLoading(false));
   };
 
   const handleDragEnd = async (event: DragEndEvent) => {
     setActiveId(null);
     if (event.over && event.over.id === "droppable") {
-      console.log(form?.data.sections.length);
       addElement(event.active.id as string);
     }
   };
 
   const handleDragStart = (event: DragEndEvent) => {
+    console.log(event.active.id);
     setActiveId(event.active.id as string);
   };
 

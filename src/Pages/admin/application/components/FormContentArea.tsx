@@ -11,8 +11,6 @@ import { useParams } from "react-router-dom";
 
 const FormContentArea = () => {
   const { form_id } = useParams();
-  console.log(form_id);
-
   const { data: form } = useGetFormQuery(+(form_id || 0));
   const [updateForm] = useUpdateFormMutation();
 

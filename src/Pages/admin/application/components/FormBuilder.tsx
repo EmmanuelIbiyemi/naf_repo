@@ -522,78 +522,25 @@ const FormBuilder = ({
       case "single-choice":
         el = (
           <Box>
-            {isPreview ? (
-              <>
-                <label
-                  dangerouslySetInnerHTML={{
-                    __html: name,
-                  }}
-                />
-                <FormControl>
-                  <ToggleButtonGroup exclusive>
-                    {optionNames.map((opt, i) => (
-                      <ToggleButton
-                        value={optionValues[i]}
-                        sx={{ textTransform: "capitalize" }}
-                      >
-                        {opt}
-                      </ToggleButton>
-                    ))}
-                  </ToggleButtonGroup>
-                </FormControl>
-              </>
-            ) : (
-              <>
-                <Box
-                  sx={{
-                    alignItems: "center",
-                    display: "flex",
-                    justifyContent: "space-between",
-                  }}
-                >
-                  <label
-                    id={elId}
-                    contentEditable={allowEdit}
-                    onBlur={handleLabelInput}
-                    dangerouslySetInnerHTML={{
-                      __html: name as string,
-                    }}
-                  />
-                  <IconButton
-                    sx={{ padding: "5px" }}
-                    onClick={() => handleAddRemoveChange(elId, "add")}
-                  >
-                    <Add />
-                  </IconButton>
-                </Box>
-
-                <Box>
-                  {optionNames?.map((opt, i) => (
-                    <Typography
-                      key={`${name}-${opt}`}
-                      sx={{ display: "flex", justifyContent: "space-between" }}
+            <>
+              <label
+                dangerouslySetInnerHTML={{
+                  __html: name,
+                }}
+              />
+              <FormControl>
+                <ToggleButtonGroup exclusive>
+                  {optionNames.map((opt, i) => (
+                    <ToggleButton
+                      value={optionValues[i]}
+                      sx={{ textTransform: "capitalize" }}
                     >
-                      <span
-                        contentEditable={allowEdit}
-                        onBlur={(e) => handleOptionChange(e, elId, i + 1)}
-                        dangerouslySetInnerHTML={{
-                          __html: opt.toLowerCase(),
-                        }}
-                        onClick={(e) => e.stopPropagation()}
-                      ></span>
-                      <IconButton
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleAddRemoveChange(elId, "delete");
-                        }}
-                      >
-                        <Remove />
-                      </IconButton>
-                    </Typography>
+                      {opt}
+                    </ToggleButton>
                   ))}
-                </Box>
-              </>
-            )}
+                </ToggleButtonGroup>
+              </FormControl>
+            </>
           </Box>
         );
         break;

@@ -1,102 +1,91 @@
 import headingIcon from "../../../assets/heading.svg";
 import textIcon from "../../../assets/paragraph.svg";
 import textfieldIcon from "../../../assets/textfield.svg";
-import userIcon from "../../../assets/user.svg";
-import uploadIcon from "../../../assets/upload.svg";
-import imageIcon from "../../../assets/image.svg";
 import datePickerIcon from "../../../assets/datepicker.svg";
-import dropdownIcon from "../../../assets/dropdown.svg";
+import userIcon from "../../../assets/user.svg";
+import imageIcon from "../../../assets/image.svg";
 import singleChoiceIcon from "../../../assets/singlechoice.svg";
-import multiChoiceIcon from "../../../assets/multichoice.svg";
 
 export const formElements = [
   {
     id: 1,
     image: headingIcon,
     type: "heading",
-    icon: "H",
-    text: "Heading",
-    content: "Type something here",
+    name: "Heading",
+    key: "heading",
+    options: null,
   },
   {
     id: 2,
     image: textIcon,
     type: "paragraph",
-    icon: "P",
-    text: "Paragraph",
-    content:
-      "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.",
+    name: "Paragraph",
+    key: "paragraph",
+    options: null,
   },
+
   {
     id: 3,
-    image: textfieldIcon,
-    type: "text-field",
-    icon: "T",
-    text: "Text Field",
-    content: "Label",
+    image: userIcon,
+    type: "full-name",
+    name: "Full Name",
+    key: "full_name",
+    options: null,
   },
   {
     id: 4,
     image: textfieldIcon,
-    type: "textarea",
-    icon: "T",
-    text: "Text Area",
-    content: "Label",
+    type: "text-field",
+    name: "Email",
+    key: "email",
+    options: null,
   },
   {
     id: 5,
-    image: userIcon,
-    type: "full-name",
-    icon: "U",
-    text: "Full Name",
-    content: "Label",
+    image: textfieldIcon,
+    type: "text-field",
+    name: "Phone Number",
+    key: "phone_number",
+    options: null,
   },
   {
     id: 6,
-    image: uploadIcon,
-    type: "documents",
-    icon: "U",
-    text: "Upload Document(s)",
-    content: "Label",
+    image: textfieldIcon,
+    type: "text-field",
+    name: "Home Address",
+    key: "home_address",
+    options: null,
   },
   {
     id: 7,
-    image: imageIcon,
-    type: "images",
-    icon: "I",
-    text: "Insert Image(s)",
-    content: "Label",
+    image: singleChoiceIcon,
+    type: "single-choice",
+    name: "Gender",
+    key: "gender",
+    options: ["Male", "Female"],
+  },
+  {
+    id: 7,
+    image: singleChoiceIcon,
+    type: "single-choice",
+    name: "Marital Status",
+    key: "marital_status",
+    options: ["Single", "Married", "Other"],
   },
   {
     id: 8,
     image: datePickerIcon,
     type: "date-picker",
-    icon: "D",
-    text: "Date Picker",
-    content: "Label",
+    name: "DOB",
+    key: "dob",
+    options: null,
   },
   {
     id: 9,
-    image: dropdownIcon,
-    type: "dropdown",
-    icon: "D",
-    text: "Dropdown",
-    content: "Label",
-  },
-  {
-    id: 10,
-    image: singleChoiceIcon,
-    type: "single-choice",
-    icon: "S",
-    text: "Single Choice",
-    content: "Label",
-  },
-  {
-    id: 11,
-    image: multiChoiceIcon,
-    type: "multi-choice",
-    icon: "M",
-    text: "Multi Choice",
-    content: "Label",
+    image: imageIcon,
+    type: "images",
+    name: "Headshot",
+    key: "headshot",
+    options: null,
   },
 ];
