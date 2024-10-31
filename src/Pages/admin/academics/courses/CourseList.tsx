@@ -4,9 +4,9 @@ import TableCell from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
 import TableRow from "@mui/material/TableRow";
 import { CourseCombinedType, CourseType } from "../../../../types/courses";
-import { Checkbox, IconButton } from "@mui/material";
+import { Checkbox, IconButton, Typography } from "@mui/material";
 import { Delete, Edit } from "@mui/icons-material";
-import { Link, useLocation } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import DeleteConfirmationModal from "../../../../components/DeleteConfirmationModal";
 import { useState } from "react";
 import {
@@ -125,12 +125,11 @@ const CourseList = () => {
                 sx={{ alignItems: "center", display: "flex", gap: "1rem" }}
               >
                 <Checkbox />
-                <Link
-                  to={`/courses/${course.id}`}
-                  style={{ textTransform: "capitalize" }}
+                <Typography
+                  sx={{ fontWeight: 900, textTransform: "capitalize" }}
                 >
                   {course.name}
-                </Link>
+                </Typography>
               </TableCell>
               <TableCell align="right">
                 <IconButton onClick={() => handleOpenModal(course, "edit")}>

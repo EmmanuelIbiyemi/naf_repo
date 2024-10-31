@@ -22,7 +22,6 @@ const ProgrammesPage = lazy(
 const CoursesPage = lazy(
   () => import("./Pages/admin/academics/courses/Courses")
 );
-const SubjectsPage = lazy(() => import("./Pages/admin/subjects/Subjects"));
 const StudentsPage = lazy(() => import("./Pages/admin/students/Students"));
 const InstructorsPage = lazy(
   () => import("./Pages/admin/instructors/Instructors")
@@ -72,8 +71,6 @@ export const router = createBrowserRouter([
     children: [
       { path: "/", element: <Dashboard /> },
       { path: "/courses", element: <CoursesPage /> },
-      { path: "/courses/:id", element: <SubjectsPage /> },
-      { path: "/courses/:id", element: <SubjectsPage /> },
       { path: "/students", element: <StudentsPage /> },
       { path: "/instructors", element: <InstructorsPage /> },
       { path: "/applications", element: <FormsPage /> },
