@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import {
   Box,
   Typography,
@@ -11,81 +12,46 @@ import {
   MenuItem,
   Select,
   SelectChangeEvent,
-  Modal,
-  Button,
   Grid,
+  Button,
+  CircularProgress,
+  Alert,
 } from "@mui/material";
-import { useAppDispatch } from "../../../store/hooks";
+import { useAppDispatch, useAppSelector } from "../../../store/hooks";
 import { setPageName } from "../../../store/app.slice";
-import { useState, useEffect } from "react";
+import { useStudentResultQuery } from "../../../store/api/result.api";
+import { selectCurrentUser } from '../../../store/auth.slice';
 
-interface CourseData {
-  sn: number;
-  code: string;
-  title: string;
-  units: number;
-  score: number;
-  grade: string;
-}
-
-interface StudentInfo {
-  matricNo: string;
-  fullName: string;
-  gpa: string;
-  courses: CourseData[];
-}
-
-interface ResultData {
-  level: string;
-  semester: string;
-  session: string;
-  resultId: string;
-  studentInfo: StudentInfo;
-}
-
-const Results = () => {
+export default function Results() {
   const dispatch = useAppDispatch();
-  const [selectedLevel, setSelectedLevel] = useState("all");
-  const [selectedSemester, setSelectedSemester] = useState("all");
-  const [resultData, setResultData] = useState<ResultData[]>([]);
-  const [selectedResult, setSelectedResult] = useState<ResultData | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedSession, setSelectedSession] = useState("2023/2024");
+  const [selectedSemester, setSelectedSemester] = useState("First Semester");
+
+  // Hardcoded participant_id - replace with actual dynamic source
+  const user = useAppSelector(selectCurrentUser);
+  const participantId = user.id; // Replace with actual ID source
+
+  // Fetch student result
+  const {
+    data: resultData,
+    isLoading,
+    error
+  } = useStudentResultQuery({
+    participant_id: participantId,
+    session: selectedSession,
+    semester: selectedSemester
+  });
 
   useEffect(() => {
     dispatch(setPageName("Results"));
-    // Fetch result data from an API or database and update the state
-    setResultData([
-      {
-        level: "100",
-        semester: "Second",
-        session: "2023 / 2024",
-        resultId: "U24 RU 103",
-        studentInfo: {
-          matricNo: "U24 RU 103",
-          fullName: "Amina Rabiu Mustapha",
-          gpa: "5.00",
-          courses: [
-            { sn: 1, code: "PHY 404", title: "Nuclear and Particle Physics", units: 2, score: 70, grade: "A" },
-            { sn: 2, code: "PHY 404", title: "Nuclear and Particle Physics", units: 2, score: 70, grade: "A" },
-            { sn: 3, code: "PHY 404", title: "Nuclear and Particle Physics", units: 2, score: 70, grade: "A" },
-          ]
-        }
-      },
-      // Add more result data as needed
-    ]);
-  }, []);
+  }, [dispatch]);
 
-  const handleLevelChange = (event: SelectChangeEvent) => {
-    setSelectedLevel(event.target.value as string);
+  const handleSessionChange = (event: SelectChangeEvent) => {
+    setSelectedSession(event.target.value as string);
   };
 
   const handleSemesterChange = (event: SelectChangeEvent) => {
     setSelectedSemester(event.target.value as string);
-  };
-
-  const handleResultClick = (result: ResultData) => {
-    setSelectedResult(result);
-    setIsModalOpen(true);
   };
 
   const handlePrint = () => {
@@ -93,23 +59,36 @@ const Results = () => {
   };
 
   const handleDownload = () => {
-    // Implement download functionality
     console.log("Downloading result...");
   };
+
+  if (isLoading) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  if (error) {
+    return (
+      <Alert severity="error">
+        Failed to load results. Please try again later.
+      </Alert>
+    );
+  }
 
   return (
     <Box sx={{ padding: "2rem" }}>
       <Box sx={filterContainerStyle}>
         <Box sx={filterItemStyle}>
           <Select
-            value={selectedLevel}
-            onChange={handleLevelChange}
+            value={selectedSession}
+            onChange={handleSessionChange}
             sx={{ minWidth: "200px" }}
           >
-            <MenuItem value="all">All Levels</MenuItem>
-            <MenuItem value="100">100 Level</MenuItem>
-            <MenuItem value="200">200 Level</MenuItem>
-            <MenuItem value="300">300 Level</MenuItem>
+            <MenuItem value="2023/2024">2023/2024</MenuItem>
+            <MenuItem value="2022/2023">2022/2023</MenuItem>
           </Select>
         </Box>
         <Box sx={filterItemStyle}>
@@ -118,176 +97,115 @@ const Results = () => {
             onChange={handleSemesterChange}
             sx={{ minWidth: "200px" }}
           >
-            <MenuItem value="all">All Semesters</MenuItem>
-            <MenuItem value="First">First Semester</MenuItem>
-            <MenuItem value="Second">Second Semester</MenuItem>
+            <MenuItem value="First Semester">First Semester</MenuItem>
+            <MenuItem value="Second Semester">Second Semester</MenuItem>
           </Select>
         </Box>
       </Box>
 
-      <TableContainer component={Paper} sx={tableContainerStyle}>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>Level</TableCell>
-              <TableCell>Semester</TableCell>
-              <TableCell>Session</TableCell>
-              <TableCell>Result ID</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {resultData
-              .filter(
-                (result) =>
-                  (selectedLevel === "all" || result.level === selectedLevel) &&
-                  (selectedSemester === "all" || result.semester === selectedSemester)
-              )
-              .map((result) => (
-                <TableRow
-                  key={result.resultId}
-                  onClick={() => handleResultClick(result)}
-                  sx={{ cursor: "pointer", "&:hover": { backgroundColor: "#f5f5f5" } }}
-                >
-                  <TableCell>{result.level}</TableCell>
-                  <TableCell>{result.semester}</TableCell>
-                  <TableCell>{result.session}</TableCell>
-                  <TableCell>{result.resultId}</TableCell>
+      {/* Results Table */}
+      {!resultData?.data.length ? (
+        <Alert severity="info">No results found for the selected criteria.</Alert>
+      ) : (
+        <Box>
+          {/* Student Information Section */}
+          <Grid container spacing={3} sx={{ mb: 3 }}>
+  <Grid item xs={6}>
+    <Box sx={infoSectionStyle}>
+      <Typography variant="caption" color="textSecondary">
+        MATRIC NO.: {resultData?.data?.participant?.matric_number || "Unassigned"}
+      </Typography>
+      <Typography variant="caption" color="textSecondary">
+        FULL NAME: {`${resultData?.data?.participant?.first_name || ''} ${resultData?.data?.participant?.last_name || ''}`}
+      </Typography>
+    </Box>
+  </Grid>
+  <Grid item xs={6}>
+    <Typography variant="caption" color="textSecondary">
+      SEMESTER: {resultData?.data?.semester || "N/A" + " "} 
+    </Typography>
+    <Typography variant="caption" color="textSecondary">
+      | LEVEL: {resultData?.data?.level?.name || "N/A" + " "}
+    </Typography>
+    <Typography variant="caption" color="textSecondary">
+      | SESSION: {resultData?.data?.session || "N/A"}
+    </Typography>
+  </Grid>
+</Grid>
+
+          {/* Courses Table */}
+          <TableContainer component={Paper} sx={tableContainerStyle}>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell>S/N</TableCell>
+                  <TableCell>COURSE CODE</TableCell>
+                  <TableCell>COURSE TITLE</TableCell>
+                  <TableCell>UNITS</TableCell>
+                  <TableCell>SCORE</TableCell>
+                  <TableCell>GRADE</TableCell>
                 </TableRow>
-              ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
+              </TableHead>
+              <TableBody>
+  {resultData?.data?.details?.length ? (
+    resultData.data.details.map((course, index) => (
+      <TableRow key={index}>
+        <TableCell>{index + 1}</TableCell>
+        <TableCell>{course.course_code}</TableCell>
+        <TableCell>{course.course_name}</TableCell>
+        <TableCell>{course.course_credit_unit}</TableCell>
+        <TableCell>{course.total_obtained_score}</TableCell>
+        <TableCell>{course.score_name}</TableCell>
+      </TableRow>
+    ))
+  ) : (
+    <TableRow>
+      <TableCell colSpan={6} align="center">
+        No courses found for the selected criteria.
+      </TableCell>
+    </TableRow>
+  )}
+</TableBody>
 
-      <Modal 
-        open={isModalOpen} 
-        onClose={() => setIsModalOpen(false)}
-        aria-labelledby="result-modal"
-      >
-        <Box sx={modalStyle}>
-          {selectedResult && (
-            <Box sx={modalContentStyle}>
-              <Grid container spacing={3}>
-                {/* Student Information Section */}
-                <Grid item xs={6}>
-                  <Box sx={infoSectionStyle}>
-                    <Box sx={infoItemStyle}>
-                      <Typography variant="caption" color="textSecondary">
-                        MATRIC NO.:
-                      </Typography>
-                      <Typography variant="body1">
-                        {selectedResult.studentInfo.matricNo}
-                      </Typography>
-                    </Box>
-                    <Box sx={infoItemStyle}>
-                      <Typography variant="caption" color="textSecondary">
-                        FULL NAME:
-                      </Typography>
-                      <Typography variant="body1">
-                        {selectedResult.studentInfo.fullName}
-                      </Typography>
-                    </Box>
-                  </Box>
-                </Grid>
+            </Table>
+          </TableContainer>
 
-                {/* Academic Information Section */}
-                <Grid item xs={6}>
-                  <Box sx={infoSectionStyle}>
-                    <Box sx={infoItemStyle}>
-                      <Typography variant="caption" color="textSecondary">
-                        SEMESTER:
-                      </Typography>
-                      <Typography variant="body1">
-                        {selectedResult.semester}
-                      </Typography>
-                    </Box>
-                    <Box sx={infoItemStyle}>
-                      <Typography variant="caption" color="textSecondary">
-                        LEVEL:
-                      </Typography>
-                      <Typography variant="body1">
-                        {selectedResult.level}
-                      </Typography>
-                    </Box>
-                    <Box sx={infoItemStyle}>
-                      <Typography variant="caption" color="textSecondary">
-                        SESSION:
-                      </Typography>
-                      <Typography variant="body1">
-                        {selectedResult.session}
-                      </Typography>
-                    </Box>
-                  </Box>
-                </Grid>
-              </Grid>
+          {/* Footer with GPA */}
+          <Box sx={gpaSectionStyle}>
+            <Typography variant="caption" color="textSecondary">
+              GPA: {resultData?.data?.summary?.grade_point_average || "N/A"}
+            </Typography>
+            <Typography variant="caption" color="textSecondary">
+              CGPA: {resultData?.data?.summary?.cumulative_grade_point_average || "N/A"}
+            </Typography>
+          </Box>
 
-              {/* GPA Section */}
-              <Box sx={gpaSectionStyle}>
-                <Typography variant="caption" color="textSecondary">
-                  GPA:
-                </Typography>
-                <Typography variant="h6">
-                  {selectedResult.studentInfo.gpa}
-                </Typography>
-              </Box>
-
-              {/* Courses Table */}
-              <TableContainer component={Paper} sx={{ mt: 3 }}>
-                <Table>
-                  <TableHead>
-                    <TableRow>
-                      <TableCell>S/N</TableCell>
-                      <TableCell>COURSE CODE</TableCell>
-                      <TableCell>COURSE TITLE</TableCell>
-                      <TableCell>UNITS</TableCell>
-                      <TableCell>SCORE</TableCell>
-                      <TableCell>GRADE</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {selectedResult.studentInfo.courses.map((course) => (
-                      <TableRow key={course.sn}>
-                        <TableCell>{course.sn}</TableCell>
-                        <TableCell>{course.code}</TableCell>
-                        <TableCell>{course.title}</TableCell>
-                        <TableCell>{course.units}</TableCell>
-                        <TableCell>{course.score}</TableCell>
-                        <TableCell>{course.grade}</TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-
-              {/* Footer Section */}
-              <Box sx={footerStyle}>
-                <Box>
-                  <Typography variant="body2" color="textSecondary">TNU: 21</Typography>
-                  <Typography variant="body2" color="textSecondary">Cumulative TNU: 133</Typography>
-                </Box>
-                <Box>
-                  <Typography variant="body2" color="textSecondary">TCP: 105</Typography>
-                  <Typography variant="body2" color="textSecondary">Cumulative TCP: 601</Typography>
-                </Box>
-                <Box sx={{ display: 'flex', gap: 1 }}>
-                  <Button variant="outlined" onClick={handleDownload}>
-                    Download
-                  </Button>
-                  <Button variant="contained" onClick={handlePrint}>
-                    Print Result
-                  </Button>
-                </Box>
-              </Box>
+          {/* Footer Section */}
+          <Box sx={footerStyle}>
+            <Box>
+              <Typography variant="body2" color="textSecondary">TNU: {resultData?.data?.summary?.total_credit_units || "N/A"}</Typography>
+              <Typography variant="body2" color="textSecondary">Cumulative TNU: {resultData?.data?.summary?.total_credit_units || "N/A"}</Typography>
             </Box>
-          )}
+            <Box>
+              <Typography variant="body2" color="textSecondary">TCP: {resultData?.data?.summary?.total_grade_points || "N/A"}</Typography>
+              <Typography variant="body2" color="textSecondary">Cumulative TCP: {resultData?.data?.summary?.total_grade_points || "N/A"}</Typography>
+            </Box>
+            <Box sx={{ display: 'flex', gap: 1 }}>
+              <Button variant="outlined" onClick={handleDownload}>
+                Download
+              </Button>
+              <Button variant="contained" onClick={handlePrint}>
+                Print Result
+              </Button>
+            </Box>
+          </Box>
         </Box>
-      </Modal>
+      )}
     </Box>
   );
-};
+}
 
-export default Results;
-
-// Styles
+// Styles remain the same as in the original component
 const filterContainerStyle = {
   display: "flex",
   alignItems: "center",
@@ -305,35 +223,10 @@ const tableContainerStyle = {
   boxShadow: 1,
 };
 
-const modalStyle = {
-  position: "absolute" as const,
-  top: "50%",
-  left: "50%",
-  transform: "translate(-50%, -50%)",
-  width: "80%",
-  maxWidth: "1000px",
-  maxHeight: "90vh",
-  overflow: "auto",
-  bgcolor: "background.paper",
-  boxShadow: 24,
-  p: 4,
-  borderRadius: 2,
-};
-
-const modalContentStyle = {
-  width: "100%",
-};
-
 const infoSectionStyle = {
   display: "flex",
   flexDirection: "column",
   gap: 2,
-};
-
-const infoItemStyle = {
-  display: "flex",
-  flexDirection: "column",
-  gap: 0.5,
 };
 
 const gpaSectionStyle = {

@@ -15,7 +15,6 @@ import {
   TableRow,
   Typography,
   Chip,
-  Divider
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { useGetParticipantQuery } from '../../../store/api/participants.api';
@@ -83,7 +82,7 @@ const ParticipantView: React.FC<ParticipantViewProps> = () => {
       {/* Personal Information Card */}
       <StyledCard>
         <CardContent>
-Z
+
           <Grid container spacing={3}>
             <Grid item xs={12} sm={6}>
               <InfoLabel>Matric Number</InfoLabel>

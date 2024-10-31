@@ -1,7 +1,7 @@
 import {
   ResultCreateType,
   ResultResponse,
-  Result,
+  StudentResultResponse,
   ResultTaskResponse,
   TranscriptResponse,
 } from "../../types/results.ts";
@@ -48,6 +48,22 @@ const resultApi = appApi.injectEndpoints({
       providesTags: ["Results"],
     }),
 
+    // Get Student Result
+    studentResult: builder.query<
+      StudentResultResponse,
+      {
+        participant_id: number;
+        session: string;
+        semester: string;
+      }
+    >({
+      query: ({ participant_id, session, semester }) => ({
+        url: `/result`,
+        params: { participant_id, session, semester },
+      }),
+      providesTags: ["Results"],
+    }),
+
     // Get Transcript
     getTranscript: builder.query<TranscriptResponse, number>({
       query: (participant_id) => ({
@@ -74,6 +90,7 @@ export const {
   useCheckResultTaskQuery,
   useGetResultsQuery,
   useGetResultQuery,
+  useStudentResultQuery,
   useGetTranscriptQuery,
   useDeleteResultMutation,
 } = resultApi;

@@ -30,6 +30,8 @@ export const appApi = createApi({
     "Quiz",
     "Media",
     "Results",
+    "ResultTasks",
+    "Transcripts",
   ],
   endpoints: () => ({}),
 });
