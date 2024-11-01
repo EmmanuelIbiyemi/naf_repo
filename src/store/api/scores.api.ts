@@ -1,14 +1,10 @@
-import {
-  ScoreCreateType,
-  ScoreResponse,
-  Score,
-} from "../../types/scores.ts";
+import { ScoreCreateType, ScoreResponse, Score } from "../../types/scores.ts";
 import { appApi } from "./app.api";
 
 const scoreApi = appApi.injectEndpoints({
   endpoints: (builder) => ({
-    getScores: builder.query<ScoreResponse, null>({
-      query: () => `/scoring/program/1`,
+    getScores: builder.query<ScoreResponse, number>({
+      query: (program_id) => `/scoring/program/${program_id}`,
       providesTags: ["Scores"],
     }),
     getScore: builder.query<ScoreResponse, number>({

@@ -4,7 +4,15 @@ import TableCell from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
 import TableRow from "@mui/material/TableRow";
 import { ScoreFormAction, Score } from "../../../../types/scores";
-import { Checkbox, IconButton } from "@mui/material";
+import {
+  Box,
+  Checkbox,
+  FormControl,
+  IconButton,
+  MenuItem,
+  Select,
+  SelectChangeEvent,
+} from "@mui/material";
 import { Delete, Edit } from "@mui/icons-material";
 import { Link } from "react-router-dom";
 import DeleteConfirmationModal from "../../../../components/DeleteConfirmationModal";
@@ -17,6 +25,9 @@ import {
 import FormModal from "../../../../components/FormModal";
 import ScoreForm from "./ScoresForm";
 import SuccessModal from "../../../../components/SuccessModal";
+import { useGetFacultiesQuery } from "../../../../store/api/faculties.api";
+import { useGetDepartmentsMMutation } from "../../../../store/api/departments.api";
+import { useGetProgrammesMMutation } from "../../../../store/api/programmes.api";
 
 const ScoresList = () => {
   const [openModal, setOpenModal] = useState({
@@ -25,9 +36,17 @@ const ScoresList = () => {
     delete: false,
   });
   const [selectedScore, setSelectedScore] = useState<Score>();
-  const { data: scores } = useGetScoresQuery(null);
   const [deleteScore] = useDeleteScoreMutation();
   const [updateScore] = useUpdateScoreMutation();
+  const { data: faculties } = useGetFacultiesQuery(null);
+  const [getDepartments, departmentsState] = useGetDepartmentsMMutation();
+  const [getPrograms, programsState] = useGetProgrammesMMutation();
+  const [filters, setFilters] = useState({
+    faculty_id: 0,
+    department_id: 0,
+    program_id: 0,
+  });
+  const { data: scores } = useGetScoresQuery(filters.program_id);
 
   const handleOpenModal = (score: Score, type: string) => {
     setSelectedScore(score);
@@ -55,6 +74,21 @@ const ScoresList = () => {
     }
     handleCloseModal("edit");
     handleOpenModal(score, "success");
+  };
+
+  const handleChange = async (e: SelectChangeEvent<number>) => {
+    const { target } = e;
+
+    setFilters((prev) => ({ ...prev, [target.name]: +target.value }));
+    try {
+      if (target.name === "faculty_id") {
+        await getDepartments(+target.value).unwrap();
+      } else if (target.name === "department_id") {
+        await getPrograms(+target.value).unwrap();
+      }
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (
@@ -108,38 +142,94 @@ const ScoresList = () => {
         title="Update Successful"
       />
 
-      <Table sx={{ minWidth: 650 }}>
-        <TableBody>
-          {scores?.data.map((score: Score) => (
-            <TableRow
-              key={score.id}
-              sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+      <Table
+        sx={{
+          minWidth: 650,
+          ".MuiSelect-select": { padding: ".5rem" },
+        }}
+      >
+        <Box sx={{ display: "flex", gap: ".5em", marginBottom: "2rem" }}>
+          <FormControl>
+            <Select
+              value={filters.faculty_id}
+              onChange={handleChange}
+              name="faculty_id"
             >
-              <TableCell
-                component="th"
-                scope="row"
-                sx={{ alignItems: "center", display: "flex", gap: "1rem" }}
+              <MenuItem value={0}>select faculty</MenuItem>
+              {faculties?.data.map((fac) => (
+                <MenuItem key={fac.name} value={fac.id}>
+                  {fac.name}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+          <FormControl>
+            <Select
+              value={filters.department_id}
+              onChange={handleChange}
+              name="department_id"
+            >
+              <MenuItem value={0}>select department</MenuItem>
+              {departmentsState.data?.data.map((dep) => (
+                <MenuItem key={dep.name} value={dep.id}>
+                  {dep.name}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+          <FormControl>
+            <Select
+              value={filters.program_id}
+              onChange={handleChange}
+              name="program_id"
+            >
+              <MenuItem value={0}>select program</MenuItem>
+              {programsState.data?.data.map((dep) => (
+                <MenuItem key={dep.name} value={dep.id}>
+                  {dep.name}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </Box>
+        {scores?.data.length ? (
+          <TableBody>
+            {scores?.data.map((score: Score) => (
+              <TableRow
+                key={score.id}
+                sx={{
+                  "&:last-child td, &:last-child th": { border: 0 },
+                  "td.MuiTableCell-body": {
+                    padding: 0,
+                  },
+                }}
               >
-                <Checkbox />
-                <Link to={`/scores/${score.id}`}>
-                  Name: {score.name}
-                </Link>
-              </TableCell>
-              <TableCell>Min Score: {score.min_score}</TableCell>
-              <TableCell>Max Score: {score.max_score}</TableCell>
-              <TableCell>Remark: {score.remark}</TableCell>
-              <TableCell>Program ID: {score.program_id}</TableCell>
-              <TableCell align="right">
-                <IconButton onClick={() => handleOpenModal(score, "edit")}>
-                  <Edit />
-                </IconButton>
-                <IconButton onClick={() => handleOpenModal(score, "delete")}>
-                  <Delete />
-                </IconButton>
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
+                <TableCell
+                  component="th"
+                  scope="row"
+                  sx={{ alignItems: "center", display: "flex", gap: "1rem" }}
+                >
+                  <Checkbox />
+                  <Link to={`/scores/${score.id}`}>Name: {score.name}</Link>
+                </TableCell>
+                <TableCell>Min Score: {score.min_score}</TableCell>
+                <TableCell>Max Score: {score.max_score}</TableCell>
+                <TableCell>Remark: {score.remark}</TableCell>
+                <TableCell>Program ID: {score.program_id}</TableCell>
+                <TableCell align="right">
+                  <IconButton onClick={() => handleOpenModal(score, "edit")}>
+                    <Edit />
+                  </IconButton>
+                  <IconButton onClick={() => handleOpenModal(score, "delete")}>
+                    <Delete />
+                  </IconButton>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        ) : (
+          <Box>No scores found.</Box>
+        )}
       </Table>
     </TableContainer>
   );
