@@ -114,7 +114,7 @@ const StudentEnroll = lazy(
   () => import("./Pages/student/studentCourses/enroll/EnrollCourses")
 );
 
-const StudentCBT = lazy(() => import("./Pages/student/cbtQuestions/CBTQuestions"));
+const StudentCBT = lazy(() => import("./Pages/student/courseCBT/CourseCBT"));
 const StudentResults = lazy(() => import("./Pages/student/results/Results"));
 const StudentClass = lazy(() => import("./Pages/student/classes/LiveClasses"));
 const StudentSettings = lazy(() => import("./Pages/student/settings/Settings"));
@@ -236,6 +236,9 @@ export const router = createBrowserRouter([
       { path: "courses/exam-card", element: <StudentExamCard /> },
       { path: "courses/course-form", element: <StudentCourseForm /> },
       { path: "courses/add-course", element: <StudentEnroll /> },
+      { path: "courses/:id/notes", element: <StudentEnroll /> },
+      { path: "courses/:id/cbt", element: <StudentEnroll /> },
+      { path: "cbt", element: <StudentCBT /> },
       { path: "results", element: <StudentResults /> },
       { path: "live-class", element: <StudentClass /> },
       { path: "settings", element: <StudentSettings /> },

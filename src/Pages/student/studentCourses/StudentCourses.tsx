@@ -1,6 +1,5 @@
 import React from 'react';
 import {
-  Avatar,
   Box,
   Card,
   CardContent,
@@ -38,11 +37,9 @@ const InfoValue = styled(Typography)({
   fontSize: '1rem',
 });
 
-interface ParticipantViewProps {
-  participantId: number;
-}
 
-const ParticipantView: React.FC<ParticipantViewProps> = () => {
+
+const StudentCourses: React.FC = () => {
   const user = useAppSelector(selectCurrentUser);
   const participantId = user.id; // Replace with actual ID source
  
@@ -138,4 +135,4 @@ const ParticipantView: React.FC<ParticipantViewProps> = () => {
   );
 };
 
-export default ParticipantView;
+export default StudentCourses;

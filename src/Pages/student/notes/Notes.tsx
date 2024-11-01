@@ -16,9 +16,9 @@ import {
 
 } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import { useGetCourseNotesQuery, useShareNoteMutation } from '../../../../../store/api/notes.api';
-import { selectCurrentUser } from '../../../../../store/auth.slice';
-import { note } from '../../../../../types/notes';
+import { useGetCourseNotesQuery, useShareNoteMutation } from '../../../store/api/notes.api';
+import { selectCurrentUser } from '../../../store/auth.slice';
+import { note } from '../../../types/notes';
 
 const Notes = () => {
   const [selectedCourseId, setSelectedCourseId] = useState<number | null>(null);
@@ -28,8 +28,7 @@ const Notes = () => {
   const { 
     data: notesData, 
     isLoading, 
-    isError, 
-    error 
+    isError,
   } = useGetCourseNotesQuery(selectedCourseId, {
     skip: !selectedCourseId
   });
