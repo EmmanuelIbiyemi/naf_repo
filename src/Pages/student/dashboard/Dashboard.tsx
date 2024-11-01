@@ -190,7 +190,7 @@ const Dashboard: React.FC = () => {
             {participant.matric_number || 'N/A'}
           </Typography>
           <Typography sx={{ color: "text.secondary", fontSize: "0.9rem", mt: 0.5 }}>
-            Computer Science • {participant.level || 'N/A'} Level
+            {participant.level?.program?.department?.name || 'N/A'} • {participant.level?.name || 'N/A'}
           </Typography>
           <Box sx={{ width: '100%', mt: 2 }}>
             <Typography sx={{ 

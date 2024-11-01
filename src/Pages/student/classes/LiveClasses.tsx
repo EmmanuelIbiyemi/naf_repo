@@ -1,14 +1,12 @@
-import { Box, Grid2, SxProps, Tab } from "@mui/material";
+import { Box, Grid2, Grid, SxProps, Tab } from "@mui/material";
 import { TabContext, TabList, TabPanel } from "@mui/lab";
 import { SyntheticEvent, useEffect, useRef, useState } from "react";
 import { useAppDispatch } from "../../../store/hooks";
 import { setPageName } from "../../../store/app.slice";
 import EmptyState from "../../../components/EmptyState";
 import LiveClassCard from "./LiveClassCard";
-import { useGetLiveClassesQuery, useCreateLiveClassMutation } from "../../../store/api/liveClass.api";
+import { useGetLiveClassesQuery } from "../../../store/api/liveClass.api";
 import dayjs from "dayjs";
-import LoadingButton from "@mui/lab/LoadingButton";
-import AddIcon from "@mui/icons-material/Add";
 
 const LiveClasses = () => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -27,26 +25,11 @@ const LiveClasses = () => {
     session: "2023/2024"
   });
 
-  const [createLiveClass, { isLoading: isCreating }] = useCreateLiveClassMutation();
-
   const handleChange = (_: SyntheticEvent, newValue: string) => {
     setTab(newValue);
   };
 
-  const handleCreateClass = async () => {
-    try {
-      await createLiveClass({
-        course_id: "1",
-        session: "2023/2024",
-        semester: "First Semester",
-        start_time: dayjs().add(1, 'hour').toISOString(),
-        duration: 30,
-        topic: "New Class Session"
-      });
-    } catch (error) {
-      console.error("Failed to create live class:", error);
-    }
-  };
+
 
   // Process live classes data
   const processClassStatus = (liveClass: any) => {
@@ -87,7 +70,7 @@ const LiveClasses = () => {
                     {liveClasses.data.map((item) => {
                       const status = processClassStatus(item);
                       return (
-                        <Grid2
+                        <Grid
                           key={item.id}
                           xs={12} sm={6} md={4}
                           sx={{
@@ -109,7 +92,7 @@ const LiveClasses = () => {
                             status={status}
                             btnAction={() => window.open(item.meeting?.join_url, '_blank')}
                           />
-                        </Grid2>
+                        </Grid>
                       );
                     })}
                   </Grid2>
@@ -119,7 +102,7 @@ const LiveClasses = () => {
                     {liveClasses.data
                       .filter(item => processClassStatus(item) === "Completed")
                       .map((item) => (
-                        <Grid2
+                        <Grid
                           key={item.id}
                           xs={12} sm={6} md={4}
                           sx={{
@@ -136,7 +119,7 @@ const LiveClasses = () => {
                             status="Completed"
                             btnAction={() => {}}
                           />
-                        </Grid2>
+                        </Grid>
                       ))}
                   </Grid2>
                 </TabPanel>

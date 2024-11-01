@@ -54,7 +54,7 @@ const CoursesHeader = () => {
       >
         <Button
           component={Link}
-          to="/student/courses/exam-card" // Link destination
+          to="exam-card" // Link destination
           variant="outlined"
           startIcon={<SchoolIcon />}
           sx={{
@@ -67,9 +67,9 @@ const CoursesHeader = () => {
           Exam Card
         </Button>
         
-        <Button
+        {/* <Button
           component={Link}
-          to="/student/courses/course-form" // Link destination
+          to="course-form" // Link destination
           variant="outlined"
           startIcon={<DownloadIcon />}
           sx={{
@@ -80,11 +80,11 @@ const CoursesHeader = () => {
           }}
         >
           Course Form
-        </Button>
+        </Button> */}
         
         <Button
           component={Link}
-          to="/student/courses/add-course" // Link destination
+          to="add-course" // Link destination
           variant="contained"
           startIcon={<AddCircleOutline />}
           sx={{

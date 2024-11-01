@@ -38,12 +38,6 @@ const InfoValue = styled(Typography)({
   fontSize: '1rem',
 });
 
-const HeaderAvatar = styled(Avatar)(({ theme }) => ({
-  width: theme.spacing(8),
-  height: theme.spacing(8),
-  marginRight: theme.spacing(2),
-}));
-
 interface ParticipantViewProps {
   participantId: number;
 }
@@ -90,7 +84,7 @@ const ParticipantView: React.FC<ParticipantViewProps> = () => {
             </Grid>
             <Grid item xs={12} sm={6}>
               <InfoLabel>Level</InfoLabel>
-              <InfoValue>{participant.level || 'Not assigned'}</InfoValue>
+              <InfoValue>{participant.level?.name || 'Not assigned'}</InfoValue>
             </Grid>
           </Grid>
         </CardContent>

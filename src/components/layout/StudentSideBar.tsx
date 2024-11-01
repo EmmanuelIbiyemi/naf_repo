@@ -20,6 +20,7 @@ const navLinks: NavLink[] = [
   { content: "Dashboard", icon: HomeIcon, link: "/student/dashboard" },
   { content: "Overview", icon: ViewBoard, link: "/student/overview" },
   { content: "Courses", icon: ClipBoardIcon, link: "/student/courses" },
+  { content: "CBT", icon: ClipBoardIcon, link: "/student/courses" },
   { content: "Results", icon: ReportsIcon, link: "/student/results" },
   { content: "Live Class", icon: LiveClassIcon, link: "/student/live-class" },
   { content: "Settings", icon: SettingsIcon, link: "/student/settings" },
