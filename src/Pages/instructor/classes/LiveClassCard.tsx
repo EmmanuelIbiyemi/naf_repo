@@ -3,7 +3,7 @@ import { Box, Button, Typography } from "@mui/material";
 
 type LiveClassProps = {
   title: string;
-  batchNo: string;
+  // batchNo: string;
   date: string;
   time: string;
   status: string;
@@ -12,7 +12,7 @@ type LiveClassProps = {
 
 const LiveClassCard = ({
   title,
-  batchNo,
+  // batchNo,
   date,
   time,
   status,
@@ -35,7 +35,7 @@ const LiveClassCard = ({
         >
           {title}
         </Typography>
-        <Typography
+        {/* <Typography
           variant="body2"
           sx={{
             color: "#989898",
@@ -49,11 +49,11 @@ const LiveClassCard = ({
           }}
         >
           Batch {batchNo}
-        </Typography>
+        </Typography> */}
         <Box
           sx={{
             display: "flex",
-            gap: 1,
+            gap: 3,
             alignItems: "center",
           }}
         >
@@ -71,7 +71,7 @@ const LiveClassCard = ({
               variant="body2"
               sx={{ color: "#989898", fontSize: ".9rem" }}
             >
-              {date}
+              {date.split("T")[0]}
             </Typography>
           </Box>
           <Box
@@ -88,7 +88,7 @@ const LiveClassCard = ({
               variant="body2"
               sx={{ color: "#989898", fontSize: ".9rem" }}
             >
-              {time}
+              {time.split("T")[1]}
             </Typography>
           </Box>
         </Box>
@@ -96,9 +96,9 @@ const LiveClassCard = ({
           variant="body2"
           sx={{
             color:
-              status === "Ongoing"
+              status === "ongoing"
                 ? "#F12222"
-                : status === "Not Started" || status === "Ended"
+                : status === "waiting" || status === "ended"
                 ? "#9E9E9Et"
                 : "#0CC740",
             fontSize: ".9rem",
@@ -108,9 +108,9 @@ const LiveClassCard = ({
             alignItems: "center",
             borderRadius: "5px",
             backgroundColor:
-              status === "Ongoing"
+              status === "ongoing"
                 ? "#FFDDDD"
-                : status === "Not Started" || status === "Ended"
+                : status === "waiting" || status === "ended"
                 ? "#F1F1F1"
                 : "#DDFFE7",
           }}
@@ -120,7 +120,7 @@ const LiveClassCard = ({
       </Box>
       <Button
         variant="contained"
-        disabled={status === "Not Started" || status === "Ended"}
+        disabled={status === "waiting" || status === "ended"}
         sx={{
           width: "100%",
           backgroundColor: "#141414",
@@ -128,7 +128,7 @@ const LiveClassCard = ({
         }}
         onClick={btnAction}
       >
-        {status === "Ended" ? "Ended" : "Join now"}
+        {status === "ended" ? "ended" : "Join now"}
       </Button>
     </Box>
   );

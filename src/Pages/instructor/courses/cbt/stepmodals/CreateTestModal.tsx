@@ -35,7 +35,7 @@ const initialFormData: TestFormData = {
 };
 
 const steps = [
-  { title: "Select Subject", component: Step1Content },
+  { title: "Select Course", component: Step1Content },
   { title: "Test Specifications", component: Step2Content },
   { title: "Import Questions", component: Step3Content },
   // { title: "Review and Confirm", component: Step4Content },

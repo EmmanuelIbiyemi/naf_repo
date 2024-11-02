@@ -13,10 +13,10 @@ type NavLink = {
   children?: NavLink[];
 };
 const navLinks: NavLink[] = [
-  { content: "Course Details", link: "details" },
+  // { content: "Course Details", link: "details" },
   { content: "Course Students", link: "students" },
   { content: "Course Notes", link: "notes" },
-  { content: "CBT Tests", link: "tests" },
+  { content: "CBT ", link: "tests" },
 ];
 
 const CoursesSidebar = ({ course }: courseProps) => {

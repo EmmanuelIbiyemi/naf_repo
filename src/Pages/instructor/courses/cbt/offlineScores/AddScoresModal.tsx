@@ -1,64 +1,114 @@
 import {
   Box,
   Button,
-  Dialog,
-  DialogContent,
-  DialogTitle,
   IconButton,
+  Modal,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
   TextField,
   Typography,
   Select,
   MenuItem,
   FormControl,
-  Stack,
+  InputLabel,
 } from "@mui/material";
-import { Close } from "@mui/icons-material";
+import { Close, Add, Remove } from "@mui/icons-material";
 import { useFormik } from "formik";
 import * as yup from "yup";
-import { CoursesResponse } from "../../../../../types/courses";
 import SuccessModal from "../../../../../components/SuccessModal";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { ParticipantData } from "../../../../../types/participants";
+import { recordResponse } from "../../../../../types/records";
+import { useAddBulkRecordScoresMutation } from "../../../../../store/api/records.api";
 
 interface AddScoresModalProps {
   open: boolean;
   handleClose: () => void;
-  coursesList: CoursesResponse | undefined;
+  recordItem: recordResponse | null;
+  recordId: number | null;
+  courseParticipants: ParticipantData[];
+  refetch: () => void;
 }
-
-const validationSchema = yup.object({
-  course: yup.string().required("Course is required"),
-  studentId: yup.string().required("Student ID is required"),
-  studentName: yup.string().required("Student name is required"),
-  score: yup
-    .number()
-    .required("Score is required")
-    .min(0, "Score must be at least 0")
-    .max(100, "Score cannot exceed 100"),
-  date: yup.string().required("Date is required"),
-});
 
 const AddScoresModal = ({
   open,
   handleClose,
-  coursesList,
+  recordItem,
+  recordId,
+  courseParticipants,
+  refetch,
 }: AddScoresModalProps) => {
+  const [rows, setRows] = useState<
+    Array<{
+      participantId: number | null;
+      obtainedScore: number | null;
+    }>
+  >([]);
+  const [addScores, { isLoading }] = useAddBulkRecordScoresMutation();
+
+  useEffect(() => {
+    if (recordItem?.scores) {
+      const initialRows = recordItem.scores.map((score) => ({
+        participantId: score.participant.id,
+        obtainedScore: score.obtained_score,
+      }));
+      setRows(initialRows);
+    } else {
+      setRows([{ participantId: null, obtainedScore: null }]);
+    }
+  }, [recordItem]);
+
   const formik = useFormik({
     initialValues: {
-      course: "",
-      studentId: "",
-      studentName: "",
-      score: "",
-      date: "",
+      scores: rows,
     },
-    validationSchema: validationSchema,
-    onSubmit: (values) => {
-      console.log(values);
-      handleOpenSuccessModal();
+    validationSchema: yup.object({
+      scores: yup.array().of(
+        yup.object({
+          participantId: yup.number().required("Participant is required"),
+          obtainedScore: yup.number().required("Score is required"),
+        })
+      ),
+    }),
+    enableReinitialize: true,
+    onSubmit: async (values) => {
+      const validScores = values.scores.filter(
+        (row): row is { participantId: number; obtainedScore: number } =>
+          row.participantId !== null && row.obtainedScore !== null
+      );
+
+      const payloads = validScores.map((row) => ({
+        obtained_score: row.obtainedScore,
+        participant_id: row.participantId,
+        record_id: recordId!,
+      }));
+
+      try {
+        // console.log({ scores: payloads });
+        await addScores({ scores: payloads });
+        refetch();
+        handleOpenSuccessModal();
+      } catch (error) {
+        console.error(error);
+      }
     },
   });
 
-  const [openSuccessModal, setOpenSuccessModal] = useState(false);
+  const addRow = () => {
+    setRows([...rows, { participantId: null, obtainedScore: null }]);
+  };
 
+  const removeRow = (index: number) => {
+    const newRows = [...rows];
+    newRows.splice(index, 1);
+    setRows(newRows);
+  };
+
+  const [openSuccessModal, setOpenSuccessModal] = useState(false);
   const handleOpenSuccessModal = () => setOpenSuccessModal(true);
   const handleCloseSuccessModal = () => {
     setOpenSuccessModal(false);
@@ -66,151 +116,155 @@ const AddScoresModal = ({
   };
 
   return (
-    <Dialog
-      open={open}
-      onClose={handleClose}
-      maxWidth="sm"
-      fullWidth
-      PaperProps={{
-        sx: {
-          borderRadius: "8px",
-          padding: "16px",
-        },
-      }}
-    >
-      <DialogTitle sx={{ p: 0, mb: 2 }}>
-        <Box display="flex" justifyContent="space-between" alignItems="center">
-          <Typography variant="h5" fontWeight="500">
-            Add New Scores
-          </Typography>
-          <IconButton onClick={handleClose} size="small">
-            <Close />
-          </IconButton>
-        </Box>
-      </DialogTitle>
-
-      <DialogContent sx={{ p: 0 }}>
-        <form onSubmit={formik.handleSubmit}>
-          <Stack spacing={3}>
-            <Box>
-              <Typography variant="body2" sx={{ mb: 1 }}>
-                Course
-              </Typography>
-              <FormControl fullWidth>
-                <Select
-                  id="course"
-                  name="course"
-                  value={formik.values.course}
-                  onChange={formik.handleChange}
-                  error={formik.touched.course && Boolean(formik.errors.course)}
-                  displayEmpty
-                >
-                  <MenuItem value="" disabled>
-                    <em>Select Course</em>
-                  </MenuItem>
-                  {coursesList?.data.map((item) => (
-                    <MenuItem value={item.id}>{item.name}</MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            </Box>
-
-            <Box sx={{ display: "flex", justifyContent: "space-between" }}>
-              <Box sx={{ width: "48%" }}>
-                <Typography variant="body2" sx={{ mb: 1 }}>
-                  Student ID
-                </Typography>
-                <TextField
-                  fullWidth
-                  label="Student ID"
-                  id="studentId"
-                  name="studentId"
-                  value={formik.values.studentId}
-                  onChange={formik.handleChange}
-                />
-              </Box>
-              <Box sx={{ width: "48%" }}>
-                <Typography variant="body2" sx={{ mb: 1 }}>
-                  Student Name
-                </Typography>
-                <TextField
-                  fullWidth
-                  label="Student Name"
-                  id="studentName"
-                  name="studentName"
-                  value={formik.values.studentName}
-                  onChange={formik.handleChange}
-                />
-              </Box>
-            </Box>
-
-            <Box sx={{ display: "flex", justifyContent: "space-between" }}>
-              <Box sx={{ width: "48%" }}>
-                <Typography variant="body2" sx={{ mb: 1 }}>
-                  Score
-                </Typography>
-                <TextField
-                  fullWidth
-                  label="Input Student Score"
-                  id="score"
-                  name="score"
-                  type="number"
-                  value={formik.values.score}
-                  onChange={formik.handleChange}
-                />
-              </Box>
-              <Box sx={{ width: "48%" }}>
-                <Typography variant="body2" sx={{ mb: 1 }}>
-                  Date
-                </Typography>
-                <TextField
-                  fullWidth
-                  id="date"
-                  name="date"
-                  type="date"
-                  value={formik.values.date}
-                  onChange={formik.handleChange}
-                />
-              </Box>
-            </Box>
-
-            <Box sx={{ display: "flex", gap: 2, mt: 3 }}>
-              <Button
-                fullWidth
-                variant="outlined"
-                onClick={handleClose}
-                sx={{ textTransform: "none" }}
-              >
-                Cancel
-              </Button>
-              <Button
-                fullWidth
-                variant="contained"
-                type="submit"
-                sx={{ textTransform: "none" }}
-              >
-                Add Score
-              </Button>
-            </Box>
-          </Stack>
-        </form>
-      </DialogContent>
-      <SuccessModal
-        actions={{
-          proceed: () => {
-            console.log("proceed");
-          },
-          undo: () => {
-            console.log("undo");
-          },
+    <Modal open={open} onClose={handleClose}>
+      <Box
+        sx={{
+          position: "absolute",
+          top: "50%",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+          backgroundColor: "#fff",
+          padding: "2.5em",
+          borderRadius: "24px",
+          width: { xs: "90%", sm: "80%", md: "85vw" },
+          maxHeight: "90vh",
+          overflow: "auto",
         }}
-        close={handleCloseSuccessModal}
-        infoText=""
-        open={openSuccessModal}
-        subTitle={`Offline score has been successfully updated!`}
-        title="Successful"
-      />
-    </Dialog>
+      >
+        <Box sx={{ p: 0, mb: 2 }}>
+          <Box
+            display="flex"
+            justifyContent="space-between"
+            alignItems="center"
+          >
+            <Typography variant="h5" fontWeight="500">
+              Update Scores
+            </Typography>
+            <IconButton onClick={handleClose} size="small">
+              <Close />
+            </IconButton>
+          </Box>
+        </Box>
+
+        <form onSubmit={formik.handleSubmit}>
+          <TableContainer>
+            <Table>
+              <TableHead>
+                <TableRow sx={{ backgroundColor: "#F1F1F1" }}>
+                  <TableCell>Student ID</TableCell>
+                  <TableCell>Name</TableCell>
+                  <TableCell>Obtained Score</TableCell>
+                  <TableCell>Actions</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {rows.map((row, index) => (
+                  <TableRow key={index}>
+                    <TableCell>
+                      <FormControl fullWidth size="small">
+                        <InputLabel>Select Student</InputLabel>
+                        <Select
+                          value={row.participantId || ""}
+                          label="Select Student"
+                          onChange={(e) => {
+                            const newRows = [...rows];
+                            newRows[index].participantId = Number(
+                              e.target.value
+                            );
+                            setRows(newRows);
+                          }}
+                        >
+                          {courseParticipants.map((participant) => (
+                            <MenuItem
+                              key={participant.id}
+                              value={participant.id}
+                            >
+                              {participant.matric_number}
+                            </MenuItem>
+                          ))}
+                        </Select>
+                      </FormControl>
+                    </TableCell>
+                    <TableCell>
+                      {courseParticipants.find(
+                        (p) => p.id === row.participantId
+                      )
+                        ? `${
+                            courseParticipants.find(
+                              (p) => p.id === row.participantId
+                            )?.first_name
+                          } ${
+                            courseParticipants.find(
+                              (p) => p.id === row.participantId
+                            )?.last_name
+                          }`
+                        : "-"}
+                    </TableCell>
+                    <TableCell>
+                      <TextField
+                        size="small"
+                        type="number"
+                        value={row.obtainedScore || ""}
+                        onChange={(e) => {
+                          const newRows = [...rows];
+                          newRows[index].obtainedScore = Number(e.target.value);
+                          setRows(newRows);
+                        }}
+                        sx={{ width: "120px" }}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <IconButton
+                        onClick={() => removeRow(index)}
+                        disabled={rows.length === 1}
+                        size="small"
+                      >
+                        <Remove />
+                      </IconButton>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+
+          <Box sx={{ display: "flex", justifyContent: "space-between", mt: 2 }}>
+            <Button
+              startIcon={<Add />}
+              onClick={addRow}
+              variant="outlined"
+              size="small"
+            >
+              Add Row
+            </Button>
+            <Button
+              type="submit"
+              variant="contained"
+              size="small"
+              disabled={isLoading}
+            >
+              {isLoading ? "Updating" : "Update Scores"}
+            </Button>
+          </Box>
+        </form>
+
+        <SuccessModal
+          actions={{
+            proceed: () => {
+              console.log("proceed");
+            },
+            undo: () => {
+              console.log("undo");
+            },
+          }}
+          close={handleCloseSuccessModal}
+          infoText=""
+          open={openSuccessModal}
+          subTitle="Scores have been successfully updated!"
+          title="Successful"
+        />
+      </Box>
+    </Modal>
   );
 };
 

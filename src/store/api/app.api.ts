@@ -29,6 +29,8 @@ export const appApi = createApi({
     "Notes",
     "Quiz",
     "Media",
+    "Live",
+    "Record",
   ],
   endpoints: () => ({}),
 });

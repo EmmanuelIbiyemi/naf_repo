@@ -81,6 +81,7 @@ const PreviewPostPage = () => {
 const dummyParticipants: ParticipantData[] = [
   {
     id: 1,
+    user_id: 1,
     first_name: "John",
     last_name: "Doe",
     email: "john.doe@example.com",
@@ -98,6 +99,7 @@ const dummyParticipants: ParticipantData[] = [
   },
   {
     id: 2,
+    user_id: 2,
     first_name: "Jane",
     last_name: "Smith",
     email: "jane.smith@example.com",
@@ -115,6 +117,7 @@ const dummyParticipants: ParticipantData[] = [
   },
   {
     id: 3,
+    user_id: 3,
     first_name: "Michael",
     last_name: "Johnson",
     email: "michael.j@example.com",

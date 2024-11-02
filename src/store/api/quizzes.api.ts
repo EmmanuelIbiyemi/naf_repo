@@ -71,7 +71,14 @@ const quizzesApi = appApi.injectEndpoints({
         method: "POST",
         body: body,
       }),
-      invalidatesTags: ["Notes"],
+      invalidatesTags: ["Quiz"],
+    }),
+    deleteQuiz: builder.mutation<{ message: string }, number>({
+      query: (quiz_id) => ({
+        url: `/quiz/${quiz_id}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["Quiz"],
     }),
   }),
 });
@@ -84,4 +91,5 @@ export const {
   useCreateQuestionFromFileMutation,
   useCreateQuestionManuallyMutation,
   useShareQuizMutation,
+  useDeleteQuizMutation,
 } = quizzesApi;

@@ -9,11 +9,17 @@ import TableRow from "@mui/material/TableRow";
 import { VisibilityOutlined } from "@mui/icons-material";
 import { Box } from "@mui/material";
 import { useNavigate } from "react-router-dom";
+// import { useGetCourseParticipantsQuery } from "../../../../store/api/participants.api";
+import { ParticipantData } from "../../../../types/participants";
 
 const TestParticipantsList = () => {
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
   const navigate = useNavigate();
+  // const locationData = location.pathname.split("/");
+  // const courseId = locationData[locationData.length - 3];
+  // const { data: participants, isLoading: isFetchingParticipants } =
+  //   useGetCourseParticipantsQuery({ course_id: parseInt(courseId) });
 
   const handleChangePage = (_event: unknown, newPage: number) => {
     setPage(newPage);
@@ -27,12 +33,14 @@ const TestParticipantsList = () => {
   };
 
   const PaginatedRows = React.useMemo(() => {
+    const participants = [] as ParticipantData[];
     const startIndex = page * rowsPerPage;
-    return tableBody.slice(startIndex, startIndex + rowsPerPage);
+    return participants?.slice(startIndex, startIndex + rowsPerPage);
   }, [page, rowsPerPage]);
 
   return (
     <Box sx={{ width: "100%", overflow: "hidden" }}>
+      {/* {isFetchingParticipants && <LinearProgress />} */}
       <TableContainer>
         <Table stickyHeader aria-label="sticky table">
           <TableHead>
@@ -51,14 +59,18 @@ const TestParticipantsList = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {PaginatedRows.map((row) => (
+            {PaginatedRows?.map((row) => (
               <TableRow key={row.id}>
-                <TableCell sx={{ border: "none" }}>{row.studentId}</TableCell>
-                <TableCell sx={{ border: "none" }}>{row.name}</TableCell>
                 <TableCell sx={{ border: "none" }}>
+                  {row.matric_number ? row.matric_number : "N/A"}
+                </TableCell>
+                <TableCell
+                  sx={{ border: "none" }}
+                >{`${row.first_name} ${row.last_name}`}</TableCell>
+                {/* <TableCell sx={{ border: "none" }}>
                   {row.dateSubmitted}
                 </TableCell>
-                <TableCell sx={{ border: "none" }}>{row.performance}</TableCell>
+                <TableCell sx={{ border: "none" }}>{row.performance}</TableCell> */}
                 <TableCell
                   sx={{
                     display: "flex",

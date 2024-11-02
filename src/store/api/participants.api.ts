@@ -9,7 +9,7 @@ const participantsApi = appApi.injectEndpoints({
     }),
     getCourseParticipants: builder.query<
       { data: ParticipantData[] },
-      { course_id: number }
+      { course_id: number | null }
     >({
       query: ({ course_id }) => `/participant/course/${course_id}`,
       providesTags: ["Participants"],
