@@ -64,7 +64,10 @@ const ManualInputQuestions: React.FC = () => {
   const locationData = location.pathname.split("/");
   const courseId = locationData[locationData.length - 3];
   const { data: participants, isLoading: isFetchingParticipants } =
-    useGetCourseParticipantsQuery({ course_id: parseInt(courseId) });
+    useGetCourseParticipantsQuery(
+      { course_id: parseInt(courseId) },
+      { skip: !courseId }
+    );
 
   useEffect(() => {
     const localFormData = location.state?.localFormData;

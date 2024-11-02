@@ -18,6 +18,7 @@ import {
   CourseType,
 } from "../../../../types/courses";
 import { useGetInstructorsQuery } from "../../../../store/api/instructors.api";
+import { InstructorType } from "../../../../types/instructors";
 
 const semesters = ["First Semester", "Second Semester"];
 type Props = {
@@ -39,8 +40,11 @@ const CourseForm = ({ actions, course }: Props) => {
     credit_unit: course?.credit_unit || 2,
     semester: course?.semester || "",
     type: course?.type || "",
+    level_id: course?.level_id || 0,
     instructor_ids: isEditMode
-      ? course.instructors.map((ins) => ins.id).filter((id) => id !== undefined)
+      ? (course.instructors as InstructorType[])
+          .map((ins) => ins.id)
+          .filter((id) => id !== undefined)
       : course?.instructor_ids || [],
   };
 
@@ -49,6 +53,7 @@ const CourseForm = ({ actions, course }: Props) => {
     code: Yup.string().required("Required"),
     credit_unit: Yup.number().required("Required"),
     semester: Yup.string().required("Required"),
+    level_id: Yup.string().required("Required"),
     type: Yup.string().required("Required"),
     instructor_ids: Yup.array()
       .min(1, "Please select at least one instructor")
@@ -152,7 +157,9 @@ const CourseForm = ({ actions, course }: Props) => {
                   value={
                     (values as CourseCreateType).instructor_ids
                       ? (values as CourseCreateType).instructor_ids
-                      : (values as CourseType).instructors.map((ins) => ins.id)
+                      : (values.instructors as InstructorType[]).map(
+                          (ins) => ins.id
+                        )
                   }
                   onChange={(event) => {
                     const {

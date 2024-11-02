@@ -16,7 +16,7 @@ import SuccessModal from "../../../../components/SuccessModal";
 import {
   useAddCourseMutation,
   useAddLevelCourseMutation,
-  useGetCoursesQuery,
+  useGetCoursesByLevelQuery,
 } from "../../../../store/api/courses.api";
 import { useLocation } from "react-router-dom";
 import { FormAction } from "../../../../types/forms";
@@ -29,7 +29,7 @@ const CoursesPage = () => {
   });
   const [courseName, setCourseName] = useState("");
   const [selectedCourse, setSelectedCourse] = useState<CourseType>();
-  const { data: courses } = useGetCoursesQuery({
+  const { data: courses } = useGetCoursesByLevelQuery({
     level_id: location.state.level_id,
   });
   const containerRef = useRef<HTMLDivElement>(null);
@@ -55,8 +55,8 @@ const CoursesPage = () => {
     try {
       const response = await addCourse(course).unwrap();
       await addCourseToLevel({
-        course_ids: [response.data.id as number],
         level_id: location.state.level_id,
+        course_ids: [course.id as number],
         type: response.data.type,
       }).unwrap();
       handleCloseModal("add");

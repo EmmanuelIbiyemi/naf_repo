@@ -5,10 +5,7 @@ import FormModal from "../../../../components/FormModal";
 import { useEffect, useRef, useState } from "react";
 import StudentForm from "./StudentsForm";
 import StudentList from "./StudentsList";
-import {
-  Student,
-  StudentFormAction
-} from "../../../../types/students";
+import { StudentType, StudentFormAction } from "../../../../types/students";
 import { useAppDispatch } from "../../../../store/hooks";
 import { setPageName } from "../../../../store/app.slice";
 import SuccessModal from "../../../../components/SuccessModal";
@@ -23,7 +20,7 @@ const StudentsPage = () => {
     success: false,
   });
   const [studentName, setStudentName] = useState("");
-  const [selectedStudent, setSelectedStudent] = useState<Student>();
+  const [selectedStudent, setSelectedStudent] = useState<StudentType>();
   const { data: students } = useGetStudentsQuery(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [addStudent] = useAddStudentMutation();
@@ -43,12 +40,12 @@ const StudentsPage = () => {
     setOpenModal((prev) => ({ ...prev, [type]: false }));
   };
 
-  const handleAddStudent = async (student: Student) => {
+  const handleAddStudent = async (student: StudentType) => {
     try {
       await addStudent(student).unwrap();
       handleCloseModal("add");
       handleOpenModal("success");
-      setStudentName(student.first_name + ' ' + student.last_name);
+      setStudentName(student.first_name + " " + student.last_name);
     } catch (error) {
       console.log(error);
     }

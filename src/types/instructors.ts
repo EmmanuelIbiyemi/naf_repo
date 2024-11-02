@@ -1,5 +1,5 @@
 type InstructorBase = {
-  id?: string
+  id?: number;
   address: string;
   created_at: string;
   email: string;
@@ -10,7 +10,6 @@ type InstructorBase = {
 };
 
 export type InstructorType = InstructorBase & {
-  id?: number;
   updated_at: string;
 };
 export type InstructorCreateType = InstructorBase & {};

@@ -10,6 +10,39 @@ type LiveClassProps = {
   btnAction: () => void;
 };
 
+const formatDateTime = (dateTimeString: string) => {
+  try {
+    const date = new Date(dateTimeString);
+
+    const month = (date.getMonth() + 1).toString().padStart(2, "0");
+    const day = date.getDate().toString().padStart(2, "0");
+    const year = date.getFullYear();
+    const formattedDate = `${month}/${day}/${year}`;
+
+    let hours = date.getHours();
+    const minutes = date.getMinutes();
+    const ampm = hours >= 12 ? "PM" : "AM";
+    hours = hours % 12;
+    hours = hours ? hours : 12;
+    const formattedTime = `${hours}:${minutes
+      .toString()
+      .padStart(2, "0")} ${ampm}`;
+
+    return {
+      date: formattedDate,
+      time: formattedTime,
+      fullDateTime: `${formattedDate} ${formattedTime}`,
+    };
+  } catch (error) {
+    console.error("Error formatting datetime:", error);
+    return {
+      date: "",
+      time: "",
+      fullDateTime: "",
+    };
+  }
+};
+
 const LiveClassCard = ({
   title,
   // batchNo,
@@ -71,7 +104,7 @@ const LiveClassCard = ({
               variant="body2"
               sx={{ color: "#989898", fontSize: ".9rem" }}
             >
-              {date.split("T")[0]}
+              {formatDateTime(date).date}
             </Typography>
           </Box>
           <Box
@@ -88,7 +121,7 @@ const LiveClassCard = ({
               variant="body2"
               sx={{ color: "#989898", fontSize: ".9rem" }}
             >
-              {time.split("T")[1]}
+              {formatDateTime(time).time}
             </Typography>
           </Box>
         </Box>

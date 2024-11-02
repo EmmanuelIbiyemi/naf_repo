@@ -1,9 +1,9 @@
 import { createApi } from "@reduxjs/toolkit/query/react";
-import { myBaseQuery } from "../appBaseQuery";
+import { baseQueryWithReauth } from "../appBaseQuery";
 
 export const appApi = createApi({
   reducerPath: "appApi",
-  baseQuery: myBaseQuery,
+  baseQuery: baseQueryWithReauth,
   tagTypes: [
     "Courses",
     "Programmes",
@@ -31,6 +31,10 @@ export const appApi = createApi({
     "Media",
     "Live",
     "Record",
+    "Results",
+    "ResultTasks",
+    "Transcripts",
+    "LiveClasses",
   ],
   endpoints: () => ({}),
 });

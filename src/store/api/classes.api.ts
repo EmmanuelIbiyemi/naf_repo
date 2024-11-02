@@ -6,7 +6,7 @@ const liveClassesApi = appApi.injectEndpoints({
     getLiveClasses: builder.query<
       { data: LiveClassesResponse[] },
       {
-        courseId: number;
+        courseId: number | null;
         semester: string | undefined;
         session: string | undefined;
       }

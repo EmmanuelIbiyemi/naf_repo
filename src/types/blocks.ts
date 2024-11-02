@@ -1,16 +1,9 @@
-type BlockBaseType = {
-  content: string;
-  type: string;
-};
-export type BlockType = BlockBaseType & {
-  id: number;
-};
-
-export type BlockType2 = {
+export type BlockType = {
   caption: string;
   content: string;
+  id: number;
   link: string;
-  media: { id: number }[];
+  media: { id: number }[] | null;
   position: number;
   title: string;
   type: string;

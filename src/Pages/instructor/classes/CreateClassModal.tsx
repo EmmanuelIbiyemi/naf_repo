@@ -170,7 +170,9 @@ const CreateClassModal = ({ open, handleClose }: createClassModal) => {
                   sx={{ marginBottom: ".6em" }}
                 >
                   {courses?.data.map((course) => (
-                    <MenuItem value={course.id}>{course.name}</MenuItem>
+                    <MenuItem key={course.id} value={course.id}>
+                      {course.name}
+                    </MenuItem>
                   ))}
                 </Select>
               </FormControl>

@@ -20,6 +20,7 @@ const Header = () => {
           color: "rgba(85, 85, 85, 1)",
           fontSize: "1.7rem",
           fontWeight: "500 !important",
+          
         }}
       >
         {mainPage}
@@ -94,6 +95,10 @@ const headerStyles: SxProps = {
   gridArea: "header",
   justifyContent: "space-between",
   paddingInline: "var(--padding)",
+  '@media print': { 
+          display: 'none' 
+        },
+        
 };
 
 const usernameStyles: SxProps = {

@@ -43,7 +43,10 @@ const OfflineScores = () => {
   };
 
   const { data: participants, isLoading: isFetchingParticipants } =
-    useGetCourseParticipantsQuery({ course_id: parseInt(selectedCourse) });
+    useGetCourseParticipantsQuery(
+      { course_id: parseInt(selectedCourse) },
+      { skip: !selectedCourse }
+    );
 
   const {
     data: records,

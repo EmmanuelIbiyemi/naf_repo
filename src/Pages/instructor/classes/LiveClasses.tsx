@@ -1,4 +1,14 @@
-import { Box, Grid2, LinearProgress, SxProps, Tab } from "@mui/material";
+import {
+  Box,
+  FormControl,
+  Grid2,
+  InputLabel,
+  LinearProgress,
+  MenuItem,
+  Select,
+  SxProps,
+  Tab,
+} from "@mui/material";
 import EmptyState from "../../../components/EmptyState";
 import { SyntheticEvent, useRef, useState } from "react";
 import { useAppDispatch } from "../../../store/hooks";
@@ -10,10 +20,14 @@ import CreateClassModal from "./CreateClassModal";
 import { useGetLiveClassesQuery } from "../../../store/api/classes.api";
 import { useGetCurrentSessionQuery } from "../../../store/api/sessions.api";
 import { useGetCurrentSemesterQuery } from "../../../store/api/semesters.api";
+import { useGetInstructorCoursesQuery } from "../../../store/api/courses.api";
 
 const LiveClasses = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [openModal, setOpenModal] = useState(false);
+  const [selectedCourseId, setSelectedCourseId] = useState("");
+  const { data: instructorCourses, isLoading: isLoadingCourses } =
+    useGetInstructorCoursesQuery(null);
   const handleOpenCreateModal = () => setOpenModal(true);
   const handleCloseCreateModal = () => setOpenModal(false);
   const { data: currentSession, isLoading: isGettingSession } =
@@ -23,11 +37,14 @@ const LiveClasses = () => {
   const currentSemesterString = currentSemester?.data.name;
   const currentSessionString = currentSession?.data.name;
 
-  const { data: scheduledClasses, isLoading } = useGetLiveClassesQuery({
-    courseId: 17,
-    semester: currentSemesterString,
-    session: currentSessionString,
-  });
+  const { data: scheduledClasses, isLoading } = useGetLiveClassesQuery(
+    {
+      courseId: parseInt(selectedCourseId),
+      semester: currentSemesterString,
+      session: currentSessionString,
+    },
+    { skip: !selectedCourseId }
+  );
 
   // set page name
   const dispatch = useAppDispatch();
@@ -38,11 +55,17 @@ const LiveClasses = () => {
     setTab(newValue);
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const handleCourseChange = (event: any) => {
+    setSelectedCourseId(event.target.value);
+  };
+
   return (
     <Box ref={containerRef} className="content-container">
       {isLoading ||
         isGettingSemester ||
-        (isGettingSession && <LinearProgress />)}
+        isGettingSession ||
+        (isLoadingCourses && <LinearProgress />)}
       <InstructorPageHeader
         additionalButton={{
           action: handleOpenCreateModal,
@@ -61,6 +84,25 @@ const LiveClasses = () => {
           padding: "var(--padding)",
         }}
       >
+        <Box sx={{ marginBottom: 3 }}>
+          <FormControl fullWidth>
+            <InputLabel id="course-select-label">Select Course</InputLabel>
+            <Select
+              labelId="course-select-label"
+              id="course-select"
+              value={selectedCourseId}
+              label="Select Course"
+              onChange={handleCourseChange}
+            >
+              {instructorCourses?.data.map((course) => (
+                <MenuItem key={course.id} value={course.id}>
+                  {course.name} ({course.code})
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </Box>
+
         <Box sx={{ backgroundColor: "#fff" }}>
           {scheduledClasses?.data.length ? (
             <Box sx={{ width: "100%", height: "100%" }}>
@@ -95,7 +137,7 @@ const LiveClasses = () => {
                       >
                         <LiveClassCard
                           title={item.topic}
-                          date={item.updated_at}
+                          date={item.start_time}
                           time={item.start_time}
                           status={item.meeting.status}
                           btnAction={() => console.log("Joineed")}
@@ -135,8 +177,8 @@ const LiveClasses = () => {
             </Box>
           ) : (
             <EmptyState
-              title="Oops! There’s nothing here!"
-              subTitle="Forms will appear here after you add them in your school."
+              title="Please select a course to continue!"
+              subTitle="Choose a course from the dropdown above to view its live classes"
             />
           )}
         </Box>

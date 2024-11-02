@@ -51,9 +51,12 @@ const Tests = () => {
   const { data: participants, isLoading: isFetchingParticipants } =
     useGetCourseParticipantsQuery({ course_id: parseInt(courseId) });
 
-  const { data: quizzes, isLoading } = useGetCourseQuizzesQuery({
-    course_id: parseInt(courseId),
-  });
+  const { data: quizzes, isLoading } = useGetCourseQuizzesQuery(
+    {
+      course_id: parseInt(courseId),
+    },
+    { skip: !courseId }
+  );
   const { data: courses, isLoading: isGettingCourses } =
     useGetInstructorCoursesQuery(null);
 

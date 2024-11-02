@@ -67,10 +67,10 @@ const coursesApi = appApi.injectEndpoints({
     }),
 
     addLevelCourse: builder.mutation<LevelsResponse, LevelCourseCreateType>({
-      query: (level) => ({
+      query: (course) => ({
         url: `/level/course`,
         method: "POST",
-        body: level,
+        body: course,
       }),
       invalidatesTags: ["Levels", "Courses"],
     }),

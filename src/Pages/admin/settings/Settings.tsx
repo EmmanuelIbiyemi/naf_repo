@@ -3,11 +3,14 @@ import { Outlet } from "react-router-dom";
 import { useAppDispatch } from "../../../store/hooks";
 import { setPageName } from "../../../store/app.slice";
 import SettingsSideBar from "./components/SettingsSideBar";
+import { useEffect } from "react";
 
 const Settings = () => {
   // set page name
   const dispatch = useAppDispatch();
-  dispatch(setPageName("Settings"));
+  useEffect(() => {
+    dispatch(setPageName("Settings"));
+  }, []);
 
   return (
     <Box sx={layoutStyles}>
