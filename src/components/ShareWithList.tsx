@@ -76,14 +76,14 @@ const ShareWithList = ({
           handleOpenSuccessModal();
         } else if (quizId) {
           // For quizzes, use user_id from participants
+          console.log();
           await shareQuiz({
             quiz_id: quizId,
             participants: values.participants
               .map((id) => {
-                const participant = participants.find((p) => p.id === id);
-                return participant ? participant.user_id : null;
+                return id;
               })
-              .filter((id) => id !== null), // Filter out any null values
+              .filter((id) => id !== null),
           }).unwrap();
           handleOpenSuccessModal();
         } else {
