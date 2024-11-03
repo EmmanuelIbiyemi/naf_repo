@@ -7,7 +7,9 @@ const Students = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const locationData = location.pathname.split("/");
   const courseId = locationData[locationData.length - 2];
-  const { data: course } = useGetCourseQuery(parseInt(courseId));
+  const { data: course } = useGetCourseQuery(parseInt(courseId), {
+    skip: !courseId,
+  });
 
   return (
     <Box ref={containerRef} className="content-container">

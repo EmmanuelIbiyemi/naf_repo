@@ -35,7 +35,9 @@ const Notes = () => {
   const [selectedNotes, setSelectedNotes] = useState<note | undefined>();
   const locationData = location.pathname.split("/");
   const courseId = locationData[locationData.length - 2];
-  const { data: course } = useGetCourseQuery(parseInt(courseId));
+  const { data: course } = useGetCourseQuery(parseInt(courseId), {
+    skip: !courseId,
+  });
 
   const handleUploadModalOpen = () => setOpenModal(true);
   const handleUploadModalClose = () => setOpenModal(false);
