@@ -1,6 +1,4 @@
-
 import { Box, Button, LinearProgress } from "@mui/material";
-
 import { useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import CustomMarkdownEditor from "../../../../components/layout/CustomMarkdownEditor";
@@ -9,8 +7,8 @@ import { useFormik } from "formik";
 import ShareWithModal from "../../../../components/ShareWithModal";
 import { useAddNoteMutation } from "../../../../store/api/notes.api";
 import { noteInput } from "../../../../types/notes";
-import { useGetParticipantsQuery } from "../../../../store/api/participants.api";
-
+import { useGetCourseParticipantsQuery } from "../../../../store/api/participants.api";
+import { useAddMediaMutation } from "../../../../store/api/media.api";
 
 const NewNote = () => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -24,8 +22,10 @@ const NewNote = () => {
   const courseId = locationData[locationData.length - 3];
 
   const [createNote, { isLoading: isCreatingNote }] = useAddNoteMutation();
+  const [uploadFile, { isLoading: isUploadingFile }] = useAddMediaMutation();
+
   const { data: participants, isLoading: isFetchingParticipants } =
-    useGetParticipantsQuery(null);
+    useGetCourseParticipantsQuery({ course_id: parseInt(courseId) });
   // console.log(participants?.data.first_name);
   // console.log(participants?.data);
 
@@ -34,7 +34,7 @@ const NewNote = () => {
       title: "Untitled Document",
       content: "",
       media: [],
-      course_id: parseInt(courseId) | 0,
+      course_id: parseInt(courseId),
       // note_id: 0,
       // participants: []
     },
@@ -54,6 +54,22 @@ const NewNote = () => {
       }
     },
   });
+
+  const handleImageUpload = async (file: File) => {
+    try {
+      const image = file;
+      const formData = new FormData();
+      formData.append("file", image);
+      console.log(formData);
+      const response = await uploadFile(formData).unwrap();
+      formik.setFieldValue("media", [
+        ...formik.values.media,
+        ...response.media.map((resource) => ({ id: resource.id })),
+      ]);
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   return (
     <Box ref={containerRef} className="content-container">
@@ -77,10 +93,26 @@ const NewNote = () => {
             alignItems: "center",
           }}
         >
-          <Box sx={{ padding: "1.5rem" }}>
+          {/* <Box sx={{ padding: "1.5rem" }}>
             <input
               type="text"
 
+              name="title"
+              id="title"
+              onChange={formik.handleChange}
+              value={formik.values.title}
+              style={{
+                border: "none",
+                fontWeight: 500,
+                fontSize: "1.8rem",
+                color: "#8E8E93",
+                outline: "none",
+                // width: "500px",
+              }}
+            />
+          </Box> */}
+          <Box sx={{ padding: "1.5rem" }}>
+            <input
               name="title"
               id="title"
               onChange={formik.handleChange}
@@ -115,7 +147,6 @@ const NewNote = () => {
                 width: "11em",
                 alignSelf: "end",
               }}
-
               type="submit"
               // onClick={handleOpenModal}
             >
@@ -126,9 +157,10 @@ const NewNote = () => {
         <Box>
           <CustomMarkdownEditor
             placeholder="Start writing something here..."
-
             value={formik.values.content}
             onChange={(markdown) => formik.setFieldValue("content", markdown)}
+            handleImageUpload={handleImageUpload}
+            isLoading={isUploadingFile}
           />
         </Box>
       </Box>
@@ -138,7 +170,6 @@ const NewNote = () => {
         // handleSelectedRecipients={handleSelectedRecipients}
         noteId={noteId}
         participants={participants?.data ?? []}
-
       />
     </Box>
   );

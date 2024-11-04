@@ -2,11 +2,14 @@ import { Box, Button, Typography } from "@mui/material";
 import { useRef } from "react";
 import TestParticipantsPage from "./TestParticipantsList";
 import { AccessTime, CalendarToday } from "@mui/icons-material";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
+import { QuizzesResponse } from "../../../../types/quizzes";
 
 const Students = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
+  const location = useLocation();
+  const testData = location.state?.lists as QuizzesResponse[] | undefined;
 
   return (
     <Box ref={containerRef} className="content-container">
@@ -47,7 +50,8 @@ const Students = () => {
                 fontWeight: 300,
               }}
             >
-              List of students that submitted the test “Sosososo And So”
+              List of students that submitted the test "
+              {testData?.map((item) => item.name)}"
             </Typography>
             <Box
               sx={{
@@ -57,7 +61,7 @@ const Students = () => {
                 marginTop: "1em",
               }}
             >
-              <Typography
+              {/* <Typography
                 variant="body2"
                 sx={{
                   color: "#989898",
@@ -86,7 +90,7 @@ const Students = () => {
                 }}
               >
                 Status Completed
-              </Typography>
+              </Typography> */}
               <Box
                 sx={{
                   display: "flex",
@@ -101,7 +105,7 @@ const Students = () => {
                   variant="body2"
                   sx={{ color: "#989898", fontSize: ".9rem" }}
                 >
-                  12:40 PM
+                  {testData?.map((item) => item.start_date.split("T")[0])}
                 </Typography>
               </Box>
               <Box
@@ -118,17 +122,17 @@ const Students = () => {
                   variant="body2"
                   sx={{ color: "#989898", fontSize: ".9rem" }}
                 >
-                  03 Jan 2023
+                  {testData?.map((item) => item.expiry_date.split("T")[0])}
                 </Typography>
               </Box>
             </Box>
           </Box>
           <Box
-            sx={{
-              display: "flex",
-              gap: 2,
-              width: "40%",
-            }}
+          // sx={{
+          //   display: "flex",
+          //   gap: 2,
+          //   width: "40%",
+          // }}
           >
             <Button
               sx={{ width: "100%", backgroundColor: "#CCCCCC", color: "#fff" }}
@@ -136,13 +140,13 @@ const Students = () => {
             >
               Back
             </Button>
-            <Button
+            {/* <Button
               sx={{ width: "100%" }}
               // onClick={() => navigate("/instructor/reports")}
               variant="contained"
             >
               Generate Report
-            </Button>
+            </Button> */}
           </Box>
         </Box>
         <Box sx={{ margin: "2em 0" }}>

@@ -1,165 +1,138 @@
-import { Box, Button } from "@mui/material";
-import { useEffect } from "react";
-import { useAppDispatch } from "../../../store/hooks";
-import { setPageName } from "../../../store/app.slice";
-import EnrolledCoursesHeader from "./CoursesHeader";
-import { Link } from 'react-router-dom';
+import React from 'react';
+import {
+  Box,
+  Card,
+  CardContent,
+  CircularProgress,
+  Grid,
+  Paper,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Typography,
+  Chip,
+} from '@mui/material';
+import { styled } from '@mui/material/styles';
+import { useGetParticipantQuery } from '../../../store/api/participants.api';
+import { useAppSelector } from '../../../store/hooks';
+import { selectCurrentUser } from '../../../store/auth.slice';
+import CoursesHeader from './CoursesHeader';
 
-const EnrolledCoursesPage = () => {
-  // Dummy data for enrolled courses
-  const enrolledCourses = [
-    {
-      id: "1",
-      title: "Articulate structure of C++ and Java in Semester 1",
-      course: "B.Tech Specialization in Health Informatics",
-      unitLevel: 4,
-      schedule: "Mon - Thur",
-      time: "12:30 AM - 01:40 PM",
-      instructor: "Mrs Amina Rabiu Mustapha",
-    },
-    {
-      id: "2",
-      title: "Introduction to Algorithms",
-      course: "B.Tech in Computer Science",
-      unitLevel: 3,
-      schedule: "Tue & Fri",
-      time: "10:00 AM - 12:00 PM",
-      instructor: "Dr. Aliyu Ibrahim",
-    },
-    {
-      id: "3",
-      title: "Advanced Health Informatics",
-      course: "B.Tech Specialization in Health Informatics",
-      unitLevel: 5,
-      schedule: "Wed & Sat",
-      time: "08:00 AM - 10:00 AM",
-      instructor: "Prof. John Doe",
-    },
-    // Add more dummy data as needed
-  ];
+// Styled components
+const StyledCard = styled(Card)(({ theme }) => ({
+  marginBottom: theme.spacing(3),
+  boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+}));
 
-  // Set page name
-  const dispatch = useAppDispatch();
-  useEffect(() => {
-    dispatch(setPageName("Enrolled Courses"));
-  }, [dispatch]);
+const InfoLabel = styled(Typography)(({ theme }) => ({
+  color: theme.palette.text.secondary,
+  fontSize: '0.875rem',
+  marginBottom: theme.spacing(0.5),
+}));
+
+const InfoValue = styled(Typography)({
+  fontSize: '1rem',
+});
+
+
+
+const StudentCourses: React.FC = () => {
+  const user = useAppSelector(selectCurrentUser);
+  const participantId = user.id; // Replace with actual ID source
+ 
+  const { data: response, isLoading, error } = useGetParticipantQuery(participantId);
+
+  if (isLoading) {
+    return (
+      <Box display="flex" justifyContent="center" alignItems="center" minHeight="200px">
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  if (error || !response?.data) {
+    return (
+      <Box p={2}>
+        <Typography color="error">
+          Error loading participant data
+        </Typography>
+      </Box>
+    );
+  }
+
+  const { data: participant } = response;
 
   return (
-    <Box className="content-container">
+    <Box p={3}>
 
-      <EnrolledCoursesHeader />
-      
-      <Box
-        sx={{
-          borderRadius: "var(--border-radius)",
-          marginInline: "var(--padding)",
-          padding: "var(--padding)",
-        }}
-      >
-        <Box
-          sx={{
-            display: 'grid',
-            gridTemplateColumns: {
-              xs: '1fr',
-              md: '1fr 1fr',
-              lg: '1fr 1fr 1fr'
-            },
-            gap: 3
-          }}
-        >
-          {enrolledCourses.map((course, index) => (
-            <Box
-              key={course.id}
-              sx={{
-                display:"flex",
-                flexDirection:"column",
-                bgcolor: "#fff",
-                border: '1px solid',
-                borderColor: 'divider',
-                borderRadius: 1,
-                p: 2,
-              }}
-            >
-              <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
-                <Box sx={{ flexGrow: 1 }}>
-                  <Box sx={{ 
-                    fontSize: '1.125rem',
-                    fontWeight: 500,
-                    mb: 1
-                  }}>
-                    {course.title}
-                  </Box>
-                </Box>
-                {index === 0 && (
-                  <Box sx={{ 
-                    color: 'error.main',
-                    fontSize: '1.5rem'
-                  }}>
-                    •
-                  </Box>
-                )}
-              </Box>
+      <CoursesHeader />
 
-              <Box sx={{ mb: 2 }}>
-                <Box sx={{ 
-                  color: 'text.secondary',
-                  fontSize: '0.875rem',
-                  mb: 1
-                }}>
-                  Course: {course.course}
-                </Box>
-                <Box sx={{ 
-                  color: 'text.secondary',
-                  fontSize: '0.875rem'
-                }}>
-                  Unit Level: {course.unitLevel}
-                </Box>
-              </Box>
+      {/* Personal Information Card */}
+      <StyledCard>
+        <CardContent>
 
-              <Box sx={{ 
-                display: 'flex',
-                gap: 2,
-                mb: 2,
-                color: 'text.secondary',
-                fontSize: '0.875rem'
-              }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                  <span>📅</span>
-                  <span>{course.schedule}</span>
-                </Box>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                  <span>🕒</span>
-                  <span>{course.time}</span>
-                </Box>
-              </Box>
+          <Grid container spacing={3}>
+            <Grid item xs={12} sm={6}>
+              <InfoLabel>Matric Number</InfoLabel>
+              <InfoValue>{participant.matric_number || 'Not assigned'}</InfoValue>
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <InfoLabel>Level</InfoLabel>
+              <InfoValue>{participant.level?.name || 'Not assigned'}</InfoValue>
+            </Grid>
+          </Grid>
+        </CardContent>
+      </StyledCard>
 
-              <Box sx={{ 
-                color: 'text.secondary',
-                fontSize: '0.875rem',
-                mb: 2
-              }}>
-                Instructor: {course.instructor}
-              </Box>
-              <Box sx={{ 
-                mt:"auto",
-              }}>
-
-
-<Link to="/student/courses/details/notes" >
-  <Button variant="contained" sx={{ width: "100%" }}>
-          View Details
-        </Button>
-</Link>
-
-
-              </Box>
-              
-            </Box>
-          ))}
-        </Box>
-      </Box>
+      {/* Courses Card */}
+      <StyledCard>
+        <CardContent>
+          <Typography variant="h6" component="h3" gutterBottom>
+            Enrolled Courses
+          </Typography>
+          <TableContainer component={Paper} elevation={0}>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell>Code</TableCell>
+                  <TableCell>Name</TableCell>
+                  <TableCell>Semester</TableCell>
+                  <TableCell>Credit Units</TableCell>
+                  <TableCell>Instructor</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {participant.courses.map((course: any) => (
+                  <TableRow key={course.id}>
+                    <TableCell>{course.code}</TableCell>
+                    <TableCell>{course.name}</TableCell>
+                    <TableCell>
+                      <Chip
+                        label={course.semester}
+                        color={course.semester === 'First Semester' ? 'primary' : 'secondary'}
+                        size="small"
+                      />
+                    </TableCell>
+                    <TableCell>{course.credit_units || 'N/A'}</TableCell>
+                    <TableCell>
+                      {course.instructors.map((instructor: any) => (
+                        <Typography key={instructor.id} variant="body2">
+                          {instructor.first_name} {instructor.last_name}
+                        </Typography>
+                      ))}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </CardContent>
+      </StyledCard>
     </Box>
   );
 };
 
-export default EnrolledCoursesPage;
+export default StudentCourses;

@@ -10,7 +10,7 @@ import {
   Grid2,
 } from "@mui/material";
 import CreateTestModal from "./CreateTestModal";
-import { useGetParticipantsQuery } from "../../../../../store/api/participants.api";
+import { useGetCourseParticipantsQuery } from "../../../../../store/api/participants.api";
 import { TestFormData, TestQuestion } from "./testformtypes";
 import { ManualUploadQuestion } from "../../../../../types/quizzes";
 
@@ -61,9 +61,13 @@ const ManualInputQuestions: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
 
   const questionsPerPage = 9;
-
+  const locationData = location.pathname.split("/");
+  const courseId = locationData[locationData.length - 3];
   const { data: participants, isLoading: isFetchingParticipants } =
-    useGetParticipantsQuery(null);
+    useGetCourseParticipantsQuery(
+      { course_id: parseInt(courseId) },
+      { skip: !courseId }
+    );
 
   useEffect(() => {
     const localFormData = location.state?.localFormData;
@@ -141,8 +145,6 @@ const ManualInputQuestions: React.FC = () => {
     setUpdatedFormData(newFormData);
 
     // Log both payloads
-    console.log("Upload Payload:", newUploadPayload);
-    console.log("Updated Form Data:", newFormData);
 
     setCreateTestModalOpen(true);
   };
@@ -169,7 +171,8 @@ const ManualInputQuestions: React.FC = () => {
             Input Questions Manually
           </Typography>
           <Typography variant="subtitle1">
-            List of test that have been created in the course “Sosososo And So”
+            List of test that have been created in the course "
+            {formData.subject}"
           </Typography>
         </Box>
         <Box sx={{ display: "flex", gap: 2 }}>

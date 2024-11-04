@@ -71,9 +71,9 @@ const InstructorCoursesPage = lazy(
   () => import("./Pages/instructor/courses/Courses")
 );
 const CoursesLayout = lazy(() => import("./components/CoursesLayout"));
-const CoursesDetailsPage = lazy(
-  () => import("./Pages/instructor/courses/Details")
-);
+// const CoursesDetailsPage = lazy(
+//   () => import("./Pages/instructor/courses/Details")
+// );
 const CoursesParicipantsPage = lazy(
   () => import("./Pages/instructor/courses/Participants")
 );
@@ -105,6 +105,15 @@ const InstructorOfflineScoresPage = lazy(
   () => import("./Pages/instructor/courses/cbt/offlineScores/OfflineScores")
 );
 const SettingsPage = lazy(() => import("./Pages/instructor/settings/Settings"));
+const AnnouncementPage = lazy(
+  () => import("./Pages/instructor/announcements/Announcements")
+);
+const AddAnnouncementPage = lazy(
+  () => import("./Pages/instructor/announcements/posts/AddPost")
+);
+const PreviewAnnouncementPage = lazy(
+  () => import("./Pages/instructor/announcements/posts/PreviewPost")
+);
 
 const StudentDashboard = lazy(
   () => import("./Pages/student/dashboard/Dashboard")
@@ -122,16 +131,10 @@ const StudentCourseForm = lazy(
 const StudentEnroll = lazy(
   () => import("./Pages/student/studentCourses/enroll/EnrollCourses")
 );
-const StudentCourseDetails = lazy(
-  () => import("./Pages/student/studentCourses/courseDetails/CourseDetails")
-);
-const StudentCourseNote = lazy(
-  () => import("./Pages/student/studentCourses/courseDetails/Notes/Notes")
-);
-const StudentCourseSchedule = lazy(
-  () => import("./Pages/student/studentCourses/courseDetails/Schedule/Schedule")
-);
-const StudentReports = lazy(() => import("./Pages/student/reports/Reports"));
+
+const StudentCBT = lazy(() => import("./Pages/student/courseCBT/CourseCBT"));
+const StudentResults = lazy(() => import("./Pages/student/results/Results"));
+const StudentClass = lazy(() => import("./Pages/student/classes/LiveClasses"));
 const StudentSettings = lazy(() => import("./Pages/student/settings/Settings"));
 // const AnnouncementPage = lazy(
 //   () => import("./Pages/instructor/announcements/Announcements")
@@ -139,9 +142,6 @@ const StudentSettings = lazy(() => import("./Pages/student/settings/Settings"));
 // const AddAnnouncementPage = lazy(
 //   () => import("./Pages/instructor/announcements/posts/AddPost")
 // );
-const PreviewAnnouncementPage = lazy(
-  () => import("./Pages/instructor/announcements/posts/PreviewPost")
-);
 
 export const router = createBrowserRouter([
   {
@@ -228,10 +228,10 @@ export const router = createBrowserRouter([
         path: "/instructor/courses/:id",
         element: <CoursesLayout />,
         children: [
-          {
-            path: "details",
-            element: <CoursesDetailsPage />,
-          },
+          // {
+          //   path: "details",
+          //   element: <CoursesDetailsPage />,
+          // },
           {
             path: "students",
             element: <CoursesParicipantsPage />,
@@ -257,6 +257,8 @@ export const router = createBrowserRouter([
       { path: "/instructor/reports", element: <ReportsPage /> },
       { path: "/instructor/reports/:id", element: <ReportsExpanded /> },
       { path: "classes", element: <LiveClassesPage /> },
+      { path: "/instructor/posts", element: <AnnouncementPage /> },
+      { path: "/instructor/posts/add", element: <AddAnnouncementPage /> },
       {
         path: "/instructor/posts/preview",
         element: <PreviewAnnouncementPage />,
@@ -265,6 +267,9 @@ export const router = createBrowserRouter([
         path: "/instructor/offline-scores",
         element: <InstructorOfflineScoresPage />,
       },
+      // { path: "/instructor/post", element: <PostPage /> },
+      // { path: "/instructor/posts/add", element: <AddPostPage /> },
+      // { path: "/instructor/post/preview", element: <PreviewPostPage /> },
     ],
   },
 
@@ -278,16 +283,11 @@ export const router = createBrowserRouter([
       { path: "courses/exam-card", element: <StudentExamCard /> },
       { path: "courses/course-form", element: <StudentCourseForm /> },
       { path: "courses/add-course", element: <StudentEnroll /> },
-      {
-        path: "courses/details",
-        element: <StudentCourseDetails />,
-        children: [
-          { path: "notes", element: <StudentCourseNote /> },
-          { path: "schedule", element: <StudentCourseSchedule /> },
-        ],
-      },
-      { path: "reports", element: <StudentReports /> },
-      { path: "live-class", element: <CoursesPage /> },
+      { path: "courses/:id/notes", element: <StudentEnroll /> },
+      { path: "courses/:id/cbt", element: <StudentEnroll /> },
+      { path: "cbt", element: <StudentCBT /> },
+      { path: "results", element: <StudentResults /> },
+      { path: "live-class", element: <StudentClass /> },
       { path: "settings", element: <StudentSettings /> },
     ],
   },

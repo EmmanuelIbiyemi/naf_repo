@@ -1,33 +1,105 @@
+import React, { useEffect } from 'react';
 import {
   School,
-  CreditCard,
   AssignmentTurnedIn,
-  Description,
 } from "@mui/icons-material";
-import { Box, Button, SxProps, Typography, Avatar } from "@mui/material";
-import { useAppDispatch } from "../../../store/hooks";
+import { 
+  Box, 
+  Button, 
+  Typography, 
+  Avatar,
+  SxProps,
+  Theme,
+  CircularProgress,
+} from "@mui/material";
+import { Link } from "react-router-dom";
+import { useAppDispatch, useAppSelector } from "../../../store/hooks";
 import { setPageName } from "../../../store/app.slice";
-import { useEffect } from "react";
-import { Link } from "react-router-dom"
-const Dashboard = () => {
+import { useGetParticipantQuery } from '../../../store/api/participants.api';
+import EmptyState from "../../../components/EmptyState";
+import { selectCurrentUser } from '../../../store/auth.slice';
+
+// Types
+interface DashboardCard {
+  id: number;
+  icon: React.ReactNode;
+  title: string;
+  description: string;
+  link: string;
+}
+
+const Dashboard: React.FC = () => {
   const dispatch = useAppDispatch();
+  // Assuming we're getting the participant ID from somewhere (e.g., context, route params)
+  const user = useAppSelector(selectCurrentUser);
+  const participantId = user.id; // Replace with actual ID source
+  const { data: participantData, isLoading, error } = useGetParticipantQuery(participantId);
 
   useEffect(() => {
     dispatch(setPageName("Dashboard"));
-  },);
+  }, [dispatch]);
 
+  const cards: DashboardCard[] = [
+    {
+      id: 1,
+      icon: <School />,
+      title: "Course Enrollment",
+      description: `View and manage your ${participantData?.data.courses?.length || 0} course enrollments`,
+      link: "/student/courses",
+    },
+    {
+      id: 3,
+      icon: <AssignmentTurnedIn />,
+      title: "Check Result",
+      description: "View your academic performance and semester results",
+      link: "/student/results",
+    },
+    
+  ];
+
+  if (isLoading) {
+    return (
+      <Box sx={{ 
+        padding: "2rem", 
+        display: 'flex', 
+        justifyContent: 'center',
+        alignItems: 'center',
+        minHeight: '50vh'
+      }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  if (error || !participantData) {
+    return (
+      <Box sx={{ padding: "2rem" }}>
+        <EmptyState
+          title="Error loading dashboard"
+          subTitle="There was a problem loading your information. Please try again later."
+        />
+      </Box>
+    );
+  }
+
+  const participant = participantData.data;
 
   return (
     <Box sx={{ padding: "2rem", maxWidth: "1200px", margin: "0 auto" }}>
       {/* Header */}
       <Box sx={{ textAlign: "center", marginBottom: "2rem" }}>
         <Typography variant="h1" sx={{ fontSize: "2rem", fontWeight: 500 }}>
-          Welcome to your NAFCONS dashboard
+          Welcome to your NAFCONS Student dashboard
         </Typography>
         <Typography
-          sx={{ fontSize: "1.1rem", fontWeight: 300, marginTop: ".5rem", color: "text.secondary" }}
+          sx={{ 
+            fontSize: "1.1rem", 
+            fontWeight: 300, 
+            marginTop: ".5rem", 
+            color: "text.secondary" 
+          }}
         >
-          Amina Rabiu Mustapha
+          {participant.first_name} {participant.last_name}
         </Typography>
       </Box>
 
@@ -42,33 +114,38 @@ const Dashboard = () => {
         {/* Left Side - Cards */}
         <Box sx={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
           {cards.map((card) => (
-            <Box
+            <Link 
               key={`dashboard-card-${card.id}`}
-              sx={{
-                ...cardStyles,
-                "&:hover": {
-                  boxShadow: 3,
-                  transition: "box-shadow 0.3s ease-in-out",
-                },
-              }}
+              to={card.link}
+              style={{ textDecoration: 'none' }}
             >
-              <Box className="icon">{card.icon}</Box>
-              <Box sx={{ flex: 1 }}>
-                <Typography sx={{ fontSize: "1.2rem", fontWeight: 500 }}>
-                  {card.title}
-                </Typography>
-                <Typography
-                  sx={{
-                    fontWeight: 300,
-                    marginTop: ".5rem",
-                    color: "text.secondary",
-                    fontSize: "0.9rem",
-                  }}
-                >
-                  {card.description}
-                </Typography>
+              <Box
+                sx={{
+                  ...cardStyles,
+                  "&:hover": {
+                    boxShadow: 3,
+                    transition: "box-shadow 0.3s ease-in-out",
+                  },
+                }}
+              >
+                <Box className="icon">{card.icon}</Box>
+                <Box sx={{ flex: 1 }}>
+                  <Typography sx={{ fontSize: "1.2rem", fontWeight: 500 }}>
+                    {card.title}
+                  </Typography>
+                  <Typography
+                    sx={{
+                      fontWeight: 300,
+                      marginTop: ".5rem",
+                      color: "text.secondary",
+                      fontSize: "0.9rem",
+                    }}
+                  >
+                    {card.description}
+                  </Typography>
+                </Box>
               </Box>
-            </Box>
+            </Link>
           ))}
         </Box>
 
@@ -84,23 +161,59 @@ const Dashboard = () => {
             boxShadow: 1,
           }}
         >
-          <Avatar
-            sx={{
-              width: 128,
-              height: 128,
-              marginBottom: "1rem",
-            }}
-          />
+          {participant.photo ? (
+            <Avatar
+              src={participant.photo}
+              sx={{
+                width: 128,
+                height: 128,
+                marginBottom: "1rem",
+              }}
+            />
+          ) : (
+            <Avatar
+              sx={{
+                width: 128,
+                height: 128,
+                marginBottom: "1rem",
+                bgcolor: 'primary.main',
+                fontSize: '3rem'
+              }}
+            >
+              {participant.first_name?.[0]}{participant.last_name?.[0]}
+            </Avatar>
+          )}
           <Typography sx={{ fontSize: "1.1rem", fontWeight: 500 }}>
-            Amina Rabiu Mustapha
+            {participant.first_name} {participant.last_name}
           </Typography>
           <Typography sx={{ color: "text.secondary", fontSize: "0.9rem" }}>
-            NAFCONS/17/CSC/2020
+            {participant.matric_number || 'N/A'}
           </Typography>
           <Typography sx={{ color: "text.secondary", fontSize: "0.9rem", mt: 0.5 }}>
-            Full Time • Computer Science • 300 Level
+            {participant.level?.program?.department?.name || 'N/A'} • {participant.level?.name || 'N/A'}
           </Typography>
-          <Link to={"/student/settings"}>
+          <Box sx={{ width: '100%', mt: 2 }}>
+            <Typography sx={{ 
+              color: "text.secondary", 
+              fontSize: "0.9rem", 
+              mb: 1 
+            }}>
+              Contact Information
+            </Typography>
+            <Typography sx={{ fontSize: "0.9rem" }}>
+              Email: {participant.email}
+            </Typography>
+            <Typography sx={{ fontSize: "0.9rem" }}>
+              Phone: {participant.phone}
+            </Typography>
+            <Typography sx={{ fontSize: "0.9rem" }}>
+              Address: {participant.address}
+            </Typography>
+          </Box>
+          <Link 
+            to="/student/settings"
+            style={{ textDecoration: 'none', width: '100%' }}
+          >
             <Button
               variant="contained"
               fullWidth
@@ -109,16 +222,13 @@ const Dashboard = () => {
               Profile Settings
             </Button>
           </Link>
-          
         </Box>
       </Box>
     </Box>
   );
 };
 
-export default Dashboard;
-
-const cardStyles: SxProps = {
+const cardStyles: SxProps<Theme> = {
   alignItems: "start",
   bgcolor: "#fff",
   borderRadius: "var(--border-radius)",
@@ -126,6 +236,7 @@ const cardStyles: SxProps = {
   gap: "1rem",
   padding: "1rem",
   boxShadow: 1,
+  color: 'text.primary',
 
   ".icon": {
     bgcolor: "rgba(239, 243, 250, 1)",
@@ -138,33 +249,4 @@ const cardStyles: SxProps = {
   },
 };
 
-const cards = [
-  {
-    id: 1,
-    icon: <School />,
-    title: "Course Enrollment",
-    description:
-      "Create rich course content and coaching products for your students. When you give them a pricing plan, they'll appear on your site!",
-  },
-  {
-    id: 2,
-    icon: <CreditCard />,
-    title: "Pay Fees",
-    description:
-      "Create rich course content and coaching products for your students. When you give them a pricing plan, they'll appear on your site!",
-  },
-  {
-    id: 3,
-    icon: <AssignmentTurnedIn />,
-    title: "Check Result",
-    description:
-      "Create rich course content and coaching products for your students. When you give them a pricing plan, they'll appear on your site!",
-  },
-  {
-    id: 4,
-    icon: <Description />,
-    title: "View Applications",
-    description:
-      "Create rich course content and coaching products for your students. When you give them a pricing plan, they'll appear on your site!",
-  },
-];
+export default Dashboard;

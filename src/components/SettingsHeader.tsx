@@ -1,4 +1,4 @@
-import { ArrowRightAlt } from "@mui/icons-material";
+// import { ArrowRightAlt } from "@mui/icons-material";
 import { Box, Button, SxProps, Typography } from "@mui/material";
 import { Form, Formik } from "formik";
 import * as Yup from "yup";
@@ -144,7 +144,7 @@ const SettingsHeader = ({ button, additionalButton }: Props) => {
       ) : null}
       {additionalButton ? (
         <Box sx={formGroupStyles}>
-          <Button
+          {/* <Button
             onClick={additionalButton.action}
             variant="contained"
             sx={{
@@ -155,7 +155,7 @@ const SettingsHeader = ({ button, additionalButton }: Props) => {
             }}
           >
             {additionalButton.text} <ArrowRightAlt />
-          </Button>
+          </Button> */}
         </Box>
       ) : null}
     </Box>

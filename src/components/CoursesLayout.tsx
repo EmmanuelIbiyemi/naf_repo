@@ -7,7 +7,9 @@ function CoursesLayout() {
   const location = useLocation();
   const locationData = location.pathname.split("/");
   const courseId = locationData[locationData.length - 2];
-  const { data: courses, isLoading } = useGetCourseQuery(parseInt(courseId));
+  const { data: courses, isLoading } = useGetCourseQuery(parseInt(courseId), {
+    skip: !courseId,
+  });
 
   return (
     <Box sx={layoutStyles}>

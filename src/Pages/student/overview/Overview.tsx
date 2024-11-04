@@ -1,17 +1,30 @@
+import React from 'react';
 import {
   Box,
   Typography,
   Card,
   CardContent,
-  SxProps,
+  CircularProgress,
+  List,
+  ListItem,
+  ListItemIcon,
+  ListItemText,
+  ListItemButton,
+  Divider
 } from "@mui/material";
 import {
   Book,
   School,
   CalendarMonth,
   Grade,
+  Notes,
+  ArrowForward
 } from "@mui/icons-material";
+import { useNavigate } from 'react-router-dom';
 import EmptyState from "../../../components/EmptyState";
+import { useGetParticipantQuery } from '../../../store/api/participants.api';
+import { useAppSelector } from '../../../store/hooks';
+import { selectCurrentUser } from '../../../store/auth.slice';
 
 interface OverviewCardProps {
   icon: React.ReactNode;
@@ -21,7 +34,7 @@ interface OverviewCardProps {
 }
 
 const OverviewCard = ({ icon, label, value, primary }: OverviewCardProps) => (
-  <Card 
+  <Card
     sx={{
       ...cardStyle,
       bgcolor: primary ? "primary.main" : "#fff",
@@ -33,14 +46,14 @@ const OverviewCard = ({ icon, label, value, primary }: OverviewCardProps) => (
         {icon}
       </Box>
       <Box sx={{ flex: 1 }}>
-        <Typography sx={{ 
+        <Typography sx={{
           fontSize: "0.875rem",
           color: primary ? "rgba(255,255,255,0.8)" : "text.secondary",
-          mb: 0.5 
+          mb: 0.5
         }}>
           {label}
         </Typography>
-        <Typography sx={{ 
+        <Typography sx={{
           fontSize: "1.5rem",
           fontWeight: 500
         }}>
@@ -51,26 +64,95 @@ const OverviewCard = ({ icon, label, value, primary }: OverviewCardProps) => (
   </Card>
 );
 
+const CourseNotesList = ({ courses }) => {
+  const navigate = useNavigate();
+
+  if (!courses?.length) {
+    return (
+      <EmptyState
+        title="No courses registered"
+        subTitle="Register for courses to access shared notes from instructors."
+      />
+    );
+  }
+
+  return (
+    <List sx={{ width: '100%', bgcolor: 'background.paper' }}>
+      {courses.map((course, index) => (
+        <React.Fragment key={course.id}>
+          <ListItem disablePadding>
+            <ListItemButton 
+              onClick={() => navigate(`/course/${course.id}/notes`)}
+              sx={{
+                py: 2,
+                '&:hover': {
+                  bgcolor: 'rgba(0, 0, 0, 0.04)',
+                }
+              }}
+            >
+              <ListItemIcon>
+                <Notes color="primary" />
+              </ListItemIcon>
+              <ListItemText 
+                primary={course.title}
+                secondary={`${course.code}: ${course.name}`}
+                primaryTypographyProps={{
+                  fontWeight: 500
+                }}
+              />
+              <ArrowForward sx={{ color: 'text.secondary' }} />
+            </ListItemButton>
+          </ListItem>
+          {index < courses.length - 1 && <Divider component="li" />}
+        </React.Fragment>
+      ))}
+    </List>
+  );
+};
 
 const Overview = () => {
+  const user = useAppSelector(selectCurrentUser);
+  const participantId = user.id;
+  const { data: participantData, isLoading, error } = useGetParticipantQuery(participantId);
+
+  if (isLoading) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', padding: '2rem' }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  if (error || !participantData) {
+    return (
+      <Box sx={{ padding: '2rem' }}>
+        <EmptyState
+          title="Error loading data"
+          subTitle="There was a problem loading your information. Please try again later."
+        />
+      </Box>
+    );
+  }
+
+  const { data: participant } = participantData;
+
   return (
     <Box sx={{ padding: "2rem" }}>
       <Typography variant="h2" sx={sectionTitleStyle}>
         Overview
       </Typography>
 
-      {/* Stats Cards */}
       <Box sx={statsContainerStyle}>
         <OverviewCard
           icon={<Book />}
           label="Registered Courses"
-          value={12}
+          value={participant.courses?.length || 0}
           primary
         />
         <OverviewCard
           icon={<School />}
           label="Level"
-          value="100 Level"
+          value={participant.level?.name || "N/A"}
         />
         <OverviewCard
           icon={<CalendarMonth />}
@@ -84,21 +166,16 @@ const Overview = () => {
         />
       </Box>
 
-      {/* Shared Notes Section */}
       <Typography variant="h2" sx={{ ...sectionTitleStyle, mt: 4 }}>
-        Shared Notes
+        Course Notes
       </Typography>
       <Typography sx={{ color: "text.secondary", mb: 3 }}>
-        Lorem ipsum dolor sit amet consectetur. Table add
+        Access course materials and resources shared by your instructors
       </Typography>
 
-      {/* Empty State */}
       <Card sx={{ bgcolor: "#fff", borderRadius: "var(--border-radius)" }}>
         <CardContent>
-          <EmptyState 
-            title="Oops looks like there's nothing here"
-            subTitle="Information will appear here after an admin has assigned them to you."
-          />
+          <CourseNotesList courses={participant.courses} />
         </CardContent>
       </Card>
     </Box>
@@ -108,13 +185,13 @@ const Overview = () => {
 export default Overview;
 
 // Styles
-const sectionTitleStyle: SxProps = {
+const sectionTitleStyle = {
   fontSize: "1.5rem",
   fontWeight: 500,
   marginBottom: "1.5rem",
 };
 
-const statsContainerStyle: SxProps = {
+const statsContainerStyle = {
   display: "grid",
   gridTemplateColumns: {
     xs: "1fr",
@@ -124,7 +201,7 @@ const statsContainerStyle: SxProps = {
   gap: "1rem",
 };
 
-const cardStyle: SxProps = {
+const cardStyle = {
   borderRadius: "var(--border-radius)",
   transition: "transform 0.2s ease-in-out",
   "&:hover": {
@@ -132,14 +209,14 @@ const cardStyle: SxProps = {
   },
 };
 
-const cardContentStyle: SxProps = {
+const cardContentStyle = {
   display: "flex",
   alignItems: "start",
   gap: "1rem",
   padding: "1rem !important",
 };
 
-const iconContainerStyle: SxProps = {
+const iconContainerStyle = {
   bgcolor: "rgba(255,255,255,0.1)",
   borderRadius: "4px",
   padding: "0.5rem",
