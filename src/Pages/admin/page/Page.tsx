@@ -44,7 +44,7 @@ const Page = () => {
 
           const result = await addPost(newPost).unwrap();
           if (result.post) {
-            setPost(result.post[0]);
+            setPost(result.post);
           }
         } catch (error) {
           console.error("Failed to create post:", error);

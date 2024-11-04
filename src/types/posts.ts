@@ -27,4 +27,5 @@ export type PostType = PostBaseType & {
   tags?: Category[];
 };
 
-export type PostResponse = { post: PostType[] };
+export type PostResponse = { post: PostType };
+export type PostsResponse = { post: PostType[] };

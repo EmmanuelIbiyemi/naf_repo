@@ -1,4 +1,4 @@
-import { PostCreateType, PostResponse } from "../../types/posts";
+import { PostCreateType, PostResponse, PostsResponse } from "../../types/posts";
 import { appApi } from "./app.api";
 
 const postsApi = appApi.injectEndpoints({
@@ -11,19 +11,22 @@ const postsApi = appApi.injectEndpoints({
       query: (post_id) => `/post/${post_id}`,
       providesTags: ["Posts"],
     }),
+    getPostM: builder.mutation<PostResponse, number>({
+      query: (post_id) => `/post/${post_id}`,
+    }),
     getPostBySlug: builder.query<PostResponse, string>({
       query: (slug) => `/post/${slug}`,
       providesTags: ["Posts"],
     }),
-    getPostCategories: builder.query<PostResponse, null>({
+    getPostCategories: builder.query<PostsResponse, null>({
       query: () => `/post/categories`,
       providesTags: ["Posts"],
     }),
-    getPostByCategory: builder.query<PostResponse, string>({
-      query: (tag) => `post/category/page?tag=${tag}`,
+    getPostByCategory: builder.query<PostsResponse, string>({
+      query: (tag) => `post/category/${tag}`,
       providesTags: ["Posts"],
     }),
-    getPostCategoriesByTag: builder.query<PostResponse, string>({
+    getPostCategoriesByTag: builder.query<PostsResponse, string>({
       query: (tag) => `post/category/page?tag=${tag}`,
       providesTags: ["Posts"],
     }),
@@ -68,5 +71,9 @@ export const {
   useDeletePostMutation,
   useDeletePostBlockMutation,
   useGetPostQuery,
+  useGetPostMMutation,
+  useGetPostCategoriesQuery,
+  useGetPostCategoriesByTagQuery,
+  useGetPostBySlugQuery,
   useGetPostByCategoryQuery,
 } = postsApi;

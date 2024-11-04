@@ -2,6 +2,7 @@
 import { createBrowserRouter } from "react-router-dom";
 import { lazy } from "react";
 import ReportsExpanded from "./Pages/instructor/reports/ReportsExpanded";
+import PostPage from "./Pages/admin/post/AddPostPage";
 
 // Admin
 
@@ -142,6 +143,7 @@ const StudentSettings = lazy(() => import("./Pages/student/settings/Settings"));
 const PreviewAnnouncementPage = lazy(
   () => import("./Pages/instructor/announcements/posts/PreviewPost")
 );
+const Posts = lazy(() => import("./Pages/admin/posts/PostsPage"));
 
 export const router = createBrowserRouter([
   {
@@ -213,6 +215,9 @@ export const router = createBrowserRouter([
           { path: "", element: <MediaLibrary /> },
 
           { path: "page/:name", element: <Page /> },
+          { path: "posts", element: <Posts /> },
+          { path: "post", element: <PostPage /> },
+          { path: "post/:post_id", element: <PostPage /> },
         ],
       },
     ],
