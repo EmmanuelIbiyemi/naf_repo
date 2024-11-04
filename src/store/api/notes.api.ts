@@ -16,7 +16,7 @@ const notesApi = appApi.injectEndpoints({
       providesTags: ["Notes"],
     }),
     getParticipantCourseNotes: builder.query<note, number>({
-      query: (note_id) => `/note/mine/course/${note_id}`,
+      query: (course_id) => `/note/mine/course/${course_id}`,
       providesTags: ["Notes"],
     }),
     addNote: builder.mutation<{ data: note }, noteInput>({

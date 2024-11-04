@@ -1,91 +1,70 @@
-import { useState } from 'react';
-import { useSelector } from 'react-redux';
+import { useParams, useNavigate } from 'react-router-dom';
 import { 
   Box, 
   Paper, 
   Typography, 
-  CircularProgress, 
   Alert,
   Button,
   Skeleton,
-  List,
-  ListItem,
-  ListItemButton,
-  ListItemText,
-  Divider,
-
 } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import { useGetCourseNotesQuery, useShareNoteMutation } from '../../../store/api/notes.api';
-import { selectCurrentUser } from '../../../store/auth.slice';
-import { note } from '../../../types/notes';
+import ReactMarkdown from 'react-markdown';
+import { useGetParticipantCourseNotesQuery } from '../../../store/api/notes.api';
 
-const Notes = () => {
-  const [selectedCourseId, setSelectedCourseId] = useState<number | null>(null);
-  const [selectedNote, setSelectedNote] = useState<number | null>(null);
-  const user = useSelector(selectCurrentUser);
-  
+type Note = {
+  id: number;
+  title: string;
+  content: string;
+  created_at: string;
+  updated_at: string;
+  media: any[];
+};
+
+type PaginationInfo = {
+  page: number;
+  pages: number;
+  per_page: number;
+  total: number;
+};
+
+type ApiResponse = {
+  data: Note[];
+  message: string;
+  pagination: PaginationInfo;
+  status: string;
+};
+
+const CourseNotes = () => {
+  const navigate = useNavigate();
+  const { courseId } = useParams<{ courseId: string }>();
+  const parsedCourseId = courseId ? parseInt(courseId) : null;
+
   const { 
-    data: notesData, 
+    data: response, 
     isLoading, 
     isError,
-  } = useGetCourseNotesQuery(selectedCourseId, {
-    skip: !selectedCourseId
+  } = useGetParticipantCourseNotesQuery(parsedCourseId!, {
+    skip: !parsedCourseId
   });
-  
-  const [shareNote, { isLoading: isSharing }] = useShareNoteMutation();
 
-  const handleShare = async (noteId: number) => {
-    if (!selectedCourseId) return;
-    setSelectedNote(noteId);
-    try {
-      await shareNote({ 
-        noteId,
-        courseId: selectedCourseId
-      }).unwrap();
-      // You could add a success notification here
-    } catch (error) {
-      console.error('Error sharing note:', error);
-      // You could add an error notification here
-    } finally {
-      setSelectedNote(null);
-    }
+  const handleGoBack = () => {
+    navigate('/student/overview'); // Adjust this route as needed
+  }; 
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
   };
 
-  if (!user?.courses?.data?.length) {
+  if (!parsedCourseId) {
     return (
       <Box sx={{ maxWidth: 800, mx: 'auto', p: 3 }}>
-        <Alert severity="info">
-          You are not enrolled in any courses yet.
+        <Alert severity="error">
+          Invalid Course ID
         </Alert>
-      </Box>
-    );
-  }
-
-  // Show course list if no course is selected
-  if (!selectedCourseId) {
-    return (
-      <Box sx={{ maxWidth: 800, mx: 'auto', p: 3 }}>
-        <Typography variant="h5" sx={{ mb: 3 }}>
-          Your Courses
-        </Typography>
-        <Paper>
-          <List>
-            {user.courses.data.map((course, index) => (
-              <>
-                <ListItem disablePadding key={course.id}>
-                  <ListItemButton onClick={() => setSelectedCourseId(course.id)}>
-                    <ListItemText 
-                      primary={course.title}
-                      secondary={course.description || 'No description available'}
-                    />
-                  </ListItemButton>
-                </ListItem>
-                {index < user.courses.data.length - 1 && <Divider />}
-              </>
-            ))}
-          </List>
-        </Paper>
       </Box>
     );
   }
@@ -95,7 +74,7 @@ const Notes = () => {
       <Box sx={{ maxWidth: 800, mx: 'auto', p: 3 }}>
         <Button 
           startIcon={<ArrowBackIcon />}
-          onClick={() => setSelectedCourseId(null)}
+          onClick={handleGoBack}
           sx={{ mb: 3 }}
         >
           Back to Courses
@@ -117,7 +96,7 @@ const Notes = () => {
       <Box sx={{ maxWidth: 800, mx: 'auto', p: 3 }}>
         <Button 
           startIcon={<ArrowBackIcon />}
-          onClick={() => setSelectedCourseId(null)}
+          onClick={handleGoBack}
           sx={{ mb: 3 }}
         >
           Back to Courses
@@ -129,12 +108,12 @@ const Notes = () => {
     );
   }
 
-  if (!notesData?.data || notesData.data.length === 0) {
+  if (!response?.data || response.data.length === 0) {
     return (
       <Box sx={{ maxWidth: 800, mx: 'auto', p: 3 }}>
         <Button 
           startIcon={<ArrowBackIcon />}
-          onClick={() => setSelectedCourseId(null)}
+          onClick={handleGoBack}
           sx={{ mb: 3 }}
         >
           Back to Courses
@@ -146,24 +125,17 @@ const Notes = () => {
     );
   }
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    });
-  };
-
   return (
     <Box sx={{ maxWidth: 800, mx: 'auto', p: 3 }}>
       <Button 
         startIcon={<ArrowBackIcon />}
-        onClick={() => setSelectedCourseId(null)}
+        onClick={handleGoBack}
         sx={{ mb: 3 }}
       >
         Back to Courses
       </Button>
-      {notesData.data.map((note: note) => (
+      
+      {response.data.map((note: Note) => (
         <Paper 
           key={note.id} 
           sx={{ 
@@ -180,29 +152,40 @@ const Notes = () => {
             <Typography variant="h6" sx={{ fontWeight: 500 }}>
               {note.title}
             </Typography>
-            <Button
-              variant="outlined"
-              size="small"
-              onClick={() => handleShare(note.id)}
-              disabled={isSharing && selectedNote === note.id}
-            >
-              {isSharing && selectedNote === note.id ? (
-                <CircularProgress size={20} />
-              ) : (
-                'Share'
-              )}
-            </Button>
           </Box>
 
-          <Typography 
-            variant="body1" 
-            sx={{ 
-              mb: 2,
-              whiteSpace: 'pre-wrap'  // Preserves formatting
-            }}
-          >
-            {note.content}
-          </Typography>
+          <Box sx={{ 
+            '& > .markdown-content': {
+              '& strong': {
+                fontWeight: 'bold'
+              },
+              '& em': {
+                fontStyle: 'italic'
+              },
+              '& h1, & h2, & h3, & h4, & h5, & h6': {
+                margin: '1em 0 0.5em',
+                fontWeight: 'bold',
+                lineHeight: 1.2
+              },
+              '& p': {
+                margin: '0.5em 0'
+              },
+              '& ul, & ol': {
+                marginLeft: '1.5em',
+                marginBottom: '1em'
+              },
+              '& code': {
+                backgroundColor: (theme) => theme.palette.grey[100],
+                padding: '0.2em 0.4em',
+                borderRadius: '3px',
+                fontSize: '0.9em'
+              }
+            }
+          }}>
+            <ReactMarkdown className="markdown-content">
+              {note.content}
+            </ReactMarkdown>
+          </Box>
 
           <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 2 }}>
             <Typography variant="caption" color="text.secondary">
@@ -216,8 +199,16 @@ const Notes = () => {
           </Box>
         </Paper>
       ))}
+
+      {response.pagination.pages > 1 && (
+        <Box sx={{ mt: 2, textAlign: 'center' }}>
+          <Typography variant="body2" color="text.secondary">
+            Page {response.pagination.page} of {response.pagination.pages}
+          </Typography>
+        </Box>
+      )}
     </Box>
   );
 };
 
-export default Notes;
+export default CourseNotes;

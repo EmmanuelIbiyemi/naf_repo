@@ -82,7 +82,7 @@ const CourseNotesList = ({ courses }) => {
         <React.Fragment key={course.id}>
           <ListItem disablePadding>
             <ListItemButton 
-              onClick={() => navigate(`/course/${course.id}/notes`)}
+              onClick={() => navigate(`/student/courses/${course.id}/notes`)}
               sx={{
                 py: 2,
                 '&:hover': {
