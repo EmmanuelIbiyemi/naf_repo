@@ -22,80 +22,63 @@ import { useEffect, useState } from "react";
 import { useAppDispatch, useAppSelector } from "../../../../store/hooks";
 import { setPageName } from "../../../../store/app.slice";
 import { useGetCoursesQuery } from "../../../../store/api/courses.api";
-import { selectCurrentUser } from "../../../../store/auth.slice";
-import Breadcrumb from "../components/Breadcrumb";
-import { Save, Search } from "@mui/icons-material";
 import { 
   useGetParticipantQuery,
   useAddCoursesMutation,
   useDropCoursesMutation 
 } from "../../../../store/api/participants.api";
+import { Save, Search } from "@mui/icons-material";
+import Breadcrumb from "../components/Breadcrumb";
+import { selectCurrentUser } from "../../../../store/auth.slice";
+
+
 
 const EnrollCoursesPage = () => {
   const dispatch = useAppDispatch();
-    const user1 = useAppSelector(selectCurrentUser);
-  const participantId = user1.id; // Replace with actual ID source
-  const { data: courses, isLoading, error } = useGetCoursesQuery(null);
-  const { data: participantData  } = useGetParticipantQuery(participantId);
-  const user = participantData.data;
+
+    const user = useAppSelector(selectCurrentUser);
+    const PARTICIPANT_ID = user.id; 
   
-  // API mutations
+  // API queries and mutations
+  const { data: courses, isLoading, error } = useGetCoursesQuery(null);
+  const { data: participantData } = useGetParticipantQuery(PARTICIPANT_ID);
   const [addCourses, { isLoading: isEnrolling }] = useAddCoursesMutation();
   const [dropCourses, { isLoading: isDropping }] = useDropCoursesMutation();
 
-  // State for filters
-  const [selectedFaculty, setSelectedFaculty] = useState("all");
-  const [selectedDepartment, setSelectedDepartment] = useState("all");
-  const [selectedLevel, setSelectedLevel] = useState("all");
+  // State
+  const [selectedSemester, setSelectedSemester] = useState("all");
   const [filteredCourses, setFilteredCourses] = useState(courses?.data || []);
-  
-  // State for course selection - store as numbers to match API
-  const [selectedCourses, setSelectedCourses] = useState<Set<number>>(
-    new Set(user?.courses?.map(course => Number(course.id)) || [])
-  );
-
-  // State for notifications
+  const [selectedCourses, setSelectedCourses] = useState<Set<number>>(new Set());
   const [snackbar, setSnackbar] = useState({
     open: false,
     message: "",
     severity: "success" as "success" | "error"
   });
 
-  // Get unique values for filters
-  const faculties = [...new Set(courses?.data?.map(course => course.faculty) || [])];
-  const departments = [...new Set(courses?.data?.map(course => course.department) || [])];
-  const levels = [...new Set(courses?.data?.map(course => course.level) || [])];
-
   // Initialize page
   useEffect(() => {
     dispatch(setPageName("Enroll Courses"));
   }, [dispatch]);
 
-  // Update filtered courses when filters change
+  // Update filtered courses when semester changes
   useEffect(() => {
     if (courses?.data) {
       let filtered = [...courses.data];
       
-      if (selectedFaculty !== "all") {
-        filtered = filtered.filter(course => course.faculty === selectedFaculty);
-      }
-      if (selectedDepartment !== "all") {
-        filtered = filtered.filter(course => course.department === selectedDepartment);
-      }
-      if (selectedLevel !== "all") {
-        filtered = filtered.filter(course => course.level === selectedLevel);
+      if (selectedSemester !== "all") {
+        filtered = filtered.filter(course => course.semester === selectedSemester);
       }
       
       setFilteredCourses(filtered);
     }
-  }, [courses?.data, selectedFaculty, selectedDepartment, selectedLevel]);
+  }, [courses?.data, selectedSemester]);
 
   // Initialize selected courses when user data loads
   useEffect(() => {
-    if (user?.courses) {
-      setSelectedCourses(new Set(user.courses.map(course => Number(course.id))));
+    if (participantData?.data?.courses) {
+      setSelectedCourses(new Set(participantData.data.courses.map(course => Number(course.id))));
     }
-  }, [user?.courses]);
+  }, [participantData?.data?.courses]);
 
   const handleCourseToggle = (courseId: number) => {
     const newSelected = new Set(selectedCourses);
@@ -108,54 +91,39 @@ const EnrollCoursesPage = () => {
   };
 
   const handleSaveChanges = async () => {
-  try {
-    const currentEnrolled = new Set(user?.courses?.map(course => Number(course.id)) || []);
-    const selectedCoursesArray = Array.from(selectedCourses);
-    
-    // Find courses to add and remove
-    const coursesToAdd = selectedCoursesArray.filter(id => !currentEnrolled.has(id));
-    const coursesToDrop = Array.from(currentEnrolled).filter(id => !selectedCourses.has(id));
+    try {
+      const currentEnrolled = new Set(participantData?.data?.courses?.map(course => Number(course.id)) || []);
+      const selectedCoursesArray = Array.from(selectedCourses);
+      
+      const coursesToAdd = selectedCoursesArray.filter(id => !currentEnrolled.has(id));
+      const coursesToDrop = Array.from(currentEnrolled).filter(id => !selectedCourses.has(id));
 
-    // Perform operations sequentially instead of in parallel
-    if (coursesToAdd.length > 0) {
-      await addCourses({
-        course_ids: coursesToAdd,
-      }).unwrap();
+      if (coursesToAdd.length > 0) {
+        await addCourses({ course_ids: coursesToAdd }).unwrap();
+      }
+
+      if (coursesToDrop.length > 0) {
+        await dropCourses({ course_ids: coursesToDrop }).unwrap();
+      }
+
+      setSnackbar({
+        open: true,
+        message: "Successfully updated course enrollment",
+        severity: "success"
+      });
+    } catch (error: any) {
+      setSnackbar({
+        open: true,
+        message: error.data?.message || "Failed to update course enrollment",
+        severity: "error"
+      });
+      console.error('Error updating courses:', error);
     }
+  };
 
-    if (coursesToDrop.length > 0) {
-      await dropCourses({
-        course_ids: coursesToDrop,
-      }).unwrap();
-    }
-
-    setSnackbar({
-      open: true,
-      message: "Successfully updated course enrollment",
-      severity: "success"
-    });
-  } catch (error: any) {
-    const errorMessage = error.data?.message || error.message || "Failed to update course enrollment";
-    setSnackbar({
-      open: true,
-      message: errorMessage,
-      severity: "error"
-    });
-    console.error('Error updating courses:', error);
-  }
-};
-  // Rest of your component remains the same...
   if (isLoading) {
     return (
-      <Box 
-        className="content-container"
-        sx={{ 
-          display: 'flex', 
-          justifyContent: 'center', 
-          alignItems: 'center', 
-          minHeight: '400px' 
-        }}
-      >
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '400px' }}>
         <CircularProgress />
       </Box>
     );
@@ -164,73 +132,29 @@ const EnrollCoursesPage = () => {
   if (error) {
     return (
       <Box className="content-container">
-        <Alert severity="error">
-          Failed to load courses. Please try again later.
-        </Alert>
+        <Alert severity="error">Failed to load courses. Please try again later.</Alert>
       </Box>
     );
   }
 
   const hasChanges = JSON.stringify(Array.from(selectedCourses).sort()) !== 
-                     JSON.stringify((user?.courses?.map(c => Number(c.id)) || []).sort());
+                     JSON.stringify((participantData?.data?.courses?.map(c => Number(c.id)) || []).sort());
 
   return (
-    <Box
-      sx={{
-        display: 'flex',
-        flexDirection: 'column',
-        bgcolor: 'grey.100',
-      }}
-      className="content-container"
-    >
-      {/* Previous JSX remains the same... */}
+    <Box sx={{ display: 'flex', flexDirection: 'column', bgcolor: 'grey.100' }} className="content-container">
       <Breadcrumb />
 
-      {/* Filters Section */}
-      <Box
-        sx={{
-          display: 'flex',
-          gap: 2,
-          p: 2,
-          bgcolor: '#D9D9D9',
-        }}
-      >
-        <FormControl sx={{ bgcolor: 'white', borderRadius: 1, minWidth: 150 }}>
+      {/* Semester Selector */}
+      <Box sx={{ display: 'flex', gap: 2, p: 2, bgcolor: '#D9D9D9' }}>
+        <FormControl sx={{ bgcolor: 'white', borderRadius: 1, minWidth: 200 }}>
           <Select
-            value={selectedFaculty}
-            onChange={(e) => setSelectedFaculty(e.target.value)}
+            value={selectedSemester}
+            onChange={(e) => setSelectedSemester(e.target.value)}
             fullWidth
           >
-            <MenuItem value="all">All Faculties</MenuItem>
-            {faculties.map((faculty) => (
-              <MenuItem key={faculty} value={faculty}>{faculty}</MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-
-        <FormControl sx={{ bgcolor: 'white', borderRadius: 1, minWidth: 150 }}>
-          <Select
-            value={selectedDepartment}
-            onChange={(e) => setSelectedDepartment(e.target.value)}
-            fullWidth
-          >
-            <MenuItem value="all">All Departments</MenuItem>
-            {departments.map((dept) => (
-              <MenuItem key={dept} value={dept}>{dept}</MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-
-        <FormControl sx={{ bgcolor: 'white', borderRadius: 1, minWidth: 150 }}>
-          <Select
-            value={selectedLevel}
-            onChange={(e) => setSelectedLevel(e.target.value)}
-            fullWidth
-          >
-            <MenuItem value="all">All Levels</MenuItem>
-            {levels.map((level) => (
-              <MenuItem key={level} value={level}>{level}</MenuItem>
-            ))}
+            <MenuItem value="all">All Semesters</MenuItem>
+            <MenuItem value="First">First Semester</MenuItem>
+            <MenuItem value="Second">Second Semester</MenuItem>
           </Select>
         </FormControl>
 
@@ -244,14 +168,7 @@ const EnrollCoursesPage = () => {
       </Box>
 
       {/* Courses Table Section */}
-      <Box
-        sx={{
-          bgcolor: "#fff",
-          borderRadius: "var(--border-radius)",
-          marginInline: "var(--padding)",
-          padding: "var(--padding)",
-        }}
-      >
+      <Box sx={{ bgcolor: "#fff", borderRadius: "var(--border-radius)", m: 2, p: 2 }}>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
           <Typography variant="subtitle1">
             Selected Courses: {selectedCourses.size}
@@ -293,7 +210,6 @@ const EnrollCoursesPage = () => {
                   <TableCell>COURSE TITLE</TableCell>
                   <TableCell>CREDIT UNITS</TableCell>
                   <TableCell>SEMESTER</TableCell>
-                  <TableCell>LEVEL</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -317,7 +233,6 @@ const EnrollCoursesPage = () => {
                     <TableCell>{course.title}</TableCell>
                     <TableCell>{course.creditUnits}</TableCell>
                     <TableCell>{course.semester}</TableCell>
-                    <TableCell>{course.level}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -326,7 +241,7 @@ const EnrollCoursesPage = () => {
         ) : (
           <EmptyState
             title="No courses found"
-            subTitle="Try adjusting your filters or search criteria"
+            subTitle="Try adjusting your semester filter"
           />
         )}
       </Box>

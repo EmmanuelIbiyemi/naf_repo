@@ -23,6 +23,7 @@ function App() {
   const isBuilderLoading = useAppSelector(selectBuilderLoading);
   const isPageLoading = useAppSelector(selectPageLoading);
   const [isInitialized, setIsInitialized] = useState(false);
+  const location = useLocation();
 
   // Handle initial auth check and local storage restoration
   useEffect(() => {
@@ -39,11 +40,17 @@ function App() {
   // Handle routing after authentication state is confirmed
   useEffect(() => {
     const token = localStorage.getItem("access_token");
-    if (!token) navigate("/login");
-    if (!user) dispatch(setUserFromLocalStorage());
+    if (!token) {
+      navigate("/login");
+      return;
+    }
+    if (!user) {
+      dispatch(setUserFromLocalStorage());
+    }
   }, [dispatch, user, navigate]);
 
-    // Only handle routing if we have a valid user
+  // Handle routing based on user role
+  useEffect(() => {
     if (user) {
       if (lastVisitedPage) {
         navigate(lastVisitedPage);
@@ -51,8 +58,8 @@ function App() {
         // Default routes based on user role
         const roleRoutes = {
           participant: "/student/dashboard",
-          admin: "/", 
-          instructor: "/instructor/", 
+          admin: "/",
+          instructor: "/instructor/",
         };
 
         const defaultRoute = roleRoutes[user.role as keyof typeof roleRoutes];
@@ -67,11 +74,10 @@ function App() {
     }
   }, [user, lastVisitedPage, navigate]);
 
-  const location = useLocation();
-
+  // Update last visited page
   useEffect(() => {
     dispatch(setLastVisitedPage(location.pathname));
-  }, [location]);
+  }, [location, dispatch]);
 
   // Handle layout rendering based on user role
   const renderLayout = () => {

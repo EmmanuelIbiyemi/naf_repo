@@ -23,7 +23,14 @@ const coursesApi = appApi.injectEndpoints({
       providesTags: ["Courses"],
     }),
     getCourses: builder.query<CoursesResponse, null>({
-      query: () => `/course`,
+      query: (params) => ({
+        url: "/course",
+        params: {
+          semester: params?.semester || "",
+          name: params?.name || "",
+          code: params?.code || "",
+        },
+      }),
       providesTags: ["Courses"],
     }),
     getInstructorCourses: builder.query<CoursesResponse, null>({

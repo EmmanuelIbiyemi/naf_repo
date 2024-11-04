@@ -6,6 +6,8 @@ import { setPageName } from "../../../store/app.slice";
 import EmptyState from "../../../components/EmptyState";
 import LiveClassCard from "./LiveClassCard";
 import { useGetLiveClassesQuery } from "../../../store/api/liveClass.api";
+import { useGetCurrentSemesterQuery } from "../../../store/api/semesters.api";
+import { useGetCurrentSessionQuery } from "../../../store/api/sessions.api";
 import dayjs from "dayjs";
 
 const LiveClasses = () => {
@@ -18,18 +20,23 @@ const LiveClasses = () => {
     dispatch(setPageName("Live Classes"));
   }, [dispatch]);
 
-  // Fetch live classes
-  const { data: liveClasses, isLoading } = useGetLiveClassesQuery({
-    course_id: "1", // You might want to make this dynamic
-    semester: "First Semester",
-    session: "2023/2024"
+  // Fetch current semester and session
+  const { data: currentSemester, isLoading: isSemesterLoading } = useGetCurrentSemesterQuery(null);
+  const { data: currentSession, isLoading: isSessionLoading } = useGetCurrentSessionQuery(null);
+
+  // Fetch live classes with current semester and session
+  const { data: liveClasses, isLoading: isClassesLoading } = useGetLiveClassesQuery({
+    course_id: "17", // You might want to make this dynamic
+    semester: currentSemester?.data?.name || "",
+    session: currentSession?.data?.name || ""
+  }, {
+    // Skip the query if we don't have semester and session data yet
+    skip: !currentSemester?.data?.name || !currentSession?.data?.name
   });
 
   const handleChange = (_: SyntheticEvent, newValue: string) => {
     setTab(newValue);
   };
-
-
 
   // Process live classes data
   const processClassStatus = (liveClass: any) => {
@@ -43,6 +50,9 @@ const LiveClasses = () => {
     return "Not Started";
   };
 
+  // Combined loading state
+  const isLoading = isSemesterLoading || isSessionLoading || isClassesLoading;
+
   return (
     <Box ref={containerRef} className="content-container">
       <Box sx={{
@@ -52,10 +62,13 @@ const LiveClasses = () => {
         padding: "var(--padding)",
       }}>
         <Box sx={{ backgroundColor: "#fff" }}>
-          
-
           {isLoading ? (
             <Box sx={{ p: 3, textAlign: 'center' }}>Loading...</Box>
+          ) : !currentSemester?.data || !currentSession?.data ? (
+            <EmptyState
+              title="No Active Semester or Session"
+              subTitle="Please set up the current semester and session."
+            />
           ) : liveClasses?.data?.length ? (
             <Box sx={{ width: "100%", height: "100%" }}>
               <TabContext value={tab}>
