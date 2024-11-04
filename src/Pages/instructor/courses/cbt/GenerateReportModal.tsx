@@ -101,8 +101,8 @@ const GenerateReportModal = ({
                   onChange={formik.handleChange}
                 >
                   <MenuItem value={10}>Mathematics</MenuItem>
-                  <MenuItem value={20}>General Studies</MenuItem>
-                  <MenuItem value={30}>Calculus</MenuItem>
+                  <MenuItem value={20}>Calculus</MenuItem>
+                  <MenuItem value={30}>Computer</MenuItem>
                 </Select>
               </FormControl>
               <Box

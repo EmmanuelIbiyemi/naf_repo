@@ -78,7 +78,6 @@ const UploadFileModal = ({
             flexDirection: "column",
           }}
         >
-
           {handleProcessFileUrl ? (
             <Box
               sx={{
@@ -141,6 +140,7 @@ const UploadFileModal = ({
               id="fileInput"
               style={{ display: "none" }}
               onChange={onFileInputChange}
+              accept=".docx"
             />
             <label
               htmlFor="fileInput"

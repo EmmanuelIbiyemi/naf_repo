@@ -1,5 +1,4 @@
-
-import { Box, LinearProgress } from "@mui/material";
+import { Backdrop, Box, CircularProgress, LinearProgress } from "@mui/material";
 
 import { useEffect, useRef, useState } from "react";
 import InstructorPageHeader from "../../../../components/layout/InstructorPageHeader";
@@ -10,18 +9,24 @@ import * as yup from "yup";
 import CustomSuccessModal from "../../../../components/CustomSuccessModal";
 import SuccessModal from "../../../../components/SuccessModal";
 import DeleteConfirmationModal from "../../../../components/DeleteConfirmationModal";
-import GenerateReportModal from "./GenerateReportModal";
+// import GenerateReportModal from "./GenerateReportModal";
 import CreateTestModal from "./stepmodals/CreateTestModal";
 import QuizzesItemsList from "../QuizzesItemsList";
 import { QuizzesResponse } from "../../../../types/quizzes";
-import { useGetQuizzesQuery } from "../../../../store/api/quizzes.api";
-import { useGetCoursesQuery } from "../../../../store/api/courses.api";
-import { useGetParticipantsQuery } from "../../../../store/api/participants.api";
+import {
+  useDeleteQuizMutation,
+  useGetCourseQuizzesQuery,
+} from "../../../../store/api/quizzes.api";
+import {
+  useGetCourseQuery,
+  useGetInstructorCoursesQuery,
+} from "../../../../store/api/courses.api";
+import { useGetCourseParticipantsQuery } from "../../../../store/api/participants.api";
 
 const Tests = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [openCreateTestModal, setOpenCreateTestModal] = useState(false);
-  const [openGenerateReportModal, setOpenGenerateReportModal] = useState(false);
+  // const [openGenerateReportModal, setOpenGenerateReportModal] = useState(false);
   const [openActionsModal, setOpenActionsModal] = useState({
     edit: false,
     success: false,
@@ -31,25 +36,40 @@ const Tests = () => {
   const [selectedTests, setSelectedTests] = useState<
     QuizzesResponse | undefined
   >();
-
-  const { data: participants, isLoading: isFetchingParticipants } =
-    useGetParticipantsQuery(null);
+  const locationData = location.pathname.split("/");
+  const courseId = locationData[locationData.length - 2];
+  const { data: course } = useGetCourseQuery(parseInt(courseId), {
+    skip: !courseId,
+  });
+  const [deleteTest, { isLoading: isDeleting }] = useDeleteQuizMutation();
 
   const handleOpenCreateTestModal = () => setOpenCreateTestModal(true);
   const handleCloseCreateTestModal = () => setOpenCreateTestModal(false);
-  const handleOpenGenerateReportModal = () => setOpenGenerateReportModal(true);
-  const handleCloseGenerateReportModal = () =>
-    setOpenGenerateReportModal(false);
+  // const handleOpenGenerateReportModal = () => setOpenGenerateReportModal(true);
+  // const handleCloseGenerateReportModal = () =>
+  //   setOpenGenerateReportModal(false);
   const [openFileSuccessModal, setOpenFileSuccessModal] = useState(false);
 
-  const { data: quizzes, isLoading } = useGetQuizzesQuery(null);
-  const { data: courses, isLoading: isGettingCourses } =
-    useGetCoursesQuery(null);
-  const handleDelete = (noteId: number) => {
-    console.log(noteId);
-    setOpenActionsModal((prev) => ({ ...prev, delete: true }));
-  };
+  const { data: participants, isLoading: isFetchingParticipants } =
+    useGetCourseParticipantsQuery({ course_id: parseInt(courseId) });
 
+  const { data: quizzes, isLoading } = useGetCourseQuizzesQuery(
+    {
+      course_id: parseInt(courseId),
+    },
+    { skip: !courseId }
+  );
+  const { data: courses, isLoading: isGettingCourses } =
+    useGetInstructorCoursesQuery(null);
+
+  const handleDelete = (testId: number) => {
+    try {
+      deleteTest(testId).unwrap();
+      setOpenActionsModal((prev) => ({ ...prev, delete: true }));
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   const handleOpenActionsModal = (course: QuizzesResponse, type: string) => {
     setSelectedTests(course);
@@ -160,30 +180,28 @@ const Tests = () => {
         }}
       >
         <InstructorPageHeader
-          heading="CBT Tests"
-          subHeading="List of tests that have been created in the course “Sosososo And So”"
-          button={{
-            action: handleOpenGenerateReportModal,
-            text: "Generate Report",
-          }}
+          heading="CBT"
+          subHeading={`List of tests that have been created in the course "${course?.data.name}"`}
+          // button={{
+          //   action: handleOpenGenerateReportModal,
+          //   text: "Generate Report",
+          // }}
           additionalButton={{
-
             action: handleOpenCreateTestModal,
             text: "Create New Test",
             isLoading: isGettingCourses,
           }}
         />
-        <GenerateReportModal
+        {/* <GenerateReportModal
           open={openGenerateReportModal}
           handleClose={handleCloseGenerateReportModal}
-        />
+        /> */}
         <Box>
-
           <QuizzesItemsList
             lists={quizzes?.data || []}
             handleOpenActionsModal={handleOpenActionsModal}
             handleEditActionsModal={handleEditActionsModal}
-            menu={true}
+            deleteIcon={true}
           />
         </Box>
         <DeleteConfirmationModal
@@ -197,11 +215,14 @@ const Tests = () => {
             },
           }}
           close={() => handleCloseActionsModal("delete")}
-          infoText="The students enrolled in this Course will get notified."
+          infoText="The students enrolled in this test will get notified."
           open={openActionsModal.delete}
-          subTitle={`Are you sure you want to delete Course <strong>"${selectedTests?.name}"</strong>? You can't undo this action.`}
-          title="Delete Course?"
+          subTitle={`Are you sure you want to delete Test <strong>"${selectedTests?.name}"</strong>? You can't undo this action.`}
+          title="Delete Test?"
         />
+        <Backdrop open={isDeleting}>
+          <CircularProgress />
+        </Backdrop>
 
         <SuccessModal
           actions={{
@@ -215,7 +236,7 @@ const Tests = () => {
           close={() => {
             handleCloseActionsModal("success");
             setSelectedTests(undefined);
-         }}
+          }}
           infoText=""
           open={openActionsModal.success}
           subTitle={`You have successfully added a new Course <strong>"${selectedTests?.name}"</strong>.`}

@@ -39,12 +39,12 @@ const Header = () => {
       </Typography>
       <Box sx={actionsStyles}>
         <Box>
-          {user?.role === "instructor" ? (
+          {user?.role != "instructor" ? (
             <IconButton onClick={() => navigate("/posts")}>
               <Notifications />
             </IconButton>
           ) : (
-            <IconButton onClick={() => navigate("/instructor/post")}>
+            <IconButton onClick={() => navigate("/instructor/posts")}>
               <Notifications />
             </IconButton>
           )}
