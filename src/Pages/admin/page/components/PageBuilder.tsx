@@ -6,7 +6,7 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import { BlockType } from "../../../../types/blocks";
+import { BlockType, MediaCreateType } from "../../../../types/blocks";
 import {
   ArrowDownward,
   ArrowUpward,
@@ -128,6 +128,7 @@ type Props = {
 
 const PageBuilder = ({ page, setPage }: Props) => {
   const [uploadMedia] = useAddMediaMutation();
+
   const handleOpenFileSelect = (event: MouseEvent<HTMLDivElement>) => {
     const target = event.currentTarget as HTMLDivElement;
     target.querySelector("input")?.click();
@@ -142,15 +143,12 @@ const PageBuilder = ({ page, setPage }: Props) => {
     if (target.files) {
       try {
         const form = new FormData();
-
         const files = target.files;
         for (let i = 0; i < files.length; i++) {
           form.append("file", files[i]);
         }
 
         const response = await uploadMedia(form).unwrap();
-        console.log(response);
-
         const blocks = page.blocks.map((b) => {
           if (b.id === blockId)
             return {
@@ -218,6 +216,35 @@ const PageBuilder = ({ page, setPage }: Props) => {
     }
   };
 
+  const handleImageChange = async (ev: ChangeEvent<HTMLInputElement>) => {
+    const { target } = ev;
+    const id = +target.id.split("-")[1];
+
+    if (target.files && target.files[0]) {
+      try {
+        const form = new FormData();
+        form.append("file", target.files[0]);
+        const response = await uploadMedia(form).unwrap();
+        console.log(response);
+
+        setPage((prev) => {
+          const blocks = prev.blocks.map((b) => {
+            if (b.id == id) {
+              const media = b?.media ? [...b.media] : b.media;
+              b = { ...b, media };
+              b.media = [{ id: response.media[0].id } as MediaCreateType];
+              console.log(b.media);
+            }
+            return b;
+          });
+          return { ...prev, blocks };
+        });
+      } catch (error) {
+        console.log(error);
+      }
+    }
+  };
+
   const capitalizeText = (text: string) => {
     const allTexts = text.split(" ");
     return allTexts.map((t) => t[0].toUpperCase() + t.substring(1)).join(" ");
@@ -266,6 +293,32 @@ const PageBuilder = ({ page, setPage }: Props) => {
                 defaultValue={content[2]}
                 onBlur={(e) => handleChange(e, "buttonText", element.id)}
               />
+              <label htmlFor={`upload-${element.id}`}>
+                <input
+                  id={`upload-${element.id}`}
+                  type="file"
+                  accept="image/*,video/*"
+                  style={{ display: "none" }}
+                  onChange={handleImageChange}
+                />
+                <Typography
+                  sx={{
+                    border: "1px solid rgba(0, 0, 0, 0.25)",
+                    cursor: "pointer",
+                    height: "100%",
+                    width: "100%",
+                    display: "grid",
+                    placeItems: "center",
+                    borderRadius: "var(--border-radius)",
+                    whiteSpace: "nowrap",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                  }}
+                >
+                  {(element.media?.[0] as MediaType)?.name ||
+                    "Upload image/video"}
+                </Typography>
+              </label>
             </FormControl>
           </Box>
         );
@@ -308,6 +361,31 @@ const PageBuilder = ({ page, setPage }: Props) => {
                 defaultValue={content[2]}
                 onBlur={(e) => handleChange(e, "buttonText", element.id)}
               />
+              <label htmlFor={`upload-${element.id}`}>
+                <input
+                  id={`upload-${element.id}`}
+                  type="file"
+                  accept="image/*,video/*"
+                  style={{ display: "none" }}
+                  onChange={handleImageChange}
+                />
+                <Typography
+                  sx={{
+                    border: "1px solid rgba(0, 0, 0, 0.25)",
+                    cursor: "pointer",
+                    height: "100%",
+                    width: "100%",
+                    display: "grid",
+                    placeItems: "center",
+                    borderRadius: "var(--border-radius)",
+                    whiteSpace: "nowrap",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                  }}
+                >
+                  {(element.media?.[0] as MediaType)?.name || "Upload image"}
+                </Typography>
+              </label>
             </FormControl>
           </Box>
         );
@@ -434,7 +512,7 @@ const PageBuilder = ({ page, setPage }: Props) => {
                   }}
                 >
                   {element.media.map((m) => (
-                    <Box className="has_bg_image" key={`media-${m.id}`}>
+                    <Box className="has_bg_image" key={`media-${m?.id}`}>
                       <img
                         className="bg"
                         src={(m as MediaType).url}
@@ -501,7 +579,7 @@ const PageBuilder = ({ page, setPage }: Props) => {
                   }}
                 >
                   {element.media.map((m) => (
-                    <Box className="has_bg_image" key={`media-${m.id}`}>
+                    <Box className="has_bg_image" key={`media-${m?.id}`}>
                       <img
                         className="bg"
                         src={(m as MediaType).url}

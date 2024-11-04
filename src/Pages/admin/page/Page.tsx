@@ -3,9 +3,9 @@ import { useCallback, useEffect, useState } from "react";
 import PageBuilder from "./components/PageBuilder";
 import { useNavigate, useParams } from "react-router-dom";
 import {
-  useGetPostByCategoryQuery,
   useAddPostMutation,
   useUpdatePostMutation,
+  useGetPostCategoriesByTagQuery,
 } from "../../../store/api/posts.api";
 import { PostType, PostCreateType } from "../../../types/posts";
 import { elements } from "./page-elements";
@@ -18,7 +18,7 @@ const Page = () => {
   const [addPost] = useAddPostMutation();
   const [updatePost, updateState] = useUpdatePostMutation();
 
-  const { data: pageData, isFetching } = useGetPostByCategoryQuery(
+  const { data: pageData, isFetching } = useGetPostCategoriesByTagQuery(
     pageName as string,
     { skip: !pageName }
   );
