@@ -1,5 +1,4 @@
-
-import { Box, LinearProgress } from "@mui/material";
+import { Backdrop, Box, CircularProgress, LinearProgress } from "@mui/material";
 import { useEffect, useRef, useState } from "react";
 import InstructorPageHeader from "../../../../components/layout/InstructorPageHeader";
 import { useAppDispatch } from "../../../../store/hooks";
@@ -17,8 +16,13 @@ import CoursesItemList from "../CoursesItemList";
 import SuccessModal from "../../../../components/SuccessModal";
 import DeleteConfirmationModal from "../../../../components/DeleteConfirmationModal";
 
-import { useGetCourseNotesQuery } from "../../../../store/api/notes.api";
+import {
+  useDeleteNoteMutation,
+  useGetCourseNotesQuery,
+} from "../../../../store/api/notes.api";
 import { note } from "../../../../types/notes";
+import CustomPreviewModal from "../../../../components/CustomPreviewModal";
+import { useGetCourseQuery } from "../../../../store/api/courses.api";
 // import FormModal from "../../../../components/FormModal";
 const Notes = () => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -31,6 +35,9 @@ const Notes = () => {
   const [selectedNotes, setSelectedNotes] = useState<note | undefined>();
   const locationData = location.pathname.split("/");
   const courseId = locationData[locationData.length - 2];
+  const { data: course } = useGetCourseQuery(parseInt(courseId), {
+    skip: !courseId,
+  });
 
   const handleUploadModalOpen = () => setOpenModal(true);
   const handleUploadModalClose = () => setOpenModal(false);
@@ -40,11 +47,26 @@ const Notes = () => {
     parseInt(courseId)
   );
 
-  const handleDelete = (noteId: number) => {
-    console.log(noteId);
-    setOpenActionsModal((prev) => ({ ...prev, delete: true }));
+  const [deleteNote, { isLoading: isDeleting }] = useDeleteNoteMutation();
+  const [openPreviewModals, setOpenPreviewModals] = useState<{
+    [key: number]: boolean;
+  }>({});
+
+  const handleOpenPreviewModal = (noteId: number) => {
+    setOpenPreviewModals((prev) => ({ ...prev, [noteId]: true }));
   };
 
+  const handleClosePreviewModal = (noteId: number) => {
+    setOpenPreviewModals((prev) => ({ ...prev, [noteId]: false }));
+  };
+  const handleDelete = (noteId: number) => {
+    try {
+      deleteNote(noteId).unwrap();
+      setOpenActionsModal((prev) => ({ ...prev, delete: true }));
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   const handleOpenActionsModal = (course: note, type: string) => {
     setSelectedNotes(course);
@@ -56,11 +78,8 @@ const Notes = () => {
     setOpenActionsModal((prev) => ({ ...prev, [type]: false }));
   };
 
-
-  const handleEditActionsModal = async (note: note) => {
-    console.log(note);
-    handleCloseActionsModal("edit");
-    handleOpenActionsModal(note, "success");
+  const handleEditActionsModal = (note: note) => {
+    handleOpenPreviewModal(note.id);
   };
 
   const formik = useFormik({
@@ -179,11 +198,11 @@ const Notes = () => {
       >
         <InstructorPageHeader
           heading="Notes"
-          subHeading="List of notes that have been created in the course “Sosososo And So”"
-          button={{
-            action: () => console.log("Hi"),
-            text: "Generate Report",
-          }}
+          subHeading={`List of notes that have been created in the course "${course?.data.name}"`}
+          // button={{
+          //   action: () => console.log("Hi"),
+          //   text: "Generate Report",
+          // }}
           additionalButton={{
             action: handleUploadModalOpen,
             text: "Create New Note",
@@ -191,11 +210,20 @@ const Notes = () => {
         />
         <Box>
           <CoursesItemList
-
             lists={note?.data || []}
             handleOpenActionsModal={handleOpenActionsModal}
             handleEditActionsModal={handleEditActionsModal}
+            deleteIcon={true}
+            edit={true}
           />
+          {note?.data.map((singleNote) => (
+            <CustomPreviewModal
+              key={singleNote.id}
+              openModal={openPreviewModals[singleNote.id] || false}
+              handleCloseModal={() => handleClosePreviewModal(singleNote.id)}
+              note={singleNote}
+            />
+          ))}
         </Box>
         <DeleteConfirmationModal
           actions={{
@@ -210,9 +238,12 @@ const Notes = () => {
           close={() => handleCloseActionsModal("delete")}
           infoText="The students enrolled in this Course will get notified."
           open={openActionsModal.delete}
-          subTitle={`Are you sure you want to delete Course <strong>"${selectedNotes?.title}"</strong>? You can't undo this action.`}
-          title="Delete Course?"
+          subTitle={`Are you sure you want to delete the note <strong>"${selectedNotes?.title}"</strong>? You can't undo this action.`}
+          title="Delete Note?"
         />
+        <Backdrop open={isDeleting}>
+          <CircularProgress />
+        </Backdrop>
 
         <SuccessModal
           actions={{

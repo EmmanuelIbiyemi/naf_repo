@@ -13,19 +13,17 @@ import {
 import { Programme, ProgrammeFormAction } from "../../../../types/programmes";
 import ProgrammeForm from "./ProgrammeForm";
 import ProgrammeList from "./ProgrammeList";
-import { useLocation } from "react-router-dom";
+import { useParams } from "react-router-dom";
 
 const ProgrammesPage = () => {
-  const location = useLocation();
+  const { department_id } = useParams();
   const [openModal, setOpenModal] = useState({
     add: false,
     success: false,
   });
   const [programmeName, setProgrammeName] = useState("");
   const [selectedProgramme, setSelectedProgramme] = useState<Programme>();
-  const { data: Programmes } = useGetProgrammesQuery(
-    location.state?.department_id
-  );
+  const { data: Programmes } = useGetProgrammesQuery(+(department_id || 0));
   const containerRef = useRef<HTMLDivElement>(null);
   const [addProgramme] = useAddProgrammeMutation();
 

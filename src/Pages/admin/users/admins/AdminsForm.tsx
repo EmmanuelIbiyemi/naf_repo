@@ -1,18 +1,12 @@
 import * as Yup from "yup";
 import { Field, Form, Formik } from "formik";
-import {
-  Box,
-  Button,
-  Typography,
-} from "@mui/material";
+import { Box, Button, Typography } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
 import formStyles from "../../../../components/form/form.module.scss";
-import {
-  Admin
-} from "../../../../types/admins";
+import { Admin } from "../../../../types/admins";
 
 type Props = {
-  admin?: Admin
+  admin?: Admin;
   actions: {
     submit: (admin: Admin) => Promise<void>;
     cancel: () => void;
@@ -20,7 +14,6 @@ type Props = {
 };
 
 const AdminForm = ({ actions, admin }: Props) => {
-
   const initialValues: Admin = {
     id: admin?.id || 0,
     first_name: admin?.first_name || "",
@@ -29,9 +22,6 @@ const AdminForm = ({ actions, admin }: Props) => {
     email: admin?.email || "",
     phone: admin?.phone || "",
     photo: admin?.photo || "",
-    role: admin?.role || "",
-    department: admin?.department || "",
-    faculty: admin?.faculty || "",
     created_at: admin?.created_at || "",
     updated_at: admin?.updated_at || "",
   };
@@ -40,11 +30,10 @@ const AdminForm = ({ actions, admin }: Props) => {
     first_name: Yup.string().required("First name is required"),
     last_name: Yup.string().required("Last name is required"),
     address: Yup.string().required("Address is required"),
-    email: Yup.string().email("Invalid email address").required("Email is required"),
+    email: Yup.string()
+      .email("Invalid email address")
+      .required("Email is required"),
     phone: Yup.string().required("Phone number is required"),
-    role: Yup.string().required("Role is required"),
-    department: Yup.string().required("Department is required"),
-    faculty: Yup.string().required("Faculty is required"),
   });
 
   const handleSubmit = async (values: Admin) => {
@@ -77,12 +66,16 @@ const AdminForm = ({ actions, admin }: Props) => {
             <Box>
               <label htmlFor="first_name">First Name</label>
               <Field id="first_name" name="first_name" />
-              {errors.first_name && touched.first_name && <div>{errors.first_name}</div>}
+              {errors.first_name && touched.first_name && (
+                <div>{errors.first_name}</div>
+              )}
             </Box>
             <Box>
               <label htmlFor="last_name">Last Name</label>
               <Field id="last_name" name="last_name" />
-              {errors.last_name && touched.last_name && <div>{errors.last_name}</div>}
+              {errors.last_name && touched.last_name && (
+                <div>{errors.last_name}</div>
+              )}
             </Box>
           </Box>
           <Box>
@@ -106,29 +99,6 @@ const AdminForm = ({ actions, admin }: Props) => {
               <label htmlFor="phone">Phone</label>
               <Field id="phone" name="phone" />
               {errors.phone && touched.phone && <div>{errors.phone}</div>}
-            </Box>
-          </Box>
-          <Box>
-            <label htmlFor="role">Role</label>
-            <Field id="role" name="role" />
-            {errors.role && touched.role && <div>{errors.role}</div>}
-          </Box>
-          <Box
-            sx={{
-              display: "grid",
-              gap: "1rem",
-              gridTemplateColumns: "1fr 1fr",
-            }}
-          >
-            <Box>
-              <label htmlFor="department">Department</label>
-              <Field id="department" name="department" />
-              {errors.department && touched.department && <div>{errors.department}</div>}
-            </Box>
-            <Box>
-              <label htmlFor="faculty">Faculty</label>
-              <Field id="faculty" name="faculty" />
-              {errors.faculty && touched.faculty && <div>{errors.faculty}</div>}
             </Box>
           </Box>
 

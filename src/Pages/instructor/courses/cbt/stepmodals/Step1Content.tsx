@@ -36,9 +36,11 @@ const Step1Content: React.FC<ModalProps> = ({
     setSearchTerm(event.target.value);
   };
 
-  const filteredSubjects = subjects?.filter((subj) =>
-    subj.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredSubjects = subjects
+    ?.filter((subj) => subj.name !== null)
+    ?.filter((subj) =>
+      subj.name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
 
   return (
     <Box>
@@ -66,7 +68,7 @@ const Step1Content: React.FC<ModalProps> = ({
             marginBottom: ".7em",
           }}
         >
-          Select Subject
+          Select Course
         </Typography>
         <TextField
           fullWidth

@@ -7,10 +7,7 @@ export type Admin = {
   last_name: string;
   phone: string;
   photo: string;
-  role: string;
   updated_at: string;
-  department: string;
-  faculty: string;
 };
 
 export type AdminCreateType = Admin & {};

@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import "./App.scss";
 import AdminLayout from "./components/layout/AdminLayout";
 import InstructorLayout from "./components/layout/InstructorLayout";
@@ -6,6 +6,7 @@ import StudentLayout from "./components/layout/StudentLayout";
 import {
   selectCurrentUser,
   selectLastVisitedPage,
+  setLastVisitedPage,
   setUserFromLocalStorage,
 } from "./store/auth.slice";
 import { useAppDispatch, useAppSelector } from "./store/hooks";
@@ -37,12 +38,10 @@ function App() {
 
   // Handle routing after authentication state is confirmed
   useEffect(() => {
-    if (!isInitialized) return;
-
-    if (!user) {
-      navigate("/login");
-      return;
-    }
+    const token = localStorage.getItem("access_token");
+    if (!token) navigate("/login");
+    if (!user) dispatch(setUserFromLocalStorage());
+  }, [dispatch, user, navigate]);
 
     // Only handle routing if we have a valid user
     if (user) {
@@ -66,7 +65,13 @@ function App() {
         }
       }
     }
-  }, [user, lastVisitedPage, navigate, isInitialized]);
+  }, [user, lastVisitedPage, navigate]);
+
+  const location = useLocation();
+
+  useEffect(() => {
+    dispatch(setLastVisitedPage(location.pathname));
+  }, [location]);
 
   // Handle layout rendering based on user role
   const renderLayout = () => {
@@ -111,7 +116,7 @@ function App() {
           <LinearProgress color="inherit" sx={{ height: "10px" }} />
         </Box>
       )}
-      
+
       {renderLayout()}
     </Box>
   );

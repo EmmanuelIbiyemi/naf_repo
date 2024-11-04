@@ -25,7 +25,7 @@ import {
   useGetFormQuery,
   useUpdateFormFieldMutation,
 } from "../../../../store/api/form.api";
-import { useLocation } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { useAppDispatch } from "../../../../store/hooks";
 import { setBuilderLoading } from "../../../../store/app.slice";
 
@@ -50,8 +50,8 @@ const FormBuilder = ({
 }: Props) => {
   const dispatch = useAppDispatch();
   const [deleteRow] = useDeleteFormRowMutation();
-  const location = useLocation();
-  const { data: form } = useGetFormQuery(location.state);
+  const { form_id } = useParams();
+  const { data: form } = useGetFormQuery(+(form_id || 0));
   const [updateField] = useUpdateFormFieldMutation();
   const [getFormFieldByKey] = useGetFormFieldByKeyMMutation();
 
@@ -522,78 +522,25 @@ const FormBuilder = ({
       case "single-choice":
         el = (
           <Box>
-            {isPreview ? (
-              <>
-                <label
-                  dangerouslySetInnerHTML={{
-                    __html: name,
-                  }}
-                />
-                <FormControl>
-                  <ToggleButtonGroup exclusive>
-                    {optionNames.map((opt, i) => (
-                      <ToggleButton
-                        value={optionValues[i]}
-                        sx={{ textTransform: "capitalize" }}
-                      >
-                        {opt}
-                      </ToggleButton>
-                    ))}
-                  </ToggleButtonGroup>
-                </FormControl>
-              </>
-            ) : (
-              <>
-                <Box
-                  sx={{
-                    alignItems: "center",
-                    display: "flex",
-                    justifyContent: "space-between",
-                  }}
-                >
-                  <label
-                    id={elId}
-                    contentEditable={allowEdit}
-                    onBlur={handleLabelInput}
-                    dangerouslySetInnerHTML={{
-                      __html: name as string,
-                    }}
-                  />
-                  <IconButton
-                    sx={{ padding: "5px" }}
-                    onClick={() => handleAddRemoveChange(elId, "add")}
-                  >
-                    <Add />
-                  </IconButton>
-                </Box>
-
-                <Box>
-                  {optionNames?.map((opt, i) => (
-                    <Typography
-                      key={`${name}-${opt}`}
-                      sx={{ display: "flex", justifyContent: "space-between" }}
+            <>
+              <label
+                dangerouslySetInnerHTML={{
+                  __html: name,
+                }}
+              />
+              <FormControl>
+                <ToggleButtonGroup exclusive>
+                  {optionNames.map((opt, i) => (
+                    <ToggleButton
+                      value={optionValues[i]}
+                      sx={{ textTransform: "capitalize" }}
                     >
-                      <span
-                        contentEditable={allowEdit}
-                        onBlur={(e) => handleOptionChange(e, elId, i + 1)}
-                        dangerouslySetInnerHTML={{
-                          __html: opt.toLowerCase(),
-                        }}
-                        onClick={(e) => e.stopPropagation()}
-                      ></span>
-                      <IconButton
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleAddRemoveChange(elId, "delete");
-                        }}
-                      >
-                        <Remove />
-                      </IconButton>
-                    </Typography>
+                      {opt}
+                    </ToggleButton>
                   ))}
-                </Box>
-              </>
-            )}
+                </ToggleButtonGroup>
+              </FormControl>
+            </>
           </Box>
         );
         break;

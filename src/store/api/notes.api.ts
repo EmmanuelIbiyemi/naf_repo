@@ -41,14 +41,14 @@ const notesApi = appApi.injectEndpoints({
         method: "PUT",
         body: body,
       }),
-      invalidatesTags: ["Courses"],
+      invalidatesTags: ["Notes"],
     }),
     deleteNote: builder.mutation<{ message: string }, number>({
       query: (note_id) => ({
-        url: `/course/${note_id}`,
+        url: `/note/${note_id}`,
         method: "DELETE",
       }),
-      invalidatesTags: ["Courses"],
+      invalidatesTags: ["Notes"],
     }),
   }),
   overrideExisting: false,

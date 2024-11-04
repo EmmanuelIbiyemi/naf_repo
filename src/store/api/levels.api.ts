@@ -7,6 +7,9 @@ const levelsApi = appApi.injectEndpoints({
       query: (program_id) => `/level/program/${program_id}`,
       providesTags: ["Levels"],
     }),
+    getLevelsM: builder.mutation<LevelsResponse, number>({
+      query: (program_id) => `/level/program/${program_id}`,
+    }),
     getLevel: builder.query<LevelsResponse, number>({
       query: (level_id) => `/level/1/${level_id}`,
       providesTags: ["Levels"],
@@ -40,6 +43,7 @@ const levelsApi = appApi.injectEndpoints({
 
 export const {
   useGetLevelsQuery,
+  useGetLevelsMMutation,
   useAddLevelMutation,
   useUpdateLevelMutation,
   useDeleteLevelMutation,

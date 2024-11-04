@@ -3,11 +3,11 @@ import { useRef } from "react";
 import { useAppDispatch } from "../../../store/hooks";
 import { setPageName } from "../../../store/app.slice";
 import CoursesCard from "./CoursesCard";
-import { useGetCoursesQuery } from "../../../store/api/courses.api";
+import { useGetInstructorCoursesQuery } from "../../../store/api/courses.api";
 
 const Courses = () => {
   const containerRef = useRef<HTMLDivElement>(null);
-  const { data: courses, isLoading } = useGetCoursesQuery(null);
+  const { data: courses, isLoading } = useGetInstructorCoursesQuery(null);
 
   // set page name
   const dispatch = useAppDispatch();
@@ -23,7 +23,7 @@ const Courses = () => {
           padding: "var(--padding)",
         }}
       >
-        <Box>
+        <Box sx={{ width: "100%" }}>
           <Typography variant="h3" sx={{ fontSize: "2em", color: "#000000" }}>
             Assigned Courses
           </Typography>

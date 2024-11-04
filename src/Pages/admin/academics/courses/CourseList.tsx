@@ -6,7 +6,7 @@ import TableRow from "@mui/material/TableRow";
 import { CourseCombinedType, CourseType } from "../../../../types/courses";
 import { Checkbox, IconButton, Typography } from "@mui/material";
 import { Delete, Edit } from "@mui/icons-material";
-import { useLocation } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import DeleteConfirmationModal from "../../../../components/DeleteConfirmationModal";
 import { useState } from "react";
 import {
@@ -20,7 +20,7 @@ import SuccessModal from "../../../../components/SuccessModal";
 import { FormAction } from "../../../../types/forms";
 
 const CourseList = () => {
-  const location = useLocation();
+  const { level_id } = useParams();
   const [openModal, setOpenModal] = useState({
     edit: false,
     success: false,
@@ -28,7 +28,7 @@ const CourseList = () => {
   });
   const [selectedCourse, setSelectedCourse] = useState<CourseType>();
   const { data: courses } = useGetCoursesByLevelQuery({
-    level_id: location.state?.level_id || 0,
+    level_id: +(level_id || 0),
   });
   const [deleteCourse] = useDeleteCourseMutation();
   const [updateCourse] = useUpdateCourseMutation();

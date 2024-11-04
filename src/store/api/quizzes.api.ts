@@ -87,8 +87,13 @@ const quizzesApi = appApi.injectEndpoints({
       providesTags: ["Quiz"],
     }),
 
-    getCourseQuizzes: builder.query<{ data: QuizzesResponse[] }, number>({
-      query: (courseId) => `/quiz?course_id=${courseId}`,
+    getCourseQuizzes: builder.query<
+      { data: QuizzesResponse[] },
+      { course_id: number }
+    >({
+      query: ({ course_id }) => ({
+        url: `/quiz?course_id=${course_id}`,
+      }),
       providesTags: ["Quiz"],
     }),
 
@@ -188,6 +193,13 @@ const quizzesApi = appApi.injectEndpoints({
       }),
       invalidatesTags: ["Quiz"],
     }),
+    deleteQuiz: builder.mutation<{ message: string }, number>({
+      query: (quiz_id) => ({
+        url: `/quiz/${quiz_id}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["Quiz"],
+    }),
   }),
 });
 
@@ -204,4 +216,5 @@ export const {
   useCreateQuestionFromFileMutation,
   useCreateQuestionManuallyMutation,
   useShareQuizMutation,
+  useDeleteQuizMutation,
 } = quizzesApi;

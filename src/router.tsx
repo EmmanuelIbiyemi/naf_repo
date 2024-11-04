@@ -71,9 +71,9 @@ const InstructorCoursesPage = lazy(
   () => import("./Pages/instructor/courses/Courses")
 );
 const CoursesLayout = lazy(() => import("./components/CoursesLayout"));
-const CoursesDetailsPage = lazy(
-  () => import("./Pages/instructor/courses/Details")
-);
+// const CoursesDetailsPage = lazy(
+//   () => import("./Pages/instructor/courses/Details")
+// );
 const CoursesParicipantsPage = lazy(
   () => import("./Pages/instructor/courses/Participants")
 );
@@ -91,11 +91,29 @@ const InputQuestionsManually = lazy(
   () => import("./Pages/instructor/courses/cbt/stepmodals/ManualInputQuestions")
 );
 
+const CoursesTestParticipantsPage = lazy(
+  () => import("./Pages/instructor/courses/cbt/TestParticipants")
+);
+const CoursesViewParticipantDetailsPage = lazy(
+  () => import("./Pages/instructor/courses/cbt/ViewQuizAnswers")
+);
 const ReportsPage = lazy(() => import("./Pages/instructor/reports/Reports"));
 const LiveClassesPage = lazy(
   () => import("./Pages/instructor/classes/LiveClasses")
 );
+const InstructorOfflineScoresPage = lazy(
+  () => import("./Pages/instructor/courses/cbt/offlineScores/OfflineScores")
+);
 const SettingsPage = lazy(() => import("./Pages/instructor/settings/Settings"));
+const AnnouncementPage = lazy(
+  () => import("./Pages/instructor/announcements/Announcements")
+);
+const AddAnnouncementPage = lazy(
+  () => import("./Pages/instructor/announcements/posts/AddPost")
+);
+const PreviewAnnouncementPage = lazy(
+  () => import("./Pages/instructor/announcements/posts/PreviewPost")
+);
 
 const StudentDashboard = lazy(
   () => import("./Pages/student/dashboard/Dashboard")
@@ -121,6 +139,12 @@ const StudentNote = lazy(() => import("./Pages/student/notes/Notes"));
 const StudentResults = lazy(() => import("./Pages/student/results/Results"));
 const StudentClass = lazy(() => import("./Pages/student/classes/LiveClasses"));
 const StudentSettings = lazy(() => import("./Pages/student/settings/Settings"));
+// const AnnouncementPage = lazy(
+//   () => import("./Pages/instructor/announcements/Announcements")
+// );
+// const AddAnnouncementPage = lazy(
+//   () => import("./Pages/instructor/announcements/posts/AddPost")
+// );
 
 export const router = createBrowserRouter([
   {
@@ -135,21 +159,26 @@ export const router = createBrowserRouter([
       { path: "/courses", element: <CoursesPage /> },
       { path: "/instructors", element: <InstructorsPage /> },
       { path: "/applications", element: <FormsPage /> },
-      { path: "/applications/form", element: <AddFormPage /> },
-      { path: "/applications/form/preview", element: <PreviewFormPage /> },
-      { path: "/applications/applicants", element: <ApplicantsPage /> },
-      { path: "/applications/cbt", element: <CBT /> },
-      { path: "/applications/cbt/questions", element: <CBTQuestionsPage /> },
+      { path: "/form/:form_id", element: <AddFormPage /> },
+      { path: "/form/:form_id/preview", element: <PreviewFormPage /> },
+      { path: "/applicants", element: <ApplicantsPage /> },
+      { path: "/cbt", element: <CBT /> },
+      { path: "/cbt/:subject_id", element: <CBTQuestionsPage /> },
       {
         path: "/academics",
         element: <AdminAcademicsPage />,
         children: [
           { path: "", element: <FacultiesPage /> },
-          { path: "departments", element: <DepartmentsPage /> },
-          { path: "programmes", element: <ProgrammesPage /> },
-          { path: "levels", element: <LevelsPage /> },
-          { path: "courses", element: <CoursesPage /> },
-          { path: "levels", element: <LevelsPage /> },
+          { path: ":faculty_id", element: <DepartmentsPage /> },
+          { path: ":faculty_id/:department_id", element: <ProgrammesPage /> },
+          {
+            path: ":faculty_id/:department_id/:program_id",
+            element: <LevelsPage />,
+          },
+          {
+            path: ":faculty_id/:department_id/:program_id/:level_id",
+            element: <CoursesPage />,
+          },
         ],
       },
       {
@@ -202,10 +231,10 @@ export const router = createBrowserRouter([
         path: "/instructor/courses/:id",
         element: <CoursesLayout />,
         children: [
-          {
-            path: "details",
-            element: <CoursesDetailsPage />,
-          },
+          // {
+          //   path: "details",
+          //   element: <CoursesDetailsPage />,
+          // },
           {
             path: "students",
             element: <CoursesParicipantsPage />,
@@ -216,6 +245,14 @@ export const router = createBrowserRouter([
           },
           { path: "notes/new", element: <CreateNotePage /> },
           { path: "tests", element: <CoursesTestsPage /> },
+          {
+            path: "tests/:testId",
+            element: <CoursesTestParticipantsPage />,
+          },
+          {
+            path: "tests/:testId/detail/:id",
+            element: <CoursesViewParticipantDetailsPage />,
+          },
           { path: "classes", element: <LiveClassesPage /> },
           { path: "tests/manual-input", element: <InputQuestionsManually /> },
         ],
@@ -223,6 +260,16 @@ export const router = createBrowserRouter([
       { path: "/instructor/reports", element: <ReportsPage /> },
       { path: "/instructor/reports/:id", element: <ReportsExpanded /> },
       { path: "classes", element: <LiveClassesPage /> },
+      { path: "/instructor/posts", element: <AnnouncementPage /> },
+      { path: "/instructor/posts/add", element: <AddAnnouncementPage /> },
+      {
+        path: "/instructor/posts/preview",
+        element: <PreviewAnnouncementPage />,
+      },
+      {
+        path: "/instructor/offline-scores",
+        element: <InstructorOfflineScoresPage />,
+      },
       // { path: "/instructor/post", element: <PostPage /> },
       // { path: "/instructor/posts/add", element: <AddPostPage /> },
       // { path: "/instructor/post/preview", element: <PreviewPostPage /> },

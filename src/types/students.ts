@@ -7,6 +7,7 @@ export type StudentType = {
   email: string;
   phone: string;
   courses: CourseType[];
+  level_id?: number;
 };
 
 export type StudentCreateType = StudentType & {};

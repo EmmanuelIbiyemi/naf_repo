@@ -14,6 +14,14 @@ import { useEffect, useState } from "react";
 import FormModal from "../../../components/FormModal";
 import AddForm from "./components/AddForm";
 
+type Form = {
+  faculty_id: number;
+  department_id: number;
+  program_id: number;
+  level_id: number;
+  fee: number;
+};
+
 const ApplicationPage = () => {
   // set page name
   const dispatch = useAppDispatch();
@@ -29,12 +37,13 @@ const ApplicationPage = () => {
 
   const handleCloseModal = () => setOpenModal(false);
 
-  const action = async (program_id: number) => {
+  const action = async (form: Form) => {
     try {
       const response = await addForm({
-        fee: 0,
+        fee: form.fee,
         name: `Untitled Form ${forms?.data.length || 1}::Submit`,
-        program_id,
+        program_id: form.program_id,
+        level_id: form.level_id,
         sections: [],
       }).unwrap();
       await addSection({
@@ -42,7 +51,7 @@ const ApplicationPage = () => {
         name: "",
       }).unwrap();
 
-      navigate("/applications/form", { state: response.data.id });
+      navigate(`/applications/form/${response.data.id}`);
     } catch (error) {
       console.log(error);
     }

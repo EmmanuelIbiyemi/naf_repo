@@ -25,6 +25,7 @@ type FormBaseType2 = {
   id?: number;
   name: string;
   program_id: number;
+  level_id: number;
   fee: number;
   sections: FormSection[];
 };

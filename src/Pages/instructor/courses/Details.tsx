@@ -4,6 +4,7 @@ import { useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { CourseType } from "../../../types/courses";
 import { useGetCourseQuery } from "../../../store/api/courses.api";
+import { useGetCourseParticipantsQuery } from "../../../store/api/participants.api";
 
 const Details = () => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -11,9 +12,14 @@ const Details = () => {
   const navigate = useNavigate();
   const locationData = location.pathname.split("/");
   const courseId = locationData[locationData.length - 2];
-  const { data: courseData, isLoading } = useGetCourseQuery(parseInt(courseId));
+  const { data: courseData, isLoading } = useGetCourseQuery(
+    parseInt(courseId),
+    { skip: !courseId }
+  );
+  const { data: participants, isLoading: isFetchingParticipants } =
+    useGetCourseParticipantsQuery({ course_id: parseInt(courseId) });
 
-  if (isLoading) {
+  if (isLoading || isFetchingParticipants) {
     return (
       <div>
         <LinearProgress />
@@ -104,7 +110,7 @@ const Details = () => {
                 fontWeight: 300,
               }}
             >
-              Students: 120
+              Students: {participants?.data.length}
             </Typography>
           </Box>
         </Box>

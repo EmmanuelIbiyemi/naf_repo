@@ -102,12 +102,12 @@ const participantsApi = appApi.injectEndpoints({
     }),
 
     // GET course participants
-    getCourseParticipants: builder.query<ParticipantsResponse, number>({
-      query: (courseId) => ({
-        url: `/participant/course/${courseId}`,
-        method: "GET",
-      }),
-      providesTags: ["Participants", "Courses"],
+    getCourseParticipants: builder.query<
+      { data: ParticipantData[] },
+      { course_id: number | null }
+    >({
+      query: ({ course_id }) => `/participant/course/${course_id}`,
+      providesTags: ["Participants"],
     }),
 
     // POST add single course

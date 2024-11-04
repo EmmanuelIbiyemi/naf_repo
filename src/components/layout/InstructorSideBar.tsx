@@ -2,7 +2,7 @@ import { Box, SxProps } from "@mui/material";
 import logo from "../../assets/logo.png";
 import { Link, useLocation } from "react-router-dom";
 import HomeIcon from "../../assets/homeIcon";
-import reportsIcon from "../../assets/reportsIcon";
+// import reportsIcon from "../../assets/reportsIcon";
 import liveClassesIcon from "../../assets/liveClassIcon";
 import SettingsIcon from "../../assets/settingsIcon";
 import { ElementType } from "react";
@@ -18,7 +18,7 @@ type NavLink = {
 const navLinks: NavLink[] = [
   { content: "Dashboard", icon: HomeIcon, link: "/instructor" },
   { content: "Courses", icon: ClipBoardIcon, link: "/instructor/courses" },
-  { content: "Reports", icon: reportsIcon, link: "/instructor/reports" },
+  // { content: "Reports", icon: reportsIcon, link: "/instructor/reports" },
   {
     content: "Live Classes",
     icon: liveClassesIcon,

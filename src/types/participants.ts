@@ -1,3 +1,5 @@
+import { CoursesResponse } from "./courses";
+
 interface Participants {
   id: number;
 }
@@ -16,6 +18,7 @@ export type ParticipantData = {
   photo: string;
   signature: string;
   updated_at: string;
+  user_id: number;
 };
 
 export type Participant = Participants[];
