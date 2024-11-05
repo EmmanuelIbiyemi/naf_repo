@@ -1,19 +1,10 @@
 import * as Yup from "yup";
 import { Field, Form, Formik } from "formik";
-import {
-  Box,
-  Button,
-  FormControl,
-  MenuItem,
-  OutlinedInput,
-  Select,
-  Typography,
-} from "@mui/material";
+import { Box, Button, Typography } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
 import formStyles from "../../../../components/form/form.module.scss";
 import { Programme } from "../../../../types/programmes";
-import { useGetDepartmentsQuery } from "../../../../store/api/departments.api";
-import { useLocation } from "react-router-dom";
+import { useParams } from "react-router-dom";
 
 type Props = {
   programme?: Programme;
@@ -24,15 +15,12 @@ type Props = {
 };
 
 const ProgrammeForm = ({ actions, programme }: Props) => {
-  const location = useLocation();
-  const { data: departments } = useGetDepartmentsQuery(
-    location.state.faculty_id
-  );
+  const { department_id } = useParams();
 
   const initialValues: Programme = {
     id: programme?.id || 0,
     name: programme?.name || "",
-    department_id: programme?.department_id || 0,
+    department_id: +(department_id || 0),
   };
 
   const validationSchema = Yup.object({
@@ -45,7 +33,6 @@ const ProgrammeForm = ({ actions, programme }: Props) => {
   const handleSubmit = async (values: Programme) => {
     if (values.id == 0) delete values.id;
     await actions.submit(values);
-    console.log(values);
   };
 
   return (
@@ -54,7 +41,7 @@ const ProgrammeForm = ({ actions, programme }: Props) => {
       validationSchema={validationSchema}
       onSubmit={handleSubmit}
     >
-      {({ isValid, dirty, values, setFieldValue }) => (
+      {({ isValid, dirty }) => (
         <Form className={formStyles.modal_form}>
           <Typography
             variant="h5"
@@ -74,35 +61,6 @@ const ProgrammeForm = ({ actions, programme }: Props) => {
               <label htmlFor="name">Programme Name</label>
               <Field id="name" name="name" />
             </Box>
-          </Box>
-
-          <Box>
-            <FormControl fullWidth>
-              <label htmlFor="department_id">Select Department</label>
-              <Select
-                sx={{
-                  padding: 0,
-                  ".MuiSelect-select": { p: "5px", minHeight: "25px" },
-                }}
-                id="department_id"
-                name="department_id"
-                value={values.department_id || 0}
-                onChange={(event) => {
-                  const {
-                    target: { value },
-                  } = event;
-                  setFieldValue("department_id", value);
-                }}
-                input={<OutlinedInput />}
-              >
-                <MenuItem value={0}>select department</MenuItem>
-                {departments?.data.map((department) => (
-                  <MenuItem key={department.id} value={department.id}>
-                    {department.name}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
           </Box>
 
           <Box className={formStyles.btn_group}>
