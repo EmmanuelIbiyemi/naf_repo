@@ -91,10 +91,9 @@ const FormContentArea = () => {
               id="submitBtn"
               contentEditable="true"
               onBlur={(e) => handleFormPropsChange(e, "button")}
-              dangerouslySetInnerHTML={{
-                __html: form?.data.name.split("::")[1] as string,
-              }}
-            />
+            >
+              {form?.data.name.split("::")[1]}
+            </span>
           </Button>
         </Box>
       </Box>

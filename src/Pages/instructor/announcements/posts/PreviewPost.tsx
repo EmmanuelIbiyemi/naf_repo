@@ -57,11 +57,7 @@ const PreviewPostPage = () => {
       <Box sx={dropContainerStyles}>
         <Box sx={{ padding: "1.5rem" }}>
           <Typography variant="h5" sx={{ fontWeight: 300 }}>
-            <span
-              dangerouslySetInnerHTML={{
-                __html: selectedAnnouncement?.title || "",
-              }}
-            />
+            <span>{selectedAnnouncement?.title || ""}</span>
           </Typography>
         </Box>
         <Box sx={dropAreaStyles}>

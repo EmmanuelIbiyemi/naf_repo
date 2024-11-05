@@ -50,10 +50,9 @@ const PostContentArea = () => {
               id="name"
               contentEditable="true"
               onBlur={(e) => handleFormPropsChange(e, "name")}
-              dangerouslySetInnerHTML={{
-                __html: form?.data.name.split("::")[0] as string,
-              }}
-            />
+            >
+              {form?.data.name.split("::")[0]}
+            </span>
           </Typography>
         </Box>
         <Box
@@ -92,10 +91,9 @@ const PostContentArea = () => {
               id="submitBtn"
               contentEditable="true"
               onBlur={(e) => handleFormPropsChange(e, "name")}
-              dangerouslySetInnerHTML={{
-                __html: form?.data.name.split("::")[1] as string,
-              }}
-            />
+            >
+              {form?.data.name.split("::")[1]}
+            </span>
           </Button>
         </Box>
       </Box>

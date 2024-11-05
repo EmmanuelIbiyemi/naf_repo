@@ -50,11 +50,7 @@ const PreviewFormPage = () => {
       <Box sx={dropContainerStyles}>
         <Box sx={{ padding: "1.5rem" }}>
           <Typography variant="h5" sx={{ fontWeight: 300 }}>
-            <span
-              dangerouslySetInnerHTML={{
-                __html: form?.data?.name.split("::")[0] || "",
-              }}
-            />
+            <span>{form?.data?.name.split("::")[0] || ""}</span>
           </Typography>
         </Box>
         <Box sx={dropAreaStyles}>
@@ -71,11 +67,7 @@ const PreviewFormPage = () => {
           }}
         >
           <Button variant="contained">
-            <span
-              dangerouslySetInnerHTML={{
-                __html: form?.data?.name.split("::")[1] || "",
-              }}
-            />
+            <span>{form?.data?.name.split("::")[1] || ""}</span>
           </Button>
         </Box>
       </Box>
