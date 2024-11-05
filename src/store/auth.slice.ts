@@ -88,13 +88,7 @@ export const {
 } = authSlice.actions;
 export const authReducer = authSlice.reducer;
 
-export const selectCurrentUser = (state: RootState): UserType => {
-  const user = state.auth.user;
-  if (!user) {
-    throw new Error("User is not logged in");
-  }
-  return user;
-};
+export const selectCurrentUser = (state: RootState) => state.auth.user;
 export const selectCurrentAccessToken = (state: RootState) =>
   state.auth.access_token;
 export const selectCurrentRefreshToken = (state: RootState) =>
