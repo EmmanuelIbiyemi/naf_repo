@@ -32,11 +32,8 @@ const PostContentArea = () => {
 
       try {
         await updateForm({
-          id: form.data.id,
-          fee: form.data.fee,
+          ...form.data,
           name,
-          program_id: form.data.program_id,
-          level_id: form.data.level_id,
         });
       } catch (error) {
         console.log(error);

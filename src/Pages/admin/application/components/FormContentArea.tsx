@@ -22,21 +22,18 @@ const FormContentArea = () => {
     if (form?.data) {
       let name = "";
       if (type == "name")
-        name = `${form.data.name.split("::")[0]}::${
-          e.currentTarget.textContent
-        }`;
-      else
         name = `${e.currentTarget.textContent}::${
           form.data.name.split("::")[1]
+        }`;
+      else
+        name = `${form.data.name.split("::")[0]}::${
+          e.currentTarget.textContent
         }`;
 
       try {
         await updateForm({
-          id: form.data.id,
-          fee: form.data.fee,
+          ...form.data,
           name,
-          program_id: form.data.program_id,
-          level_id: form.data.level_id,
         });
       } catch (error) {
         console.log(error);
@@ -53,10 +50,9 @@ const FormContentArea = () => {
               id="name"
               contentEditable="true"
               onBlur={(e) => handleFormPropsChange(e, "name")}
-              dangerouslySetInnerHTML={{
-                __html: form?.data.name.split("::")[0] as string,
-              }}
-            />
+            >
+              {form?.data.name.split("::")[0]}
+            </span>
           </Typography>
         </Box>
         <Box
@@ -94,7 +90,7 @@ const FormContentArea = () => {
             <span
               id="submitBtn"
               contentEditable="true"
-              onBlur={(e) => handleFormPropsChange(e, "name")}
+              onBlur={(e) => handleFormPropsChange(e, "button")}
               dangerouslySetInnerHTML={{
                 __html: form?.data.name.split("::")[1] as string,
               }}
@@ -112,6 +108,9 @@ const formContentContainerStyles: SxProps = {
   display: "grid",
   padding: "2rem",
   placeItems: "center",
+  maxWidth: "800px",
+  marginInline: "auto",
+  width: "100%",
 };
 
 const dropContainerStyles: SxProps = {
