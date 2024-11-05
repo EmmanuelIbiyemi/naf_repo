@@ -4,9 +4,8 @@ import TableCell from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
 import TableRow from "@mui/material/TableRow";
 import { LecturerFormAction, Lecturer } from "../../../../types/lecturers";
-import { Checkbox, IconButton } from "@mui/material";
+import { Checkbox, IconButton, Typography } from "@mui/material";
 import { Delete, Edit } from "@mui/icons-material";
-import { Link } from "react-router-dom";
 import DeleteConfirmationModal from "../../../../components/DeleteConfirmationModal";
 import { useState } from "react";
 import {
@@ -84,7 +83,9 @@ const LecturersList = () => {
         close={() => handleCloseModal("delete")}
         infoText="The students enrolled in this Lecturer will get notified."
         open={openModal.delete}
-        subTitle={`Are you sure you want to delete Lecturer <strong>“${selectedLecturer?.first_name + ' ' + selectedLecturer?.last_name}”</strong>? You can’t undo this action.`}
+        subTitle={`Are you sure you want to delete Lecturer <strong>“${
+          selectedLecturer?.first_name + " " + selectedLecturer?.last_name
+        }”</strong>? You can’t undo this action.`}
         title="Delete Lecturer?"
       />
 
@@ -121,12 +122,11 @@ const LecturersList = () => {
                 sx={{ alignItems: "center", display: "flex", gap: "1rem" }}
               >
                 <Checkbox />
-                <Link
-                  to={`/lecturers/${lecturer.id}`}
-                  style={{ textTransform: "capitalize" }}
+                <Typography
+                  style={{ textTransform: "capitalize", fontWeight: 500 }}
                 >
-                  {lecturer.first_name}
-                </Link>
+                  {lecturer.first_name} {lecturer.last_name}
+                </Typography>
               </TableCell>
               <TableCell align="right">
                 <IconButton onClick={() => handleOpenModal(lecturer, "edit")}>

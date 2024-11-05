@@ -6,7 +6,6 @@ import TableRow from "@mui/material/TableRow";
 import { ApplicantType } from "../../../../types/applicants";
 import {
   Box,
-  Button,
   Chip,
   IconButton,
   Menu,
@@ -180,20 +179,11 @@ const ApplicantList = () => {
               sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
             >
               <TableCell component="th" scope="row">
-                <Button
-                  sx={{
-                    "&.MuiButton-root": {
-                      border: "none",
-                      color: "inherit",
-                      padding: 0,
-                      textTransform: "capitalize",
-                      justifyContent: "start",
-                      textAlign: "left",
-                    },
-                  }}
+                <Typography
+                  style={{ textTransform: "capitalize", fontWeight: 500 }}
                 >
                   {applicant.data.first_name + " " + applicant.data.last_name}
-                </Button>
+                </Typography>
               </TableCell>
               <TableCell component="th" scope="row">
                 {applicant.data.email}
