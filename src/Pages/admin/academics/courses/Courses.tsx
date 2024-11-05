@@ -56,7 +56,7 @@ const CoursesPage = () => {
       const response = await addCourse(course).unwrap();
       await addCourseToLevel({
         level_id: +(level_id || 0),
-        course_ids: [course.id as number],
+        course_ids: [response.data.id as number],
         type: response.data.type,
       }).unwrap();
       handleCloseModal("add");
