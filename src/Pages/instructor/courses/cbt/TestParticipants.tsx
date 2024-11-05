@@ -1,15 +1,19 @@
 import { Box, Button, Typography } from "@mui/material";
 import { useRef } from "react";
-import TestParticipantsPage from "./TestParticipantsList";
 import { AccessTime, CalendarToday } from "@mui/icons-material";
 import { useLocation, useNavigate } from "react-router-dom";
 import { QuizzesResponse } from "../../../../types/quizzes";
+import TestParticipantsList from "./TestParticipantsList";
 
 const Students = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
   const location = useLocation();
-  const testData = location.state?.lists as QuizzesResponse[] | undefined;
+  const selectedTest = location.state?.selectedTest as
+    | QuizzesResponse
+    | undefined;
+
+  console.log(selectedTest);
 
   return (
     <Box ref={containerRef} className="content-container">
@@ -50,8 +54,7 @@ const Students = () => {
                 fontWeight: 300,
               }}
             >
-              List of students that submitted the test "
-              {testData?.map((item) => item.name)}"
+              List of students that submitted the test "{selectedTest?.name}"
             </Typography>
             <Box
               sx={{
@@ -61,36 +64,6 @@ const Students = () => {
                 marginTop: "1em",
               }}
             >
-              {/* <Typography
-                variant="body2"
-                sx={{
-                  color: "#989898",
-                  fontSize: ".9rem",
-                  padding: ".6em ",
-                  border: "1px solid #D3D3D3",
-                  display: "flex",
-                  justifyContent: "center",
-                  alignItems: "center",
-                  borderRadius: "5px",
-                }}
-              >
-                Batch 3CO-JVY
-              </Typography>
-              <Typography
-                variant="body2"
-                sx={{
-                  color: "#0CC740",
-                  fontSize: ".9rem",
-                  padding: ".6em ",
-                  display: "flex",
-                  justifyContent: "center",
-                  alignItems: "center",
-                  borderRadius: "5px",
-                  backgroundColor: "#DDFFE7",
-                }}
-              >
-                Status Completed
-              </Typography> */}
               <Box
                 sx={{
                   display: "flex",
@@ -105,7 +78,7 @@ const Students = () => {
                   variant="body2"
                   sx={{ color: "#989898", fontSize: ".9rem" }}
                 >
-                  {testData?.map((item) => item.start_date.split("T")[0])}
+                  {selectedTest?.start_date.split("T")[0]}
                 </Typography>
               </Box>
               <Box
@@ -122,35 +95,24 @@ const Students = () => {
                   variant="body2"
                   sx={{ color: "#989898", fontSize: ".9rem" }}
                 >
-                  {testData?.map((item) => item.expiry_date.split("T")[0])}
+                  {selectedTest?.expiry_date.split("T")[0]}
                 </Typography>
               </Box>
             </Box>
           </Box>
-          <Box
-          // sx={{
-          //   display: "flex",
-          //   gap: 2,
-          //   width: "40%",
-          // }}
-          >
+          <Box>
             <Button
               sx={{ width: "100%", backgroundColor: "#CCCCCC", color: "#fff" }}
               onClick={() => navigate(-1)}
             >
               Back
             </Button>
-            {/* <Button
-              sx={{ width: "100%" }}
-              // onClick={() => navigate("/instructor/reports")}
-              variant="contained"
-            >
-              Generate Report
-            </Button> */}
           </Box>
         </Box>
         <Box sx={{ margin: "2em 0" }}>
-          <TestParticipantsPage />
+          <TestParticipantsList
+            participants={selectedTest?.participants || []}
+          />
         </Box>
       </Box>
     </Box>

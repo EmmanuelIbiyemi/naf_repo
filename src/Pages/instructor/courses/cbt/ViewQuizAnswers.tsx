@@ -1,106 +1,64 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import {
   Box,
   TextField,
   Button,
   Typography,
-  //   Radio,
   Grid2,
   Paper,
+  LinearProgress,
 } from "@mui/material";
 import CustomPagination from "../../../../components/CustomPagination";
-
-const dummyQuestions = [
-  {
-    id: 1,
-    question:
-      "What vitamin helps in maintaining healthy skin and immune system?",
-    correctAnswer: "Vitamin C",
-    selectedAnswer: "Vitamin C", // Correct answer selected
-    options: ["Vitamin C", "Vitamin F", "Vitamin B", "Vitamin E"],
-  },
-  {
-    id: 2,
-    question: "Which vitamin is essential for blood clotting?",
-    correctAnswer: "Vitamin K",
-    selectedAnswer: "Vitamin F", // Wrong answer selected
-    options: ["Vitamin F", "Vitamin K", "Vitamin C", "Vitamin B"],
-  },
-  {
-    id: 3,
-    question: "What vitamin is produced when skin is exposed to sunlight?",
-    correctAnswer: "Vitamin D",
-    selectedAnswer: "Vitamin C", // Wrong answer selected
-    options: ["Vitamin C", "Vitamin F", "Vitamin D", "Vitamin B"],
-  },
-  {
-    id: 4,
-    question: "Which vitamin is important for eye health?",
-    correctAnswer: "Vitamin A",
-    selectedAnswer: "Vitamin A", // Correct answer selected
-    options: ["Vitamin F", "Vitamin C", "Vitamin A", "Vitamin E"],
-  },
-  {
-    id: 5,
-    question: "What vitamin helps in energy metabolism?",
-    correctAnswer: "Vitamin B",
-    selectedAnswer: "Vitamin E", // Wrong answer selected
-    options: ["Vitamin E", "Vitamin C", "Vitamin B", "Vitamin F"],
-  },
-  {
-    id: 6,
-    question: "Which vitamin has antioxidant properties?",
-    correctAnswer: "Vitamin E",
-    selectedAnswer: "Vitamin E", // Correct answer selected
-    options: ["Vitamin F", "Vitamin E", "Vitamin C", "Vitamin B"],
-  },
-  {
-    id: 7,
-    question: "What vitamin is essential for bone health?",
-    correctAnswer: "Vitamin D",
-    selectedAnswer: "Vitamin B", // Wrong answer selected
-    options: ["Vitamin F", "Vitamin C", "Vitamin D", "Vitamin B"],
-  },
-  {
-    id: 8,
-    question: "Which vitamin helps in wound healing?",
-    correctAnswer: "Vitamin C",
-    selectedAnswer: "Vitamin F", // Wrong answer selected
-    options: ["Vitamin E", "Vitamin B", "Vitamin C", "Vitamin F"],
-  },
-  {
-    id: 9,
-    question: "What vitamin supports nervous system function?",
-    correctAnswer: "Vitamin B",
-    selectedAnswer: "Vitamin B", // Correct answer selected
-    options: ["Vitamin C", "Vitamin B", "Vitamin E", "Vitamin F"],
-  },
-  {
-    id: 10,
-    question: "What vitamin supports nervous system function?",
-    correctAnswer: "Vitamin B",
-    selectedAnswer: "Vitamin B", // Correct answer selected
-    options: ["Vitamin C", "Vitamin B", "Vitamin E", "Vitamin F"],
-  },
-  {
-    id: 11,
-    question: "What vitamin supports nervous system function?",
-    correctAnswer: "Vitamin B",
-    selectedAnswer: "Vitamin B", // Correct answer selected
-    options: ["Vitamin C", "Vitamin B", "Vitamin E", "Vitamin F"],
-  },
-];
+import { useGetUserQuizResultQuery } from "../../../../store/api/quizzes.api";
+import { useGetStudentQuery } from "../../../../store/api/students.api";
 
 const ViewQuizAnswers = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [currentPage, setCurrentPage] = useState(1);
-  const [questions] = useState(dummyQuestions);
+
+  const locationData = location.pathname.split("/");
+  const quizId = locationData[locationData.length - 4];
+  const userId = locationData[locationData.length - 2];
+  const studentId = locationData[locationData.length - 1];
+  console.log(quizId);
+  console.log(userId);
+  console.log(studentId);
+
+  const { data: studentData, isLoading: isGettingStudent } = useGetStudentQuery(
+    parseInt(studentId)
+  );
+
+  const { data: resultData, isLoading: isGettingResult } =
+    useGetUserQuizResultQuery({
+      quizId: parseInt(quizId),
+      userId: parseInt(userId),
+    });
 
   const questionsPerPage = 9;
   const indexOfLastQuestion = currentPage * questionsPerPage;
   const indexOfFirstQuestion = indexOfLastQuestion - questionsPerPage;
+
+  console.log(resultData);
+  const questions =
+    resultData?.data?.quiz?.assessments?.flatMap((assessment) =>
+      assessment.questions.map((question) => {
+        const answer = resultData?.data?.answers.find(
+          (ans) => ans.question_id === question.id
+        );
+        return {
+          id: question.id,
+          question: question.body,
+          correctAnswer: question.options.find((opt) => opt.is_answer)?.body,
+          selectedAnswer: question.options.find(
+            (opt) => opt.id === answer?.option_id
+          )?.body,
+          options: question.options.map((opt) => opt.body),
+        };
+      })
+    ) || [];
+
   const currentQuestions = questions.slice(
     indexOfFirstQuestion,
     indexOfLastQuestion
@@ -113,97 +71,38 @@ const ViewQuizAnswers = () => {
     setCurrentPage(page);
   };
 
-  const getOptionStyle = (
-    question: {
-      id?: number;
-      question?: string;
-      correctAnswer: any;
-      selectedAnswer: any;
-      options?: string[];
-    },
-    option: string
-  ) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const getOptionStyle = (question: any, option: string) => {
     const isSelected = option === question.selectedAnswer;
     const isCorrect = option === question.correctAnswer;
 
     if (isSelected && isCorrect) {
-      // Correct answer selected - green
       return {
-        "& .MuiOutlinedInput-root": {
-          backgroundColor: "#F0FDF4",
-          borderColor: "#22C55E",
-          color: "#22C55E",
-          "&.Mui-disabled": {
-            "& > fieldset": {
-              borderColor: "#22C55E !important",
-            },
-          },
-        },
+        backgroundColor: "#F0FDF4",
+        borderColor: "#22C55E",
+        color: "#22C55E",
       };
     } else if (isSelected && !isCorrect) {
-      // Wrong answer selected - red
       return {
-        "& .MuiOutlinedInput-root": {
-          backgroundColor: "#FEF2F2",
-          borderColor: "#EF4444",
-          color: "#EF4444",
-          "&.Mui-disabled": {
-            "& > fieldset": {
-              borderColor: "#EF4444 !important",
-            },
-          },
-        },
+        backgroundColor: "#FEF2F2",
+        borderColor: "#EF4444",
+        color: "#EF4444",
       };
     } else if (!isSelected && isCorrect) {
-      // Correct answer not selected - green
       return {
-        "& .MuiOutlinedInput-root": {
-          backgroundColor: "#F0FDF4",
-          borderColor: "#22C55E",
-          color: "#22C55E",
-          "&.Mui-disabled": {
-            "& > fieldset": {
-              borderColor: "#22C55E !important",
-            },
-          },
-        },
+        backgroundColor: "#F0FDF4",
+        borderColor: "#22C55E",
+        color: "#22C55E",
       };
     }
 
-    // Default style for other options
-    return {
-      "& .MuiOutlinedInput-root": {
-        backgroundColor: "#F8FAFC",
-        borderRadius: "10px",
-      },
-    };
+    return { backgroundColor: "#F8FAFC", borderRadius: "10px" };
   };
 
-  //   const getRadioStyle = (
-  //     question: {
-  //       id?: number;
-  //       question?: string;
-  //       correctAnswer: any;
-  //       selectedAnswer: any;
-  //       options?: string[];
-  //     },
-  //     option: string
-  //   ) => {
-  //     const isSelected = option === question.selectedAnswer;
-  //     const isCorrect = option === question.correctAnswer;
-
-  //     if (isSelected && isCorrect) {
-  //       return { color: "#22C55E" };
-  //     } else if (isSelected && !isCorrect) {
-  //       return { color: "#EF4444" };
-  //     } else if (!isSelected && isCorrect) {
-  //       return { color: "#22C55E" };
-  //     }
-  //     return {};
-  //   };
-
   return (
-    <Box sx={{ p: 4, maxWidth: "1400px", mx: "auto" }}>
+    <Box sx={{ p: 4, mx: "auto" }}>
+      {(isGettingResult || isGettingStudent) && <LinearProgress />}
+
       <Box
         sx={{
           display: "flex",
@@ -212,18 +111,23 @@ const ViewQuizAnswers = () => {
           mb: 4,
         }}
       >
-        <Box>
-          <Typography variant="h4" gutterBottom>
-            Quiz Performance : Harsh Kadyan
-          </Typography>
-        </Box>
-        <Box sx={{ display: "flex", gap: 2, width: "33%" }}>
+        <Typography variant="h4" gutterBottom>
+          Quiz Performance:{" "}
+          {`${studentData?.data.first_name} ${studentData?.data.last_name}`}
+        </Typography>
+        <Box
+          sx={{
+            display: "flex",
+            width: "33%",
+            justifyContent: "end",
+          }}
+        >
           <Button
             variant="outlined"
             sx={{
               borderRadius: "8px",
               textTransform: "none",
-              width: "100%",
+              width: "50%",
               backgroundColor: "#CCCCCC",
               color: "#FFF",
             }}
@@ -231,29 +135,15 @@ const ViewQuizAnswers = () => {
           >
             Back
           </Button>
-          <Button
-            variant="contained"
-            sx={{
-              borderRadius: "8px",
-              textTransform: "none",
-              width: "100%",
-            }}
-          >
-            Generate Report
-          </Button>
         </Box>
       </Box>
 
-      <Grid2 container spacing={3}>
+      <Grid2 container spacing={2}>
         {currentQuestions.map((question, qIndex) => (
           <Grid2 size={4} key={question.id}>
             <Paper
               elevation={0}
-              sx={{
-                p: 3,
-                borderRadius: 2,
-                border: "1px solid #E5E7EB",
-              }}
+              sx={{ p: 3, borderRadius: 2, border: "1px solid #E5E7EB" }}
             >
               <Typography variant="h6" gutterBottom>
                 Question {qIndex + 1}
@@ -264,36 +154,29 @@ const ViewQuizAnswers = () => {
                 variant="outlined"
                 value={question.question}
                 sx={{
-                  mb: 2,
-                  "& .MuiOutlinedInput-root": {
-                    backgroundColor: "#F8FAFC",
-                    borderRadius: "10px",
-                  },
+                  marginBottom: "1em",
+                  backgroundColor: "#F8FAFC",
+                  border: "1px solid #CCCCCC",
+                  borderRadius: "10px",
                 }}
               />
-
               <Grid2 container spacing={2}>
                 {question.options.map((option, oIndex) => (
                   <Grid2 size={6} key={oIndex}>
-                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                      {/* <Radio
-                        disabled
-                        checked={option === question.selectedAnswer}
-                        size="small"
-                        sx={{
-                          p: 0.5,
-                          ...getRadioStyle(question, option),
-                        }}
-                      /> */}
-                      <TextField
-                        fullWidth
-                        disabled
-                        variant="outlined"
-                        value={option}
-                        size="small"
-                        sx={getOptionStyle(question, option)}
-                      />
-                    </Box>
+                    <Typography variant="body2" gutterBottom>
+                      Option
+                    </Typography>
+                    <TextField
+                      fullWidth
+                      disabled
+                      variant="outlined"
+                      value={option}
+                      size="small"
+                      sx={
+                        (getOptionStyle(question, option),
+                        { borderRadius: "10px" })
+                      }
+                    />
                   </Grid2>
                 ))}
               </Grid2>

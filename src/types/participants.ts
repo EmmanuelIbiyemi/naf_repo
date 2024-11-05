@@ -19,4 +19,5 @@ export type ParticipantData = {
   user_id: number;
 };
 
+export type ParticipantsMultipleData = ParticipantData[];
 export type Participant = Participants[];

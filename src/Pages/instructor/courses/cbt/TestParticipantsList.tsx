@@ -12,7 +12,11 @@ import { useNavigate } from "react-router-dom";
 // import { useGetCourseParticipantsQuery } from "../../../../store/api/participants.api";
 import { ParticipantData } from "../../../../types/participants";
 
-const TestParticipantsList = () => {
+type TestParticipantsListProps = {
+  participants: ParticipantData[];
+};
+
+const TestParticipantsList = ({ participants }: TestParticipantsListProps) => {
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
   const navigate = useNavigate();
@@ -33,10 +37,9 @@ const TestParticipantsList = () => {
   };
 
   const PaginatedRows = React.useMemo(() => {
-    const participants = [] as ParticipantData[];
     const startIndex = page * rowsPerPage;
     return participants?.slice(startIndex, startIndex + rowsPerPage);
-  }, [page, rowsPerPage]);
+  }, [page, participants, rowsPerPage]);
 
   return (
     <Box sx={{ width: "100%", overflow: "hidden" }}>
@@ -67,10 +70,8 @@ const TestParticipantsList = () => {
                 <TableCell
                   sx={{ border: "none" }}
                 >{`${row.first_name} ${row.last_name}`}</TableCell>
-                {/* <TableCell sx={{ border: "none" }}>
-                  {row.dateSubmitted}
-                </TableCell>
-                <TableCell sx={{ border: "none" }}>{row.performance}</TableCell> */}
+
+                <TableCell sx={{ border: "none" }}>{row.email}</TableCell>
                 <TableCell
                   sx={{
                     display: "flex",
@@ -80,7 +81,7 @@ const TestParticipantsList = () => {
                     cursor: "pointer",
                     border: "none",
                   }}
-                  onClick={() => navigate(`detail/${row.id}`)}
+                  onClick={() => navigate(`detail/${row.user_id}/${row.id}`)}
                 >
                   <VisibilityOutlined /> View Details{" "}
                 </TableCell>
@@ -92,7 +93,7 @@ const TestParticipantsList = () => {
       <TablePagination
         rowsPerPageOptions={[10, 20, 30, 50]}
         component="div"
-        count={tableBody.length}
+        count={participants.length}
         rowsPerPage={rowsPerPage}
         page={page}
         onPageChange={handleChangePage}
@@ -105,117 +106,8 @@ const TestParticipantsList = () => {
 const tableHead = [
   { id: 1, label: "Student ID", minWidth: 170 },
   { id: 2, label: "Name", minWidth: 100 },
-  { id: 3, label: "Date Submitted", minWidth: 170 },
-  { id: 4, label: "Performance", minWidth: 170 },
-  { id: 5, label: "Actions", minWidth: 170 },
-];
-
-const tableBody = [
-  {
-    id: 1,
-    studentId: "TIPSGHM 2022336",
-    name: "Harsh Kadyan",
-    dateSubmitted: "23 - 09 - 2024",
-    performance: "23%",
-  },
-  {
-    id: 2,
-    studentId: "TIPSGHM 2022336",
-    name: "Harsh Kadyan",
-    dateSubmitted: "23 - 09 - 2024",
-    performance: "79%",
-  },
-  {
-    id: 3,
-    studentId: "TIPSGHM 2022336",
-    name: "Harsh Kadyan",
-    dateSubmitted: "23 - 09 - 2024",
-    performance: "48%",
-  },
-  // {
-  //   id: 4,
-  //   studentId: "TIPSGHM 2022336",
-  //   name: "Harsh Kadyan",
-  //   dateSubmitted: "23 - 09 - 2024",
-  //   performance: "79%",
-  // },
-  // {
-  //   id: 5,
-  //   studentId: "TIPSGHM 2022336",
-  //   name: "Harsh Kadyan",
-  //   dateSubmitted: "23 - 09 - 2024",
-  //   performance: "79%",
-  // },
-  // {
-  //   id: 6,
-  //   studentId: "TIPSGHM 2022336",
-  //   name: "Harsh Kadyan",
-  //   dateSubmitted: "23 - 09 - 2024",
-  //   performance: "79%",
-  // },
-  // {
-  //   id: 7,
-  //   studentId: "TIPSGHM 2022336",
-  //   name: "Harsh Kadyan",
-  //   dateSubmitted: "23 - 09 - 2024",
-  //   performance: "79%",
-  // },
-  // {
-  //   id: 8,
-  //   studentId: "TIPSGHM 2022336",
-  //   name: "Harsh Kadyan",
-  //   dateSubmitted: "23 - 09 - 2024",
-  //   performance: "79%",
-  // },
-  // {
-  //   id: 9,
-  //   studentId: "TIPSGHM 2022336",
-  //   name: "Harsh Kadyan",
-  //   dateSubmitted: "23 - 09 - 2024",
-  //   performance: "79%",
-  // },
-  // {
-  //   id: 10,
-  //   studentId: "TIPSGHM 2022336",
-  //   name: "Harsh Kadyan",
-  //   dateSubmitted: "23 - 09 - 2024",
-  //   performance: "79%",
-  // },
-  // {
-  //   id: 11,
-  //   studentId: "TIPSGHM 2022336",
-  //   name: "Harsh Kadyan",
-  //   dateSubmitted: "23 - 09 - 2024",
-  //   performance: "79%",
-  // },
-  // {
-  //   id: 12,
-  //   studentId: "TIPSGHM 2022336",
-  //   name: "Harsh Kadyan",
-  //   dateSubmitted: "23 - 09 - 2024",
-  //   performance: "79%",
-  // },
-  // {
-  //   id: 13,
-  //   studentId: "TIPSGHM 2022336",
-  //   name: "Harsh Kadyan",
-  //   dateSubmitted: "23 - 09 - 2024",
-  //   performance: "79%",
-  // },
-  // {
-  //   id: 14,
-  //   studentId: "TIPSGHM 2022336",
-  //   name: "Harsh Kadyan",
-  //   dateSubmitted: "23 - 09 - 2024",
-  //   performance: "79%",
-  // },
-  // {
-  //   id: 15,
-  //   studentId: "TIPSGHM 2022336",
-  //   name: "Harsh Kadyan",
-  //   dateSubmitted: "23 - 09 - 2024",
-  //   performance: "79%",
-  // },
+  { id: 3, label: "Email", minWidth: 170 },
+  { id: 4, label: "Details", minWidth: 170 },
 ];
 
 export default TestParticipantsList;

@@ -155,13 +155,13 @@ const Tests = () => {
         />
       </FormModal> */}
 
-      {isLoading || (isFetchingParticipants && <LinearProgress />)}
       <CreateTestModal
         open={openCreateTestModal}
         handleClose={handleCloseCreateTestModal}
         courses={courses?.data}
         participants={participants?.data ?? []}
       />
+      {(isLoading || isFetchingParticipants) && <LinearProgress />}
 
       <CustomSuccessModal
         message="Your document has been added successfully"

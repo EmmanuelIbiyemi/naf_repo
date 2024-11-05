@@ -15,5 +15,7 @@ export type StudentFormAction = (lecturer: StudentType) => Promise<void>;
 
 export type StudentsResponse = { data: StudentType[] };
 
+export type SingleStudentResponse = { data: StudentType };
+
 export type StudentCombinedType = StudentCreateType | StudentType;
 export type StudentEditFuncType = (student: StudentCombinedType) => void;

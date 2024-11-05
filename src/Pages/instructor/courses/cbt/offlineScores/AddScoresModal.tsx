@@ -51,16 +51,35 @@ const AddScoresModal = ({
   const [addScores, { isLoading }] = useAddBulkRecordScoresMutation();
 
   useEffect(() => {
-    if (recordItem?.scores) {
+    if (!open) {
+      setRows([]);
+      return;
+    }
+
+    if (recordItem?.scores && recordItem.scores.length > 0) {
       const initialRows = recordItem.scores.map((score) => ({
         participantId: score.participant.id,
         obtainedScore: score.obtained_score,
       }));
       setRows(initialRows);
     } else {
-      setRows([{ participantId: null, obtainedScore: null }]);
+      const initialRows = courseParticipants.slice(0, 1).map(() => ({
+        participantId: null,
+        obtainedScore: null,
+      }));
+      setRows(initialRows);
     }
-  }, [recordItem]);
+  }, [recordItem, open, courseParticipants]);
+
+  const addRow = () => {
+    setRows([...rows, { participantId: null, obtainedScore: null }]);
+  };
+
+  const removeRow = (index: number) => {
+    const newRows = [...rows];
+    newRows.splice(index, 1);
+    setRows(newRows);
+  };
 
   const formik = useFormik({
     initialValues: {
@@ -84,12 +103,11 @@ const AddScoresModal = ({
       const payloads = validScores.map((row) => ({
         obtained_score: row.obtainedScore,
         participant_id: row.participantId,
-        record_id: recordId!,
       }));
 
       try {
-        // console.log({ scores: payloads });
-        await addScores({ scores: payloads });
+        await addScores({ scores: payloads, record_id: recordId! });
+        // console.log({ scores: payloads, record_id: recordId! });
         refetch();
         handleOpenSuccessModal();
       } catch (error) {
@@ -97,16 +115,6 @@ const AddScoresModal = ({
       }
     },
   });
-
-  const addRow = () => {
-    setRows([...rows, { participantId: null, obtainedScore: null }]);
-  };
-
-  const removeRow = (index: number) => {
-    const newRows = [...rows];
-    newRows.splice(index, 1);
-    setRows(newRows);
-  };
 
   const [openSuccessModal, setOpenSuccessModal] = useState(false);
   const handleOpenSuccessModal = () => setOpenSuccessModal(true);
@@ -173,11 +181,17 @@ const AddScoresModal = ({
                             );
                             setRows(newRows);
                           }}
+                          defaultValue={parseInt("")}
                         >
                           {courseParticipants.map((participant) => (
                             <MenuItem
                               key={participant.id}
                               value={participant.id}
+                              disabled={rows.some(
+                                (r) =>
+                                  r.participantId === participant.id &&
+                                  r !== row
+                              )}
                             >
                               {participant.matric_number}
                             </MenuItem>

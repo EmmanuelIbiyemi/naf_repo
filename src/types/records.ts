@@ -41,9 +41,9 @@ export interface scoresResponse {
 export interface scoresInput {
   obtained_score: number;
   participant_id: number;
-  record_id: number;
 }
 
 export interface bulkScoresInput {
   scores: scoresInput[];
+  record_id: number;
 }

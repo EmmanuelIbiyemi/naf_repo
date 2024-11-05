@@ -4,6 +4,7 @@ import {
   FileUploadQuestionResponse,
   ManualUploadQuestion,
   ManualUploadQuestionResponse,
+  QuizUserResultResponse,
   QuizzesResponse,
   shareQuizInput,
 } from "../../types/quizzes";
@@ -76,7 +77,7 @@ const quizzesApi = appApi.injectEndpoints({
     }),
 
     getUserQuizResult: builder.query<
-      QuizResultResponse,
+      { data: QuizUserResultResponse },
       { quizId: number; userId: number }
     >({
       query: ({ quizId, userId }) => `/quiz/result/${quizId}/${userId}`,

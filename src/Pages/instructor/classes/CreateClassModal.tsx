@@ -31,9 +31,10 @@ import { useEffect, useState } from "react";
 type createClassModal = {
   open: boolean;
   handleClose: () => void;
+  refetch: () => void;
 };
 
-const CreateClassModal = ({ open, handleClose }: createClassModal) => {
+const CreateClassModal = ({ open, handleClose, refetch }: createClassModal) => {
   const { data: currentSession, isLoading: isGettingSession } =
     useGetCurrentSessionQuery(null);
   const { data: currentSemester, isLoading: isGettingSemester } =
@@ -81,6 +82,7 @@ const CreateClassModal = ({ open, handleClose }: createClassModal) => {
             start_time: dateTime,
             topic: values.topic,
           }).unwrap();
+          refetch();
           handleOpenSuccessModal();
         } catch (error) {
           console.error(error);

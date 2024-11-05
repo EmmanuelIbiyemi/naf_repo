@@ -21,23 +21,31 @@ import { useGetLiveClassesQuery } from "../../../store/api/classes.api";
 import { useGetCurrentSessionQuery } from "../../../store/api/sessions.api";
 import { useGetCurrentSemesterQuery } from "../../../store/api/semesters.api";
 import { useGetInstructorCoursesQuery } from "../../../store/api/courses.api";
+import dayjs from "dayjs";
 
 const LiveClasses = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [openModal, setOpenModal] = useState(false);
   const [selectedCourseId, setSelectedCourseId] = useState("");
+
   const { data: instructorCourses, isLoading: isLoadingCourses } =
     useGetInstructorCoursesQuery(null);
   const handleOpenCreateModal = () => setOpenModal(true);
   const handleCloseCreateModal = () => setOpenModal(false);
+
   const { data: currentSession, isLoading: isGettingSession } =
     useGetCurrentSessionQuery(null);
   const { data: currentSemester, isLoading: isGettingSemester } =
     useGetCurrentSemesterQuery(null);
+
   const currentSemesterString = currentSemester?.data.name;
   const currentSessionString = currentSession?.data.name;
 
-  const { data: scheduledClasses, isLoading } = useGetLiveClassesQuery(
+  const {
+    data: scheduledClasses,
+    isLoading,
+    refetch,
+  } = useGetLiveClassesQuery(
     {
       courseId: parseInt(selectedCourseId),
       semester: currentSemesterString,
@@ -46,7 +54,6 @@ const LiveClasses = () => {
     { skip: !selectedCourseId }
   );
 
-  // set page name
   const dispatch = useAppDispatch();
   dispatch(setPageName("Live Classes"));
 
@@ -60,6 +67,26 @@ const LiveClasses = () => {
     setSelectedCourseId(event.target.value);
   };
 
+  const getClassStatus = (startTime: string, duration: number) => {
+    const start = dayjs(startTime);
+    const end = start.add(duration, "minute");
+    const now = dayjs();
+
+    if (now.isBefore(start)) return "Not Started";
+    if (now.isAfter(start) && now.isBefore(end)) return "Ongoing";
+    return "Ended";
+  };
+
+  const ongoingOrNotStartedClasses = scheduledClasses?.data.filter((item) =>
+    ["Not Started", "Ongoing"].includes(
+      getClassStatus(item.start_time, item.duration)
+    )
+  );
+
+  const endedClasses = scheduledClasses?.data.filter(
+    (item) => getClassStatus(item.start_time, item.duration) === "Ended"
+  );
+
   return (
     <Box ref={containerRef} className="content-container">
       {isLoading ||
@@ -71,10 +98,8 @@ const LiveClasses = () => {
           action: handleOpenCreateModal,
           text: "Create New Class",
         }}
-        heading={"Live Classes"}
-        subHeading={
-          "List of classes that have been created and shared in the school"
-        }
+        heading="Live Classes"
+        subHeading="List of classes that have been created and shared in the school"
       />
       <Box
         sx={{
@@ -118,29 +143,37 @@ const LiveClasses = () => {
                 </Box>
                 <TabPanel value="1" sx={TabStyles}>
                   <Grid2 container spacing={2}>
-                    {scheduledClasses?.data.map((item) => (
+                    {ongoingOrNotStartedClasses?.map((item) => (
                       <Grid2
                         size={4}
+                        key={item.id}
                         sx={{
                           border: "1px solid #CCCCCC",
                           padding: "1em",
                           borderRadius: "10px",
-                          // width: "100%",
                           backgroundColor:
-                            item.meeting.status === "ongoing"
-                              ? "#FFECEC"
-                              : item.meeting.status === "waiting"
+                            getClassStatus(item.start_time, item.duration) ===
+                            "Ongoing"
+                              ? "#ECFFEE"
+                              : getClassStatus(
+                                  item.start_time,
+                                  item.duration
+                                ) === "Not Started"
                               ? "transparent"
                               : "#ECFFEE",
                         }}
-                        key={item.id}
                       >
                         <LiveClassCard
                           title={item.topic}
                           date={item.start_time}
                           time={item.start_time}
-                          status={item.meeting.status}
-                          btnAction={() => console.log("Joineed")}
+                          status={getClassStatus(
+                            item.start_time,
+                            item.duration
+                          )}
+                          btnAction={() =>
+                            window.open(item.meeting.start_url, "_blank")
+                          }
                         />
                       </Grid2>
                     ))}
@@ -148,29 +181,29 @@ const LiveClasses = () => {
                 </TabPanel>
                 <TabPanel value="2" sx={TabStyles}>
                   <Grid2 container spacing={2}>
-                    {scheduledClasses.data
-                      .filter((item) => item.meeting.status === "ended")
-                      .map((item) => (
-                        <Grid2
-                          size={4}
-                          sx={{
-                            border: "1px solid #CCCCCC",
-                            padding: "1em",
-                            borderRadius: "10px",
-                            // width: "100%",
-                            backgroundColor: "transparent",
-                          }}
-                          key={item.id}
-                        >
-                          <LiveClassCard
-                            title={item.topic}
-                            date={item.updated_at}
-                            time={item.start_time}
-                            status={item.meeting.status}
-                            btnAction={() => console.log("Joineed")}
-                          />
-                        </Grid2>
-                      ))}
+                    {endedClasses?.map((item) => (
+                      <Grid2
+                        size={4}
+                        key={item.id}
+                        sx={{
+                          border: "1px solid #CCCCCC",
+                          padding: "1em",
+                          borderRadius: "10px",
+                          // width: "100%",
+                          backgroundColor: "transparent",
+                        }}
+                      >
+                        <LiveClassCard
+                          title={item.topic}
+                          date={item.updated_at}
+                          time={item.start_time}
+                          status="Ended"
+                          btnAction={() =>
+                            window.open(item.meeting.start_url, "_blank")
+                          }
+                        />
+                      </Grid2>
+                    ))}
                   </Grid2>
                 </TabPanel>
               </TabContext>
@@ -183,16 +216,18 @@ const LiveClasses = () => {
           )}
         </Box>
       </Box>
-      <CreateClassModal open={openModal} handleClose={handleCloseCreateModal} />
+      <CreateClassModal
+        open={openModal}
+        handleClose={handleCloseCreateModal}
+        refetch={() => refetch}
+      />
     </Box>
   );
 };
 
 const TabStyles: SxProps = {
-  // display: "grid",
   gap: "1rem",
-  gridTemplateColumns: "repeat(4,1fr)",
-  // paddingInline: "0 !important",
+  grid2TemplateColumns: "repeat(4,1fr)",
   width: "100%",
   backgroundColor: "#fff",
 };
