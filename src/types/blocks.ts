@@ -1,4 +1,4 @@
-export type MediaCreateType = { id: number } | null;
+export type MediaCreateType = { id: number };
 export type MediaType = {
   id: number;
   created_at: string;
@@ -13,7 +13,7 @@ export type BlockType = {
   content: string;
   id: number;
   link: string;
-  media: MediaCreateType[] | MediaType[];
+  media: MediaCreateType[] | MediaType[] | null;
   position: number;
   title: string;
   type: string;

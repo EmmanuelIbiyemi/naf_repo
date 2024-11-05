@@ -34,7 +34,7 @@ export const elements = [
   { id: 3, name: "Courses", type: BLOCK_TYPES.COURSES, icon: Article },
   { id: 5, name: "News", type: BLOCK_TYPES.NEWS, icon: Newspaper },
   {
-    id: 5,
+    id: 11,
     name: "News Section",
     type: BLOCK_TYPES.NEWS_SECTION,
     icon: Newspaper,

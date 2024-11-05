@@ -36,58 +36,46 @@ const ActionButtons = ({ block, setPage }: ActionProp) => {
     setPage((prev) => {
       const newBlocks = [...prev.blocks];
 
-      // Only proceed if both blocks exist
-      if (newBlocks[currentPos - 1] && newBlocks[currentPos - 2]) {
-        //   // Store the blocks we want to swap
-        const currentBlock = { ...newBlocks[currentPos - 1] };
-        const upperBlock = { ...newBlocks[currentPos - 2] };
-        newBlocks[currentPos - 1] = upperBlock;
-        newBlocks[currentPos - 2] = currentBlock;
+      const currentIndex = currentPos - 1; // Convert position to zero-based index
+      if (newBlocks[currentIndex] && newBlocks[currentIndex - 1]) {
+        // Swap blocks
+        [newBlocks[currentIndex], newBlocks[currentIndex - 1]] = [
+          newBlocks[currentIndex - 1],
+          newBlocks[currentIndex],
+        ];
 
-        // Update all positions to match array indices - create new objects
+        // Update positions accurately for all blocks
         const updatedBlocks = newBlocks.map((block, index) => ({
           ...block,
           position: index + 1,
         }));
-        return {
-          ...prev,
-          blocks: updatedBlocks,
-        };
+
+        return { ...prev, blocks: updatedBlocks };
       }
       return prev;
     });
   };
 
   const handleMoveDown = (currentPos: number) => {
-    if (currentPos <= 0) return; // Can't move up if already at top
-
     setPage((prev) => {
-      if (!prev || !prev.blocks) return prev;
-
       const newBlocks = [...prev.blocks];
 
-      // Only proceed if both blocks exist
-      if (newBlocks[currentPos] && newBlocks[currentPos - 1]) {
-        // Store the blocks we want to swap
-        const currentBlock = { ...newBlocks[currentPos] };
-        const upperBlock = { ...newBlocks[currentPos - 1] };
+      const currentIndex = currentPos - 1;
+      if (newBlocks[currentIndex] && newBlocks[currentIndex + 1]) {
+        // Swap blocks
+        [newBlocks[currentIndex], newBlocks[currentIndex + 1]] = [
+          newBlocks[currentIndex + 1],
+          newBlocks[currentIndex],
+        ];
 
-        // Perform the swap
-        newBlocks[currentPos - 1] = currentBlock;
-        newBlocks[currentPos] = upperBlock;
-
-        // Update all positions to match array indices - create new objects
+        // Update positions accurately for all blocks
         const updatedBlocks = newBlocks.map((block, index) => ({
           ...block,
           position: index + 1,
         }));
 
-        return {
-          ...prev,
-          blocks: updatedBlocks,
-        };
+        return { ...prev, blocks: updatedBlocks };
       }
-
       return prev;
     });
   };
@@ -96,13 +84,13 @@ const ActionButtons = ({ block, setPage }: ActionProp) => {
     dispatch(setBuilderLoading(true));
     try {
       await deleteBlock(block_id).unwrap();
-      setPage((prev) => ({
-        ...prev,
-        blocks: prev.blocks.filter((block) => block.id !== block_id),
-      }));
     } catch (error) {
       console.log(error);
     }
+    setPage((prev) => ({
+      ...prev,
+      blocks: prev.blocks.filter((block) => block.id !== block_id),
+    }));
     dispatch(setBuilderLoading(false));
   };
 

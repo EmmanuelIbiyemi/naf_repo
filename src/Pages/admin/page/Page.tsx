@@ -60,13 +60,13 @@ const Page = () => {
       if (!prev) return null;
       const content = elements.find((el) => el.type === type)?.name ?? "";
       const newBlock: BlockType = {
-        id: (prev.blocks?.[prev.blocks.length - 1]?.id ?? 0) + 1,
+        id: +(Date.now() + "0000"),
         content: `${content}::::`,
         type,
         caption: "",
         link: "",
         media: [],
-        position: (prev.blocks?.length ?? 0) + 1,
+        position: prev.blocks[prev.blocks?.length - 1].position + 1,
         title: "",
       };
 
@@ -81,6 +81,14 @@ const Page = () => {
     if (!post) return;
     const payload: PostCreateType = {
       ...post,
+      blocks: post.blocks.map((b) =>
+        b.id.toString().endsWith("0000")
+          ? {
+              ...b,
+              id: 0,
+            }
+          : b
+      ),
       categories: post.categories?.map((cat) => cat.name),
       tags: post.tags?.map((tag) => tag.name),
     };
@@ -168,8 +176,7 @@ const blockContainerStyles: SxProps = {
   bgcolor: "#fff",
   border: "1px solid rgba(204, 204, 204, 0.5)",
   borderRadius: "var(--border-radius)",
-  position: "sticky",
-  top: 0,
+  minHeight: "50%",
 };
 
 const sidebarContentStyles: SxProps = {
