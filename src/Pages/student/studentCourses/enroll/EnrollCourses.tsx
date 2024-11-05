@@ -33,6 +33,7 @@ import { Save } from "@mui/icons-material";
 import Breadcrumb from "../components/Breadcrumb";
 import { selectCurrentUser } from "../../../../store/auth.slice";
 import { CourseBaseType } from "../../../../types/courses";
+import { ApiError } from "../../../../types/errors";
 
 
 const EnrollCoursesPage = () => {
@@ -86,9 +87,14 @@ const EnrollCoursesPage = () => {
     setSelectedCourses(newSelected);
   };
 
-  const handleSearch = () => {
-    refetch({ name: searchParams.name, code: searchParams.code });
-  };
+const handleSearch = () => {
+  setSearchParams((prevSearchParams) => ({
+    ...prevSearchParams,
+    name: searchParams.name,
+    code: searchParams.code,
+  }));
+  refetch();
+};
 
   const handleSaveChanges = async () => {
     try {
@@ -111,15 +117,19 @@ const EnrollCoursesPage = () => {
         message: "Successfully updated course enrollment",
         severity: "success"
       });
-    } catch (error: Error) {
-      setSnackbar({
-        open: true,
-        message: error.data?.message || "Failed to update course enrollment",
-        severity: "error"
-      });
-      console.error('Error updating courses:', error);
+        } catch (error: unknown) {
+      if (error instanceof Error) {
+        setSnackbar({
+          open: true,
+          message: (error as ApiError).data?.message || "Failed to update course enrollment",
+          severity: "error"
+        });
+        console.error('Error updating courses:', error);
+      } else {
+        console.error('Unexpected error:', error);
+      }
     }
-  };
+  }
 
   if (isLoading) {
     return (

@@ -7,6 +7,13 @@ import {
 import { LevelCourseCreateType, LevelsResponse } from "../../types/levels";
 import { appApi } from "./app.api";
 
+
+interface GetCoursesParams {
+  semester?: string;
+  name?: string;
+  code?: string;
+}
+
 type Pagination = {
   page?: number;
   per_page?: number;
@@ -22,7 +29,7 @@ const coursesApi = appApi.injectEndpoints({
         `level/${level_id}/courses?page=${page}&per_page=${per_page}`,
       providesTags: ["Courses"],
     }),
-    getCourses: builder.query<CoursesResponse, null>({
+    getCourses: builder.query<CoursesResponse, GetCoursesParams>({
       query: (params) => ({
         url: "/course",
         params: {
