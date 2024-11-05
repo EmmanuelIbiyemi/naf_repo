@@ -1,16 +1,14 @@
-import { CoursesResponse } from "./courses";
-
 interface Participants {
   id: number;
 }
 
 export type ParticipantData = {
+  id?: number;
   address: string;
   courses: string[];
   created_at: string;
   email: string;
   first_name: string;
-  id: number;
   last_name: string;
   level: string;
   matric_number: string;

@@ -1,8 +1,6 @@
 import { 
   Box, 
-  Select, 
   FormControl, 
-  MenuItem, 
   Button, 
   Table, 
   TableBody, 
@@ -15,8 +13,12 @@ import {
   Alert,
   Snackbar,
   Checkbox,
-  Typography
+  Typography,
+  TextField,
+  InputAdornment,
+  IconButton
 } from "@mui/material";
+import { Search as SearchIcon } from "@mui/icons-material";
 import EmptyState from "../../../../components/EmptyState";
 import { useEffect, useState } from "react";
 import { useAppDispatch, useAppSelector } from "../../../../store/hooks";
@@ -27,27 +29,27 @@ import {
   useAddCoursesMutation,
   useDropCoursesMutation 
 } from "../../../../store/api/participants.api";
-import { Save, Search } from "@mui/icons-material";
+import { Save } from "@mui/icons-material";
 import Breadcrumb from "../components/Breadcrumb";
 import { selectCurrentUser } from "../../../../store/auth.slice";
-
+import { CourseBaseType } from "../../../../types/courses";
 
 
 const EnrollCoursesPage = () => {
   const dispatch = useAppDispatch();
 
-    const user = useAppSelector(selectCurrentUser);
-    const PARTICIPANT_ID = user.id; 
-  
+  const user = useAppSelector(selectCurrentUser);
+  const PARTICIPANT_ID = user.id; 
+
   // API queries and mutations
-  const { data: courses, isLoading, error } = useGetCoursesQuery(null);
+  const [searchParams, setSearchParams] = useState({ name: "", code: "" });
+  const { data: courses, isLoading, error, refetch } = useGetCoursesQuery(searchParams);
   const { data: participantData } = useGetParticipantQuery(PARTICIPANT_ID);
   const [addCourses, { isLoading: isEnrolling }] = useAddCoursesMutation();
   const [dropCourses, { isLoading: isDropping }] = useDropCoursesMutation();
 
   // State
-  const [selectedSemester, setSelectedSemester] = useState("all");
-  const [filteredCourses, setFilteredCourses] = useState(courses?.data || []);
+  const [filteredCourses, setFilteredCourses] = useState<CourseBaseType[]>(courses?.data || []);
   const [selectedCourses, setSelectedCourses] = useState<Set<number>>(new Set());
   const [snackbar, setSnackbar] = useState({
     open: false,
@@ -60,18 +62,12 @@ const EnrollCoursesPage = () => {
     dispatch(setPageName("Enroll Courses"));
   }, [dispatch]);
 
-  // Update filtered courses when semester changes
+  // Update filtered courses when search params change
   useEffect(() => {
     if (courses?.data) {
-      let filtered = [...courses.data];
-      
-      if (selectedSemester !== "all") {
-        filtered = filtered.filter(course => course.semester === selectedSemester);
-      }
-      
-      setFilteredCourses(filtered);
+      setFilteredCourses(courses.data);
     }
-  }, [courses?.data, selectedSemester]);
+  }, [courses?.data]);
 
   // Initialize selected courses when user data loads
   useEffect(() => {
@@ -88,6 +84,10 @@ const EnrollCoursesPage = () => {
       newSelected.add(courseId);
     }
     setSelectedCourses(newSelected);
+  };
+
+  const handleSearch = () => {
+    refetch({ name: searchParams.name, code: searchParams.code });
   };
 
   const handleSaveChanges = async () => {
@@ -111,7 +111,7 @@ const EnrollCoursesPage = () => {
         message: "Successfully updated course enrollment",
         severity: "success"
       });
-    } catch (error: any) {
+    } catch (error: Error) {
       setSnackbar({
         open: true,
         message: error.data?.message || "Failed to update course enrollment",
@@ -144,27 +144,24 @@ const EnrollCoursesPage = () => {
     <Box sx={{ display: 'flex', flexDirection: 'column', bgcolor: 'grey.100' }} className="content-container">
       <Breadcrumb />
 
-      {/* Semester Selector */}
-      <Box sx={{ display: 'flex', gap: 2, p: 2, bgcolor: '#D9D9D9' }}>
-        <FormControl sx={{ bgcolor: 'white', borderRadius: 1, minWidth: 200 }}>
-          <Select
-            value={selectedSemester}
-            onChange={(e) => setSelectedSemester(e.target.value)}
-            fullWidth
-          >
-            <MenuItem value="all">All Semesters</MenuItem>
-            <MenuItem value="First">First Semester</MenuItem>
-            <MenuItem value="Second">Second Semester</MenuItem>
-          </Select>
+      {/* Search Section */}
+      <Box sx={{ display: 'flex', gap: 2, p: 2, bgcolor: 'white' }}>
+        <FormControl sx={{ bgcolor: 'white', borderRadius: 1, flexGrow: 1 }}>
+          <TextField
+            label="Search by course name or code"
+            value={searchParams.name}
+            onChange={(e) => setSearchParams(prev => ({ ...prev, name: e.target.value }))}
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton onClick={handleSearch}>
+                    <SearchIcon />
+                  </IconButton>
+                </InputAdornment>
+              )
+            }}
+          />
         </FormControl>
-
-        <Button
-          variant="contained"
-          startIcon={<Search />}
-          sx={{ bgcolor: '#023678', color: 'white' }}
-        >
-          Search
-        </Button>
       </Box>
 
       {/* Courses Table Section */}
@@ -207,7 +204,7 @@ const EnrollCoursesPage = () => {
                     />
                   </TableCell>
                   <TableCell>COURSE CODE</TableCell>
-                  <TableCell>COURSE TITLE</TableCell>
+                  <TableCell>COURSE NAME</TableCell>
                   <TableCell>CREDIT UNITS</TableCell>
                   <TableCell>SEMESTER</TableCell>
                 </TableRow>
@@ -230,8 +227,8 @@ const EnrollCoursesPage = () => {
                       />
                     </TableCell>
                     <TableCell>{course.code}</TableCell>
-                    <TableCell>{course.title}</TableCell>
-                    <TableCell>{course.creditUnits}</TableCell>
+                    <TableCell>{course.name}</TableCell>
+                    <TableCell>{course.credit_units}</TableCell>
                     <TableCell>{course.semester}</TableCell>
                   </TableRow>
                 ))}
@@ -241,7 +238,7 @@ const EnrollCoursesPage = () => {
         ) : (
           <EmptyState
             title="No courses found"
-            subTitle="Try adjusting your semester filter"
+            subTitle="Try adjusting your search criteria"
           />
         )}
       </Box>
