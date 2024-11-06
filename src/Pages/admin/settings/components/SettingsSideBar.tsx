@@ -13,10 +13,13 @@ const SettingsSideBar = () => {
   const [navLinks] = useState<NavLink[]>([
     { content: "Media Library", link: "/settings" },
     { content: "Posts", link: "/settings/posts" },
-    { content: "Home Page", link: "/settings/page/home" },
-    { content: "About Page", link: "/settings/page/about" },
-    { content: "Updates Page", link: "/settings/page/updates" },
-    { content: "Courses Page", link: "/settings/page/courses" },
+    { content: "Pages", link: "/settings/pages" },
+    { content: "Navigation", link: "/settings/navigation" },
+    { content: "Footer", link: "/settings/footer" },
+    // { content: "Home Page", link: "/settings/page/home" },
+    // { content: "About Page", link: "/settings/page/about" },
+    // { content: "Updates Page", link: "/settings/page/updates" },
+    // { content: "Courses Page", link: "/settings/page/courses" },
   ]);
 
   const isCurrentPage = (navLink: NavLink) => {
