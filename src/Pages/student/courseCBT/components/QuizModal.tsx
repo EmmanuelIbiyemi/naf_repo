@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
   Box,
   Typography,
@@ -23,6 +23,13 @@ import EmptyState from "../../../../components/EmptyState";
 import { useGetCourseQuizzesQuery } from '../../../../store/api/quizzes.api';
 import { Link } from 'react-router-dom';
 
+type Props = {
+  open: string;
+  onClose:string;
+  courseId: number;
+  courseTitle: string;
+}
+
 const QuizModal = ({ open, onClose, courseId, courseTitle }) => {
   const { data: quizData, isLoading } = useGetCourseQuizzesQuery(courseId);
 
@@ -41,7 +48,7 @@ const QuizModal = ({ open, onClose, courseId, courseTitle }) => {
     overflow: 'auto'
   };
 
-  const isQuizExpired = (expiryDate) => {
+  const isQuizExpired = (expiryDate: string) => {
     return new Date(expiryDate) < new Date();
   };
 

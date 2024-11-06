@@ -32,7 +32,7 @@ const Dashboard: React.FC = () => {
   const dispatch = useAppDispatch();
   // Assuming we're getting the participant ID from somewhere (e.g., context, route params)
   const user = useAppSelector(selectCurrentUser);
-  const participantId = user.id; // Replace with actual ID source
+  const participantId = user?.id || 0; // Replace with actual ID source
   const { data: participantData, isLoading, error } = useGetParticipantQuery(participantId);
 
   useEffect(() => {

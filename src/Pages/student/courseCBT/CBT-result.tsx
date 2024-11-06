@@ -1,5 +1,5 @@
-import { useParams } from 'react-router-dom';
-import { useGetQuizResultQuery } from '../../../store/api/quizzes.api';
+import { useParams } from "react-router-dom";
+import { useGetQuizResultQuery } from "../../../store/api/quizzes.api";
 import {
   Box,
   Card,
@@ -12,26 +12,31 @@ import {
   Divider,
   Grid,
   Paper,
-} from '@mui/material';
+} from "@mui/material";
 import {
   CheckCircleOutline,
   Cancel,
   EmojiEvents,
-  Timer,
   Assignment,
-} from '@mui/icons-material';
+} from "@mui/icons-material";
 
-const ScoreCircle = ({ score, total }) => {
+type ScoreCircleProps = {
+  score: number;
+  total: number;
+};
+
+const ScoreCircle = ({ score, total }: ScoreCircleProps) => {
   const percentage = (score / total) * 100;
-  const color = percentage >= 70 ? 'success' : percentage >= 50 ? 'warning' : 'error';
+  const color =
+    percentage >= 70 ? "success" : percentage >= 50 ? "warning" : "error";
 
   return (
     <Box
       sx={{
-        position: 'relative',
-        display: 'inline-flex',
-        justifyContent: 'center',
-        alignItems: 'center',
+        position: "relative",
+        display: "inline-flex",
+        justifyContent: "center",
+        alignItems: "center",
         width: 200,
         height: 200,
       }}
@@ -45,10 +50,10 @@ const ScoreCircle = ({ score, total }) => {
       />
       <Box
         sx={{
-          position: 'absolute',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
+          position: "absolute",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
         }}
       >
         <Typography variant="h3" component="div" color={`${color}.main`}>
@@ -61,22 +66,25 @@ const ScoreCircle = ({ score, total }) => {
     </Box>
   );
 };
-
-const StatCard = ({ icon, title, value, color }) => (
+type StatCardProps = {
+  icon: any;
+  title: string;
+  value: string;
+  color: string;
+};
+const StatCard = ({ icon, title, value, color }: StatCardProps) => (
   <Paper
     elevation={2}
     sx={{
       p: 2,
-      height: '100%',
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      textAlign: 'center',
+      height: "100%",
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "center",
+      textAlign: "center",
     }}
   >
-    <Box sx={{ color: `${color}.main`, mb: 1 }}>
-      {icon}
-    </Box>
+    <Box sx={{ color: `${color}.main`, mb: 1 }}>{icon}</Box>
     <Typography variant="h6" gutterBottom>
       {value}
     </Typography>
@@ -88,11 +96,18 @@ const StatCard = ({ icon, title, value, color }) => (
 
 const QuizResult = () => {
   const { quizId } = useParams();
-  const { data: resultData, isLoading, error } = useGetQuizResultQuery(quizId);
+  const { data: resultData, isLoading, error } = useGetQuizResultQuery(Number(quizId));
 
   if (isLoading) {
     return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          minHeight: "60vh",
+        }}
+      >
         <CircularProgress />
       </Box>
     );
@@ -117,19 +132,19 @@ const QuizResult = () => {
   const passStatus = percentage >= 70;
 
   return (
-    <Box sx={{ p: 3, maxWidth: 1200, mx: 'auto' }}>
+    <Box sx={{ p: 3, maxWidth: 1200, mx: "auto" }}>
       <Card sx={{ p: 4 }}>
         <Stack spacing={4} alignItems="center">
           {/* Status Alert */}
-          <Alert 
+          <Alert
             severity={passStatus ? "success" : "error"}
-            sx={{ width: '100%' }}
+            sx={{ width: "100%" }}
           >
             <AlertTitle>
               {passStatus ? "Congratulations!" : "Keep Practicing!"}
             </AlertTitle>
-            {passStatus 
-              ? "You have successfully passed this quiz!" 
+            {passStatus
+              ? "You have successfully passed this quiz!"
               : "You didn't meet the passing score this time. Review and try again!"}
           </Alert>
 
@@ -172,7 +187,7 @@ const QuizResult = () => {
             </Grid>
           </Grid>
 
-          <Divider sx={{ width: '100%' }} />
+          <Divider sx={{ width: "100%" }} />
 
           {/* Action Buttons */}
           <Stack direction="row" spacing={2}>
@@ -183,10 +198,7 @@ const QuizResult = () => {
             >
               Take Quiz Again
             </Button>
-            <Button
-              variant="outlined"
-              onClick={() => window.history.back()}
-            >
+            <Button variant="outlined" onClick={() => window.history.back()}>
               Back to Quizzes
             </Button>
           </Stack>

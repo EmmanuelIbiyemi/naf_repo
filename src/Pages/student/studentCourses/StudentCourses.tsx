@@ -20,6 +20,8 @@ import { useGetParticipantQuery } from '../../../store/api/participants.api';
 import { useAppSelector } from '../../../store/hooks';
 import { selectCurrentUser } from '../../../store/auth.slice';
 import CoursesHeader from './CoursesHeader';
+import { CourseBaseType } from '../../../types/courses';
+import { InstructorType } from '../../../types/instructors';
 
 // Styled components
 const StyledCard = styled(Card)(({ theme }) => ({
@@ -41,8 +43,8 @@ const InfoValue = styled(Typography)({
 
 const StudentCourses: React.FC = () => {
   const user = useAppSelector(selectCurrentUser);
-  const participantId = user.id; // Replace with actual ID source
- 
+  const participantId = user?.id || 0; // Replace with actual ID source
+
   const { data: response, isLoading, error } = useGetParticipantQuery(participantId);
 
   if (isLoading) {
@@ -105,7 +107,7 @@ const StudentCourses: React.FC = () => {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {participant.courses.map((course: any) => (
+                {participant.courses.map((course: CourseBaseType) => (
                   <TableRow key={course.id}>
                     <TableCell>{course.code}</TableCell>
                     <TableCell>{course.name}</TableCell>
@@ -118,7 +120,7 @@ const StudentCourses: React.FC = () => {
                     </TableCell>
                     <TableCell>{course.credit_units || 'N/A'}</TableCell>
                     <TableCell>
-                      {course.instructors.map((instructor: any) => (
+                      {course.instructors.map((instructor: InstructorType) => (
                         <Typography key={instructor.id} variant="body2">
                           {instructor.first_name} {instructor.last_name}
                         </Typography>

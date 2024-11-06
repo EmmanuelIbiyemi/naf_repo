@@ -1,6 +1,5 @@
 import { Box, Typography, Button } from "@mui/material";
 import SchoolIcon from '@mui/icons-material/School';
-import DownloadIcon from '@mui/icons-material/Download';
 import { AddCircleOutline } from "@mui/icons-material";
 import { Link } from "react-router-dom"; // or "next/link" if using Next.js
 

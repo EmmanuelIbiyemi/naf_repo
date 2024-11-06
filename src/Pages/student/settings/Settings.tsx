@@ -22,7 +22,7 @@ import { selectCurrentUser } from "../../../store/auth.slice";
 const AccountSettings = () => {
   const dispatch = useAppDispatch();
   const user = useAppSelector(selectCurrentUser);
-  const participantId = user.id; // Replace with actual ID source
+  const participantId = user?.id || 0; // Replace with actual ID source
   const { data: participantData, isLoading } = useGetParticipantQuery(participantId);
   const [updateParticipant, { isLoading: isUpdating }] = useUpdateParticipantMutation();
 
@@ -94,8 +94,8 @@ const AccountSettings = () => {
   const handlePhotoUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-      if (file.size > 1024 * 1024) { // 1MB
-        setError('Image size should be under 1MB');
+      if (file.size > 4096 * 4096) { // 4MB
+        setError('Image size should be under 4MB');
         return;
       }
       
