@@ -12,6 +12,8 @@ const SettingsSideBar = () => {
   const location = useLocation();
   const [navLinks] = useState<NavLink[]>([
     { content: "Media Library", link: "/settings" },
+    { content: "Commandants", link: "/settings/posttype/commandants" },
+    { content: "Staff", link: "/settings/posttype/staffs" },
     { content: "Posts", link: "/settings/posttype/posts" },
     { content: "Pages", link: "/settings/posttype/page" },
     { content: "Navigation", link: "/settings/posttype/navigation" },

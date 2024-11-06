@@ -64,7 +64,9 @@ const Page = lazy(() => import("./Pages/admin/pages/Page"));
 const PostTypeItemsPage = lazy(
   () => import("./Pages/admin/pages/components/PostItemList")
 );
-const PostTypeItemsAddPage = lazy(() => import("./Pages/admin/pages/Page2"));
+const PostTypeItemsAddPage = lazy(
+  () => import("./Pages/admin/pages/DynamicPage")
+);
 
 // Instructor
 

@@ -562,7 +562,7 @@ const PageBuilder = ({ page, setPage }: Props) => {
                     },
                   }}
                 >
-                  {element.media.map((m) => (
+                  {element.media?.map((m) => (
                     <Box className="has_bg_image" key={`media-${m?.id}`}>
                       <img
                         className="bg"
@@ -629,7 +629,7 @@ const PageBuilder = ({ page, setPage }: Props) => {
                     },
                   }}
                 >
-                  {element.media.map((m) => (
+                  {element.media?.map((m) => (
                     <Box className="has_bg_image" key={`media-${m?.id}`}>
                       <img
                         className="bg"
@@ -768,6 +768,8 @@ const PageBuilder = ({ page, setPage }: Props) => {
               <TextField
                 label=""
                 defaultValue={content[0]}
+                multiline
+                rows={4}
                 onBlur={(e) => handleChange(e, "title", element.id)}
               />
             </FormControl>

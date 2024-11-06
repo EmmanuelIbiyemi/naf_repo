@@ -103,8 +103,9 @@ const PostPage = () => {
       navigation: navElements,
       footer: footerElements,
     };
-    if (resource_type) return sidebars[resource_type as keyof typeof sidebars];
-    return [];
+    const sidebar = sidebars[resource_type as keyof typeof sidebars];
+    if (sidebar) return sidebar;
+    return sidebars.posts;
   };
 
   useEffect(() => {
