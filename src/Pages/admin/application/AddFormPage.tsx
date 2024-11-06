@@ -3,7 +3,7 @@ import { setBuilderLoading, setPageName } from "../../../store/app.slice";
 import { useAppDispatch } from "../../../store/hooks";
 import ElementsSideBar from "./components/ElementsSideBar";
 import FormContentArea from "./components/FormContentArea";
-// import PropertiesSideBar from "./components/PropertiesSideBar";
+import PropertiesSideBar from "./components/PropertiesSideBar";
 import { DndContext, DragEndEvent, DragOverlay } from "@dnd-kit/core";
 import { useEffect, useState } from "react";
 import {
@@ -89,9 +89,9 @@ const AddFormPage = () => {
             <Button sx={{ cursor: "move" }}>{activeId}</Button>
           ) : null}
         </DragOverlay>
-        {/* <Box>
+        <Box>
           <PropertiesSideBar />
-        </Box> */}
+        </Box>
       </DndContext>
     </Box>
   );
@@ -101,5 +101,5 @@ export default AddFormPage;
 
 const pageStyles: SxProps = {
   display: "grid",
-  gridTemplateColumns: "300px 1fr",
+  gridTemplateColumns: "300px 1fr 300px",
 };
