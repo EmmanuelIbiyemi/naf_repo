@@ -40,7 +40,7 @@ const EnrollCoursesPage = () => {
   const dispatch = useAppDispatch();
 
   const user = useAppSelector(selectCurrentUser);
-  const PARTICIPANT_ID = user.id; 
+  const PARTICIPANT_ID = (user?.id || 0); 
 
   // API queries and mutations
   const [searchParams, setSearchParams] = useState({ name: "", code: "" });
