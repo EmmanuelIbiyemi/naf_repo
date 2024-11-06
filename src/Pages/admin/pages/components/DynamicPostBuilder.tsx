@@ -27,6 +27,11 @@ import { setBuilderLoading } from "../../../../store/app.slice";
 import { useAddMediaMutation } from "../../../../store/api/media.api";
 import { MediaType } from "../../../../types/media";
 
+const capitalizeText = (text: string) => {
+  const allTexts = text.split(" ");
+  return allTexts.map((t) => t[0].toUpperCase() + t.substring(1)).join(" ");
+};
+
 type ActionProp = {
   block: BlockType;
   setPage: React.Dispatch<React.SetStateAction<PostType>>;
@@ -123,6 +128,17 @@ type Props = {
 const PageBuilder = ({ page, setPage }: Props) => {
   const [uploadMedia] = useAddMediaMutation();
   const { data: pages } = useGetPostByCategoryQuery("page");
+
+  const pagesElements =
+    pages?.post.map((page) => (
+      <MenuItem key={`page-${page.id}`} value={page.title}>
+        {capitalizeText(page.title)}
+      </MenuItem>
+    )) || [];
+  pagesElements.push(
+    <MenuItem value={"e-learning"}>E-Learning</MenuItem>,
+    <MenuItem value={"apply"}>Apply</MenuItem>
+  );
 
   const handleOpenFileSelect = (event: MouseEvent<HTMLDivElement>) => {
     const target = event.currentTarget as HTMLDivElement;
@@ -276,11 +292,6 @@ const PageBuilder = ({ page, setPage }: Props) => {
         console.log(error);
       }
     }
-  };
-
-  const capitalizeText = (text: string) => {
-    const allTexts = text.split(" ");
-    return allTexts.map((t) => t[0].toUpperCase() + t.substring(1)).join(" ");
   };
 
   const displayEl = (element: BlockType) => {
@@ -737,12 +748,44 @@ const PageBuilder = ({ page, setPage }: Props) => {
                   value={content[1] || ""}
                   onChange={(e) => handleLinkPageChange(e, element.id)}
                 >
-                  {pages?.post.map((page) => (
-                    <MenuItem key={`page-${page.id}`} value={page.title}>
-                      {capitalizeText(page.title)}
-                    </MenuItem>
-                  ))}
-                  <MenuItem value={"e-learning"}>E-Learning</MenuItem>
+                  {pagesElements}
+                </Select>
+              </FormControl>
+            </Box>
+          </Box>
+        );
+        break;
+      case "buttonLink":
+        el = (
+          <Box>
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                marginBottom: ".2rem",
+              }}
+            >
+              <Typography variant="h5" id={`element-${element.id}`}>
+                Button Link
+              </Typography>
+              <ActionButtons block={element} setPage={setPage} />
+            </Box>
+            <Box sx={{ display: "flex", gap: "1rem" }}>
+              <FormControl fullWidth>
+                <label style={{ marginBottom: ".4rem" }}>Name</label>
+                <TextField
+                  label=""
+                  defaultValue={content[0]}
+                  onBlur={(e) => handleLinkChange(e, element.id)}
+                />
+              </FormControl>
+              <FormControl fullWidth>
+                <label style={{ marginBottom: ".4rem" }}>Page</label>
+                <Select
+                  value={content[1] || ""}
+                  onChange={(e) => handleLinkPageChange(e, element.id)}
+                >
+                  {pagesElements}
                 </Select>
               </FormControl>
             </Box>
