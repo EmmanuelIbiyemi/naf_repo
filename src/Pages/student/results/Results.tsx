@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
 import {
   Box,
   Typography,
@@ -20,34 +20,76 @@ import {
 import { useAppDispatch, useAppSelector } from "../../../store/hooks";
 import { setPageName } from "../../../store/app.slice";
 import { useStudentResultQuery } from "../../../store/api/result.api";
-import { selectCurrentUser } from '../../../store/auth.slice';
+import { useGetSessionsQuery } from "../../../store/api/sessions.api";
+import { selectCurrentUser } from "../../../store/auth.slice";
 
 export default function Results() {
   const dispatch = useAppDispatch();
-  const [selectedSession, setSelectedSession] = useState("2023/2024");
-  const [selectedSemester, setSelectedSemester] = useState("First Semester");
+  const [selectedSession, setSelectedSession] = useState("");
+  const [selectedSemester, setSelectedSemester] = useState("");
+  const [availableSemesters, setAvailableSemesters] = useState<
+    Array<{
+      id: number;
+      name: string;
+    }>
+  >([]);
 
-  // Hardcoded participant_id - replace with actual dynamic source
   const user = useAppSelector(selectCurrentUser);
-  const participantId = user.id; // Replace with actual ID source
+  const participantId = (user?.id || 0 );
+
+  // Fetch sessions data
+  const {
+    data: sessionsData,
+    isLoading: isLoadingSessions,
+    error: sessionsError,
+  } = useGetSessionsQuery(null);
+
+  // Set initial session and semester when data is loaded
+  useEffect(() => {
+    if (sessionsData?.data?.length > 0) {
+      const currentSession = sessionsData.data[0];
+      setSelectedSession(currentSession.name);
+
+      if (currentSession.semesters?.length > 0) {
+        setAvailableSemesters(currentSession.semesters);
+        setSelectedSemester(currentSession.semesters[0].name);
+      }
+    }
+  }, [sessionsData]);
+
+  // Update available semesters when session changes
+  const updateAvailableSemesters = (sessionName: string) => {
+    const session = sessionsData?.data.find((s) => s.name === sessionName);
+    if (session?.semesters) {
+      setAvailableSemesters(session.semesters);
+      setSelectedSemester(session.semesters[0].name);
+    }
+  };
 
   // Fetch student result
   const {
     data: resultData,
-    isLoading,
-    error
-  } = useStudentResultQuery({
-    participant_id: participantId,
-    session: selectedSession,
-    semester: selectedSemester
-  });
+    isLoading: isLoadingResults,
+    error: resultError,
+  } = useStudentResultQuery(
+    {
+      participant_id: participantId,
+      session: selectedSession,
+      semester: selectedSemester,
+    },
+    {
+      skip: !selectedSession || !selectedSemester,
+    }
+  );
 
   useEffect(() => {
     dispatch(setPageName("Results"));
   }, [dispatch]);
 
   const handleSessionChange = (event: SelectChangeEvent) => {
-    setSelectedSession(event.target.value as string);
+    const newSession = event.target.value as string;
+    setSelectedSession(newSession);
+    updateAvailableSemesters(newSession);
   };
 
   const handleSemesterChange = (event: SelectChangeEvent) => {
@@ -62,18 +104,25 @@ export default function Results() {
     console.log("Downloading result...");
   };
 
-  if (isLoading) {
+  if (isLoadingSessions) {
     return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "100vh",
+        }}
+      >
         <CircularProgress />
       </Box>
     );
   }
 
-  if (error) {
+  if (sessionsError) {
     return (
       <Alert severity="error">
-        Failed to load results. Please try again later.
+        Failed to load sessions. Please try again later.
       </Alert>
     );
   }
@@ -87,8 +136,11 @@ export default function Results() {
             onChange={handleSessionChange}
             sx={{ minWidth: "200px" }}
           >
-            <MenuItem value="2023/2024">2023/2024</MenuItem>
-            <MenuItem value="2022/2023">2022/2023</MenuItem>
+            {sessionsData?.data.map((session) => (
+              <MenuItem key={session.id} value={session.name}>
+                {session.name}
+              </MenuItem>
+            ))}
           </Select>
         </Box>
         <Box sx={filterItemStyle}>
@@ -97,41 +149,64 @@ export default function Results() {
             onChange={handleSemesterChange}
             sx={{ minWidth: "200px" }}
           >
-            <MenuItem value="First Semester">First Semester</MenuItem>
-            <MenuItem value="Second Semester">Second Semester</MenuItem>
+            {availableSemesters.map((semester) => (
+              <MenuItem key={semester.id} value={semester.name}>
+                {semester.name}
+              </MenuItem>
+            ))}
           </Select>
         </Box>
       </Box>
 
-      {/* Results Table */}
-      {!resultData?.data.length ? (
-        <Alert severity="info">No results found for the selected criteria.</Alert>
+      {isLoadingResults ? (
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            height: "50vh",
+          }}
+        >
+          <CircularProgress />
+        </Box>
+      ) : resultError ? (
+        <Alert severity="error">
+          Failed to load results. Please try again later.
+        </Alert>
+      ) : !resultData?.data.length ? (
+        <Alert severity="info">
+          No results found for the selected criteria.
+        </Alert>
       ) : (
         <Box>
           {/* Student Information Section */}
           <Grid container spacing={3} sx={{ mb: 3 }}>
-  <Grid item xs={6}>
-    <Box sx={infoSectionStyle}>
-      <Typography variant="caption" color="textSecondary">
-        MATRIC NO.: {resultData?.data?.participant?.matric_number || "Unassigned"}
-      </Typography>
-      <Typography variant="caption" color="textSecondary">
-        FULL NAME: {`${resultData?.data?.participant?.first_name || ''} ${resultData?.data?.participant?.last_name || ''}`}
-      </Typography>
-    </Box>
-  </Grid>
-  <Grid item xs={6}>
-    <Typography variant="caption" color="textSecondary">
-      SEMESTER: {resultData?.data?.semester || "N/A" + " "} 
-    </Typography>
-    <Typography variant="caption" color="textSecondary">
-      | LEVEL: {resultData?.data?.level?.name || "N/A" + " "}
-    </Typography>
-    <Typography variant="caption" color="textSecondary">
-      | SESSION: {resultData?.data?.session || "N/A"}
-    </Typography>
-  </Grid>
-</Grid>
+            <Grid item xs={6}>
+              <Box sx={infoSectionStyle}>
+                <Typography variant="caption" color="textSecondary">
+                  MATRIC NO.:{" "}
+                  {resultData?.data?.participant?.matric_number || "Unassigned"}
+                </Typography>
+                <Typography variant="caption" color="textSecondary">
+                  FULL NAME:{" "}
+                  {`${resultData?.data?.participant?.first_name || ""} ${
+                    resultData?.data?.participant?.last_name || ""
+                  }`}
+                </Typography>
+              </Box>
+            </Grid>
+            <Grid item xs={6}>
+              <Typography variant="caption" color="textSecondary">
+                SEMESTER: {resultData?.data?.semester || "N/A" + " "}
+              </Typography>
+              <Typography variant="caption" color="textSecondary">
+                | LEVEL: {resultData?.data?.level?.name || "N/A" + " "}
+              </Typography>
+              <Typography variant="caption" color="textSecondary">
+                | SESSION: {resultData?.data?.session || "N/A"}
+              </Typography>
+            </Grid>
+          </Grid>
 
           {/* Courses Table */}
           <TableContainer component={Paper} sx={tableContainerStyle}>
@@ -147,26 +222,25 @@ export default function Results() {
                 </TableRow>
               </TableHead>
               <TableBody>
-  {resultData?.data?.details?.length ? (
-    resultData.data.details.map((course, index) => (
-      <TableRow key={index}>
-        <TableCell>{index + 1}</TableCell>
-        <TableCell>{course.course_code}</TableCell>
-        <TableCell>{course.course_name}</TableCell>
-        <TableCell>{course.course_credit_unit}</TableCell>
-        <TableCell>{course.total_obtained_score}</TableCell>
-        <TableCell>{course.score_name}</TableCell>
-      </TableRow>
-    ))
-  ) : (
-    <TableRow>
-      <TableCell colSpan={6} align="center">
-        No courses found for the selected criteria.
-      </TableCell>
-    </TableRow>
-  )}
-</TableBody>
-
+                {resultData?.data?.details?.length ? (
+                  resultData.data.details.map((course, index: number) => (
+                    <TableRow key={index}>
+                      <TableCell>{index + 1}</TableCell>
+                      <TableCell>{course.course_code}</TableCell>
+                      <TableCell>{course.course_name}</TableCell>
+                      <TableCell>{course.course_credit_unit}</TableCell>
+                      <TableCell>{course.total_obtained_score}</TableCell>
+                      <TableCell>{course.score_name}</TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={6} align="center">
+                      No courses found for the selected criteria.
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
             </Table>
           </TableContainer>
 
@@ -176,21 +250,33 @@ export default function Results() {
               GPA: {resultData?.data?.summary?.grade_point_average || "N/A"}
             </Typography>
             <Typography variant="caption" color="textSecondary">
-              CGPA: {resultData?.data?.summary?.cumulative_grade_point_average || "N/A"}
+              CGPA:{" "}
+              {resultData?.data?.summary?.cumulative_grade_point_average ||
+                "N/A"}
             </Typography>
           </Box>
 
           {/* Footer Section */}
           <Box sx={footerStyle}>
             <Box>
-              <Typography variant="body2" color="textSecondary">TNU: {resultData?.data?.summary?.total_credit_units || "N/A"}</Typography>
-              <Typography variant="body2" color="textSecondary">Cumulative TNU: {resultData?.data?.summary?.total_credit_units || "N/A"}</Typography>
+              <Typography variant="body2" color="textSecondary">
+                TNU: {resultData?.data?.summary?.total_credit_units || "N/A"}
+              </Typography>
+              <Typography variant="body2" color="textSecondary">
+                Cumulative TNU:{" "}
+                {resultData?.data?.summary?.total_credit_units || "N/A"}
+              </Typography>
             </Box>
             <Box>
-              <Typography variant="body2" color="textSecondary">TCP: {resultData?.data?.summary?.total_grade_points || "N/A"}</Typography>
-              <Typography variant="body2" color="textSecondary">Cumulative TCP: {resultData?.data?.summary?.total_grade_points || "N/A"}</Typography>
+              <Typography variant="body2" color="textSecondary">
+                TCP: {resultData?.data?.summary?.total_grade_points || "N/A"}
+              </Typography>
+              <Typography variant="body2" color="textSecondary">
+                Cumulative TCP:{" "}
+                {resultData?.data?.summary?.total_grade_points || "N/A"}
+              </Typography>
             </Box>
-            <Box sx={{ display: 'flex', gap: 1 }}>
+            <Box sx={{ display: "flex", gap: 1 }}>
               <Button variant="outlined" onClick={handleDownload}>
                 Download
               </Button>

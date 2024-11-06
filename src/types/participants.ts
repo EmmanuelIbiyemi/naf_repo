@@ -15,12 +15,12 @@ export type ParticipantData = {
   level: {
     name: string;
     program: {
-      name:string
-      department:{
-        name:string
-      }
-    }
-  }
+      name: string;
+      department: {
+        name: string;
+      };
+    };
+  };
   matric_number: string;
   phone: string;
   photo: string;

@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import {
   Box,
   Typography,
@@ -10,7 +10,7 @@ import {
   ListItemIcon,
   ListItemText,
   ListItemButton,
-  Divider
+  Divider,
 } from "@mui/material";
 import {
   Book,
@@ -18,19 +18,24 @@ import {
   CalendarMonth,
   Grade,
   Notes,
-  ArrowForward
+  ArrowForward,
 } from "@mui/icons-material";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 import EmptyState from "../../../components/EmptyState";
-import { useGetParticipantQuery } from '../../../store/api/participants.api';
-import { useAppSelector } from '../../../store/hooks';
-import { selectCurrentUser } from '../../../store/auth.slice';
+import { useGetParticipantQuery } from "../../../store/api/participants.api";
+import { useAppSelector } from "../../../store/hooks";
+import { selectCurrentUser } from "../../../store/auth.slice";
+import { CourseBaseType } from "../../../types/courses";
 
 interface OverviewCardProps {
   icon: React.ReactNode;
   label: string;
   value: string | number;
   primary?: boolean;
+}
+
+interface CourseNotesListProps {
+  courses: CourseBaseType[] | undefined;
 }
 
 const OverviewCard = ({ icon, label, value, primary }: OverviewCardProps) => (
@@ -42,21 +47,23 @@ const OverviewCard = ({ icon, label, value, primary }: OverviewCardProps) => (
     }}
   >
     <CardContent sx={cardContentStyle}>
-      <Box sx={iconContainerStyle}>
-        {icon}
-      </Box>
+      <Box sx={iconContainerStyle}>{icon}</Box>
       <Box sx={{ flex: 1 }}>
-        <Typography sx={{
-          fontSize: "0.875rem",
-          color: primary ? "rgba(255,255,255,0.8)" : "text.secondary",
-          mb: 0.5
-        }}>
+        <Typography
+          sx={{
+            fontSize: "0.875rem",
+            color: primary ? "rgba(255,255,255,0.8)" : "text.secondary",
+            mb: 0.5,
+          }}
+        >
           {label}
         </Typography>
-        <Typography sx={{
-          fontSize: "1.5rem",
-          fontWeight: 500
-        }}>
+        <Typography
+          sx={{
+            fontSize: "1.5rem",
+            fontWeight: 500,
+          }}
+        >
           {value}
         </Typography>
       </Box>
@@ -64,7 +71,7 @@ const OverviewCard = ({ icon, label, value, primary }: OverviewCardProps) => (
   </Card>
 );
 
-const CourseNotesList = ({ courses }) => {
+const CourseNotesList: React.FC<CourseNotesListProps> = ({ courses }) => {
   const navigate = useNavigate();
 
   if (!courses?.length) {
@@ -77,30 +84,30 @@ const CourseNotesList = ({ courses }) => {
   }
 
   return (
-    <List sx={{ width: '100%', bgcolor: 'background.paper' }}>
-      {courses.map((course, index) => (
+    <List sx={{ width: "100%", bgcolor: "background.paper" }}>
+      {courses.map((course: CourseBaseType, index: number) => (
         <React.Fragment key={course.id}>
           <ListItem disablePadding>
-            <ListItemButton 
+            <ListItemButton
               onClick={() => navigate(`/student/courses/${course.id}/notes`)}
               sx={{
                 py: 2,
-                '&:hover': {
-                  bgcolor: 'rgba(0, 0, 0, 0.04)',
-                }
+                "&:hover": {
+                  bgcolor: "rgba(0, 0, 0, 0.04)",
+                },
               }}
             >
               <ListItemIcon>
                 <Notes color="primary" />
               </ListItemIcon>
-              <ListItemText 
-                primary={course.title}
+              <ListItemText
+                primary={course.name}
                 secondary={`${course.code}: ${course.name}`}
                 primaryTypographyProps={{
-                  fontWeight: 500
+                  fontWeight: 500,
                 }}
               />
-              <ArrowForward sx={{ color: 'text.secondary' }} />
+              <ArrowForward sx={{ color: "text.secondary" }} />
             </ListItemButton>
           </ListItem>
           {index < courses.length - 1 && <Divider component="li" />}
@@ -112,12 +119,16 @@ const CourseNotesList = ({ courses }) => {
 
 const Overview = () => {
   const user = useAppSelector(selectCurrentUser);
-  const participantId = user.id;
-  const { data: participantData, isLoading, error } = useGetParticipantQuery(participantId);
+  const participantId = user?.id || 0;
+  const {
+    data: participantData,
+    isLoading,
+    error,
+  } = useGetParticipantQuery(participantId);
 
   if (isLoading) {
     return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', padding: '2rem' }}>
+      <Box sx={{ display: "flex", justifyContent: "center", padding: "2rem" }}>
         <CircularProgress />
       </Box>
     );
@@ -125,7 +136,7 @@ const Overview = () => {
 
   if (error || !participantData) {
     return (
-      <Box sx={{ padding: '2rem' }}>
+      <Box sx={{ padding: "2rem" }}>
         <EmptyState
           title="Error loading data"
           subTitle="There was a problem loading your information. Please try again later."
@@ -154,16 +165,8 @@ const Overview = () => {
           label="Level"
           value={participant.level?.name || "N/A"}
         />
-        <OverviewCard
-          icon={<CalendarMonth />}
-          label="Semester"
-          value={1}
-        />
-        <OverviewCard
-          icon={<Grade />}
-          label="CGPA"
-          value="N/A"
-        />
+        <OverviewCard icon={<CalendarMonth />} label="Semester" value={1} />
+        <OverviewCard icon={<Grade />} label="CGPA" value="N/A" />
       </Box>
 
       <Typography variant="h2" sx={{ ...sectionTitleStyle, mt: 4 }}>
