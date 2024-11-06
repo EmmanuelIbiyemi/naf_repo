@@ -39,7 +39,7 @@ const LiveClasses = () => {
   };
 
   // Process live classes data
-  const processClassStatus = (liveClass: any) => {
+  const processClassStatus = (liveClass: {start_time: string}) => {
     const startTime = dayjs(liveClass.start_time);
     const now = dayjs();
     const diffMinutes = startTime.diff(now, 'minute');
