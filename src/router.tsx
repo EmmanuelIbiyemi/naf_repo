@@ -2,7 +2,7 @@
 import { createBrowserRouter } from "react-router-dom";
 import { lazy } from "react";
 import ReportsExpanded from "./Pages/instructor/reports/ReportsExpanded";
-import PostPage from "./Pages/admin/post/AddPostPage";
+import PostPage from "./Pages/admin/posts/AddPostPage";
 
 // Admin
 
