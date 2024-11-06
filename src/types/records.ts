@@ -17,6 +17,11 @@ export interface recordInput {
   course_id: number;
 }
 
+export interface updateRecordInput {
+  name: string;
+  obtainable_score: number;
+}
+
 export interface scoresResponse {
   created_at: string;
   id: number;

@@ -20,7 +20,6 @@ const Header = () => {
           color: "rgba(85, 85, 85, 1)",
           fontSize: "1.7rem",
           fontWeight: "500 !important",
-          
         }}
       >
         {mainPage}
@@ -44,7 +43,10 @@ const Header = () => {
               <Notifications />
             </IconButton>
           ) : (
-            <IconButton onClick={() => navigate("/instructor/posts")}>
+            // <IconButton onClick={() => navigate("/instructor/posts")}  >
+            //   <Notifications />
+            // </IconButton>
+            <IconButton onClick={() => {}}>
               <Notifications />
             </IconButton>
           )}
@@ -73,7 +75,7 @@ const Header = () => {
             </Typography>
           </Box>
           <Box className="has_bg_image" sx={profileImageStyles}>
-            <img className="bg" src="" alt="" />
+            <img className="bg" src={user?.photo} alt="" />
           </Box>
         </Box>
       </Box>
@@ -95,10 +97,9 @@ const headerStyles: SxProps = {
   gridArea: "header",
   justifyContent: "space-between",
   paddingInline: "var(--padding)",
-  '@media print': { 
-          display: 'none' 
-        },
-        
+  "@media print": {
+    display: "none",
+  },
 };
 
 const usernameStyles: SxProps = {

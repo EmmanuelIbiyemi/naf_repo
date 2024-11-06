@@ -23,7 +23,11 @@ import SuccessModal from "../../../../../components/SuccessModal";
 import { useEffect, useState } from "react";
 import { ParticipantData } from "../../../../../types/participants";
 import { recordResponse } from "../../../../../types/records";
-import { useAddBulkRecordScoresMutation } from "../../../../../store/api/records.api";
+import {
+  useAddBulkRecordScoresMutation,
+  useDeleteRecordScoreMutation,
+} from "../../../../../store/api/records.api";
+import DeleteConfirmationModal from "../../../../../components/DeleteConfirmationModal";
 
 interface AddScoresModalProps {
   open: boolean;
@@ -48,7 +52,19 @@ const AddScoresModal = ({
       obtainedScore: number | null;
     }>
   >([]);
+
+  const [deleteModalState, setDeleteModalState] = useState({
+    open: false,
+    participantId: null as number | null,
+    rowIndex: -1,
+    participantName: "",
+  });
+
   const [addScores, { isLoading }] = useAddBulkRecordScoresMutation();
+  const [deleteScore, { isLoading: isDeleting }] =
+    useDeleteRecordScoreMutation();
+  const [openSuccessModal, setOpenSuccessModal] = useState(false);
+  const [openDeletedSuccessModal, setOpenDeletedSuccessModal] = useState(false);
 
   useEffect(() => {
     if (!open) {
@@ -81,6 +97,48 @@ const AddScoresModal = ({
     setRows(newRows);
   };
 
+  const handleConfirmDelete = async () => {
+    const { participantId, rowIndex } = deleteModalState;
+    const scoreId = recordItem?.scores.find(
+      (score) => score.participant.id === participantId
+    )?.id;
+
+    if (scoreId) {
+      try {
+        await deleteScore({ score_id: scoreId }).unwrap();
+        removeRow(rowIndex);
+        refetch();
+        setDeleteModalState({
+          open: false,
+          participantId: null,
+          rowIndex: -1,
+          participantName: "",
+        });
+        setOpenDeletedSuccessModal(true);
+      } catch (error) {
+        console.error("Error deleting score:", error);
+      }
+    }
+  };
+
+  const handleDeleteClick = (participantId: number | null, index: number) => {
+    if (participantId) {
+      const participant = courseParticipants.find(
+        (p) => p.id === participantId
+      );
+      const participantName = participant
+        ? `${participant.first_name} ${participant.last_name}`
+        : "Unknown Student";
+
+      setDeleteModalState({
+        open: true,
+        participantId,
+        rowIndex: index,
+        participantName,
+      });
+    }
+  };
+
   const formik = useFormik({
     initialValues: {
       scores: rows,
@@ -107,21 +165,13 @@ const AddScoresModal = ({
 
       try {
         await addScores({ scores: payloads, record_id: recordId! });
-        // console.log({ scores: payloads, record_id: recordId! });
         refetch();
-        handleOpenSuccessModal();
+        setOpenSuccessModal(true);
       } catch (error) {
         console.error(error);
       }
     },
   });
-
-  const [openSuccessModal, setOpenSuccessModal] = useState(false);
-  const handleOpenSuccessModal = () => setOpenSuccessModal(true);
-  const handleCloseSuccessModal = () => {
-    setOpenSuccessModal(false);
-    handleClose();
-  };
 
   return (
     <Modal open={open} onClose={handleClose}>
@@ -181,8 +231,8 @@ const AddScoresModal = ({
                             );
                             setRows(newRows);
                           }}
-                          defaultValue={parseInt("")}
                         >
+                          <MenuItem defaultValue={""}></MenuItem>
                           {courseParticipants.map((participant) => (
                             <MenuItem
                               key={participant.id}
@@ -229,8 +279,10 @@ const AddScoresModal = ({
                     </TableCell>
                     <TableCell>
                       <IconButton
-                        onClick={() => removeRow(index)}
-                        disabled={rows.length === 1}
+                        onClick={() =>
+                          handleDeleteClick(row.participantId, index)
+                        }
+                        disabled={isDeleting}
                         size="small"
                       >
                         <Remove />
@@ -262,19 +314,45 @@ const AddScoresModal = ({
           </Box>
         </form>
 
+        <DeleteConfirmationModal
+          actions={{
+            proceed: handleConfirmDelete,
+            undo: () =>
+              setDeleteModalState((prev) => ({ ...prev, open: false })),
+          }}
+          close={() =>
+            setDeleteModalState((prev) => ({ ...prev, open: false }))
+          }
+          infoText="This action cannot be undone."
+          open={deleteModalState.open}
+          subTitle={`Are you sure you want to delete the score for student "${deleteModalState.participantName}"?`}
+          title="Delete Score?"
+        />
+
         <SuccessModal
           actions={{
-            proceed: () => {
-              console.log("proceed");
-            },
-            undo: () => {
-              console.log("undo");
-            },
+            proceed: () => handleClose(),
+            undo: () => handleClose(),
           }}
-          close={handleCloseSuccessModal}
+          close={() => {
+            setOpenSuccessModal(false);
+            handleClose();
+          }}
           infoText=""
           open={openSuccessModal}
           subTitle="Scores have been successfully updated!"
+          title="Successful"
+        />
+
+        <SuccessModal
+          actions={{
+            proceed: () => {},
+            undo: () => {},
+          }}
+          close={() => setOpenDeletedSuccessModal(false)}
+          infoText=""
+          open={openDeletedSuccessModal}
+          subTitle="Score has been successfully deleted!"
           title="Successful"
         />
       </Box>

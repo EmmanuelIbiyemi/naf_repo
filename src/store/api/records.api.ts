@@ -4,6 +4,7 @@ import {
   recordResponse,
   scoresInput,
   scoresResponse,
+  updateRecordInput,
 } from "../../types/records";
 import { appApi } from "./app.api";
 
@@ -16,18 +17,29 @@ const recordsApi = appApi.injectEndpoints({
       }
     ),
     addRecord: builder.mutation<{ data: recordResponse }, recordInput>({
-      query: (course) => ({
+      query: (record) => ({
         url: `/record`,
         method: "POST",
-        body: course,
+        body: record,
+      }),
+      invalidatesTags: ["Record"],
+    }),
+    updateRecord: builder.mutation<
+      { data: recordResponse },
+      { id: number } & updateRecordInput
+    >({
+      query: ({ id, ...record }) => ({
+        url: `/record/${id}`,
+        method: "PATCH",
+        body: record,
       }),
       invalidatesTags: ["Record"],
     }),
     addRecordScores: builder.mutation<{ data: scoresResponse }, scoresInput>({
-      query: (course) => ({
+      query: (record) => ({
         url: `/score`,
         method: "POST",
-        body: course,
+        body: record,
       }),
       invalidatesTags: ["Record"],
     }),
@@ -35,10 +47,30 @@ const recordsApi = appApi.injectEndpoints({
       { data: scoresResponse },
       bulkScoresInput
     >({
-      query: (course) => ({
+      query: (record) => ({
         url: `/score/bulk`,
         method: "POST",
-        body: course,
+        body: record,
+      }),
+      invalidatesTags: ["Record"],
+    }),
+    deleteRecord: builder.mutation<
+      { message: string; status: string },
+      { record_id: number }
+    >({
+      query: ({ record_id }) => ({
+        url: `/record/${record_id}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["Record"],
+    }),
+    deleteRecordScore: builder.mutation<
+      { message: string; status: string },
+      { score_id: number }
+    >({
+      query: ({ score_id }) => ({
+        url: `/score/${score_id}`,
+        method: "DELETE",
       }),
       invalidatesTags: ["Record"],
     }),
@@ -49,6 +81,9 @@ const recordsApi = appApi.injectEndpoints({
 export const {
   useGetRecordQuery,
   useAddRecordMutation,
+  useUpdateRecordMutation,
   useAddRecordScoresMutation,
   useAddBulkRecordScoresMutation,
+  useDeleteRecordMutation,
+  useDeleteRecordScoreMutation,
 } = recordsApi;
