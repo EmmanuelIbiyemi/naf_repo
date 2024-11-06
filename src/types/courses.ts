@@ -8,6 +8,7 @@ export type CourseBaseType = {
   semester: string;
   type: string;
   level_id: number;
+  invigilatorSign?: string;
   instructors?: InstructorType[];
 };
 

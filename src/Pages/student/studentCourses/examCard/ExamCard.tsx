@@ -22,7 +22,7 @@ import logo from '../../../../assets/logo.png'
 const ExamCard = () => {
   // Assuming we get the participant ID from URL params or props
   const user = useAppSelector(selectCurrentUser);
-  const participantId = user?.id; // Replace with actual ID source
+  const participantId = (user?.id || 0); // Replace with actual ID source
   const { data: response, isLoading, error } = useGetParticipantQuery(participantId);
 
   if (isLoading) {
