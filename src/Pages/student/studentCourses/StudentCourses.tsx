@@ -69,21 +69,21 @@ const StudentCourses: React.FC = () => {
 
   return (
     <Box p={3}>
-
       <CoursesHeader />
 
       {/* Personal Information Card */}
       <StyledCard>
         <CardContent>
-
           <Grid container spacing={3}>
             <Grid item xs={12} sm={6}>
               <InfoLabel>Matric Number</InfoLabel>
-              <InfoValue>{participant.matric_number || 'Not assigned'}</InfoValue>
+              <InfoValue>
+                {participant.matric_number || "Not assigned"}
+              </InfoValue>
             </Grid>
             <Grid item xs={12} sm={6}>
               <InfoLabel>Level</InfoLabel>
-              <InfoValue>{participant.level?.name || 'Not assigned'}</InfoValue>
+              <InfoValue>{participant.level?.name || "Not assigned"}</InfoValue>
             </Grid>
           </Grid>
         </CardContent>
@@ -114,17 +114,21 @@ const StudentCourses: React.FC = () => {
                     <TableCell>
                       <Chip
                         label={course.semester}
-                        color={course.semester === 'First Semester' ? 'primary' : 'secondary'}
+                        color={
+                          course.semester === "First Semester"
+                            ? "primary"
+                            : "secondary"
+                        }
                         size="small"
                       />
                     </TableCell>
-                    <TableCell>{course.credit_units || 'N/A'}</TableCell>
+                    <TableCell>{course.credit_units || "N/A"}</TableCell>
                     <TableCell>
-                      {course.instructors.map((instructor: InstructorType) => (
+                      {course.instructors?.map((instructor: InstructorType) => (
                         <Typography key={instructor.id} variant="body2">
                           {instructor.first_name} {instructor.last_name}
                         </Typography>
-                      ))}
+                      )) || "No instructor assigned"}
                     </TableCell>
                   </TableRow>
                 ))}
