@@ -16,6 +16,7 @@ import { MouseEvent, useState } from "react";
 const Header = () => {
   const pageName = useAppSelector(selectPageName);
   const user = useAppSelector(selectCurrentUser);
+  
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const [mainPage, subPage] = pageName.split("/");
@@ -96,7 +97,7 @@ const Header = () => {
             sx={profileImageStyles}
             onClick={handleClick}
           >
-            <img className="bg" src="" alt="" />
+            <img className="bg" src={user?.photo} alt="" />
           </Box>
           <Menu anchorEl={anchorEl} open={open} onClose={handleClose}>
             <Typography sx={{ padding: ".8rem 1rem" }}>

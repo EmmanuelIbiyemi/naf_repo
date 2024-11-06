@@ -35,13 +35,11 @@ const baseQueryWithErrorHandling: BaseQueryFn<
     result.error.originalStatus === 502 &&
     retryCount < 1
   ) {
-    // increment and retry
     retryCount++;
     result = await baseQuery(args, api, extraOptions);
   }
 
   if (result.error && result.error.status === 401) {
-    // log the user out if refresh token isnt found
     alert("Session expired, Please signin to continue");
     api.dispatch(logout());
     api.dispatch(authApiSlice.util.resetApiState());
@@ -49,6 +47,14 @@ const baseQueryWithErrorHandling: BaseQueryFn<
 
   return result;
 };
+
+interface ResetPasswordResponse {
+  message: string;
+}
+
+interface ResetPasswordRequest {
+  password: string;
+}
 
 export const authApiSlice = createApi({
   reducerPath: "authApi",
@@ -71,7 +77,20 @@ export const authApiSlice = createApi({
         body: { ...values },
       }),
     }),
+
+    resetPassword: builder.mutation<
+      ResetPasswordResponse,
+      ResetPasswordRequest
+    >({
+      query: (credentials) => ({
+        url: "/user/reset-password",
+        method: "PATCH",
+        body: credentials,
+      }),
+      // Invalidate the Users tag to refetch user data if needed
+      invalidatesTags: ["Users"],
+    }),
   }),
 });
 
-export const { useLoginMutation } = authApiSlice;
+export const { useLoginMutation, useResetPasswordMutation } = authApiSlice;

@@ -12,32 +12,38 @@ import { Visibility, VisibilityOff, Upload } from "@mui/icons-material";
 import { useState, useEffect } from "react";
 import { useAppDispatch, useAppSelector } from "../../../store/hooks";
 import { setPageName } from "../../../store/app.slice";
-import { 
-  useGetParticipantQuery, 
-  useUpdateParticipantMutation 
-} from '../../../store/api/participants.api';
+import {
+  useGetParticipantQuery,
+  useUpdateParticipantMutation,
+} from "../../../store/api/participants.api";
+import { useAddMediaMutation } from "../../../store/api/media.api";
 import EmptyState from "../../../components/EmptyState";
 import { selectCurrentUser } from "../../../store/auth.slice";
+import { useResetPasswordMutation } from "../../../store/api/auth.api";
 
 const AccountSettings = () => {
   const dispatch = useAppDispatch();
   const user = useAppSelector(selectCurrentUser);
-  const participantId = user?.id || 0; // Replace with actual ID source
-  const { data: participantData, isLoading } = useGetParticipantQuery(participantId);
-  const [updateParticipant, { isLoading: isUpdating }] = useUpdateParticipantMutation();
+  const participantId = user?.id || 0;
+  const { data: participantData, isLoading } =
+    useGetParticipantQuery(participantId);
+  const [updateParticipant, { isLoading: isUpdating }] =
+    useUpdateParticipantMutation();
+  const [addMedia, { isLoading: isUploadingMedia }] = useAddMediaMutation();
 
   const [formData, setFormData] = useState({
-    first_name: '',
-    last_name: '',
-    email: '',
-    phone: '',
-    photo: '',
+    first_name: "",
+    last_name: "",
+    email: "",
+    phone: "",
+    photo: "",
+    // photo_id: null as number | null,
   });
 
   const [passwords, setPasswords] = useState({
-    current: '',
-    new: '',
-    confirm: '',
+    current: "",
+    new: "",
+    confirm: "",
   });
 
   const [showPassword, setShowPassword] = useState({
@@ -46,8 +52,8 @@ const AccountSettings = () => {
     confirm: false,
   });
 
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
 
   useEffect(() => {
     dispatch(setPageName("Account settings"));
@@ -57,32 +63,32 @@ const AccountSettings = () => {
     if (participantData?.data) {
       const { data } = participantData;
       setFormData({
-        first_name: data.first_name || '',
-        last_name: data.last_name || '',
-        email: data.email || '',
-        phone: data.phone || '',
-        photo: data.photo || '',
+        first_name: data.first_name || "",
+        last_name: data.last_name || "",
+        email: data.email || "",
+        phone: data.phone || "",
+        photo: data.photo || "",
       });
     }
   }, [participantData]);
 
-  const handleInputChange = (field: keyof typeof formData) => (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    setFormData(prev => ({
-      ...prev,
-      [field]: event.target.value
-    }));
-  };
+  const handleInputChange =
+    (field: keyof typeof formData) =>
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      setFormData((prev) => ({
+        ...prev,
+        [field]: event.target.value,
+      }));
+    };
 
-  const handlePasswordChange = (field: keyof typeof passwords) => (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    setPasswords(prev => ({
-      ...prev,
-      [field]: event.target.value
-    }));
-  };
+  const handlePasswordChange =
+    (field: keyof typeof passwords) =>
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      setPasswords((prev) => ({
+        ...prev,
+        [field]: event.target.value,
+      }));
+    };
 
   const handleClickShowPassword = (field: keyof typeof showPassword) => {
     setShowPassword((prev) => ({
@@ -91,33 +97,49 @@ const AccountSettings = () => {
     }));
   };
 
-  const handlePhotoUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handlePhotoUpload = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
     const file = event.target.files?.[0];
-    if (file) {
-      if (file.size > 4096 * 4096) { // 4MB
-        setError('Image size should be under 4MB');
-        return;
-      }
-      
-      // Here you would typically upload to your server/cloud storage
-      // For now, we'll create a base64 preview
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setFormData(prev => ({
+    if (!file) return;
+
+    if (file.size > 4 * 1024 * 1024) {
+      // 4MB
+      setError("Image size should be under 4MB");
+      return;
+    }
+
+    try {
+      // Create FormData object for the file upload
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("type", "image");
+      formData.append("name", file.name);
+
+      // Upload the file using the media API
+      const response = await addMedia(formData).unwrap();
+
+      // Update the form data with the new photo URL and ID
+      if (response.media && response.media[0]) {
+        const uploadedMedia = response.media[0];
+        setFormData((prev) => ({
           ...prev,
-          photo: reader.result as string
+          photo: uploadedMedia.url,
+          photo_id: uploadedMedia.id,
         }));
-      };
-      reader.readAsDataURL(file);
+        setSuccess("Photo uploaded successfully");
+      }
+    } catch (err) {
+      setError("Failed to upload photo: " + err);
     }
   };
 
   const handleSaveChanges = async () => {
     try {
-      setError('');
-      setSuccess('');
-      
-      await updateParticipant({ 
+      setError("");
+      setSuccess("");
+
+      await updateParticipant({
         id: participantId,
         data: {
           first_name: formData.first_name,
@@ -125,33 +147,79 @@ const AccountSettings = () => {
           email: formData.email,
           phone: formData.phone,
           photo: formData.photo,
-        }
+          // photo_id: formData.photo_id, // Include photo_id in the update
+        },
       }).unwrap();
-      
-      setSuccess('Profile updated successfully');
+
+      setSuccess("Profile updated successfully");
     } catch (err) {
-      setError('Failed to update profile' + err);
+      setError("Failed to update profile: " + err);
     }
   };
 
+  const [resetPassword] = useResetPasswordMutation();
+
+  // Add this interface for the error response
+  interface ApiError {
+    data?: {
+      message?: string;
+    };
+    status?: number;
+    message?: string;
+  }
+
   const handleChangePassword = async () => {
-    if (passwords.new !== passwords.confirm) {
-      setError('New passwords do not match');
-      return;
+    try {
+      // Clear previous messages
+      setError("");
+      setSuccess("");
+
+      // Validate passwords match
+      if (passwords.new !== passwords.confirm) {
+        setError("New passwords do not match");
+        return;
+      }
+
+      // Validate password length/complexity if needed
+      if (passwords.new.length < 6) {
+        setError("Password must be at least 6 characters long");
+        return;
+      }
+
+      // Call the reset password API - note we don't need to store the result
+      await resetPassword({
+        password: passwords.new,
+      }).unwrap();
+
+      // Clear the form
+      setPasswords({ current: "", new: "", confirm: "" });
+
+      // Show success message
+      setSuccess("Password changed successfully");
+    } catch (err) {
+      // Handle specific error cases with proper type checking
+      const error = err as ApiError;
+      if (error?.data?.message) {
+        setError(error.data.message);
+      } else if (error?.message) {
+        setError(error.message);
+      } else {
+        setError("Failed to change password. Please try again.");
+      }
     }
-    // Implement password change API call here
-    setSuccess('Password changed successfully');
   };
 
   if (isLoading) {
     return (
-      <Box sx={{ 
-        padding: "2rem",
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        minHeight: '50vh'
-      }}>
+      <Box
+        sx={{
+          padding: "2rem",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          minHeight: "50vh",
+        }}
+      >
         <CircularProgress />
       </Box>
     );
@@ -171,17 +239,21 @@ const AccountSettings = () => {
   return (
     <Box sx={{ padding: "2rem", maxWidth: "1000px", margin: "0 auto" }}>
       {error && (
-        <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>
+        <Alert severity="error" sx={{ mb: 2 }}>
+          {error}
+        </Alert>
       )}
       {success && (
-        <Alert severity="success" sx={{ mb: 2 }}>{success}</Alert>
+        <Alert severity="success" sx={{ mb: 2 }}>
+          {success}
+        </Alert>
       )}
 
       {/* Account Settings Section */}
       <Typography variant="h2" sx={sectionTitleStyle}>
         Account settings
       </Typography>
-      
+
       <Box sx={formContainerStyle}>
         {/* Photo Upload Section */}
         <Box sx={photoSectionStyle}>
@@ -194,52 +266,56 @@ const AccountSettings = () => {
             />
             <Button
               component="label"
-              startIcon={<Upload />}
+              startIcon={
+                isUploadingMedia ? <CircularProgress size={20} /> : <Upload />
+              }
               variant="outlined"
               sx={uploadButtonStyle}
+              disabled={isUploadingMedia}
             >
-              Upload Photo
+              {isUploadingMedia ? "Uploading..." : "Upload Photo"}
               <input
                 type="file"
                 hidden
                 accept="image/*"
                 onChange={handlePhotoUpload}
+                disabled={isUploadingMedia}
               />
             </Button>
           </Box>
           <Typography sx={photoHelperTextStyle}>
-            Image size should be under 1MB and image ratio needs to be 1:1
+            Image size should be under 4MB and image ratio needs to be 1:1
           </Typography>
         </Box>
 
         {/* Form Fields Section */}
         <Box sx={formFieldsStyle}>
-            <TextField
-              label="First name"
-              value={formData.first_name}
-              onChange={handleInputChange('first_name')}
-              fullWidth
-              sx={textFieldStyle}
-            />
-          
+          <TextField
+            label="First name"
+            value={formData.first_name}
+            onChange={handleInputChange("first_name")}
+            fullWidth
+            sx={textFieldStyle}
+          />
+
           <TextField
             label="Last Name"
             value={formData.last_name}
-            onChange={handleInputChange('last_name')}
+            onChange={handleInputChange("last_name")}
             fullWidth
             sx={textFieldStyle}
           />
           <TextField
             label="Email"
             value={formData.email}
-            onChange={handleInputChange('email')}
+            onChange={handleInputChange("email")}
             fullWidth
             sx={textFieldStyle}
           />
           <TextField
             label="Phone"
             value={formData.phone}
-            onChange={handleInputChange('phone')}
+            onChange={handleInputChange("phone")}
             fullWidth
             sx={textFieldStyle}
           />
@@ -249,7 +325,7 @@ const AccountSettings = () => {
             onClick={handleSaveChanges}
             disabled={isUpdating}
           >
-            {isUpdating ? <CircularProgress size={24} /> : 'Save Changes'}
+            {isUpdating ? <CircularProgress size={24} /> : "Save Changes"}
           </Button>
         </Box>
       </Box>
@@ -258,13 +334,13 @@ const AccountSettings = () => {
       <Typography variant="h2" sx={{ ...sectionTitleStyle, mt: 4 }}>
         Change password
       </Typography>
-      
+
       <Box sx={passwordSectionStyle}>
         <TextField
           label="Current Password"
           type={showPassword.current ? "text" : "password"}
           value={passwords.current}
-          onChange={handlePasswordChange('current')}
+          onChange={handlePasswordChange("current")}
           fullWidth
           InputProps={{
             endAdornment: (
@@ -284,7 +360,7 @@ const AccountSettings = () => {
           label="New Password"
           type={showPassword.new ? "text" : "password"}
           value={passwords.new}
-          onChange={handlePasswordChange('new')}
+          onChange={handlePasswordChange("new")}
           fullWidth
           InputProps={{
             endAdornment: (
@@ -304,7 +380,7 @@ const AccountSettings = () => {
           label="Confirm Password"
           type={showPassword.confirm ? "text" : "password"}
           value={passwords.confirm}
-          onChange={handlePasswordChange('confirm')}
+          onChange={handlePasswordChange("confirm")}
           fullWidth
           InputProps={{
             endAdornment: (
