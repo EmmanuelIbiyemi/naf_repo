@@ -7,11 +7,11 @@ import {
   useGetFormQuery,
   useUpdateFormMutation,
 } from "../../../../store/api/form.api";
-import { useLocation } from "react-router-dom";
+import { useParams } from "react-router-dom";
 
 const FormContentArea = () => {
-  const location = useLocation();
-  const { data: form } = useGetFormQuery(location.state);
+  const { form_id } = useParams();
+  const { data: form } = useGetFormQuery(+(form_id || 0));
   const [updateForm] = useUpdateFormMutation();
 
   const { setNodeRef } = useDroppable({
@@ -22,20 +22,18 @@ const FormContentArea = () => {
     if (form?.data) {
       let name = "";
       if (type == "name")
-        name = `${form.data.name.split("::")[0]}::${
-          e.currentTarget.textContent
-        }`;
-      else
         name = `${e.currentTarget.textContent}::${
           form.data.name.split("::")[1]
+        }`;
+      else
+        name = `${form.data.name.split("::")[0]}::${
+          e.currentTarget.textContent
         }`;
 
       try {
         await updateForm({
-          id: form.data.id,
-          fee: form.data.fee,
+          ...form.data,
           name,
-          program_id: form.data.program_id,
         });
       } catch (error) {
         console.log(error);
@@ -52,10 +50,9 @@ const FormContentArea = () => {
               id="name"
               contentEditable="true"
               onBlur={(e) => handleFormPropsChange(e, "name")}
-              dangerouslySetInnerHTML={{
-                __html: form?.data.name.split("::")[0] as string,
-              }}
-            />
+            >
+              {form?.data.name.split("::")[0]}
+            </span>
           </Typography>
         </Box>
         <Box
@@ -93,11 +90,10 @@ const FormContentArea = () => {
             <span
               id="submitBtn"
               contentEditable="true"
-              onBlur={(e) => handleFormPropsChange(e, "name")}
-              dangerouslySetInnerHTML={{
-                __html: form?.data.name.split("::")[1] as string,
-              }}
-            />
+              onBlur={(e) => handleFormPropsChange(e, "button")}
+            >
+              {form?.data.name.split("::")[1]}
+            </span>
           </Button>
         </Box>
       </Box>
@@ -111,6 +107,9 @@ const formContentContainerStyles: SxProps = {
   display: "grid",
   padding: "2rem",
   placeItems: "center",
+  maxWidth: "800px",
+  marginInline: "auto",
+  width: "100%",
 };
 
 const dropContainerStyles: SxProps = {

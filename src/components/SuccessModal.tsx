@@ -39,8 +39,8 @@ const SuccessModal = ({
           <Close />
         </IconButton>
       </Box>
-      <Typography variant="h4" dangerouslySetInnerHTML={{ __html: title }} />
-      <Typography dangerouslySetInnerHTML={{ __html: subTitle }} />
+      <Typography variant="h4">{title}</Typography>
+      <Typography>{subTitle}</Typography>
       {infoText ? (
         <Alert severity="info" icon={<Info />}>
           {infoText}

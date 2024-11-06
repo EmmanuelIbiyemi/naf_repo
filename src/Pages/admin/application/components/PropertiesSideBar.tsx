@@ -19,7 +19,7 @@ import {
   Typography,
 } from "@mui/material";
 import { PropsWithChildren, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 type Properties = {
   fontFamily: number;
@@ -34,7 +34,7 @@ type Properties = {
 
 const PropertiesSideBar = () => {
   const navigate = useNavigate();
-  const location = useLocation();
+  const { form_id } = useParams();
   const [props, setProps] = useState<Properties>({
     fontFamily: 1,
     fontSize: 11,
@@ -69,7 +69,7 @@ const PropertiesSideBar = () => {
   };
 
   const handlePreviewForm = () => {
-    navigate("/applications/form/preview", { state: location.state });
+    navigate(`/form/${form_id}/preview`);
   };
 
   return (

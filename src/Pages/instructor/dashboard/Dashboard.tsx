@@ -26,11 +26,42 @@ const Dashboard = () => {
       <Box
         sx={{
           // bgcolor: "#fff",
+          // bgcolor: "#fff",
           borderRadius: "var(--border-radius)",
           marginInline: "var(--padding)",
           padding: "var(--padding)",
         }}
       >
+        <Box
+          sx={{
+            display: "grid",
+            gap: "1.4rem",
+            gridTemplateColumns: "1fr 1fr",
+            marginTop: "1rem",
+          }}
+        >
+          {cards.map((card) => (
+            <Link to={`${card.link}`} key={`dashboard-card-${card.id}`}>
+              <Box sx={cardStyles}>
+                <Box className="icon">{card.icon}</Box>
+                <Box>
+                  <Typography sx={{ fontSize: "1.4rem" }}>
+                    {card.title}
+                  </Typography>
+                  <Typography
+                    sx={{
+                      fontWeight: 300,
+                      marginTop: "1rem",
+                      maxWidth: "60ch",
+                    }}
+                  >
+                    {card.description}
+                  </Typography>
+                </Box>
+              </Box>
+            </Link>
+          ))}
+        </Box>
         <Box
           sx={{
             display: "grid",

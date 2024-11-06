@@ -4,11 +4,16 @@ import TableCell from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
 import TableRow from "@mui/material/TableRow";
 import { StudentEditFuncType, StudentType } from "../../../types/students";
-import { Box, Button, Checkbox, IconButton, TableHead } from "@mui/material";
+import {
+  Box,
+  Checkbox,
+  IconButton,
+  TableHead,
+  Typography,
+} from "@mui/material";
 import { Delete, Edit } from "@mui/icons-material";
 import DeleteConfirmationModal from "../../../components/DeleteConfirmationModal";
 import { useState } from "react";
-import StudentSidebar from "./StudentsSidebar";
 import {
   useDeleteStudentMutation,
   useGetStudentsQuery,
@@ -30,7 +35,6 @@ const StudentList = ({ selectedStudent, setSelectedStudent }: Props) => {
     delete: false,
     success: false,
   });
-  const [openSidebar, setOpenSidebar] = useState(false);
   const { data: students, isLoading } = useGetStudentsQuery(null);
   const [deleteStudent, deleteState] = useDeleteStudentMutation();
   const [updateStudent, updateState] = useUpdateStudentMutation();
@@ -43,15 +47,6 @@ const StudentList = ({ selectedStudent, setSelectedStudent }: Props) => {
   const handleCloseModal = (type: string) => {
     setOpenModal((prev) => ({ ...prev, [type]: false }));
     if (type == "success") setSelectedStudent(undefined);
-  };
-
-  const handleViewStudent = (student: StudentType) => {
-    setSelectedStudent(student);
-    setOpenSidebar(true);
-  };
-
-  const toggleDrawer = (state: boolean) => {
-    setOpenSidebar(state);
   };
 
   const handleDeleteStudent = async (id: number) => {
@@ -82,14 +77,6 @@ const StudentList = ({ selectedStudent, setSelectedStudent }: Props) => {
           <LoadingScreen />
         </Box>
       ) : null}
-      <StudentSidebar
-        open={openSidebar}
-        student={selectedStudent as StudentType}
-        toggleDrawer={toggleDrawer}
-        openEditModal={() =>
-          handleOpenModal(selectedStudent as StudentType, "edit")
-        }
-      />
       <DeleteConfirmationModal
         actions={{
           proceed: () => {
@@ -167,21 +154,11 @@ const StudentList = ({ selectedStudent, setSelectedStudent }: Props) => {
                   sx={{ alignItems: "center", display: "flex", gap: "1rem" }}
                 >
                   <Checkbox />
-                  <Button
-                    sx={{
-                      "&.MuiButton-root": {
-                        border: "none",
-                        color: "inherit",
-                        padding: 0,
-                        textTransform: "capitalize",
-                        justifyContent: "start",
-                        textAlign: "left",
-                      },
-                    }}
-                    onClick={() => handleViewStudent(student)}
+                  <Typography
+                    style={{ textTransform: "capitalize", fontWeight: 500 }}
                   >
                     {student.first_name} {student.last_name}
-                  </Button>
+                  </Typography>
                 </Box>
               </TableCell>
               <TableCell component="th" scope="row">

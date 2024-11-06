@@ -6,7 +6,6 @@ import TableRow from "@mui/material/TableRow";
 import { ApplicantType } from "../../../../types/applicants";
 import {
   Box,
-  Button,
   Chip,
   IconButton,
   Menu,
@@ -41,24 +40,19 @@ const ApplicantList = () => {
 
   const menuList = [
     {
-      label: "Applied",
+      label: "pending",
       bgcolor: "rgba(220, 220, 220, 1)",
       color: "",
     },
     {
-      label: "Accepted",
+      label: "admit",
       bgcolor: "rgba(72, 156, 33, 0.2)",
       color: "rgba(72, 156, 33, 1)",
     },
     {
-      label: "Rejected",
+      label: "reject",
       bgcolor: "rgba(229, 72, 77, 0.2)",
       color: "rgba(229, 72, 77, 1)",
-    },
-    {
-      label: "In Review",
-      bgcolor: "rgba(19, 41, 106, 0.2)",
-      color: "rgba(19, 41, 106, 1)",
     },
   ];
 
@@ -185,20 +179,11 @@ const ApplicantList = () => {
               sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
             >
               <TableCell component="th" scope="row">
-                <Button
-                  sx={{
-                    "&.MuiButton-root": {
-                      border: "none",
-                      color: "inherit",
-                      padding: 0,
-                      textTransform: "capitalize",
-                      justifyContent: "start",
-                      textAlign: "left",
-                    },
-                  }}
+                <Typography
+                  style={{ textTransform: "capitalize", fontWeight: 500 }}
                 >
                   {applicant.data.first_name + " " + applicant.data.last_name}
-                </Button>
+                </Typography>
               </TableCell>
               <TableCell component="th" scope="row">
                 {applicant.data.email}
@@ -208,7 +193,7 @@ const ApplicantList = () => {
               </TableCell>
               <TableCell component="th" scope="row">
                 <Chip
-                  label={applicant.status || "Applied"}
+                  label={applicant.status || "Pending"}
                   clickable
                   sx={{
                     bgcolor: menuList.find(

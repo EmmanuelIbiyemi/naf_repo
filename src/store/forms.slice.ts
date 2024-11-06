@@ -12,6 +12,7 @@ const initialState: AppState = {
     fee: 0,
     name: "Untitled Form",
     program_id: 13,
+    level_id: 13,
     sections: [],
   },
   all: [],
@@ -44,6 +45,7 @@ export const formSlice = createSlice({
         fee: 0,
         name: "",
         program_id: 0,
+        level_id: 0,
         sections: [],
       };
     },

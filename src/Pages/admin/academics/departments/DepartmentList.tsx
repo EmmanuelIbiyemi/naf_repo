@@ -9,7 +9,7 @@ import {
 } from "../../../../types/departments";
 import { Button, Checkbox, IconButton } from "@mui/material";
 import { Delete, Edit } from "@mui/icons-material";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import DeleteConfirmationModal from "../../../../components/DeleteConfirmationModal";
 import { useState } from "react";
 import {
@@ -22,17 +22,15 @@ import DepartmentForm from "./DepartmentForm";
 import SuccessModal from "../../../../components/SuccessModal";
 
 const DepartmentList = () => {
+  const { faculty_id } = useParams();
   const navigate = useNavigate();
-  const location = useLocation();
   const [openModal, setOpenModal] = useState({
     edit: false,
     success: false,
     delete: false,
   });
   const [selectedDepartment, setSelectedDepartment] = useState<Department>();
-  const { data: departments } = useGetDepartmentsQuery(
-    location.state?.faculty_id
-  );
+  const { data: departments } = useGetDepartmentsQuery(+(faculty_id || 0));
   const [deleteDepartment] = useDeleteDepartmentMutation();
   const [updateDepartment] = useUpdateDepartmentMutation();
 
@@ -131,12 +129,7 @@ const DepartmentList = () => {
                 <Checkbox />
                 <Button
                   onClick={() =>
-                    navigate("/academics/programmes", {
-                      state: {
-                        ...location.state,
-                        department_id: department.id,
-                      },
-                    })
+                    navigate(`/academics/${faculty_id}/${department.id}`)
                   }
                   sx={{
                     "&.MuiButton-root": {

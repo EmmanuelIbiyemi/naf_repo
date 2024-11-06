@@ -1,6 +1,6 @@
 import { Box, Button, SxProps, Typography } from "@mui/material";
 import { useEffect, useRef, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import SuccessModal from "../../../components/SuccessModal";
 import FormBuilder from "./components/FormBuilder";
 import { useAppDispatch } from "../../../store/hooks";
@@ -17,19 +17,15 @@ const PreviewFormPage = () => {
   }, [dispatch]);
 
   const navigate = useNavigate();
+  const { form_id } = useParams();
   const [openModal, setOpenModal] = useState(false);
   const elRef = useRef<HTMLDivElement>(null);
-  const location = useLocation();
-  const { data: form } = useGetFormQuery(location.state);
+  const { data: form } = useGetFormQuery(+(form_id || 0));
 
   const handleSubmit = async () => {
     console.log(form?.data);
-    navigate("/applications/form");
+    navigate("/applications");
   };
-
-  useEffect(() => {
-    if (!location.state) navigate("/applications");
-  }, [location]);
 
   return (
     <Box sx={formContentContainerStyles}>
@@ -54,11 +50,7 @@ const PreviewFormPage = () => {
       <Box sx={dropContainerStyles}>
         <Box sx={{ padding: "1.5rem" }}>
           <Typography variant="h5" sx={{ fontWeight: 300 }}>
-            <span
-              dangerouslySetInnerHTML={{
-                __html: form?.data?.name.split("::")[0] || "",
-              }}
-            />
+            <span>{form?.data?.name.split("::")[0] || ""}</span>
           </Typography>
         </Box>
         <Box sx={dropAreaStyles}>
@@ -75,11 +67,7 @@ const PreviewFormPage = () => {
           }}
         >
           <Button variant="contained">
-            <span
-              dangerouslySetInnerHTML={{
-                __html: form?.data?.name.split("::")[1] || "",
-              }}
-            />
+            <span>{form?.data?.name.split("::")[1] || ""}</span>
           </Button>
         </Box>
       </Box>

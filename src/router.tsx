@@ -60,7 +60,13 @@ const CBTQuestionsPage = lazy(
 );
 const AdminSettingsPage = lazy(() => import("./Pages/admin/settings/Settings"));
 const MediaLibrary = lazy(() => import("./Pages/admin/media/MediaLibrary"));
-const Page = lazy(() => import("./Pages/admin/page/Page"));
+const Page = lazy(() => import("./Pages/admin/pages/Page"));
+const PostTypeItemsPage = lazy(
+  () => import("./Pages/admin/pages/components/PostItemList")
+);
+const PostTypeItemsAddPage = lazy(
+  () => import("./Pages/admin/pages/DynamicPage")
+);
 
 // Instructor
 
@@ -136,6 +142,9 @@ const StudentCBT = lazy(() => import("./Pages/student/courseCBT/CourseCBT"));
 const StudentResults = lazy(() => import("./Pages/student/results/Results"));
 const StudentClass = lazy(() => import("./Pages/student/classes/LiveClasses"));
 const StudentSettings = lazy(() => import("./Pages/student/settings/Settings"));
+const PreviewAnnouncementPage = lazy(
+  () => import("./Pages/instructor/announcements/posts/PreviewPost")
+);
 
 export const router = createBrowserRouter([
   {
@@ -150,21 +159,26 @@ export const router = createBrowserRouter([
       { path: "/courses", element: <CoursesPage /> },
       { path: "/instructors", element: <InstructorsPage /> },
       { path: "/applications", element: <FormsPage /> },
-      { path: "/applications/form", element: <AddFormPage /> },
-      { path: "/applications/form/preview", element: <PreviewFormPage /> },
-      { path: "/applications/applicants", element: <ApplicantsPage /> },
-      { path: "/applications/cbt", element: <CBT /> },
-      { path: "/applications/cbt/questions", element: <CBTQuestionsPage /> },
+      { path: "/form/:form_id", element: <AddFormPage /> },
+      { path: "/form/:form_id/preview", element: <PreviewFormPage /> },
+      { path: "/applicants", element: <ApplicantsPage /> },
+      { path: "/cbt", element: <CBT /> },
+      { path: "/cbt/:subject_id", element: <CBTQuestionsPage /> },
       {
         path: "/academics",
         element: <AdminAcademicsPage />,
         children: [
           { path: "", element: <FacultiesPage /> },
-          { path: "departments", element: <DepartmentsPage /> },
-          { path: "programmes", element: <ProgrammesPage /> },
-          { path: "levels", element: <LevelsPage /> },
-          { path: "courses", element: <CoursesPage /> },
-          { path: "levels", element: <LevelsPage /> },
+          { path: ":faculty_id", element: <DepartmentsPage /> },
+          { path: ":faculty_id/:department_id", element: <ProgrammesPage /> },
+          {
+            path: ":faculty_id/:department_id/:program_id",
+            element: <LevelsPage />,
+          },
+          {
+            path: ":faculty_id/:department_id/:program_id/:level_id",
+            element: <CoursesPage />,
+          },
         ],
       },
       {
@@ -200,8 +214,15 @@ export const router = createBrowserRouter([
         element: <AdminSettingsPage />,
         children: [
           { path: "", element: <MediaLibrary /> },
-
-          { path: "page/:name", element: <Page /> },
+          { path: "posttype/:resource_type", element: <PostTypeItemsPage /> },
+          {
+            path: "posttype/:resource_type/:post_id",
+            element: <PostTypeItemsAddPage />,
+          },
+          {
+            path: "posttype/:resource_type/add",
+            element: <PostTypeItemsAddPage />,
+          },
         ],
       },
     ],

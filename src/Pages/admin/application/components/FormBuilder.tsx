@@ -25,7 +25,7 @@ import {
   useGetFormQuery,
   useUpdateFormFieldMutation,
 } from "../../../../store/api/form.api";
-import { useLocation } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { useAppDispatch } from "../../../../store/hooks";
 import { setBuilderLoading } from "../../../../store/app.slice";
 
@@ -50,8 +50,8 @@ const FormBuilder = ({
 }: Props) => {
   const dispatch = useAppDispatch();
   const [deleteRow] = useDeleteFormRowMutation();
-  const location = useLocation();
-  const { data: form } = useGetFormQuery(location.state);
+  const { form_id } = useParams();
+  const { data: form } = useGetFormQuery(+(form_id || 0));
   const [updateField] = useUpdateFormFieldMutation();
   const [getFormFieldByKey] = useGetFormFieldByKeyMMutation();
 
@@ -179,59 +179,35 @@ const FormBuilder = ({
       case "heading":
         el = isPreview ? (
           <Typography
-            variant="h5"
-            dangerouslySetInnerHTML={{
-              __html: element.placeholder as string,
-            }}
-          />
+            variant="h5">{element.placeholder}</Typography>
         ) : (
           <Typography
             variant="h5"
             id={elId}
             contentEditable={allowEdit}
-            onBlur={handleInput}
-            dangerouslySetInnerHTML={{
-              __html: element.placeholder as string,
-            }}
-          />
+            onBlur={handleInput}>{element.placeholder}</Typography>
         );
         break;
       case "paragraph":
         el = isPreview ? (
-          <Typography
-            dangerouslySetInnerHTML={{
-              __html: element.placeholder as string,
-            }}
-          />
+          <Typography>{element.placeholder}</Typography>
         ) : (
           <Typography
             id={elId}
             contentEditable={allowEdit}
-            onBlur={handleInput}
-            dangerouslySetInnerHTML={{
-              __html: element.placeholder as string,
-            }}
-          />
+            onBlur={handleInput}>{element.placeholder}</Typography>
         );
         break;
       case "images":
         el = (
           <Box>
             {isPreview ? (
-              <label
-                dangerouslySetInnerHTML={{
-                  __html: element.name as string,
-                }}
-              />
+              <label>{element.name}</label>
             ) : (
               <label
                 id={elId}
                 contentEditable={allowEdit}
-                onBlur={handleLabelInput}
-                dangerouslySetInnerHTML={{
-                  __html: element.name as string,
-                }}
-              />
+                onBlur={handleLabelInput}>{element.name}</label>
             )}
             <Box id={elId} className="image_el dashed_border">
               <CloudUploadOutlined /> Drag and drop your images here or browse
@@ -243,20 +219,12 @@ const FormBuilder = ({
         el = (
           <Box>
             {isPreview ? (
-              <label
-                dangerouslySetInnerHTML={{
-                  __html: element.name as string,
-                }}
-              />
+              <label>{element.name}</label>
             ) : (
               <label
                 id={elId}
                 contentEditable={allowEdit}
-                onBlur={handleLabelInput}
-                dangerouslySetInnerHTML={{
-                  __html: element.name as string,
-                }}
-              />
+                onBlur={handleLabelInput}>{element.name}</label>
             )}
             <Box id={elId} className="image_el dashed_border">
               <CloudUploadOutlined /> Drag and drop your files here or browse
@@ -268,20 +236,12 @@ const FormBuilder = ({
         el = (
           <Box>
             {isPreview ? (
-              <label
-                dangerouslySetInnerHTML={{
-                  __html: element.name as string,
-                }}
-              />
+              <label>{element.name}</label>
             ) : (
               <label
                 id={elId}
                 contentEditable={allowEdit}
-                onBlur={handleLabelInput}
-                dangerouslySetInnerHTML={{
-                  __html: element.name as string,
-                }}
-              />
+                onBlur={handleLabelInput}>{element.name}</label>
             )}
             <input />
           </Box>
@@ -291,20 +251,12 @@ const FormBuilder = ({
         el = (
           <Box>
             {isPreview ? (
-              <label
-                dangerouslySetInnerHTML={{
-                  __html: element.name as string,
-                }}
-              />
+              <label>{element.name}</label>
             ) : (
               <label
                 id={elId}
                 contentEditable={allowEdit}
-                onBlur={handleLabelInput}
-                dangerouslySetInnerHTML={{
-                  __html: element.name as string,
-                }}
-              />
+                onBlur={handleLabelInput}>{element.name}</label>
             )}
             <textarea />
           </Box>
@@ -335,20 +287,12 @@ const FormBuilder = ({
           <Box>
             <LocalizationProvider dateAdapter={AdapterDayjs}>
               {isPreview ? (
-                <label
-                  dangerouslySetInnerHTML={{
-                    __html: element.name as string,
-                  }}
-                />
+                <label>{element.name}</label>
               ) : (
                 <label
                   id={elId}
                   contentEditable={allowEdit}
-                  onBlur={handleLabelInput}
-                  dangerouslySetInnerHTML={{
-                    __html: element.name as string,
-                  }}
-                />
+                  onBlur={handleLabelInput}>{element.name}</label>
               )}
               <DatePicker />
             </LocalizationProvider>
@@ -359,11 +303,7 @@ const FormBuilder = ({
         el = (
           <Box>
             {isPreview ? (
-              <label
-                dangerouslySetInnerHTML={{
-                  __html: name,
-                }}
-              />
+              <label>{name}</label>
             ) : (
               <Box
                 sx={{
@@ -376,10 +316,7 @@ const FormBuilder = ({
                   id={elId}
                   contentEditable={allowEdit}
                   onBlur={handleLabelInput}
-                  dangerouslySetInnerHTML={{
-                    __html: name as string,
-                  }}
-                />
+                >{name}</label>
                 <IconButton
                   sx={{ padding: "5px" }}
                   onClick={() => handleAddRemoveChange(elId, "add")}
@@ -398,11 +335,8 @@ const FormBuilder = ({
                     <span
                       contentEditable={allowEdit}
                       onBlur={(e) => handleOptionChange(e, elId, i + 1)}
-                      dangerouslySetInnerHTML={{
-                        __html: opt.toLowerCase(),
-                      }}
                       onClick={(e) => e.stopPropagation()}
-                    ></span>
+                    >{opt.toLowerCase()}</span>
                     <IconButton
                       onClick={(e) => {
                         e.stopPropagation();
@@ -444,11 +378,7 @@ const FormBuilder = ({
           <Box>
             {isPreview ? (
               <>
-                <label
-                  dangerouslySetInnerHTML={{
-                    __html: name,
-                  }}
-                />
+                <label>{name}</label>
                 <FormControl>
                   <FormGroup
                     sx={{ ".MuiFormControlLabel-root": { display: "flex" } }}
@@ -476,11 +406,7 @@ const FormBuilder = ({
                   <label
                     id={elId}
                     contentEditable={allowEdit}
-                    onBlur={handleLabelInput}
-                    dangerouslySetInnerHTML={{
-                      __html: name as string,
-                    }}
-                  />
+                    onBlur={handleLabelInput}>{name}</label>
                   <IconButton
                     sx={{ padding: "5px" }}
                     onClick={() => handleAddRemoveChange(elId, "add")}
@@ -498,11 +424,8 @@ const FormBuilder = ({
                       <span
                         contentEditable={allowEdit}
                         onBlur={(e) => handleOptionChange(e, elId, i + 1)}
-                        dangerouslySetInnerHTML={{
-                          __html: opt.toLowerCase(),
-                        }}
                         onClick={(e) => e.stopPropagation()}
-                      ></span>
+                      >{opt.toLowerCase()}</span>
                       <IconButton
                         onClick={(e) => {
                           e.stopPropagation();
@@ -522,78 +445,21 @@ const FormBuilder = ({
       case "single-choice":
         el = (
           <Box>
-            {isPreview ? (
-              <>
-                <label
-                  dangerouslySetInnerHTML={{
-                    __html: name,
-                  }}
-                />
-                <FormControl>
-                  <ToggleButtonGroup exclusive>
-                    {optionNames.map((opt, i) => (
-                      <ToggleButton
-                        value={optionValues[i]}
-                        sx={{ textTransform: "capitalize" }}
-                      >
-                        {opt}
-                      </ToggleButton>
-                    ))}
-                  </ToggleButtonGroup>
-                </FormControl>
-              </>
-            ) : (
-              <>
-                <Box
-                  sx={{
-                    alignItems: "center",
-                    display: "flex",
-                    justifyContent: "space-between",
-                  }}
-                >
-                  <label
-                    id={elId}
-                    contentEditable={allowEdit}
-                    onBlur={handleLabelInput}
-                    dangerouslySetInnerHTML={{
-                      __html: name as string,
-                    }}
-                  />
-                  <IconButton
-                    sx={{ padding: "5px" }}
-                    onClick={() => handleAddRemoveChange(elId, "add")}
-                  >
-                    <Add />
-                  </IconButton>
-                </Box>
-
-                <Box>
-                  {optionNames?.map((opt, i) => (
-                    <Typography
-                      key={`${name}-${opt}`}
-                      sx={{ display: "flex", justifyContent: "space-between" }}
+            <>
+              <label>{name}</label>
+              <FormControl>
+                <ToggleButtonGroup exclusive>
+                  {optionNames.map((opt, i) => (
+                    <ToggleButton
+                      value={optionValues[i]}
+                      sx={{ textTransform: "capitalize" }}
                     >
-                      <span
-                        contentEditable={allowEdit}
-                        onBlur={(e) => handleOptionChange(e, elId, i + 1)}
-                        dangerouslySetInnerHTML={{
-                          __html: opt.toLowerCase(),
-                        }}
-                        onClick={(e) => e.stopPropagation()}
-                      ></span>
-                      <IconButton
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleAddRemoveChange(elId, "delete");
-                        }}
-                      >
-                        <Remove />
-                      </IconButton>
-                    </Typography>
+                      {opt}
+                    </ToggleButton>
                   ))}
-                </Box>
-              </>
-            )}
+                </ToggleButtonGroup>
+              </FormControl>
+            </>
           </Box>
         );
         break;

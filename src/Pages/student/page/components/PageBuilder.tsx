@@ -46,11 +46,9 @@ const PageBuilder = ({ page, setPage }: Props) => {
             id={`element-${element.id}`}
             contentEditable={"true"}
             onBlur={handleInput}
-            dangerouslySetInnerHTML={{
-              __html: page.blocks.find((el) => el.id == element.id)
-                ?.content as string,
-            }}
-          />
+          >
+            {page.blocks.find((el) => el.id == element.id)?.content}
+          </Typography>
         );
         break;
       case "paragraph":
@@ -59,11 +57,9 @@ const PageBuilder = ({ page, setPage }: Props) => {
             id={`element-${element.id}`}
             contentEditable={"true"}
             onBlur={handleInput}
-            dangerouslySetInnerHTML={{
-              __html: page.blocks.find((el) => el.id == element.id)
-                ?.content as string,
-            }}
-          />
+          >
+            {page.blocks.find((el) => el.id == element.id)?.content}
+          </Typography>
         );
         break;
       case "images":

@@ -8,6 +8,7 @@ import { Box, IconButton, Menu, MenuItem, Typography } from "@mui/material";
 import { Delete, Edit, MoreVert } from "@mui/icons-material";
 import CustomPagination from "../../../components/CustomPagination";
 import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { QuizzesResponse } from "../../../types/quizzes";
 
 type ListProps = {

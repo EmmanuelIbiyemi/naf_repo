@@ -39,6 +39,7 @@ const CoursesParticipantsTable = () => {
   return (
     <Box sx={{ width: "100%", overflow: "hidden" }}>
       {isFetchingParticipants && <LinearProgress />}
+      {isFetchingParticipants && <LinearProgress />}
       <TableContainer>
         <Table stickyHeader aria-label="sticky table">
           <TableHead>

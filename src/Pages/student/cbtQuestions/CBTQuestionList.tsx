@@ -79,14 +79,9 @@ const CBTQuestiontList = ({
                 >
                   {question.question}
                 </Button>
-                <Typography
-                  sx={{ color: "secondary.light" }}
-                  dangerouslySetInnerHTML={{
-                    __html:
-                      "<strong>Options:</strong> " +
-                      question.options.join(" &#8226; "),
-                  }}
-                />
+                <Typography sx={{ color: "secondary.light" }}>
+                  <strong>Options:</strong> ₦ {question.options}
+                </Typography>
               </TableCell>
               <TableCell align="right" sx={{ display: "flex" }}>
                 <IconButton

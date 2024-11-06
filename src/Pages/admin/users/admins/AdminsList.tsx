@@ -4,9 +4,8 @@ import TableCell from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
 import TableRow from "@mui/material/TableRow";
 import { AdminFormAction, Admin } from "../../../../types/admins";
-import { Checkbox, IconButton } from "@mui/material";
+import { Checkbox, IconButton, Typography } from "@mui/material";
 import { Delete, Edit } from "@mui/icons-material";
-import { Link } from "react-router-dom";
 import DeleteConfirmationModal from "../../../../components/DeleteConfirmationModal";
 import { useState } from "react";
 import {
@@ -84,7 +83,9 @@ const AdminsList = () => {
         close={() => handleCloseModal("delete")}
         infoText="The students enrolled in this Admin will get notified."
         open={openModal.delete}
-        subTitle={`Are you sure you want to delete Admin <strong>“${selectedAdmin?.first_name + ' ' + selectedAdmin?.last_name}”</strong>? You can’t undo this action.`}
+        subTitle={`Are you sure you want to delete Admin <strong>“${
+          selectedAdmin?.first_name + " " + selectedAdmin?.last_name
+        }”</strong>? You can’t undo this action.`}
         title="Delete Admin?"
       />
 
@@ -121,12 +122,11 @@ const AdminsList = () => {
                 sx={{ alignItems: "center", display: "flex", gap: "1rem" }}
               >
                 <Checkbox />
-                <Link
-                  to={`/admins/${admin.id}`}
-                  style={{ textTransform: "capitalize" }}
+                <Typography
+                  style={{ textTransform: "capitalize", fontWeight: 500 }}
                 >
-                  {admin.first_name}
-                </Link>
+                  {admin.first_name} {admin.last_name}
+                </Typography>
               </TableCell>
               <TableCell align="right">
                 <IconButton onClick={() => handleOpenModal(admin, "edit")}>

@@ -101,6 +101,13 @@ const ShareWithList = ({
       formik.resetForm();
       setSearchTerm("");
     }
+  }, [open, formik]);
+
+  useEffect(() => {
+    if (!open) {
+      formik.resetForm();
+      setSearchTerm("");
+    }
   }, [open]);
 
   const handleToggleUser = (id: number, user_id: number) => {
@@ -114,7 +121,6 @@ const ShareWithList = ({
 
     formik.setFieldValue("participants", updatedParticipants);
   };
-
   const handleSelectAll = () => {
     const allUserIds = participants.map((user) => user.user_id);
     const newSelection =
