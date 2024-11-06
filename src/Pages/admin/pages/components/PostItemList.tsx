@@ -1,19 +1,24 @@
 import { Box, Button, SxProps, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
-import PostItem from "./components/PostItem";
-import SuccessModal from "../../../components/SuccessModal";
-import DeleteConfirmationModal from "../../../components/DeleteConfirmationModal";
-import { useDeletePostMutation } from "../../../store/api/posts.api";
-import { useAppDispatch } from "../../../store/hooks";
-import { setPageLoading } from "../../../store/app.slice";
-import EmptyState from "../../../components/EmptyState";
-import { useGetPostByCategoryQuery } from "../../../store/api/posts.api";
-import { useNavigate } from "react-router-dom";
-import { PostType } from "../../../types/posts";
+import PostItem from "./PageItem";
+import SuccessModal from "../../../../components/SuccessModal";
+import DeleteConfirmationModal from "../../../../components/DeleteConfirmationModal";
+import { useDeletePostMutation } from "../../../../store/api/posts.api";
+import { useAppDispatch } from "../../../../store/hooks";
+import { setPageLoading } from "../../../../store/app.slice";
+import EmptyState from "../../../../components/EmptyState";
+import { useGetPostByCategoryQuery } from "../../../../store/api/posts.api";
+import { useNavigate, useParams } from "react-router-dom";
+import { PostType } from "../../../../types/posts";
 
-const Posts = () => {
+const PostTypeItemList = () => {
+  const { resource_type } = useParams();
   const dispatch = useAppDispatch();
-  const { data: posts, isError: allError } = useGetPostByCategoryQuery("posts");
+  const {
+    data: posts,
+    isError: allError,
+    isFetching,
+  } = useGetPostByCategoryQuery(resource_type as string);
   const [deletePost] = useDeletePostMutation();
   const [openModal, setOpenModal] = useState({
     add: false,
@@ -48,8 +53,9 @@ const Posts = () => {
   };
 
   useEffect(() => {
-    console.log(posts);
-  }, [posts]);
+    if (isFetching) dispatch(setPageLoading(true));
+    else dispatch(setPageLoading(false));
+  }, [isFetching]);
 
   return (
     <Box sx={contentStyles}>
@@ -67,7 +73,7 @@ const Posts = () => {
         }}
         infoText=""
         open={openModal.success}
-        subTitle={`Post successfully deleted`}
+        subTitle={`${resource_type} successfully deleted`}
         title="Updates Successful"
       />
 
@@ -84,21 +90,26 @@ const Posts = () => {
         close={() => handleCloseModal("delete")}
         infoText=""
         open={openModal.delete}
-        subTitle={`Are you sure you want to delete media ? You can’t undo this action.`}
-        title="Delete Post?"
+        subTitle={`Are you sure you want to delete ${resource_type} ? You can’t undo this action.`}
+        title={`Delete ${resource_type}?`}
       />
 
       <Box sx={headerStyles}>
-        <Typography variant="h5">Posts</Typography>
-        <Button variant="contained" onClick={() => navigate("/settings/post")}>
-          Add Post
+        <Typography variant="h5" sx={{ textTransform: "capitalize" }}>
+          {resource_type}
+        </Typography>
+        <Button
+          variant="contained"
+          onClick={() => navigate(`/settings/posttype/${resource_type}/add`)}
+        >
+          Add {resource_type}
         </Button>
       </Box>
 
       <Box
         sx={{
           ...TabStyles,
-          display: posts?.post.length ? "grid" : "block",
+          display: "block",
         }}
       >
         {posts?.post.length ? (
@@ -111,8 +122,12 @@ const Posts = () => {
           ))
         ) : (
           <EmptyState
-            title={allError ? "Could Not Fetch Posts" : "No Posts yet"}
-            subTitle="Posts will appear here after you add them in your school."
+            title={
+              allError
+                ? `Could Not Fetch ${resource_type}`
+                : `No ${resource_type} yet`
+            }
+            subTitle={`${resource_type} will appear here after you add them in your school.`}
           />
         )}
       </Box>
@@ -120,7 +135,7 @@ const Posts = () => {
   );
 };
 
-export default Posts;
+export default PostTypeItemList;
 
 const contentStyles: SxProps = {
   paddingInline: "2rem",
@@ -136,7 +151,10 @@ const headerStyles: SxProps = {
 };
 
 const TabStyles: SxProps = {
+  bgcolor: "#fff",
+  borderRadius: "var(--border-radius)",
   display: "grid",
   gap: "1rem",
   gridTemplateColumns: "repeat(4,1fr)",
+  padding: "2rem",
 };

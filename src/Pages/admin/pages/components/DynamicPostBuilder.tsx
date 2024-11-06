@@ -2,11 +2,14 @@ import {
   Box,
   FormControl,
   IconButton,
+  MenuItem,
+  Select,
+  SelectChangeEvent,
   SxProps,
   TextField,
   Typography,
 } from "@mui/material";
-import { BlockType } from "../../../../types/blocks";
+import { BlockType, MediaCreateType } from "../../../../types/blocks";
 import {
   ArrowDownward,
   ArrowUpward,
@@ -15,7 +18,10 @@ import {
 import { ChangeEvent, MouseEvent, useCallback } from "react";
 import DeleteIcon from "../../../../assets/deleteIcon";
 import { PostType } from "../../../../types/posts";
-import { useDeletePostBlockMutation } from "../../../../store/api/posts.api";
+import {
+  useDeletePostBlockMutation,
+  useGetPostByCategoryQuery,
+} from "../../../../store/api/posts.api";
 import { useAppDispatch } from "../../../../store/hooks";
 import { setBuilderLoading } from "../../../../store/app.slice";
 import { useAddMediaMutation } from "../../../../store/api/media.api";
@@ -36,58 +42,46 @@ const ActionButtons = ({ block, setPage }: ActionProp) => {
     setPage((prev) => {
       const newBlocks = [...prev.blocks];
 
-      // Only proceed if both blocks exist
-      if (newBlocks[currentPos - 1] && newBlocks[currentPos - 2]) {
-        //   // Store the blocks we want to swap
-        const currentBlock = { ...newBlocks[currentPos - 1] };
-        const upperBlock = { ...newBlocks[currentPos - 2] };
-        newBlocks[currentPos - 1] = upperBlock;
-        newBlocks[currentPos - 2] = currentBlock;
+      const currentIndex = currentPos - 1; // Convert position to zero-based index
+      if (newBlocks[currentIndex] && newBlocks[currentIndex - 1]) {
+        // Swap blocks
+        [newBlocks[currentIndex], newBlocks[currentIndex - 1]] = [
+          newBlocks[currentIndex - 1],
+          newBlocks[currentIndex],
+        ];
 
-        // Update all positions to match array indices - create new objects
+        // Update positions accurately for all blocks
         const updatedBlocks = newBlocks.map((block, index) => ({
           ...block,
           position: index + 1,
         }));
-        return {
-          ...prev,
-          blocks: updatedBlocks,
-        };
+
+        return { ...prev, blocks: updatedBlocks };
       }
       return prev;
     });
   };
 
   const handleMoveDown = (currentPos: number) => {
-    if (currentPos <= 0) return; // Can't move up if already at top
-
     setPage((prev) => {
-      if (!prev || !prev.blocks) return prev;
-
       const newBlocks = [...prev.blocks];
 
-      // Only proceed if both blocks exist
-      if (newBlocks[currentPos] && newBlocks[currentPos - 1]) {
-        // Store the blocks we want to swap
-        const currentBlock = { ...newBlocks[currentPos] };
-        const upperBlock = { ...newBlocks[currentPos - 1] };
+      const currentIndex = currentPos - 1;
+      if (newBlocks[currentIndex] && newBlocks[currentIndex + 1]) {
+        // Swap blocks
+        [newBlocks[currentIndex], newBlocks[currentIndex + 1]] = [
+          newBlocks[currentIndex + 1],
+          newBlocks[currentIndex],
+        ];
 
-        // Perform the swap
-        newBlocks[currentPos - 1] = currentBlock;
-        newBlocks[currentPos] = upperBlock;
-
-        // Update all positions to match array indices - create new objects
+        // Update positions accurately for all blocks
         const updatedBlocks = newBlocks.map((block, index) => ({
           ...block,
           position: index + 1,
         }));
 
-        return {
-          ...prev,
-          blocks: updatedBlocks,
-        };
+        return { ...prev, blocks: updatedBlocks };
       }
-
       return prev;
     });
   };
@@ -96,13 +90,13 @@ const ActionButtons = ({ block, setPage }: ActionProp) => {
     dispatch(setBuilderLoading(true));
     try {
       await deleteBlock(block_id).unwrap();
-      setPage((prev) => ({
-        ...prev,
-        blocks: prev.blocks.filter((block) => block.id !== block_id),
-      }));
     } catch (error) {
       console.log(error);
     }
+    setPage((prev) => ({
+      ...prev,
+      blocks: prev.blocks.filter((block) => block.id !== block_id),
+    }));
     dispatch(setBuilderLoading(false));
   };
 
@@ -128,6 +122,8 @@ type Props = {
 
 const PageBuilder = ({ page, setPage }: Props) => {
   const [uploadMedia] = useAddMediaMutation();
+  const { data: pages } = useGetPostByCategoryQuery("page");
+
   const handleOpenFileSelect = (event: MouseEvent<HTMLDivElement>) => {
     const target = event.currentTarget as HTMLDivElement;
     target.querySelector("input")?.click();
@@ -142,15 +138,12 @@ const PageBuilder = ({ page, setPage }: Props) => {
     if (target.files) {
       try {
         const form = new FormData();
-
         const files = target.files;
         for (let i = 0; i < files.length; i++) {
           form.append("file", files[i]);
         }
 
         const response = await uploadMedia(form).unwrap();
-        console.log(response);
-
         const blocks = page.blocks.map((b) => {
           if (b.id === blockId)
             return {
@@ -195,7 +188,7 @@ const PageBuilder = ({ page, setPage }: Props) => {
   ) => {
     const foundBlock = page.blocks.find((block) => block.id === elId);
     if (foundBlock) {
-      const content = foundBlock.content.split("::");
+      const content = foundBlock.content?.split("::");
       const value = e.target.value;
 
       switch (type) {
@@ -218,6 +211,73 @@ const PageBuilder = ({ page, setPage }: Props) => {
     }
   };
 
+  const handleLinkChange = (
+    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+    elId: number
+  ) => {
+    const foundBlock = page.blocks.find((block) => block.id === elId);
+    if (foundBlock) {
+      let content = [];
+      if (!foundBlock.content.includes("::")) {
+        content = [foundBlock.content, ""];
+      } else content = foundBlock.content?.split("::");
+
+      content[0] = e.target.value;
+
+      const newBlock: BlockType = {
+        ...foundBlock,
+        content: content.join("::"),
+      };
+      updateBlock(newBlock);
+    }
+  };
+
+  const handleLinkPageChange = (e: SelectChangeEvent<string>, elId: number) => {
+    const foundBlock = page.blocks.find((block) => block.id === elId);
+    if (foundBlock) {
+      let content = [];
+      if (!foundBlock.content.includes("::")) {
+        content = [foundBlock.content, ""];
+      } else content = foundBlock.content?.split("::");
+
+      content[1] = e.target.value;
+
+      const newBlock: BlockType = {
+        ...foundBlock,
+        content: content.join("::"),
+      };
+      updateBlock(newBlock);
+    }
+  };
+
+  const handleImageChange = async (ev: ChangeEvent<HTMLInputElement>) => {
+    const { target } = ev;
+    const id = +target.id.split("-")[1];
+
+    if (target.files && target.files[0]) {
+      try {
+        const form = new FormData();
+        form.append("file", target.files[0]);
+        const response = await uploadMedia(form).unwrap();
+
+        setPage((prev) => {
+          const blocks = prev.blocks.map((b) => {
+            if (b.id == id) {
+              const media = b?.media ? [...b.media] : b.media;
+              b = { ...b, media };
+              b.media = [{ id: response.media[0].id } as MediaCreateType];
+              console.log(b.media);
+            }
+            return b;
+          });
+          return { ...prev, blocks };
+        });
+      } catch (error) {
+        console.log(error);
+      }
+    }
+  };
+
   const capitalizeText = (text: string) => {
     const allTexts = text.split(" ");
     return allTexts.map((t) => t[0].toUpperCase() + t.substring(1)).join(" ");
@@ -225,7 +285,7 @@ const PageBuilder = ({ page, setPage }: Props) => {
 
   const displayEl = (element: BlockType) => {
     let el;
-    const content = element.content.split("::");
+    const content = element.content?.split("::");
 
     switch (element.type) {
       case "banner":
@@ -266,6 +326,32 @@ const PageBuilder = ({ page, setPage }: Props) => {
                 defaultValue={content[2]}
                 onBlur={(e) => handleChange(e, "buttonText", element.id)}
               />
+              <label htmlFor={`upload-${element.id}`}>
+                <input
+                  id={`upload-${element.id}`}
+                  type="file"
+                  accept="image/*,video/*"
+                  style={{ display: "none" }}
+                  onChange={handleImageChange}
+                />
+                <Typography
+                  sx={{
+                    border: "1px solid rgba(0, 0, 0, 0.25)",
+                    cursor: "pointer",
+                    height: "100%",
+                    width: "100%",
+                    display: "grid",
+                    placeItems: "center",
+                    borderRadius: "var(--border-radius)",
+                    whiteSpace: "nowrap",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                  }}
+                >
+                  {(element.media?.[0] as MediaType)?.name ||
+                    "Upload image/video"}
+                </Typography>
+              </label>
             </FormControl>
           </Box>
         );
@@ -308,11 +394,54 @@ const PageBuilder = ({ page, setPage }: Props) => {
                 defaultValue={content[2]}
                 onBlur={(e) => handleChange(e, "buttonText", element.id)}
               />
+              <label htmlFor={`upload-${element.id}`}>
+                <input
+                  id={`upload-${element.id}`}
+                  type="file"
+                  accept="image/*,video/*"
+                  style={{ display: "none" }}
+                  onChange={handleImageChange}
+                />
+                <Typography
+                  sx={{
+                    border: "1px solid rgba(0, 0, 0, 0.25)",
+                    cursor: "pointer",
+                    height: "100%",
+                    width: "100%",
+                    display: "grid",
+                    placeItems: "center",
+                    borderRadius: "var(--border-radius)",
+                    whiteSpace: "nowrap",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                  }}
+                >
+                  {(element.media?.[0] as MediaType)?.name || "Upload image"}
+                </Typography>
+              </label>
             </FormControl>
           </Box>
         );
         break;
       case "courses":
+        el = (
+          <Box>
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                marginBottom: "1rem",
+              }}
+            >
+              <Typography variant="h5" id={`element-${element.id}`}>
+                {capitalizeText(element.type)}
+              </Typography>
+              <ActionButtons block={element} setPage={setPage} />
+            </Box>
+          </Box>
+        );
+        break;
+      case "map":
         el = (
           <Box>
             <Box
@@ -434,7 +563,7 @@ const PageBuilder = ({ page, setPage }: Props) => {
                   }}
                 >
                   {element.media.map((m) => (
-                    <Box className="has_bg_image" key={`media-${m.id}`}>
+                    <Box className="has_bg_image" key={`media-${m?.id}`}>
                       <img
                         className="bg"
                         src={(m as MediaType).url}
@@ -501,7 +630,7 @@ const PageBuilder = ({ page, setPage }: Props) => {
                   }}
                 >
                   {element.media.map((m) => (
-                    <Box className="has_bg_image" key={`media-${m.id}`}>
+                    <Box className="has_bg_image" key={`media-${m?.id}`}>
                       <img
                         className="bg"
                         src={(m as MediaType).url}
@@ -575,6 +704,48 @@ const PageBuilder = ({ page, setPage }: Props) => {
                 onBlur={(e) => handleChange(e, "title", element.id)}
               />
             </FormControl>
+          </Box>
+        );
+        break;
+      case "link":
+        el = (
+          <Box>
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                marginBottom: ".2rem",
+              }}
+            >
+              <Typography variant="h5" id={`element-${element.id}`}>
+                {capitalizeText(element.type)}
+              </Typography>
+              <ActionButtons block={element} setPage={setPage} />
+            </Box>
+            <Box sx={{ display: "flex", gap: "1rem" }}>
+              <FormControl fullWidth>
+                <label style={{ marginBottom: ".4rem" }}>Name</label>
+                <TextField
+                  label=""
+                  defaultValue={content[0]}
+                  onBlur={(e) => handleLinkChange(e, element.id)}
+                />
+              </FormControl>
+              <FormControl fullWidth>
+                <label style={{ marginBottom: ".4rem" }}>Page</label>
+                <Select
+                  value={content[1] || ""}
+                  onChange={(e) => handleLinkPageChange(e, element.id)}
+                >
+                  {pages?.post.map((page) => (
+                    <MenuItem key={`page-${page.id}`} value={page.title}>
+                      {capitalizeText(page.title)}
+                    </MenuItem>
+                  ))}
+                  <MenuItem value={"e-learning"}>E-Learning</MenuItem>
+                </Select>
+              </FormControl>
+            </Box>
           </Box>
         );
         break;

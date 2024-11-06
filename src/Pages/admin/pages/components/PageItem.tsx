@@ -2,14 +2,15 @@ import { Box, Checkbox, IconButton, SxProps, Typography } from "@mui/material";
 import DeleteIcon from "../../../../assets/deleteIcon";
 import { PostType } from "../../../../types/posts";
 import { Edit } from "@mui/icons-material";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 type Props = {
-  page: PostType;
+  post: PostType;
   deleteItem: () => void;
 };
-const PostItem = ({ page, deleteItem }: Props) => {
+const PostItem = ({ post, deleteItem }: Props) => {
   const navigate = useNavigate();
+  const { resource_type } = useParams();
 
   return (
     <Box sx={postItemStyles}>
@@ -25,13 +26,13 @@ const PostItem = ({ page, deleteItem }: Props) => {
         <Typography
           sx={{ fontWeight: "500 !important", textTransform: "capitalize" }}
         >
-          {page.title}
+          {post.title}
         </Typography>
       </Box>
       <Box sx={{ display: "flex", justifySelf: "end" }}>
         <IconButton
           onClick={() =>
-            navigate(`/settings/page/${page.categories?.[0].name}`)
+            navigate(`/settings/posttype/${resource_type}/${post.id}`)
           }
         >
           <Edit sx={{ color: "rgba(170, 170, 170, 1)" }} />

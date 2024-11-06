@@ -1,6 +1,6 @@
 import { Box, Button, SxProps, TextField, Typography } from "@mui/material";
 import { ChangeEvent, useCallback, useEffect, useState } from "react";
-import PageBuilder from "./components/PageBuilder";
+import PageBuilder from "./components/DynamicPostBuilder";
 import { useNavigate, useParams } from "react-router-dom";
 import {
   useAddPostMutation,
@@ -8,15 +8,18 @@ import {
   useUpdatePostMutation,
 } from "../../../store/api/posts.api";
 import { PostType, PostCreateType } from "../../../types/posts";
-import { elements } from "./page-elements";
+import { postElements } from "./elements/post-elements";
 import { BlockType } from "../../../types/blocks";
 import LoadingScreen from "../../../components/LoadingScreen";
 import { useAddMediaMutation } from "../../../store/api/media.api";
+import { pageElements } from "./elements/page-elements";
+import { navElements } from "./elements/navigation-elements";
+import { footerElements } from "./elements/footer-elements";
 
 const PostPage = () => {
-  const { post_id } = useParams();
+  const { resource_type, post_id } = useParams();
   const navigate = useNavigate();
-  const [getPost] = useGetPostMMutation();
+  const [getPost, postState] = useGetPostMMutation();
   const [addPost] = useAddPostMutation();
   const [updatePost, updateState] = useUpdatePostMutation();
   const [post, setPost] = useState<PostType | null>(null);
@@ -27,7 +30,7 @@ const PostPage = () => {
     setPost((prev) => {
       const blocks: PostType["blocks"] = prev?.blocks ? [...prev.blocks] : [];
 
-      const content = elements.find((el) => el.type === type)?.name ?? "";
+      const content = postElements.find((el) => el.type === type)?.name ?? "";
       const newBlock: BlockType = {
         id: (blocks[blocks.length - 1]?.id ?? 0) + 1,
         content: content,
@@ -49,15 +52,17 @@ const PostPage = () => {
 
   const handleSave = useCallback(async () => {
     if (!post || !post?.title) return;
+    const categories = [resource_type || ""];
+
+    if (resource_type == "page") categories.push(post.title);
 
     const payload: PostCreateType = {
       ...post,
       blocks: post?.blocks || [],
       featured_image: imageUrl,
-      categories: ["posts"],
-      tags: ["posts"],
+      categories: categories,
+      tags: categories,
     };
-    console.log(payload);
 
     try {
       if (post.id) {
@@ -66,6 +71,7 @@ const PostPage = () => {
       } else {
         const response = await addPost(payload).unwrap();
         setPost(response.post);
+        navigate(`/settings/posttype/${resource_type}/${response.post.id}`);
       }
     } catch (error) {
       console.error("Failed to save post:", error);
@@ -73,7 +79,7 @@ const PostPage = () => {
   }, [post, updatePost, addPost, getPost]);
 
   const handleBack = useCallback(() => {
-    navigate(-1);
+    navigate(`/settings/posttype/${resource_type}`);
   }, [navigate]);
 
   const handleImageChange = async (ev: ChangeEvent<HTMLInputElement>) => {
@@ -90,6 +96,17 @@ const PostPage = () => {
     }
   };
 
+  const getSidebar = () => {
+    const sidebars = {
+      page: pageElements,
+      posts: postElements,
+      navigation: navElements,
+      footer: footerElements,
+    };
+    if (resource_type) return sidebars[resource_type as keyof typeof sidebars];
+    return [];
+  };
+
   useEffect(() => {
     if (post_id && !post?.id) {
       getPost(+post_id).then((res) => {
@@ -102,9 +119,11 @@ const PostPage = () => {
     }
   }, [post_id, post?.id, imageUrl]);
 
+  if (!resource_type) navigate(-1);
+
   return (
     <Box sx={contentStyles}>
-      {updateState.isLoading ? <LoadingScreen /> : null}
+      {updateState.isLoading || postState.isLoading ? <LoadingScreen /> : null}
       <Box sx={{ paddingBottom: "2rem" }}>
         <Box sx={headerStyles}>
           <Button onClick={handleBack}>Back</Button>
@@ -120,10 +139,10 @@ const PostPage = () => {
             marginBottom: "1rem",
           }}
         >
-          <label htmlFor="">Post title</label>
+          <label htmlFor="">Name</label>
           <TextField
             variant="outlined"
-            value={post?.title}
+            value={post?.title || ""}
             onChange={(e) =>
               setPost((prev) =>
                 prev
@@ -132,29 +151,33 @@ const PostPage = () => {
               )
             }
           />
-          <label htmlFor="">Featured Image</label>
-          <Box>
-            {post?.featured_image ? (
-              <Box
-                className="has_bg_image"
-                sx={{
-                  height: "130px",
-                  borderRadius: "var(--border-radius)",
-                  overflow: "hidden",
-                }}
-              >
-                <img src={post.featured_image} alt="" className="bg" />
+          {post?.categories?.find((cat) => cat.name == "posts") ? (
+            <>
+              <label htmlFor="">Featured Image</label>
+              <Box>
+                {post?.featured_image ? (
+                  <Box
+                    className="has_bg_image"
+                    sx={{
+                      height: "130px",
+                      borderRadius: "var(--border-radius)",
+                      overflow: "hidden",
+                    }}
+                  >
+                    <img src={post.featured_image} alt="" className="bg" />
+                  </Box>
+                ) : null}
+                <TextField
+                  id="featured_image_selector"
+                  variant="outlined"
+                  type="file"
+                  onChange={handleImageChange}
+                  fullWidth
+                  hidden={Boolean(!post?.featured_image)}
+                />
               </Box>
-            ) : null}
-            <TextField
-              id="featured_image_selector"
-              variant="outlined"
-              type="file"
-              onChange={handleImageChange}
-              fullWidth
-              hidden={Boolean(!post?.featured_image)}
-            />
-          </Box>
+            </>
+          ) : null}
         </Box>
         <Box sx={blockContainerStyles}>
           {post && (
@@ -180,7 +203,7 @@ const PostPage = () => {
             Blocks
           </Typography>
           <Box sx={elementSideBar}>
-            {elements.map((el, i) => (
+            {getSidebar().map((el, i) => (
               <Button key={el.id + "-" + i} onClick={() => addBlock(el.type)}>
                 <el.icon />
                 <span>{el.name}</span>

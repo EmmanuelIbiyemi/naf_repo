@@ -15,7 +15,7 @@ export const BLOCK_TYPES = {
   SMALL_SPACE: "small space",
 } as const;
 
-export const elements = [
+export const postElements = [
   { id: 6, name: "Image", type: BLOCK_TYPES.IMAGE, icon: Image },
   { id: 7, name: "Video", type: BLOCK_TYPES.VIDEO, icon: SmartDisplay },
   { id: 8, name: "Heading", type: BLOCK_TYPES.HEADING, icon: HMobiledata },

@@ -28,7 +28,7 @@ export const BLOCK_TYPES = {
   SMALL_SPACE: "small space",
 } as const;
 
-export const elements = [
+export const pageElements = [
   { id: 1, name: "Banner", type: BLOCK_TYPES.BANNER, icon: ViewCarousel },
   { id: 2, name: "History", type: BLOCK_TYPES.HISTORY, icon: Timeline },
   { id: 3, name: "Courses", type: BLOCK_TYPES.COURSES, icon: Article },

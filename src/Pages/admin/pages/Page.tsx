@@ -8,7 +8,7 @@ import {
   useGetPostCategoriesByTagQuery,
 } from "../../../store/api/posts.api";
 import { PostType, PostCreateType } from "../../../types/posts";
-import { elements } from "./page-elements";
+import { pageElements } from "./elements/page-elements";
 import { BlockType } from "../../../types/blocks";
 import LoadingScreen from "../../../components/LoadingScreen";
 
@@ -58,7 +58,7 @@ const Page = () => {
   const addBlock = useCallback((type: string) => {
     setPost((prev) => {
       if (!prev) return null;
-      const content = elements.find((el) => el.type === type)?.name ?? "";
+      const content = pageElements.find((el) => el.type === type)?.name ?? "";
       const newBlock: BlockType = {
         id: +(Date.now() + "0000"),
         content: `${content}::::`,
@@ -138,7 +138,7 @@ const Page = () => {
             Blocks
           </Typography>
           <Box sx={elementSideBar}>
-            {elements.map((el, i) => (
+            {pageElements.map((el, i) => (
               <Button
                 key={el.id + "-" + i}
                 onClick={() => addBlock(el.type)}

@@ -105,7 +105,7 @@ const Pages = () => {
           pages?.post?.map((page) => (
             <PostItem
               key={`postitem-${page.id}`}
-              page={page}
+              post={page}
               deleteItem={() => handleDeleteAction(page)}
             />
           ))
