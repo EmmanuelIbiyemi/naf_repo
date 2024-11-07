@@ -1,7 +1,6 @@
 import {
   Box,
   Grid2,
-  Grid,
   List,
   ListItem,
   ListItemButton,
@@ -9,9 +8,11 @@ import {
   ListItemText,
   Divider,
   Typography,
+  CircularProgress,
+  Grid,
 } from "@mui/material";
 import { ArrowForward, Quiz } from "@mui/icons-material";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useAppDispatch, useAppSelector } from "../../../store/hooks";
 import { setPageName } from "../../../store/app.slice";
 import { selectCurrentUser } from "../../../store/auth.slice";
@@ -24,12 +25,12 @@ import { useGetParticipantQuery } from "../../../store/api/participants.api";
 import dayjs from "dayjs";
 
 const LiveClasses = () => {
-  const containerRef = useRef<HTMLDivElement>(null);
   const dispatch = useAppDispatch();
   const [selectedCourse, setSelectedCourse] = useState<{
     id: number;
     name: string;
   } | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   // Set page name
   useEffect(() => {
@@ -51,21 +52,24 @@ const LiveClasses = () => {
     useGetCurrentSessionQuery(null);
 
   // Fetch live classes with current semester and session
-  const { data: liveClasses, isLoading: isClassesLoading } =
-    useGetLiveClassesQuery(
-      {
-        course_id: selectedCourse?.id ? String(selectedCourse.id) : "",
-        semester: currentSemester?.data?.name || "",
-        session: currentSession?.data?.name || "",
-      },
-      {
-        // Skip the query if we don't have semester, session, or participant data yet
-        skip:
-          !currentSemester?.data?.name ||
-          !currentSession?.data?.name ||
-          !participantData?.data,
-      }
-    );
+  const {
+    data: liveClasses,
+    isFetching,
+  } = useGetLiveClassesQuery(
+    {
+      course_id: selectedCourse?.id ? String(selectedCourse.id) : "",
+      semester: currentSemester?.data?.name || "",
+      session: currentSession?.data?.name || "",
+    },
+    {
+      // Skip the query if we don't have semester, session, or participant data yet
+      skip:
+        !currentSemester?.data?.name ||
+        !currentSession?.data?.name ||
+        !participantData?.data,
+    }
+  );
+
 
   // Process live classes data
   const processClassStatus = (liveClass: { start_time: string }) => {
@@ -79,15 +83,26 @@ const LiveClasses = () => {
     return "Not Started";
   };
 
+  // Update loading state when selected course changes
+  useEffect(() => {
+    setIsLoading(true);
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [selectedCourse]);
+
   // Combined loading state
-  const isLoading =
-    isParticipantLoading ||
-    isSemesterLoading ||
-    isSessionLoading ||
-    isClassesLoading;
+  const isFullyLoaded =
+    !isParticipantLoading &&
+    !isSemesterLoading &&
+    !isSessionLoading &&
+    !isFetching &&
+    !isLoading;
 
   return (
-    <Box ref={containerRef} className="content-container">
+    <Box className="content-container">
       <Box
         sx={{
           bgcolor: "#fff",
@@ -102,37 +117,15 @@ const LiveClasses = () => {
               Courses
             </Typography>
             <List sx={{ width: "100%", bgcolor: "background.paper" }}>
-              <ListItem disablePadding>
-                <ListItemButton
-                  onClick={() => setSelectedCourse(null)}
-                  sx={{
-                    py: 2,
-                    "&:hover": {
-                      bgcolor: "rgba(0, 0, 0, 0.04)",
-                    },
-                  }}
-                >
-                  <ListItemIcon>
-                    <Quiz color="primary" />
-                  </ListItemIcon>
-                  <ListItemText
-                    primary="All Courses"
-                    primaryTypographyProps={{
-                      fontWeight: selectedCourse === null ? 700 : 500,
-                    }}
-                  />
-                  {selectedCourse === null && (
-                    <ArrowForward sx={{ color: "text.secondary" }} />
-                  )}
-                </ListItemButton>
-              </ListItem>
-              <Divider />
               {participantData?.data?.courses.map((course) => (
                 <React.Fragment key={course.id}>
                   <ListItem disablePadding>
                     <ListItemButton
                       onClick={() =>
-                        setSelectedCourse({ id: (course?.id || 0), name: course.name })
+                        setSelectedCourse({
+                          id: course?.id || 0,
+                          name: course.name,
+                        })
                       }
                       sx={{
                         py: 2,
@@ -163,12 +156,14 @@ const LiveClasses = () => {
           </Box>
           <Box sx={{ flex: 1 }}>
             <Box sx={{ bgcolor: "#fff" }}>
-              {isLoading ? (
-                <Box sx={{ p: 3, textAlign: "center" }}>Loading...</Box>
-              ) : !currentSemester?.data || !currentSession?.data ? (
+              {!isFullyLoaded ? (
+                <Box sx={{ p: 3, textAlign: "center" }}>
+                  <CircularProgress />
+                </Box>
+              ) : !currentSemester?.data || !currentSession?.data || !selectedCourse ? (
                 <EmptyState
-                  title="No Active Semester or Session"
-                  subTitle="Please set up the current semester and session."
+                  title="No course selected"
+                  subTitle="Please select a course"
                 />
               ) : liveClasses?.data?.length ? (
                 <Box sx={{ width: "100%", height: "100%" }}>
