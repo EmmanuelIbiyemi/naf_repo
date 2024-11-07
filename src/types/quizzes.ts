@@ -1,6 +1,63 @@
 import { options } from "./options";
 // import { Participant } from "./participants";
 
+// Base interface for timestamps
+interface TimeStamps {
+  created_at: string;
+  updated_at: string;
+}
+
+// Option interface
+interface Option extends TimeStamps {
+  id: number;
+  body: string;
+}
+
+// Question interface
+interface Question extends TimeStamps {
+  id: number;
+  body: string;
+  options: Option[];
+}
+
+// Assessment interface
+interface Assessment extends TimeStamps {
+  id: number;
+  name: string;
+  questions: Question[];
+}
+
+// Quiz Data interface
+interface QuizData extends TimeStamps {
+  id: number;
+  code: string;
+  name: string;
+  instructions: string;
+  is_published: boolean;
+  obtainable_score: number;
+  show_result: boolean;
+  start_date: string;
+  expiry_date: string;
+  time_allowed: number;
+  type: string;
+  assessments: Assessment[];
+}
+
+// Full Response interface
+interface QuizResponse {
+  data: QuizData;
+  message: string;
+  status: string;
+}
+
+export type { 
+  Option,
+  Question,
+  Assessment,
+  QuizData,
+  QuizResponse
+};
+
 export interface QuizzesResponse {
   data: {
     assessments: unknown;
@@ -67,7 +124,7 @@ export interface AssessmentResponse {
   created_at: string;
   id: number;
   name: string;
-  questions: unknown;
+  questions: Question;
   updated_at: string;
 }
 
@@ -125,21 +182,6 @@ interface Assessment {
   updated_at: string;
 }
 
-interface Question {
-  body: string;
-  created_at: string;
-  id: number;
-  options: Option[];
-  updated_at: string;
-}
-
-interface Option {
-  body: string;
-  created_at: string;
-  id: number;
-  is_answer?: boolean;
-  updated_at: string;
-}
 export interface Result {
   assessment_id: number;
   created_at: string;

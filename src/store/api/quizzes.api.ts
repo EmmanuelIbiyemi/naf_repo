@@ -7,6 +7,7 @@ import {
   QuizzesResponse,
   shareQuizInput,
   QuizResultResponse,
+  QuizResponse,
 } from "../../types/quizzes";
 import { appApi } from "./app.api";
 
@@ -38,6 +39,8 @@ interface QuizSubmissionResponse {
       wrong: number;
     }>;
   };
+  status: string;
+  message: string;
 }
 
 interface SingleQuizResponse {
@@ -79,10 +82,7 @@ const quizzesApi = appApi.injectEndpoints({
       providesTags: ["Quiz"],
     }),
 
-    getCourseQuizzes: builder.query<
-      QuizzesResponse,
-      { course_id: number }
-    >({
+    getCourseQuizzes: builder.query<QuizzesResponse, { course_id: number }>({
       query: ({ course_id }) => ({
         url: `/quiz?course_id=${course_id}`,
       }),
@@ -185,10 +185,23 @@ const quizzesApi = appApi.injectEndpoints({
       }),
       invalidatesTags: ["Quiz"],
     }),
+
     deleteQuiz: builder.mutation<{ message: string }, number>({
       query: (quiz_id) => ({
         url: `/quiz/${quiz_id}`,
         method: "DELETE",
+      }),
+      invalidatesTags: ["Quiz"],
+    }),
+
+    unlockQuiz: builder.mutation<
+      QuizResponse,
+      { quiz_code: string; email: string }
+    >({
+      query: (data) => ({
+        url: `/quiz/unlock`,
+        method: "POST",
+        body: data,
       }),
       invalidatesTags: ["Quiz"],
     }),
@@ -209,4 +222,5 @@ export const {
   useCreateQuestionManuallyMutation,
   useShareQuizMutation,
   useDeleteQuizMutation,
+  useUnlockQuizMutation,
 } = quizzesApi;

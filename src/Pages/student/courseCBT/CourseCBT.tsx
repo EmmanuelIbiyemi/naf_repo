@@ -20,7 +20,7 @@ import {
   Assessment,
 } from "@mui/icons-material";
 import { format } from "date-fns";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAppSelector } from "../../../store/hooks";
 import { selectCurrentUser } from "../../../store/auth.slice";
 import { useGetParticipantQuery } from "../../../store/api/participants.api";
@@ -52,10 +52,11 @@ const CourseCBT = () => {
   const handleCloseModal = () => {
     setIsModalOpen(false);
   };
-
+  const navigate = useNavigate();
   const handleSubmitCode = (code: string) => {
     // Handle the submitted code
     console.log("Submitted code:", code);
+    navigate(`/student/cbt/${code}`)
   };
 
   return (

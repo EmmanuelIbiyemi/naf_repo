@@ -26,15 +26,25 @@ import {
   Close,
 } from '@mui/icons-material';
 import { 
-  useGetSingleQuizQuery, 
   useSubmitQuizMutation,
-  useSubmitSingleQuizMutation 
+  useSubmitSingleQuizMutation,
+  useUnlockQuizMutation
 } from '../../../store/api/quizzes.api';
 import QuestionSummaryGrid from './CBTSummary';
+import { Assessment, Option, Question, QuizzesResponse } from "../../../types/quizzes";
+import { useAppSelector } from '../../../store/hooks';
+import { selectCurrentUser } from '../../../store/auth.slice';
 
-const Timer = ({ duration, onTimeUp, onTick }) => {
+interface TimerProps {
+  duration: number;
+  onTimeUp: () => void; // Changed from {} to void
+  onTick: (timeLeft: number) => void; // Changed from string to function type
+}
+
+const Timer = ({ duration, onTimeUp, onTick }: TimerProps) => {
   const [timeLeft, setTimeLeft] = useState(duration * 60);
-  const timerRef = useRef(null);
+  // Changed from null to NodeJS.Timeout
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     // Initial setup of timer
@@ -44,12 +54,11 @@ const Timer = ({ duration, onTimeUp, onTick }) => {
     }
 
     timerRef.current = setInterval(() => {
-      setTimeLeft(prevTime => {
+      setTimeLeft((prevTime) => {
         const newTime = prevTime - 1;
-        // Call onTick after state update, in the next render cycle
+        // Call onTick with the new time value
         if (newTime >= 0) {
-          // Use requestAnimationFrame to ensure we're not updating state during render
-          requestAnimationFrame(() => onTick(newTime));
+          onTick(newTime);
         }
         return newTime;
       });
@@ -61,56 +70,60 @@ const Timer = ({ duration, onTimeUp, onTick }) => {
         clearInterval(timerRef.current);
       }
     };
-  }, [onTimeUp]); // Remove timeLeft and onTick from dependencies
+  }, [timeLeft, onTimeUp, onTick]); // Added back dependencies
 
-    // Separate effect for handling time up
-  useEffect(() => {
-    if (timeLeft <= 0) {
-      if (timerRef.current) {
-        clearInterval(timerRef.current);
-      }
-      onTimeUp();
-    }
-  }, [timeLeft, onTimeUp]);
-  
   const minutes = Math.floor(timeLeft / 60);
   const seconds = timeLeft % 60;
 
   return (
-    <Box sx={{ 
-      display: 'flex', 
-      alignItems: 'center', 
-      gap: 1,
-      color: 'primary.main',
-      py: 1,
-    }}>
+    <Box
+      sx={{
+        display: "flex",
+        alignItems: "center",
+        gap: 1,
+        color: "primary.main",
+        py: 1,
+      }}
+    >
       <AccessTime fontSize="small" />
       <Typography variant="h6" component="span">
-        {String(minutes).padStart(2, '0')}:{String(seconds).padStart(2, '0')}
+        {String(minutes).padStart(2, "0")}:{String(seconds).padStart(2, "0")}
       </Typography>
     </Box>
   );
 };
 
-const QuizInfoModal = ({ quiz, open, onClose, onStart }) => {
+const QuizInfoModal = ({
+  quiz,
+  open,
+  onClose,
+  onStart,
+}: {
+  quiz?: QuizzesResponse["data"][0];
+  open: boolean;
+  onClose: () => void;
+  onStart: () => void;
+}) => {
   if (!quiz) return null;
 
   return (
     <Modal open={open} onClose={onClose}>
-      <Box sx={{
-        position: 'absolute',
-        top: '50%',
-        left: '50%',
-        transform: 'translate(-50%, -50%)',
-        width: '90%',
-        maxWidth: 500,
-        bgcolor: 'background.paper',
-        borderRadius: 2,
-        boxShadow: 24,
-        p: 4,
-      }}>
+      <Box
+        sx={{
+          position: "absolute",
+          top: "50%",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+          width: "90%",
+          maxWidth: 500,
+          bgcolor: "background.paper",
+          borderRadius: 2,
+          boxShadow: 24,
+          p: 4,
+        }}
+      >
         <IconButton
-          sx={{ position: 'absolute', right: 8, top: 8 }}
+          sx={{ position: "absolute", right: 8, top: 8 }}
           onClick={onClose}
         >
           <Close />
@@ -127,30 +140,29 @@ const QuizInfoModal = ({ quiz, open, onClose, onStart }) => {
           </Box>
 
           <Stack spacing={2}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
               <AccessTime color="primary" />
               <Typography>Duration: {quiz.time_allowed} minutes</Typography>
             </Box>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
               <Assignment color="primary" />
-              <Typography>Total Score: {quiz.obtainable_score} points</Typography>
+              <Typography>
+                Total Score: {quiz.obtainable_score} points
+              </Typography>
             </Box>
           </Stack>
 
           <Alert severity="warning">
             <AlertTitle>Important Notice</AlertTitle>
-            - The timer will start immediately after clicking "Start Quiz"<br />
-            - You cannot pause or restart the quiz once started<br />
-            - Ensure you have a stable internet connection<br />
-            - Do not refresh or close the browser window
+            - The timer will start immediately after clicking "Start Quiz"
+            <br />
+            - You cannot pause or restart the quiz once started
+            <br />
+            - Ensure you have a stable internet connection
+            <br />- Do not refresh or close the browser window
           </Alert>
 
-          <Button
-            variant="contained"
-            size="large"
-            fullWidth
-            onClick={onStart}
-          >
+          <Button variant="contained" size="large" fullWidth onClick={onStart}>
             Start Quiz
           </Button>
         </Stack>
@@ -159,7 +171,17 @@ const QuizInfoModal = ({ quiz, open, onClose, onStart }) => {
   );
 };
 
-const SubmitConfirmationDialog = ({ open, onClose, onConfirm }) => (
+interface SubmitConfirmationDialogProps {
+  open: boolean;
+  onClose: () => void;
+  onConfirm: () => void;
+}
+
+const SubmitConfirmationDialog = ({
+  open,
+  onClose,
+  onConfirm,
+}: SubmitConfirmationDialogProps) => (
   <Dialog open={open} onClose={onClose}>
     <DialogTitle>Submit Quiz?</DialogTitle>
     <DialogContent>
@@ -177,23 +199,34 @@ const SubmitConfirmationDialog = ({ open, onClose, onConfirm }) => (
 );
 
 const CBTTest = () => {
-  const { quizId } = useParams();
+  const { quizCode } = useParams<{ quizCode: string }>();
   const navigate = useNavigate();
   const [showInfoModal, setShowInfoModal] = useState(true);
   const [quizStarted, setQuizStarted] = useState(false);
-  const [answers, setAnswers] = useState({});
+  const [answers, setAnswers] = useState<Record<number, number>>({});
   const [showSubmitDialog, setShowSubmitDialog] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [timeLeft, setTimeLeft] = useState(0);
   const [submitAllQuiz] = useSubmitQuizMutation();
   const [submitSingleQuiz] = useSubmitSingleQuizMutation();
-  const { data: quizData, isLoading, error } = useGetSingleQuizQuery(quizId);
+  const [unlockQuiz, { data: quizData, isLoading, error }] =
+    useUnlockQuizMutation();
 
-  const handleTimeUp = useCallback(() => {
-    handleSubmitQuiz();
-  }, []);
+  const user = useAppSelector(selectCurrentUser);
 
-  const handleTimeTick = useCallback((newTimeLeft) => {
+  // Add effect to unlock quiz when component mounts
+  useEffect(() => {
+    if (quizCode) {
+      unlockQuiz({
+        quiz_code: quizCode,
+        email: user?.email || "", // You'll need to get this from your auth context or user state
+      });
+    }
+  }, [quizCode, unlockQuiz, user?.email]);
+
+
+
+  const handleTimeTick = useCallback((newTimeLeft: number) => {
     setTimeLeft(newTimeLeft);
   }, []);
 
@@ -205,84 +238,91 @@ const CBTTest = () => {
     }
   };
 
-  const handleAnswerChange = (questionId) => async (event) => {
-    const optionId = parseInt(event.target.value);
-    
-    try {
-      // Update local state first for immediate UI feedback
-      setAnswers(prev => ({
-        ...prev,
-        [questionId]: optionId
-      }));
+  const handleAnswerChange =
+    (questionId: number) =>
+    async (event: React.ChangeEvent<HTMLInputElement>) => {
+      const optionId = parseInt(event.target.value);
 
-      // Submit the single answer
-      const response = await submitSingleQuiz({
-        quiz_id: Number(quizId),
-        option_id: optionId,
-        time_left: timeLeft
-      }).unwrap();
+      try {
+        setAnswers((prev) => ({
+          ...prev,
+          [questionId]: optionId,
+        }));
 
-      // Optional: Handle the response if needed
-      console.log('Answer submitted successfully:', response);
-    } catch (error) {
-      // Handle error - maybe show an alert
-      console.error('Failed to submit answer:', error);
-      // Optionally revert the local state if submission failed
-      setAnswers(prev => {
-        const newAnswers = { ...prev };
-        delete newAnswers[questionId];
-        return newAnswers;
-      });
-    }
-  };
-
-  const handleQuestionClick = (questionId) => {
-    const questionElement = document.getElementById(`question-${questionId}`);
-    if (questionElement) {
-      questionElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }
-  };
-
-  const handleSubmitQuiz = async () => {
-  try {
-    setSubmitting(true);
-    
-    const questions = quiz?.assessments?.[0]?.questions || [];
-    
-    // Check if all questions are answered
-    const unansweredCount = questions.length - Object.keys(answers).length;
-    if (unansweredCount > 0) {
-      // You can show this in your UI
-      throw new Error(`Please answer all questions. ${unansweredCount} questions remaining.`);
-    }
-
-    const orderedOptionIds = questions.map(question => 
-      Number(answers[question.id])
-    );
-
-    const submissionData = {
-      quiz_id: Number(quizId),
-      option_ids: orderedOptionIds,
-      time_left: timeLeft
+        await submitSingleQuiz({
+          quiz_id: quizData?.data.id || 0,
+          option_id: optionId,
+          time_left: timeLeft,
+        }).unwrap();
+      } catch (error) {
+        console.error("Failed to submit answer:", error);
+        setAnswers((prev) => {
+          const newAnswers = { ...prev };
+          delete newAnswers[questionId];
+          return newAnswers;
+        });
+      }
     };
 
-    const response = await submitAllQuiz(submissionData).unwrap();
-    
-    if (response.status === "success") {
-      navigate(`/student/cbt-result/${quizId}`);
-    } else {
-      throw new Error(response.message || 'Failed to submit quiz');
+  const handleQuestionClick = (questionId: number) => {
+    const questionElement = document.getElementById(`question-${questionId}`);
+    if (questionElement) {
+      questionElement.scrollIntoView({ behavior: "smooth", block: "center" });
     }
-  } catch (error) {
-    console.error('Failed to submit quiz:', error);
-    // Show error to user
-  } finally {
-    setSubmitting(false);
-  }
-};
+  };
+
+  const handleSubmitQuiz = useCallback(async () => {
+    try {
+      setSubmitting(true);
+
+      const quiz = quizData?.data;
+      const questions = quiz?.assessments as Assessment[];
+
+      const unansweredCount = questions.length - Object.keys(answers).length;
+      if (unansweredCount > 0) {
+        throw new Error(
+          `Please answer all questions. ${unansweredCount} questions remaining.`
+        );
+      }
+
+      const orderedOptionIds = questions.map((question) =>
+        Number(answers[question.id])
+      );
+
+      const submissionData = {
+        quiz_id: quiz?.id || 0,
+        option_ids: orderedOptionIds,
+        time_left: timeLeft,
+      };
+
+      const response = await submitAllQuiz(submissionData).unwrap();
+
+      if (response.status === "success") {
+        navigate(`/student/cbt-result/${quiz?.id}`);
+      } else {
+        throw new Error(response.message || "Failed to submit quiz");
+      }
+    } catch (error) {
+      console.error("Failed to submit quiz:", error);
+    } finally {
+      setSubmitting(false);
+    }
+  }, [answers, quizData, timeLeft, navigate, submitAllQuiz]);
+
+  const handleTimeUp = useCallback(() => {
+    handleSubmitQuiz();
+  }, [handleSubmitQuiz]);
+
   if (isLoading) {
     return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          minHeight: "60vh",
+        }}
+      >
         <CircularProgress />
       </Box>
     );
@@ -299,11 +339,11 @@ const CBTTest = () => {
     );
   }
 
-  const { data: quiz } = quizData;
-  const questions = quiz?.assessments?.[0]?.questions || [];
+  const quiz = quizData?.data;
+  const questions = quiz?.assessments[0].questions as Question[];
 
   return (
-    <Box sx={{ p: 2, maxWidth: 1800, mx: 'auto' }}>
+    <Box sx={{ p: 2, maxWidth: 1800, mx: "auto" }}>
       <QuizInfoModal
         quiz={quiz}
         open={showInfoModal}
@@ -313,7 +353,7 @@ const CBTTest = () => {
 
       {quizStarted && (
         <>
-          <Paper 
+          <Paper
             elevation={1}
             sx={{
               position: "sticky",
@@ -321,29 +361,33 @@ const CBTTest = () => {
               mb: 2,
               p: 3,
               borderRadius: 2,
-              bgcolor: 'background.paper',
+              bgcolor: "background.paper",
             }}
           >
-            <Box sx={{ 
-              display: 'flex', 
-              flexDirection: 'column', 
-              justifyContent: 'center', 
-            }}>
-              <Box sx={{ 
-                display: 'flex', 
-                justifyContent: 'space-between', 
-                alignItems: 'center',
-              }}>
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "center",
+              }}
+            >
+              <Box
+                sx={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                }}
+              >
                 <Typography variant="h5" component="h1">
-                  {quiz.name}
+                  {quiz?.name}
                 </Typography>
                 <Timer
-                  duration={quiz.time_allowed}
+                  duration={quiz?.time_allowed || 60}
                   onTimeUp={handleTimeUp}
                   onTick={handleTimeTick}
                 />
               </Box>
-              <QuestionSummaryGrid 
+              <QuestionSummaryGrid
                 questions={questions}
                 answers={answers}
                 onQuestionClick={handleQuestionClick}
@@ -351,25 +395,27 @@ const CBTTest = () => {
             </Box>
           </Paper>
 
-          <Box sx={{ 
-            display: 'flex', 
-            flexWrap: 'wrap',
-            width: '100%',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: 3,
-          }}>
-            {questions.map((question, index) => (
-              <Card 
-                key={question.id} 
-                sx={{ 
+          <Box
+            sx={{
+              display: "flex",
+              flexWrap: "wrap",
+              width: "100%",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: 3,
+            }}
+          >
+            {questions?.map((question, index: number) => (
+              <Card
+                key={question.id}
+                sx={{
                   p: 3,
                   minWidth: 360,
                   maxWidth: 360,
-                  display: 'flex',
-                  flexDirection: 'column',
+                  display: "flex",
+                  flexDirection: "column",
                   gap: 1,
-                  boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.1)'
+                  boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.1)",
                 }}
               >
                 <Typography variant="subtitle1" sx={{ mb: 0 }}>
@@ -379,20 +425,20 @@ const CBTTest = () => {
                   {question.body}
                 </Typography>
                 <RadioGroup
-                  value={answers[question.id]?.toString() || ''}
+                  value={answers[question.id]?.toString() || ""}
                   onChange={handleAnswerChange(question.id)}
                 >
-                  {question.options.map((option) => (
+                  {question.options.map((option: Option) => (
                     <FormControlLabel
                       key={option.id}
                       value={option.id.toString()}
                       control={<Radio />}
                       label={option.body}
-                      sx={{ 
+                      sx={{
                         mb: 0,
-                        '& .MuiTypography-root': {
-                          fontSize: '0.9rem'
-                        }
+                        "& .MuiTypography-root": {
+                          fontSize: "0.9rem",
+                        },
                       }}
                     />
                   ))}
@@ -401,20 +447,23 @@ const CBTTest = () => {
             ))}
           </Box>
 
-          <Box sx={{ 
-            display: 'flex', 
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            mt: 4,
-            position: 'sticky',
-            bottom: 16,
-            bgcolor: 'background.paper',
-            p: 2,
-            borderRadius: 1,
-            boxShadow: '0px -2px 4px rgba(0, 0, 0, 0.1)'
-          }}>
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              mt: 4,
+              position: "sticky",
+              bottom: 16,
+              bgcolor: "background.paper",
+              p: 2,
+              borderRadius: 1,
+              boxShadow: "0px -2px 4px rgba(0, 0, 0, 0.1)",
+            }}
+          >
             <Typography>
-              Questions answered: {Object.keys(answers).length} of {questions.length}
+              Questions answered: {Object.keys(answers).length} of{" "}
+              {questions.length}
             </Typography>
             <Button
               variant="contained"

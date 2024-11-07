@@ -287,7 +287,7 @@ export const router = createBrowserRouter([
       { path: "courses/course-form", element: <StudentCourseForm /> },
       { path: "courses/add-course", element: <StudentEnroll /> },
       { path: "courses/:courseId/notes", element: <StudentNote /> },
-      { path: "cbt/:quizId", element: <StudentTest /> },
+      { path: "cbt/:quizCode", element: <StudentTest /> },
       { path: "cbt-result/:quizId", element: <CBTResult /> },
       { path: "cbt", element: <StudentCBT /> },
       { path: "results", element: <StudentResults /> },

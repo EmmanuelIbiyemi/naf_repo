@@ -1,14 +1,12 @@
 import React from "react";
 import { Box, Button } from "@mui/material";
+import { Question } from "../../../types/quizzes";
 
-interface Question {
-  id: string;
-}
 
 interface QuestionSummaryGridProps {
   questions: Question[];
-  answers: { [key: string]: boolean };
-  onQuestionClick: (questionId: string) => void;
+  answers: Record<number, number>; // Changed from number to match expected type
+  onQuestionClick: (questionId: number) => void;
 }
 
 const QuestionSummaryGrid: React.FC<QuestionSummaryGridProps> = ({
@@ -16,7 +14,7 @@ const QuestionSummaryGrid: React.FC<QuestionSummaryGridProps> = ({
   answers,
   onQuestionClick,
 }) => {
-  const getButtonColor = (questionId: string) => {
+  const getButtonColor = (questionId: number) => {
     if (answers[questionId]) {
       return "success.light";
     }
