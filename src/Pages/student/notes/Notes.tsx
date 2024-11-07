@@ -17,22 +17,9 @@ type Note = {
   content: string;
   created_at: string;
   updated_at: string;
-  media: any[];
+  media: string[];
 };
 
-type PaginationInfo = {
-  page: number;
-  pages: number;
-  per_page: number;
-  total: number;
-};
-
-type ApiResponse = {
-  data: Note[];
-  message: string;
-  pagination: PaginationInfo;
-  status: string;
-};
 
 const CourseNotes = () => {
   const navigate = useNavigate();
@@ -200,13 +187,6 @@ const CourseNotes = () => {
         </Paper>
       ))}
 
-      {response.pagination.pages > 1 && (
-        <Box sx={{ mt: 2, textAlign: 'center' }}>
-          <Typography variant="body2" color="text.secondary">
-            Page {response.pagination.page} of {response.pagination.pages}
-          </Typography>
-        </Box>
-      )}
     </Box>
   );
 };
