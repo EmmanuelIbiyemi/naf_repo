@@ -22,6 +22,7 @@ import { setPageName } from "../../../store/app.slice";
 import { useStudentResultQuery } from "../../../store/api/result.api";
 import { useGetSessionsQuery } from "../../../store/api/sessions.api";
 import { selectCurrentUser } from "../../../store/auth.slice";
+import { SessionType } from "../../../types/sessions";
 
 export default function Results() {
   const dispatch = useAppDispatch();
@@ -46,8 +47,8 @@ export default function Results() {
 
   // Set initial session and semester when data is loaded
   useEffect(() => {
-    if (sessionsData?.data?.length > 0) {
-      const currentSession = sessionsData.data[0];
+    if (sessionsData?.data && sessionsData.data.length > 0) {
+      const currentSession = sessionsData.data[0] as SessionType;
       setSelectedSession(currentSession.name);
 
       if (currentSession.semesters?.length > 0) {
@@ -173,7 +174,7 @@ export default function Results() {
         <Alert severity="error">
           Failed to load results. Please try again later.
         </Alert>
-      ) : !resultData?.data.length ? (
+      ) : !resultData?.data ? (
         <Alert severity="info">
           No results found for the selected criteria.
         </Alert>

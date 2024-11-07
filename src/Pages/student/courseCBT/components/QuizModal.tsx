@@ -31,7 +31,7 @@ type Props = {
 }
 
 const QuizModal = ({ open, onClose, courseId, courseTitle }) => {
-  const { data: quizData, isLoading } = useGetCourseQuizzesQuery(courseId);
+  const { data: quizData, isLoading } = useGetCourseQuizzesQuery({course_id: courseId});
 
   const modalStyle = {
     position: 'absolute',

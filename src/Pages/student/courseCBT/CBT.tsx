@@ -299,8 +299,8 @@ const CBTTest = () => {
     );
   }
 
-  const { data: quiz } = quizData;
-  const questions = quiz?.assessments?.[0]?.questions || [];
+  const quiz  = quizData?.data;
+  const questions = quizData?.data.assessments?.[0]?.questions || [];
 
   return (
     <Box sx={{ p: 2, maxWidth: 1800, mx: 'auto' }}>
