@@ -1,4 +1,4 @@
-import { note, noteInput, shareNoteInput } from "../../types/notes";
+import { note, noteInput, NoteResponse, shareNoteInput, } from "../../types/notes";
 import { appApi } from "./app.api";
 
 const notesApi = appApi.injectEndpoints({
@@ -15,7 +15,7 @@ const notesApi = appApi.injectEndpoints({
       query: (note_id) => `/note/course/${note_id}`,
       providesTags: ["Notes"],
     }),
-    getParticipantCourseNotes: builder.query<note, number>({
+    getParticipantCourseNotes: builder.query<NoteResponse, number>({
       query: (course_id) => `/note/mine/course/${course_id}`,
       providesTags: ["Notes"],
     }),

@@ -10,15 +10,7 @@ import {
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import ReactMarkdown from 'react-markdown';
 import { useGetParticipantCourseNotesQuery } from '../../../store/api/notes.api';
-
-type Note = {
-  id: number;
-  title: string;
-  content: string;
-  created_at: string;
-  updated_at: string;
-  media: string[];
-};
+import { note } from '../../../types/notes';
 
 
 const CourseNotes = () => {
@@ -122,7 +114,7 @@ const CourseNotes = () => {
         Back to Courses
       </Button>
       
-      {response.data.map((note: Note) => (
+      {response.data.map((note: note) => (
         <Paper 
           key={note.id} 
           sx={{ 
