@@ -6,6 +6,7 @@ import {
   ManualUploadQuestionResponse,
   QuizzesResponse,
   shareQuizInput,
+  QuizResultResponse,
 } from "../../types/quizzes";
 import { appApi } from "./app.api";
 
@@ -65,15 +66,6 @@ interface SingleQuizResponse {
   status: string;
 }
 
-interface QuizResultResponse {
-  data: {
-    score: number;
-    total: number;
-  };
-  message: string;
-  status: string;
-}
-
 interface QuizSubmissionRequest {
   quiz_id: number;
   option_ids: number[];
@@ -89,9 +81,9 @@ const quizzesApi = appApi.injectEndpoints({
 
     getCourseQuizzes: builder.query<
       { data: QuizzesResponse[] },
-      number
+      { course_id: number }
     >({
-      query: ( course_id ) => ({
+      query: ({ course_id }) => ({
         url: `/quiz?course_id=${course_id}`,
       }),
       providesTags: ["Quiz"],

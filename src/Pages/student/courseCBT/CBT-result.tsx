@@ -19,6 +19,7 @@ import {
   EmojiEvents,
   Assignment,
 } from "@mui/icons-material";
+import { ReactNode } from "react";
 
 type ScoreCircleProps = {
   score: number;
@@ -67,7 +68,7 @@ const ScoreCircle = ({ score, total }: ScoreCircleProps) => {
   );
 };
 type StatCardProps = {
-  icon: any;
+  icon: ReactNode;
   title: string;
   value: string;
   color: string;
@@ -96,7 +97,11 @@ const StatCard = ({ icon, title, value, color }: StatCardProps) => (
 
 const QuizResult = () => {
   const { quizId } = useParams();
-  const { data: resultData, isLoading, error } = useGetQuizResultQuery(Number(quizId));
+  const {
+    data: resultData,
+    isLoading,
+    error,
+  } = useGetQuizResultQuery(Number(quizId));
 
   if (isLoading) {
     return (
@@ -124,9 +129,8 @@ const QuizResult = () => {
     );
   }
 
-  const { data: result } = resultData;
-  const score = result?.result[0]?.right || 0;
-  const wrong = result?.result[0]?.wrong || 0;
+  const score = resultData?.data.result[0].right || 0;
+  const wrong = resultData?.data.result[0].wrong || 0;
   const total = score + wrong;
   const percentage = (score / total) * 100;
   const passStatus = percentage >= 70;
@@ -157,7 +161,7 @@ const QuizResult = () => {
               <StatCard
                 icon={<CheckCircleOutline fontSize="large" />}
                 title="Correct Answers"
-                value={score}
+                value={String(score)}
                 color="success"
               />
             </Grid>
@@ -165,7 +169,7 @@ const QuizResult = () => {
               <StatCard
                 icon={<Cancel fontSize="large" />}
                 title="Wrong Answers"
-                value={wrong}
+                value={String(wrong)}
                 color="error"
               />
             </Grid>
@@ -181,7 +185,7 @@ const QuizResult = () => {
               <StatCard
                 icon={<Assignment fontSize="large" />}
                 title="Total Questions"
-                value={total}
+                value={String(total)}
                 color="info"
               />
             </Grid>

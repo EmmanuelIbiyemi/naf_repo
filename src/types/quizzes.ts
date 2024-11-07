@@ -20,6 +20,8 @@ export interface QuizzesResponse {
   };
 }
 
+
+
 export interface CreateQuiz {
   name: string;
   instructions: string;
