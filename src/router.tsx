@@ -68,7 +68,6 @@ const PostTypeItemsPage = lazy(
 const PostTypeItemsAddPage = lazy(
   () => import("./Pages/admin/pages/DynamicPage")
 );
-
 // Instructor
 
 const InstructorDashboard = lazy(

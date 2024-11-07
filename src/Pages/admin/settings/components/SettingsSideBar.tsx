@@ -18,6 +18,7 @@ const SettingsSideBar = () => {
     { content: "Pages", link: "/settings/posttype/page" },
     { content: "Navigation", link: "/settings/posttype/navigation" },
     { content: "Footer", link: "/settings/posttype/footer" },
+    { content: "Announcements", link: "/settings/posttype/announcement" },
   ]);
 
   const isCurrentPage = (navLink: NavLink) => {

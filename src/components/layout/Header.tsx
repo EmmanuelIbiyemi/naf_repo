@@ -62,7 +62,9 @@ const Header = () => {
       <Box sx={actionsStyles}>
         <Box>
           {user?.role != "instructor" ? (
-            <IconButton onClick={() => navigate("/posts")}>
+            <IconButton
+              onClick={() => navigate("/settings/posttype/announcement")}
+            >
               <Notifications />
             </IconButton>
           ) : (
