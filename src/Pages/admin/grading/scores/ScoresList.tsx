@@ -6,12 +6,12 @@ import TableRow from "@mui/material/TableRow";
 import { ScoreFormAction, Score } from "../../../../types/scores";
 import {
   Box,
-  Checkbox,
   FormControl,
   IconButton,
   MenuItem,
   Select,
   SelectChangeEvent,
+  TableHead,
 } from "@mui/material";
 import { Delete, Edit } from "@mui/icons-material";
 import { Link } from "react-router-dom";
@@ -141,11 +141,13 @@ const ScoresList = () => {
         subTitle={`You have successfully updated the score with name "${selectedScore?.name}".`}
         title="Update Successful"
       />
-
-      <Table
+      <Box
         sx={{
-          minWidth: 650,
-          ".MuiSelect-select": { padding: ".5rem" },
+          ".MuiSelect-select": { padding: ".5rem", maxWidth: "200px" },
+          "td.MuiTableCell-body": {
+            "&:last-child td, &:last-child th": { border: 0 },
+            padding: 0,
+          },
         }}
       >
         <Box sx={{ display: "flex", gap: ".5em", marginBottom: "2rem" }}>
@@ -192,6 +194,23 @@ const ScoresList = () => {
             </Select>
           </FormControl>
         </Box>
+      </Box>
+      <Table sx={{ minWidth: 650 }}>
+        <TableHead>
+          <TableRow
+            sx={{
+              "&:last-child td, &:last-child th": { border: 0 },
+            }}
+          >
+            <TableCell component="th" scope="row">
+              Name
+            </TableCell>
+            <TableCell>Min Score</TableCell>
+            <TableCell>Max Score</TableCell>
+            <TableCell>Remark</TableCell>
+            <TableCell align="center">Actions</TableCell>
+          </TableRow>
+        </TableHead>
         {scores?.data.length ? (
           <TableBody>
             {scores?.data.map((score: Score) => (
@@ -199,9 +218,6 @@ const ScoresList = () => {
                 key={score.id}
                 sx={{
                   "&:last-child td, &:last-child th": { border: 0 },
-                  "td.MuiTableCell-body": {
-                    padding: 0,
-                  },
                 }}
               >
                 <TableCell
@@ -209,14 +225,12 @@ const ScoresList = () => {
                   scope="row"
                   sx={{ alignItems: "center", display: "flex", gap: "1rem" }}
                 >
-                  <Checkbox />
-                  <Link to={`/scores/${score.id}`}>Name: {score.name}</Link>
+                  <Link to={`/scores/${score.id}`}>{score.name}</Link>
                 </TableCell>
-                <TableCell>Min Score: {score.min_score}</TableCell>
-                <TableCell>Max Score: {score.max_score}</TableCell>
-                <TableCell>Remark: {score.remark}</TableCell>
-                <TableCell>Program ID: {score.program_id}</TableCell>
-                <TableCell align="right">
+                <TableCell>{score.min_score}</TableCell>
+                <TableCell>{score.max_score}</TableCell>
+                <TableCell>{score.remark}</TableCell>
+                <TableCell align="center">
                   <IconButton onClick={() => handleOpenModal(score, "edit")}>
                     <Edit />
                   </IconButton>
