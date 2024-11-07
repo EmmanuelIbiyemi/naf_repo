@@ -52,7 +52,7 @@ const CourseCBTList = ({ courses }: {courses: CourseBaseType[]}) => {
                 </ListItemIcon>
                 <ListItemText
                   primary={course.name}
-                  secondary={`${course.code}: ${course.name} : ${course.id}`}
+                  secondary={`${course.code}: ${course.name}`}
                   primaryTypographyProps={{
                     fontWeight: 500,
                   }}
