@@ -1,140 +1,224 @@
 import React, { useState } from "react";
 import {
   Box,
-  Typography,
-  Card,
-  CardContent,
   List,
   ListItem,
+  ListItemButton,
   ListItemIcon,
   ListItemText,
-  ListItemButton,
   Divider,
+  Typography,
   CircularProgress,
+  Paper,
+  Button,
 } from "@mui/material";
-import { Quiz, ArrowForward } from "@mui/icons-material";
-import EmptyState from "../../../components/EmptyState";
+import {
+  Quiz,
+  AccessTime,
+  EmojiEvents,
+  CalendarToday,
+  Assessment,
+} from "@mui/icons-material";
+import { format } from "date-fns";
+import { Link } from "react-router-dom";
 import { useAppSelector } from "../../../store/hooks";
 import { selectCurrentUser } from "../../../store/auth.slice";
 import { useGetParticipantQuery } from "../../../store/api/participants.api";
-import QuizModal from "./components/QuizModal";
+import { useGetCourseQuizzesQuery } from "../../../store/api/quizzes.api";
 import { CourseBaseType } from "../../../types/courses";
-
-const CourseCBTList = ({ courses }: {courses: CourseBaseType[]}) => {
-  const [selectedCourse, setSelectedCourse] = useState<CourseBaseType | null>(null);
-
-  if (!courses?.length) {
-    return (
-      <EmptyState
-        title="No courses registered"
-        subTitle="Register for courses to access CBT tests from instructors."
-      />
-    );
-  }
-
-  return (
-    <>
-      <List sx={{ width: "100%", bgcolor: "background.paper" }}>
-        {courses.map((course: CourseBaseType, index: number) => (
-          <React.Fragment key={course.id}>
-            <ListItem disablePadding>
-              <ListItemButton
-                onClick={() => setSelectedCourse(course)}
-                sx={{
-                  py: 2,
-                  "&:hover": {
-                    bgcolor: "rgba(0, 0, 0, 0.04)",
-                  },
-                }}
-              >
-                <ListItemIcon>
-                  <Quiz color="primary" />
-                </ListItemIcon>
-                <ListItemText
-                  primary={course.name}
-                  secondary={`${course.code}: ${course.name}`}
-                  primaryTypographyProps={{
-                    fontWeight: 500,
-                  }}
-                />
-                {/* {course.activeCBTs > 0 && (
-                  <Chip
-                    label={`${course.activeCBTs} Active`}
-                    color="primary"
-                    size="small"
-                    sx={{ mr: 2 }}
-                  />
-                )} */}
-                <ArrowForward sx={{ color: "text.secondary" }} />
-              </ListItemButton>
-            </ListItem>
-            {index < courses.length - 1 && <Divider component="li" />}
-          </React.Fragment>
-        ))}
-      </List>
-
-      <QuizModal
-        open={Boolean(selectedCourse)}
-        onClose={() => setSelectedCourse(null)}
-        courseId={selectedCourse?.id}
-        courseTitle={selectedCourse?.name}
-      />
-    </>
-  );
-};
+import EmptyState from "../../../components/EmptyState";
 
 const CourseCBT = () => {
+  const [selectedCourse, setSelectedCourse] = useState<CourseBaseType | null>(
+    null
+  );
   const user = useAppSelector(selectCurrentUser);
-  const participantId = (user?.id || 0);
-  const {
-    data: participantData,
-    isLoading,
-    error,
-  } = useGetParticipantQuery(participantId);
-
-  if (isLoading) {
-    return (
-      <Box sx={{ display: "flex", justifyContent: "center", padding: "2rem" }}>
-        <CircularProgress />
-      </Box>
-    );
-  }
-
-  if (error || !participantData) {
-    return (
-      <Box sx={{ padding: "2rem" }}>
-        <EmptyState
-          title="Error loading data"
-          subTitle="There was a problem loading your CBT information. Please try again later."
-        />
-      </Box>
-    );
-  }
-
-  const { data: participant } = participantData;
+  const participantId = user?.id || 0;
+  const { data: participantData } =
+    useGetParticipantQuery(participantId);
+  const { data: quizData, isLoading: isQuizLoading } = useGetCourseQuizzesQuery(
+    {
+      course_id: selectedCourse?.id || 0,
+    }
+  );
 
   return (
-    <Box sx={{ padding: "2rem" }}>
-      <Typography variant="h2" sx={sectionTitleStyle}>
-        Course CBT Tests
-      </Typography>
-      <Typography sx={{ color: "text.secondary", mb: 3 }}>
-        Access computer-based tests and assessments for your registered courses
-      </Typography>
+    <Box className="content-container">
+      <Box
+        sx={{
+          bgcolor: "#fff",
+          borderRadius: "var(--border-radius)",
+          marginInline: "var(--padding)",
+          padding: "var(--padding)",
+        }}
+      >
+        <Box sx={{ display: "flex", gap: 4 }}>
+          <Box sx={{ width: "320px" }}>
+            <Typography variant="h5" sx={{ mb: 2 }}>
+              Courses
+            </Typography>
+            <List sx={{ width: "100%", bgcolor: "background.paper" }}>
+              {participantData?.data?.courses.map((course: CourseBaseType) => (
+                <React.Fragment key={course.id}>
+                  <ListItem disablePadding>
+                    <ListItemButton
+                      onClick={() => setSelectedCourse(course)}
+                      sx={{
+                        py: 2,
+                        "&:hover": {
+                          bgcolor: "rgba(0, 0, 0, 0.04)",
+                        },
+                      }}
+                    >
+                      <ListItemIcon>
+                        <Quiz color="primary" />
+                      </ListItemIcon>
+                      <ListItemText
+                        primary={course.name}
+                        secondary={`${course.code}: ${course.name}`}
+                        primaryTypographyProps={{
+                          fontWeight:
+                            selectedCourse?.id === course.id ? 700 : 500,
+                        }}
+                      />
+                    </ListItemButton>
+                  </ListItem>
+                  <Divider />
+                </React.Fragment>
+              ))}
+            </List>
+          </Box>
+          <Box sx={{ flex: 1 }}>
+            <Box sx={{ bgcolor: "#fff" }}>
+              {!selectedCourse ? (
+                <Box sx={{ p: 3, textAlign: "center" }}>
+                  <Typography variant="body1" color="text.secondary">
+                    <EmptyState
+                      title="Select a course "
+                      subTitle="Select a course to view available CBT tests."
+                    />
+                  </Typography>
+                </Box>
+              ) : isQuizLoading ? (
+                <Box sx={{ p: 3, textAlign: "center" }}>
+                  <CircularProgress />
+                </Box>
+              ) : !quizData?.data?.length ? (
+                <EmptyState
+                  title="No quizzes available for this course."
+                  subTitle="Wait for an instructor to create a quiz."
+                />
+              ) : (
+                <Paper sx={{ p: 3 }}>
+                  <Typography variant="h5" sx={{ mb: 2 }}>
+                    {selectedCourse.name} - CBT Tests
+                  </Typography>
+                  <List>
+                    {quizData.data.map((quiz) => (
+                      <ListItem
+                        key={quiz.id}
+                        disablePadding
+                        sx={{
+                          bgcolor: "#f5f5f5",
+                          borderRadius: 1,
+                          mb: 2,
+                        }}
+                      >
+                        <Box sx={{ p: 2, width: "100%" }}>
+                          <Box
+                            sx={{
+                              display: "flex",
+                              justifyContent: "space-between",
+                              alignItems: "flex-start",
+                              mb: 2,
+                            }}
+                          >
+                            <Typography
+                              variant="h6"
+                              component="div"
+                              sx={{ fontSize: "1.1rem", fontWeight: 500 }}
+                            >
+                              {quiz.name}
+                            </Typography>
+                          </Box>
 
-      <Card sx={{ bgcolor: "#fff", borderRadius: "var(--border-radius)" }}>
-        <CardContent>
-          <CourseCBTList courses={participant.courses} />
-        </CardContent>
-      </Card>
+                          <Box sx={{ display: "flex", gap: 3, mb: 2 }}>
+                            <Box
+                              sx={{
+                                display: "flex",
+                                alignItems: "center",
+                                gap: 1,
+                              }}
+                            >
+                              <AccessTime fontSize="small" />
+                              <Typography variant="body2">
+                                {quiz.time_allowed} mins
+                              </Typography>
+                            </Box>
+                            <Box
+                              sx={{
+                                display: "flex",
+                                alignItems: "center",
+                                gap: 1,
+                              }}
+                            >
+                              <EmojiEvents fontSize="small" />
+                              <Typography variant="body2">
+                                {quiz.obtainable_score} points
+                              </Typography>
+                            </Box>
+                          </Box>
+
+                          <Box sx={{ display: "flex", gap: 3, mb: 2 }}>
+                            <Box
+                              sx={{
+                                display: "flex",
+                                alignItems: "center",
+                                gap: 1,
+                              }}
+                            >
+                              <CalendarToday fontSize="small" />
+                              <Typography variant="body2">
+                                {format(
+                                  new Date(quiz.start_date),
+                                  "MMM dd, yyyy"
+                                )}{" "}
+                                -{" "}
+                                {format(
+                                  new Date(quiz.expiry_date),
+                                  "MMM dd, yyyy"
+                                )}
+                              </Typography>
+                            </Box>
+                          </Box>
+
+                            <Button
+                              component={Link}
+                              to={`/student/cbt-result/${quiz.id}`}
+                              variant="contained"
+                              fullWidth
+                              startIcon={<Assessment />}
+                              sx={{
+                                bgcolor: "success.main",
+                                "&:hover": {
+                                  bgcolor: "success.dark",
+                                },
+                              }}
+                            >
+                              Check Results
+                            </Button>
+                        </Box>
+                      </ListItem>
+                    ))}
+                  </List>
+                </Paper>
+              )}
+            </Box>
+          </Box>
+        </Box>
+      </Box>
     </Box>
   );
 };
 
 export default CourseCBT;
-
-const sectionTitleStyle = {
-  fontSize: "1.5rem",
-  fontWeight: 500,
-  marginBottom: "1.5rem",
-};

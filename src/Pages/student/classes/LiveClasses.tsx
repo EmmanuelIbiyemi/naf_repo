@@ -112,7 +112,7 @@ const LiveClasses = () => {
         }}
       >
         <Box sx={{ display: "flex", gap: 4 }}>
-          <Box sx={{ width: "300px" }}>
+          <Box sx={{ width: "240px" }}>
             <Typography variant="h4" sx={{ mb: 2 }}>
               Courses
             </Typography>

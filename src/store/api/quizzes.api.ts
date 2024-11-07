@@ -80,7 +80,7 @@ const quizzesApi = appApi.injectEndpoints({
     }),
 
     getCourseQuizzes: builder.query<
-      { data: QuizzesResponse[] },
+      QuizzesResponse,
       { course_id: number }
     >({
       query: ({ course_id }) => ({

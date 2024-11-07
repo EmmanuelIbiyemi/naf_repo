@@ -17,7 +17,7 @@ export interface QuizzesResponse {
     time_allowed: number;
     type: string;
     updated_at: string;
-  };
+  }[];
 }
 
 
