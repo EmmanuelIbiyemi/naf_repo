@@ -13,6 +13,7 @@ const GradingsSideBar = () => {
   const [navLinks] = useState<NavLink[]>([
     { content: "Grading Points Setup", link: "/grading" },
     { content: "Score Categories Setup", link: "/grading/scores" },
+    { content: "Results", link: "/grading/results" },
   ]);
 
   const isCurrentPage = (navLink: NavLink) => {

@@ -25,7 +25,7 @@ const GradesPage = () => {
   // set page name
   const dispatch = useAppDispatch();
   useEffect(() => {
-    dispatch(setPageName("Grading System / Grading Points Setup"));
+    dispatch(setPageName("Grading System / Grading Points"));
   }, [dispatch]);
 
   const handleOpenModal = (type: string) => {

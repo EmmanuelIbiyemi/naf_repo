@@ -25,7 +25,7 @@ const ScoresPage = () => {
   // set page name
   const dispatch = useAppDispatch();
   useEffect(() => {
-    dispatch(setPageName("Grading System / Score Categories Setup"));
+    dispatch(setPageName("Grading System / Score Categories"));
   }, [dispatch]);
 
   const handleOpenModal = (type: string) => {
