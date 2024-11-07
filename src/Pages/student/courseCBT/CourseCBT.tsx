@@ -27,6 +27,7 @@ import { useGetParticipantQuery } from "../../../store/api/participants.api";
 import { useGetCourseQuizzesQuery } from "../../../store/api/quizzes.api";
 import { CourseBaseType } from "../../../types/courses";
 import EmptyState from "../../../components/EmptyState";
+import CBTCodeModal from "./components/CodeModal";
 
 const CourseCBT = () => {
   const [selectedCourse, setSelectedCourse] = useState<CourseBaseType | null>(
@@ -42,8 +43,55 @@ const CourseCBT = () => {
     }
   );
 
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const handleOpenModal = () => {
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+  };
+
+  const handleSubmitCode = (code: string) => {
+    // Handle the submitted code
+    console.log("Submitted code:", code);
+  };
+
   return (
     <Box className="content-container">
+      <Box
+        sx={{
+          display: "flex",
+          gap: 4,
+          width: "100%",
+          alignItems: "center",
+          justifyContent: "center",
+          p: 1,
+        }}
+      >
+        <Box
+          sx={{
+            display: "flex",
+            gap: 4,
+            width: "100%",
+            alignItems: "center",
+            justifyContent: "center",
+            p: 1,
+            background: "white",
+          }}
+        >
+          <Typography>Enter CBT code to take test:</Typography>
+          <Button sx={{ backgroundColor: "#023678", color:"white", }} onClick={handleOpenModal}>
+            Enter CBT Code
+          </Button>
+          <CBTCodeModal
+            open={isModalOpen}
+            onClose={handleCloseModal}
+            onSubmit={handleSubmitCode}
+          />
+        </Box>
+      </Box>
       <Box
         sx={{
           bgcolor: "#fff",
@@ -192,21 +240,21 @@ const CourseCBT = () => {
                             </Box>
                           </Box>
 
-                            <Button
-                              component={Link}
-                              to={`/student/cbt-result/${quiz.id}`}
-                              variant="contained"
-                              fullWidth
-                              startIcon={<Assessment />}
-                              sx={{
-                                bgcolor: "success.main",
-                                "&:hover": {
-                                  bgcolor: "success.dark",
-                                },
-                              }}
-                            >
-                              Check Results
-                            </Button>
+                          <Button
+                            component={Link}
+                            to={`/student/cbt-result/${quiz.id}`}
+                            variant="contained"
+                            fullWidth
+                            startIcon={<Assessment />}
+                            sx={{
+                              bgcolor: "success.main",
+                              "&:hover": {
+                                bgcolor: "success.dark",
+                              },
+                            }}
+                          >
+                            Check Results
+                          </Button>
                         </Box>
                       </ListItem>
                     ))}
