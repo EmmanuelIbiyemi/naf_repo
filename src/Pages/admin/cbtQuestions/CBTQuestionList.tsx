@@ -83,7 +83,7 @@ const CBTQuestiontList = ({
                   {question.question}
                 </Button>
                 <Typography sx={{ color: "secondary.light" }}>
-                  <strong>Options:</strong> ₦ {question.options}
+                  <strong>Options:</strong> {question.options.join(" * ")}
                 </Typography>
               </TableCell>
               <TableCell align="right" sx={{ display: "flex" }}>
