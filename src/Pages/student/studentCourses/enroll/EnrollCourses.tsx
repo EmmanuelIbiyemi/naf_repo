@@ -50,11 +50,12 @@ const EnrollCoursesPage = () => {
   });
   const {
     data: courses,
-    isLoading,
+    isLoading: isCourseLoading,
     error,
     refetch,
   } = useGetCoursesQuery(searchParams);
-  const { data: participantData } = useGetParticipantQuery(PARTICIPANT_ID);
+  const { data: participantData, isLoading: isParticipantLoading } =
+    useGetParticipantQuery(PARTICIPANT_ID);
   const [addCourses, { isLoading: isEnrolling }] = useAddCoursesMutation();
   const [dropCourses, { isLoading: isDropping }] = useDropCoursesMutation();
 
@@ -112,10 +113,7 @@ const EnrollCoursesPage = () => {
     refetch();
   };
 
-  const handlePageChange = (
-    _: React.ChangeEvent<unknown>,
-    page: number
-  ) => {
+  const handlePageChange = (_: React.ChangeEvent<unknown>, page: number) => {
     setSearchParams((prevSearchParams) => ({
       ...prevSearchParams,
       page,
@@ -165,6 +163,8 @@ const EnrollCoursesPage = () => {
       }
     }
   };
+
+  const isLoading = isCourseLoading || isParticipantLoading;
 
   if (isLoading) {
     return (
@@ -332,7 +332,7 @@ const EnrollCoursesPage = () => {
       {(courses?.pagination.total || 1) > 1 && (
         <Box sx={{ display: "flex", justifyContent: "center", mt: 2 }}>
           <Pagination
-            count={courses?.pagination.total}
+            count={Math.ceil((courses?.pagination.total || 1) / 10)}
             page={searchParams.page}
             onChange={handlePageChange}
             color="primary"
