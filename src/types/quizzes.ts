@@ -71,7 +71,6 @@ export interface QuizzesResponse {
     id: number;
     instructions: string;
     is_published: boolean;
-    participants: ParticipantsMultipleData;
     name: string;
     obtainable_score: number;
     show_result: boolean;

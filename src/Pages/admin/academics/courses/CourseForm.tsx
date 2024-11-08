@@ -38,7 +38,7 @@ const CourseForm = ({ actions, course }: Props) => {
     id: (course as CourseType)?.id || 0,
     name: course?.name || "",
     code: course?.code || "",
-    credit_unit: course?.credit_unit || 2,
+    credit_units: course?.credit_units || 2,
     semester: course?.semester || "",
     type: course?.type || "",
     level_id: course?.level_id || 0,

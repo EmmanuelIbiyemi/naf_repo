@@ -31,10 +31,10 @@ import {
   useDropCoursesMutation,
 } from "../../../../store/api/participants.api";
 import { Save } from "@mui/icons-material";
-import Breadcrumb from "../components/Breadcrumb";
 import { selectCurrentUser } from "../../../../store/auth.slice";
 import { CourseBaseType } from "../../../../types/courses";
 import { ApiError } from "../../../../types/errors";
+import Breadcrumb from "../components/Breadcrumb";
 
 const EnrollCoursesPage = () => {
   const dispatch = useAppDispatch();

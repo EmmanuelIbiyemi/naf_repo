@@ -56,7 +56,7 @@ export interface StudentResultResponse {
       total_grade_points: number;
     };
     updated_at: string;
-  }[];
+  };
   message: string;
   status: string;
 }
