@@ -3,12 +3,12 @@ import { useCallback, useEffect, useState } from "react";
 import PageBuilder from "./components/PageBuilder";
 import { useNavigate, useParams } from "react-router-dom";
 import {
-  useGetPostByCategoryQuery,
   useAddPostMutation,
   useUpdatePostMutation,
+  useGetPostCategoriesByTagQuery,
 } from "../../../store/api/posts.api";
 import { PostType, PostCreateType } from "../../../types/posts";
-import { elements } from "./page-elements";
+import { pageElements } from "./elements/page-elements";
 import { BlockType } from "../../../types/blocks";
 import LoadingScreen from "../../../components/LoadingScreen";
 
@@ -18,7 +18,7 @@ const Page = () => {
   const [addPost] = useAddPostMutation();
   const [updatePost, updateState] = useUpdatePostMutation();
 
-  const { data: pageData, isFetching } = useGetPostByCategoryQuery(
+  const { data: pageData, isFetching } = useGetPostCategoriesByTagQuery(
     pageName as string,
     { skip: !pageName }
   );
@@ -44,7 +44,7 @@ const Page = () => {
 
           const result = await addPost(newPost).unwrap();
           if (result.post) {
-            setPost(result.post[0]);
+            setPost(result.post);
           }
         } catch (error) {
           console.error("Failed to create post:", error);
@@ -58,15 +58,15 @@ const Page = () => {
   const addBlock = useCallback((type: string) => {
     setPost((prev) => {
       if (!prev) return null;
-      const content = elements.find((el) => el.type === type)?.name ?? "";
+      const content = pageElements.find((el) => el.type === type)?.name ?? "";
       const newBlock: BlockType = {
-        id: (prev.blocks?.[prev.blocks.length - 1]?.id ?? 0) + 1,
+        id: +(Date.now() + "0000"),
         content: `${content}::::`,
         type,
         caption: "",
         link: "",
         media: [],
-        position: (prev.blocks?.length ?? 0) + 1,
+        position: prev.blocks[prev.blocks?.length - 1].position + 1,
         title: "",
       };
 
@@ -81,6 +81,14 @@ const Page = () => {
     if (!post) return;
     const payload: PostCreateType = {
       ...post,
+      blocks: post.blocks.map((b) =>
+        b.id.toString().endsWith("0000")
+          ? {
+              ...b,
+              id: 0,
+            }
+          : b
+      ),
       categories: post.categories?.map((cat) => cat.name),
       tags: post.tags?.map((tag) => tag.name),
     };
@@ -130,7 +138,7 @@ const Page = () => {
             Blocks
           </Typography>
           <Box sx={elementSideBar}>
-            {elements.map((el, i) => (
+            {pageElements.map((el, i) => (
               <Button
                 key={el.id + "-" + i}
                 onClick={() => addBlock(el.type)}
@@ -168,8 +176,7 @@ const blockContainerStyles: SxProps = {
   bgcolor: "#fff",
   border: "1px solid rgba(204, 204, 204, 0.5)",
   borderRadius: "var(--border-radius)",
-  position: "sticky",
-  top: 0,
+  minHeight: "50%",
 };
 
 const sidebarContentStyles: SxProps = {

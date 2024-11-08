@@ -1,14 +1,10 @@
-import {
-  GradeCreateType,
-  GradeResponse,
-  Grade,
-} from "../../types/grades.ts";
+import { GradeCreateType, GradeResponse, Grade } from "../../types/grades.ts";
 import { appApi } from "./app.api.ts";
 
 const gradeApi = appApi.injectEndpoints({
   endpoints: (builder) => ({
-    getGrades: builder.query<GradeResponse, null>({
-      query: () => `/grading/program/1`,
+    getGrades: builder.query<GradeResponse, number>({
+      query: (program_id) => `/grading/program/${program_id}`,
       providesTags: ["Grades"],
     }),
     getGrade: builder.query<GradeResponse, number>({

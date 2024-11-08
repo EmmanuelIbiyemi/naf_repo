@@ -4,8 +4,7 @@ import { Box, Button, Typography } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
 import formStyles from "../../../../components/form/form.module.scss";
 import { LevelType } from "../../../../types/levels";
-import { useLocation } from "react-router-dom";
-import { useEffect } from "react";
+import { useParams } from "react-router-dom";
 
 type Props = {
   level?: LevelType;
@@ -16,16 +15,12 @@ type Props = {
 };
 
 const LevelForm = ({ actions, level }: Props) => {
-  const location = useLocation();
-
-  useEffect(() => {
-    console.log(location.state);
-  }, [location]);
+  const { program_id } = useParams();
 
   const initialValues: LevelType = {
     id: level?.id || 0,
     name: level?.name || "",
-    program_id: level?.program_id || location.state.programme_id,
+    program_id: +(program_id || 0),
   };
 
   const validationSchema = Yup.object({

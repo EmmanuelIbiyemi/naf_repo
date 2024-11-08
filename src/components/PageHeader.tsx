@@ -74,18 +74,18 @@ const PageHeader = ({ button, secondaryButton }: Props) => {
             >
               {secondaryButton.text}
             </Button>
-          ) : (
-            <Button
-              variant="contained"
-              sx={{
-                bgcolor: "#fff",
-                color: "primary.main",
-                textTransform: "capitalize",
-              }}
-            >
-              Export CSV
-            </Button>
-          )}
+          ) : null
+          // <Button
+          //   variant="contained"
+          //   sx={{
+          //     bgcolor: "#fff",
+          //     color: "primary.main",
+          //     textTransform: "capitalize",
+          //   }}
+          // >
+          //   Export CSV
+          // </Button>
+          }
           <Button
             onClick={button.action}
             variant="contained"

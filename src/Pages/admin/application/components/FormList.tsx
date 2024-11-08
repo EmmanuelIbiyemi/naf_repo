@@ -88,8 +88,7 @@ const FormList = () => {
                     {form.name.split("::")[0]}
                   </Typography>
                   <Typography>
-                    {form.fee} submissions * Last Edited on{" "}
-                    {dayjs(form.updated_at).format()}
+                    Last Edited on {dayjs(form.updated_at).format("DD-MM-YYYY")}
                   </Typography>
                 </Box>
               </TableCell>

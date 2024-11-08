@@ -78,10 +78,7 @@ const formsApi = appApi.injectEndpoints({
       }),
       invalidatesTags: ["Forms"],
     }),
-    updateForm: builder.mutation<
-      FormResponse,
-      Omit<FormType2, "sections" | "updated_at">
-    >({
+    updateForm: builder.mutation<FormResponse, FormType2>({
       query: (form) => ({
         url: `/form/${form.id}`,
         method: "PUT",

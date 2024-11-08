@@ -32,11 +32,8 @@ const PostContentArea = () => {
 
       try {
         await updateForm({
-          id: form.data.id,
-          fee: form.data.fee,
+          ...form.data,
           name,
-          program_id: form.data.program_id,
-          level_id: form.data.level_id,
         });
       } catch (error) {
         console.log(error);
@@ -53,10 +50,9 @@ const PostContentArea = () => {
               id="name"
               contentEditable="true"
               onBlur={(e) => handleFormPropsChange(e, "name")}
-              dangerouslySetInnerHTML={{
-                __html: form?.data.name.split("::")[0] as string,
-              }}
-            />
+            >
+              {form?.data.name.split("::")[0]}
+            </span>
           </Typography>
         </Box>
         <Box
@@ -95,10 +91,9 @@ const PostContentArea = () => {
               id="submitBtn"
               contentEditable="true"
               onBlur={(e) => handleFormPropsChange(e, "name")}
-              dangerouslySetInnerHTML={{
-                __html: form?.data.name.split("::")[1] as string,
-              }}
-            />
+            >
+              {form?.data.name.split("::")[1]}
+            </span>
           </Button>
         </Box>
       </Box>

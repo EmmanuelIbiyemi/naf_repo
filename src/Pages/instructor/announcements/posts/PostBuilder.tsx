@@ -178,60 +178,44 @@ const PostBuilder = ({
     switch (element.type) {
       case "heading":
         el = isPreview ? (
-          <Typography
-            variant="h5"
-            dangerouslySetInnerHTML={{
-              __html: element.placeholder as string,
-            }}
-          />
+          <Typography variant="h5">{element.placeholder}</Typography>
         ) : (
           <Typography
             variant="h5"
             id={elId}
             contentEditable={allowEdit}
             onBlur={handleInput}
-            dangerouslySetInnerHTML={{
-              __html: element.placeholder as string,
-            }}
-          />
+          >
+            {element.placeholder}
+          </Typography>
         );
         break;
       case "paragraph":
         el = isPreview ? (
-          <Typography
-            dangerouslySetInnerHTML={{
-              __html: element.placeholder as string,
-            }}
-          />
+          <Typography>{element.placeholder}</Typography>
         ) : (
           <Typography
             id={elId}
             contentEditable={allowEdit}
             onBlur={handleInput}
-            dangerouslySetInnerHTML={{
-              __html: element.placeholder as string,
-            }}
-          />
+          >
+            {element.placeholder}
+          </Typography>
         );
         break;
       case "images":
         el = (
           <Box>
             {isPreview ? (
-              <label
-                dangerouslySetInnerHTML={{
-                  __html: element.name as string,
-                }}
-              />
+              <label>{element.name}</label>
             ) : (
               <label
                 id={elId}
                 contentEditable={allowEdit}
                 onBlur={handleLabelInput}
-                dangerouslySetInnerHTML={{
-                  __html: element.name as string,
-                }}
-              />
+              >
+                {element.name}
+              </label>
             )}
             <Box id={elId} className="image_el dashed_border">
               <CloudUploadOutlined /> Drag and drop your images here or browse
@@ -243,20 +227,15 @@ const PostBuilder = ({
         el = (
           <Box>
             {isPreview ? (
-              <label
-                dangerouslySetInnerHTML={{
-                  __html: element.name as string,
-                }}
-              />
+              <label>{element.name}</label>
             ) : (
               <label
                 id={elId}
                 contentEditable={allowEdit}
                 onBlur={handleLabelInput}
-                dangerouslySetInnerHTML={{
-                  __html: element.name as string,
-                }}
-              />
+              >
+                {element.name}
+              </label>
             )}
             <Box id={elId} className="image_el dashed_border">
               <CloudUploadOutlined /> Drag and drop your files here or browse
@@ -268,20 +247,15 @@ const PostBuilder = ({
         el = (
           <Box>
             {isPreview ? (
-              <label
-                dangerouslySetInnerHTML={{
-                  __html: element.name as string,
-                }}
-              />
+              <label>{element.name}</label>
             ) : (
               <label
                 id={elId}
                 contentEditable={allowEdit}
                 onBlur={handleLabelInput}
-                dangerouslySetInnerHTML={{
-                  __html: element.name as string,
-                }}
-              />
+              >
+                {element.name}
+              </label>
             )}
             <input />
           </Box>
@@ -291,20 +265,15 @@ const PostBuilder = ({
         el = (
           <Box>
             {isPreview ? (
-              <label
-                dangerouslySetInnerHTML={{
-                  __html: element.name as string,
-                }}
-              />
+              <label>{element.name}</label>
             ) : (
               <label
                 id={elId}
                 contentEditable={allowEdit}
                 onBlur={handleLabelInput}
-                dangerouslySetInnerHTML={{
-                  __html: element.name as string,
-                }}
-              />
+              >
+                {element.name}
+              </label>
             )}
             <textarea />
           </Box>
@@ -335,20 +304,15 @@ const PostBuilder = ({
           <Box>
             <LocalizationProvider dateAdapter={AdapterDayjs}>
               {isPreview ? (
-                <label
-                  dangerouslySetInnerHTML={{
-                    __html: element.name as string,
-                  }}
-                />
+                <label>{element.name}</label>
               ) : (
                 <label
                   id={elId}
                   contentEditable={allowEdit}
                   onBlur={handleLabelInput}
-                  dangerouslySetInnerHTML={{
-                    __html: element.name as string,
-                  }}
-                />
+                >
+                  {element.name}
+                </label>
               )}
               <DatePicker />
             </LocalizationProvider>
@@ -359,11 +323,7 @@ const PostBuilder = ({
         el = (
           <Box>
             {isPreview ? (
-              <label
-                dangerouslySetInnerHTML={{
-                  __html: name,
-                }}
-              />
+              <label>{name}</label>
             ) : (
               <Box
                 sx={{
@@ -376,10 +336,9 @@ const PostBuilder = ({
                   id={elId}
                   contentEditable={allowEdit}
                   onBlur={handleLabelInput}
-                  dangerouslySetInnerHTML={{
-                    __html: name as string,
-                  }}
-                />
+                >
+                  {name}
+                </label>
                 <IconButton
                   sx={{ padding: "5px" }}
                   onClick={() => handleAddRemoveChange(elId, "add")}
@@ -398,11 +357,10 @@ const PostBuilder = ({
                     <span
                       contentEditable={allowEdit}
                       onBlur={(e) => handleOptionChange(e, elId, i + 1)}
-                      dangerouslySetInnerHTML={{
-                        __html: opt.toLowerCase(),
-                      }}
                       onClick={(e) => e.stopPropagation()}
-                    ></span>
+                    >
+                      {opt.toLowerCase()}
+                    </span>
                     <IconButton
                       onClick={(e) => {
                         e.stopPropagation();
@@ -444,11 +402,7 @@ const PostBuilder = ({
           <Box>
             {isPreview ? (
               <>
-                <label
-                  dangerouslySetInnerHTML={{
-                    __html: name,
-                  }}
-                />
+                <label>{name}</label>
                 <FormControl>
                   <FormGroup
                     sx={{ ".MuiFormControlLabel-root": { display: "flex" } }}
@@ -477,10 +431,9 @@ const PostBuilder = ({
                     id={elId}
                     contentEditable={allowEdit}
                     onBlur={handleLabelInput}
-                    dangerouslySetInnerHTML={{
-                      __html: name as string,
-                    }}
-                  />
+                  >
+                    {name}
+                  </label>
                   <IconButton
                     sx={{ padding: "5px" }}
                     onClick={() => handleAddRemoveChange(elId, "add")}
@@ -498,11 +451,10 @@ const PostBuilder = ({
                       <span
                         contentEditable={allowEdit}
                         onBlur={(e) => handleOptionChange(e, elId, i + 1)}
-                        dangerouslySetInnerHTML={{
-                          __html: opt.toLowerCase(),
-                        }}
                         onClick={(e) => e.stopPropagation()}
-                      ></span>
+                      >
+                        {opt.toLowerCase()}
+                      </span>
                       <IconButton
                         onClick={(e) => {
                           e.stopPropagation();
@@ -524,11 +476,7 @@ const PostBuilder = ({
           <Box>
             {isPreview ? (
               <>
-                <label
-                  dangerouslySetInnerHTML={{
-                    __html: name,
-                  }}
-                />
+                <label>{name}</label>
                 <FormControl>
                   <ToggleButtonGroup exclusive>
                     {optionNames.map((opt, i) => (
@@ -554,11 +502,7 @@ const PostBuilder = ({
                   <label
                     id={elId}
                     contentEditable={allowEdit}
-                    onBlur={handleLabelInput}
-                    dangerouslySetInnerHTML={{
-                      __html: name as string,
-                    }}
-                  />
+                    onBlur={handleLabelInput}>{name}</label>
                   <IconButton
                     sx={{ padding: "5px" }}
                     onClick={() => handleAddRemoveChange(elId, "add")}
@@ -576,11 +520,8 @@ const PostBuilder = ({
                       <span
                         contentEditable={allowEdit}
                         onBlur={(e) => handleOptionChange(e, elId, i + 1)}
-                        dangerouslySetInnerHTML={{
-                          __html: opt.toLowerCase(),
-                        }}
                         onClick={(e) => e.stopPropagation()}
-                      ></span>
+                      >{opt.toLowerCase()}</span>
                       <IconButton
                         onClick={(e) => {
                           e.stopPropagation();

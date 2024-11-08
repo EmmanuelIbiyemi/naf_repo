@@ -1,5 +1,19 @@
-import React, { useState } from 'react';
-import { Table, TableBody, TableCell, TableContainer, TableRow, Checkbox, IconButton } from "@mui/material";
+import React, { useState } from "react";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableRow,
+  Checkbox,
+  IconButton,
+  Select,
+  Box,
+  MenuItem,
+  FormControl,
+  SelectChangeEvent,
+  TableHead,
+} from "@mui/material";
 import { Delete, Edit } from "@mui/icons-material";
 import { Link } from "react-router-dom";
 import DeleteConfirmationModal from "../../../../components/DeleteConfirmationModal";
@@ -12,7 +26,10 @@ import {
   useUpdateGradeMutation,
 } from "../../../../store/api/grades.api";
 
-import { Grade, GradeFormAction } from '../../../../types/grades';
+import { Grade, GradeFormAction } from "../../../../types/grades";
+import { useGetDepartmentsMMutation } from "../../../../store/api/departments.api";
+import { useGetProgrammesMMutation } from "../../../../store/api/programmes.api";
+import { useGetFacultiesQuery } from "../../../../store/api/faculties.api";
 
 const GradesList: React.FC = () => {
   const [openModal, setOpenModal] = useState({
@@ -21,10 +38,18 @@ const GradesList: React.FC = () => {
     delete: false,
   });
   const [selectedGrade, setSelectedGrade] = useState<Grade>();
-  const { data: grades, isLoading } = useGetGradesQuery(null);
   const [deleteGrade] = useDeleteGradeMutation();
   const [updateGrade] = useUpdateGradeMutation();
-  
+  const { data: faculties } = useGetFacultiesQuery(null);
+  const [getDepartments, departmentsState] = useGetDepartmentsMMutation();
+  const [getPrograms, programsState] = useGetProgrammesMMutation();
+  const [filters, setFilters] = useState({
+    faculty_id: 0,
+    department_id: 0,
+    program_id: 0,
+  });
+  const { data: grades, isLoading } = useGetGradesQuery(filters.program_id);
+
   const handleOpenModal = (grade: Grade, type: string) => {
     setSelectedGrade(grade);
     setOpenModal((prev) => ({ ...prev, [type]: true }));
@@ -57,10 +82,20 @@ const GradesList: React.FC = () => {
     return <div>Loading...</div>;
   }
 
-  if (!grades?.data || grades.data.length === 0) {
-    return <div>No grades found.</div>;
-  }
+  const handleChange = async (e: SelectChangeEvent<number>) => {
+    const { target } = e;
 
+    setFilters((prev) => ({ ...prev, [target.name]: +target.value }));
+    try {
+      if (target.name === "faculty_id") {
+        await getDepartments(+target.value).unwrap();
+      } else if (target.name === "department_id") {
+        await getPrograms(+target.value).unwrap();
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
   return (
     <TableContainer>
       <FormModal open={openModal.edit} close={() => handleCloseModal("edit")}>
@@ -109,39 +144,129 @@ const GradesList: React.FC = () => {
         title="Updates Successful"
       />
 
-      <Table sx={{ minWidth: 650 }}>
-        <TableBody>
-          {grades.data.map((grade: Grade) => (
-            <TableRow
-              key={grade.id}
-              sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+      <Box
+        sx={{
+          ".MuiSelect-select": { padding: ".5rem", maxWidth: "200px" },
+          "td.MuiTableCell-body": {
+            "&:last-child td, &:last-child th": { border: 0 },
+            padding: 0,
+          },
+        }}
+      >
+        <Box sx={{ display: "flex", gap: ".5em", marginBottom: "2rem" }}>
+          <FormControl>
+            <Select
+              value={filters.faculty_id}
+              onChange={handleChange}
+              name="faculty_id"
             >
-              <TableCell
-                component="th"
-                scope="row"
-                sx={{ alignItems: "center", display: "flex", gap: "1rem" }}
+              <MenuItem value={0}>select faculty</MenuItem>
+              {faculties?.data.map((fac) => (
+                <MenuItem key={fac.name} value={fac.id}>
+                  {fac.name}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+          <FormControl>
+            <Select
+              value={filters.department_id}
+              onChange={handleChange}
+              name="department_id"
+            >
+              <MenuItem value={0}>select department</MenuItem>
+              {departmentsState.data?.data.map((dep) => (
+                <MenuItem key={dep.name} value={dep.id}>
+                  {dep.name}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+          <FormControl>
+            <Select
+              value={filters.program_id}
+              onChange={handleChange}
+              name="program_id"
+            >
+              <MenuItem value={0}>select program</MenuItem>
+              {programsState.data?.data.map((dep) => (
+                <MenuItem key={dep.name} value={dep.id}>
+                  {dep.name}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </Box>
+      </Box>
+
+      <Table
+        sx={{
+          minWidth: 650,
+          ".MuiSelect-select": { padding: ".5rem", maxWidth: "200px" },
+        }}
+      >
+        <TableHead>
+          <TableRow
+            sx={{
+              "&:last-child td, &:last-child th": { border: 0 },
+              "td.MuiTableCell-body": {
+                padding: 0,
+              },
+            }}
+          >
+            <TableCell
+              component="th"
+              scope="row"
+              sx={{ alignItems: "center", display: "flex", gap: "1rem" }}
+            >
+              Name
+            </TableCell>
+            <TableCell align="right">Point</TableCell>
+            <TableCell align="right">Actions</TableCell>
+          </TableRow>
+        </TableHead>
+
+        {grades?.data.length ? (
+          <TableBody>
+            {grades.data.map((grade: Grade) => (
+              <TableRow
+                key={grade.id}
+                sx={{
+                  "&:last-child td, &:last-child th": { border: 0 },
+                  "td.MuiTableCell-body": {
+                    padding: 0,
+                  },
+                }}
               >
-                <Checkbox />
-                <Link
-                  to={`/grades/${grade.id}`}
-                  style={{ textTransform: "capitalize" }}
+                <TableCell
+                  component="th"
+                  scope="row"
+                  sx={{ alignItems: "center", display: "flex", gap: "1rem" }}
                 >
-                  {grade.name}
-                </Link>
-              </TableCell>
-              <TableCell align="right">{grade.point}</TableCell>
-              <TableCell align="right">{grade.program_id}</TableCell>
-              <TableCell align="right">
-                <IconButton onClick={() => handleOpenModal(grade, "edit")}>
-                  <Edit />
-                </IconButton>
-                <IconButton onClick={() => handleOpenModal(grade, "delete")}>
-                  <Delete />
-                </IconButton>
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
+                  <Checkbox />
+                  <Link
+                    to={`/grades/${grade.id}`}
+                    style={{ textTransform: "capitalize" }}
+                  >
+                    {grade.name}
+                  </Link>
+                </TableCell>
+                <TableCell align="right">{grade.point}</TableCell>
+                <TableCell align="right">{grade.program_id}</TableCell>
+                <TableCell align="right">
+                  <IconButton onClick={() => handleOpenModal(grade, "edit")}>
+                    <Edit />
+                  </IconButton>
+                  <IconButton onClick={() => handleOpenModal(grade, "delete")}>
+                    <Delete />
+                  </IconButton>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        ) : (
+          <Box>No grades found.</Box>
+        )}
       </Table>
     </TableContainer>
   );

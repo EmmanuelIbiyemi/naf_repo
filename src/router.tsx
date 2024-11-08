@@ -60,8 +60,14 @@ const CBTQuestionsPage = lazy(
 );
 const AdminSettingsPage = lazy(() => import("./Pages/admin/settings/Settings"));
 const MediaLibrary = lazy(() => import("./Pages/admin/media/MediaLibrary"));
-const Page = lazy(() => import("./Pages/admin/page/Page"));
-
+const Page = lazy(() => import("./Pages/admin/pages/Page"));
+const ResultsPage = lazy(() => import("./Pages/admin/grading/results/Results"));
+const PostTypeItemsPage = lazy(
+  () => import("./Pages/admin/pages/components/PostItemList")
+);
+const PostTypeItemsAddPage = lazy(
+  () => import("./Pages/admin/pages/DynamicPage")
+);
 // Instructor
 
 const InstructorDashboard = lazy(
@@ -139,12 +145,9 @@ const StudentNote = lazy(() => import("./Pages/student/notes/Notes"));
 const StudentResults = lazy(() => import("./Pages/student/results/Results"));
 const StudentClass = lazy(() => import("./Pages/student/classes/LiveClasses"));
 const StudentSettings = lazy(() => import("./Pages/student/settings/Settings"));
-// const AnnouncementPage = lazy(
-//   () => import("./Pages/instructor/announcements/Announcements")
-// );
-// const AddAnnouncementPage = lazy(
-//   () => import("./Pages/instructor/announcements/posts/AddPost")
-// );
+const PreviewAnnouncementPage = lazy(
+  () => import("./Pages/instructor/announcements/posts/PreviewPost")
+);
 
 export const router = createBrowserRouter([
   {
@@ -207,6 +210,7 @@ export const router = createBrowserRouter([
           { path: "", element: <GradesPage /> },
           { path: "scores", element: <ScoresPage /> },
           { path: "page/:name", element: <Page /> },
+          { path: "results", element: <ResultsPage /> },
         ],
       },
       {
@@ -214,8 +218,15 @@ export const router = createBrowserRouter([
         element: <AdminSettingsPage />,
         children: [
           { path: "", element: <MediaLibrary /> },
-
-          { path: "page/:name", element: <Page /> },
+          { path: "posttype/:resource_type", element: <PostTypeItemsPage /> },
+          {
+            path: "posttype/:resource_type/:post_id",
+            element: <PostTypeItemsAddPage />,
+          },
+          {
+            path: "posttype/:resource_type/add",
+            element: <PostTypeItemsAddPage />,
+          },
         ],
       },
     ],

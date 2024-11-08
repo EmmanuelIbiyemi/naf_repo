@@ -39,8 +39,9 @@ export default UsersSideBar;
 const sidebarStyles: SxProps = {
   bgcolor: "#fff",
   borderRight: "1px solid rgba(204, 204, 204, 0.5)",
-  height: "100%",
+  height: "100vh",
   position: "sticky",
+  top: 0,
 };
 
 const navLinkStyles: SxProps = {

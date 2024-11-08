@@ -4,9 +4,8 @@ import TableCell from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
 import TableRow from "@mui/material/TableRow";
 import { StudentFormAction, StudentType } from "../../../../types/students";
-import { Checkbox, IconButton } from "@mui/material";
+import { Checkbox, IconButton, Typography } from "@mui/material";
 import { Delete, Edit } from "@mui/icons-material";
-import { Link } from "react-router-dom";
 import DeleteConfirmationModal from "../../../../components/DeleteConfirmationModal";
 import { useState } from "react";
 import {
@@ -123,12 +122,14 @@ const StudentsList = () => {
                 sx={{ alignItems: "center", display: "flex", gap: "1rem" }}
               >
                 <Checkbox />
-                <Link
-                  to={`/students/${student.id}`}
-                  style={{ textTransform: "capitalize" }}
+                <Typography
+                  sx={{
+                    fontWeight: "500 !important",
+                    textTransform: "capitalize",
+                  }}
                 >
                   {student.first_name}
-                </Link>
+                </Typography>
               </TableCell>
               <TableCell align="right">
                 <IconButton onClick={() => handleOpenModal(student, "edit")}>

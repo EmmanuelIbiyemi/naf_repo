@@ -3,10 +3,9 @@ import { Outlet } from "react-router-dom";
 import UsersSideBar from "./components/UsersSideBar";
 
 const Users = () => {
-
   return (
     <Box sx={layoutStyles}>
-      <Box>
+      <Box sx={{ height: "100%" }}>
         <UsersSideBar />
       </Box>
       <Outlet />

@@ -1,21 +1,15 @@
 import { Box } from "@mui/material";
 import PageHeader from "../../../../components/PageHeader.tsx";
-import EmptyState from "../../../../components/EmptyState.tsx";
+// import EmptyState from "../../../../components/EmptyState.tsx";
 import FormModal from "../../../../components/FormModal.tsx";
 import { useEffect, useRef, useState } from "react";
-import ScoreForm from "./ScoresForm.tsx"
+import ScoreForm from "./ScoresForm.tsx";
 import ScoreList from "./ScoresList.tsx";
-import {
-  Score,
-  ScoreFormAction
-} from "../../../../types/scores.ts";
+import { Score, ScoreFormAction } from "../../../../types/scores.ts";
 import { useAppDispatch } from "../../../../store/hooks.ts";
 import { setPageName } from "../../../../store/app.slice.ts";
 import SuccessModal from "../../../../components/SuccessModal.tsx";
-import {
-  useAddScoreMutation,
-  useGetScoresQuery,
-} from "../../../../store/api/scores.api.ts";
+import { useAddScoreMutation } from "../../../../store/api/scores.api.ts";
 
 const ScoresPage = () => {
   const [openModal, setOpenModal] = useState({
@@ -24,14 +18,14 @@ const ScoresPage = () => {
   });
   const [scoreName, setScoreName] = useState("");
   const [selectedScore, setSelectedScore] = useState<Score>();
-  const { data: scores } = useGetScoresQuery(null);
+  // const { data: scores } = useGetScoresQuery(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [addScore] = useAddScoreMutation();
 
   // set page name
   const dispatch = useAppDispatch();
   useEffect(() => {
-    dispatch(setPageName("Grading System / Score Categories Setup"));
+    dispatch(setPageName("Grading System / Score Categories"));
   }, [dispatch]);
 
   const handleOpenModal = (type: string) => {
@@ -50,7 +44,7 @@ const ScoresPage = () => {
       handleOpenModal("success");
       setScoreName(`${score.name}`);
     } catch (error) {
-      console.log(error); 
+      console.log(error);
     }
   };
 
@@ -99,14 +93,15 @@ const ScoresPage = () => {
           padding: "var(--padding)",
         }}
       >
-        {scores?.data && scores.data.length > 0 ? (
+        <ScoreList />
+        {/* {scores?.data && scores.data.length > 0 ? (
           <ScoreList />
         ) : (
           <EmptyState
             title="No Scores at this time"
             subTitle="Scores will appear here after you add them in your school."
           />
-        )}
+        )} */}
       </Box>
     </Box>
   );

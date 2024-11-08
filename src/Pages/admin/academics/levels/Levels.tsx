@@ -32,7 +32,7 @@ const LevelsPage = () => {
   const dispatch = useAppDispatch();
   useEffect(() => {
     dispatch(setPageName("Academics/Levels"));
-  }, [dispatch]);
+  }, []);
 
   const handleOpenModal = (type: string) => {
     setOpenModal((prev) => ({ ...prev, [type]: true }));

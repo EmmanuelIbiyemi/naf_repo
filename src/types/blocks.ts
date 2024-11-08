@@ -1,9 +1,19 @@
+export type MediaCreateType = { id: number };
+export type MediaType = {
+  id: number;
+  created_at: string;
+  name: string;
+  type: string;
+  updated_at: string;
+  url: string;
+};
+
 export type BlockType = {
   caption: string;
   content: string;
   id: number;
   link: string;
-  media: { id: number }[] | null;
+  media: MediaCreateType[] | MediaType[] | null;
   position: number;
   title: string;
   type: string;

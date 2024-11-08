@@ -18,6 +18,7 @@ import { useGetProgrammesMMutation } from "../../../../store/api/programmes.api"
 import { useGetLevelsMMutation } from "../../../../store/api/levels.api";
 
 type Form = {
+  name: string;
   faculty_id: number;
   department_id: number;
   program_id: number;
@@ -39,6 +40,7 @@ const AddForm = ({ actions }: Props) => {
   const [getLevels, levelsState] = useGetLevelsMMutation();
 
   const initialValues = {
+    name: "",
     faculty_id: 0,
     department_id: 0,
     program_id: 0,
@@ -47,6 +49,7 @@ const AddForm = ({ actions }: Props) => {
   };
 
   const validationSchema = Yup.object({
+    name: Yup.string().not([0]).required("Required"),
     faculty_id: Yup.number().not([0]).required("Required"),
     department_id: Yup.number().not([0]).required("Required"),
     program_id: Yup.number().not([0]).required("Required"),
@@ -126,6 +129,10 @@ const AddForm = ({ actions }: Props) => {
               gap: "1rem",
             }}
           >
+            <FormControl fullWidth>
+              <label htmlFor="name">Name</label>
+              <Field id="name" name="name" />
+            </FormControl>
             <FormControl fullWidth>
               <label htmlFor="faculty_id">Faculty</label>
               <Select

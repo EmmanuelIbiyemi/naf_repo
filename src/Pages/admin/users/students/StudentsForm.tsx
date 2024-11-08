@@ -71,11 +71,9 @@ const StudentForm = ({ actions, student }: Props) => {
     try {
       if (target.name === "faculty_id") {
         await getDepartments(+target.value).unwrap();
-      }
-      if (target.name === "department_id") {
+      } else if (target.name === "department_id") {
         await getPrograms(+target.value).unwrap();
-      }
-      if (target.name === "program_id") {
+      } else if (target.name === "program_id") {
         await getLevels(+target.value).unwrap();
       }
     } catch (error) {

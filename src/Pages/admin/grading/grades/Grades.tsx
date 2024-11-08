@@ -1,20 +1,14 @@
 import { useEffect, useRef, useState } from "react";
 import { Box } from "@mui/material";
 import PageHeader from "../../../../components/PageHeader";
-import EmptyState from "../../../../components/EmptyState";
+// import EmptyState from "../../../../components/EmptyState";
 import FormModal from "../../../../components/FormModal";
 import GradeForm from "./GradesForm";
-import {
-  Grade,
-  GradeFormAction
-} from "../../../../types/grades";
+import { Grade, GradeFormAction } from "../../../../types/grades";
 import { useAppDispatch } from "../../../../store/hooks";
 import { setPageName } from "../../../../store/app.slice";
 import SuccessModal from "../../../../components/SuccessModal";
-import {
-  useAddGradeMutation,
-  useGetGradesQuery,
-} from "../../../../store/api/grades.api";
+import { useAddGradeMutation } from "../../../../store/api/grades.api";
 import GradesList from "./GradesList";
 
 const GradesPage = () => {
@@ -24,14 +18,14 @@ const GradesPage = () => {
   });
   const [gradeName, setGradeName] = useState("");
   const [selectedGrade, setSelectedGrade] = useState<Grade>();
-  const { data: grades, refetch: refetchGrades } = useGetGradesQuery(null);
+  // const { data: grades, refetch: refetchGrades } = useGetGradesQuery(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [addGrade] = useAddGradeMutation();
 
   // set page name
   const dispatch = useAppDispatch();
   useEffect(() => {
-    dispatch(setPageName("Grading System / Grading Points Setup"));
+    dispatch(setPageName("Grading System / Grading Points"));
   }, [dispatch]);
 
   const handleOpenModal = (type: string) => {
@@ -49,7 +43,6 @@ const GradesPage = () => {
       handleCloseModal("add");
       handleOpenModal("success");
       setGradeName(grade.name);
-      refetchGrades();
     } catch (error) {
       console.log(error);
     }
@@ -100,14 +93,15 @@ const GradesPage = () => {
           padding: "var(--padding)",
         }}
       >
-        {grades?.data && grades.data.length > 0 ? (
+        <GradesList />
+        {/* {grades?.data && grades.data.length > 0 ? (
           <GradesList />
         ) : (
           <EmptyState
             title="No Grades at this time"
             subTitle="Grades will appear here after you add them in your school."
           />
-        )}
+        )} */}
       </Box>
     </Box>
   );

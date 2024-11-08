@@ -19,8 +19,8 @@ import {
 } from "../../../../types/courses";
 import { useGetInstructorsQuery } from "../../../../store/api/instructors.api";
 import { InstructorType } from "../../../../types/instructors";
+import { useGetSemestersQuery } from "../../../../store/api/semesters.api";
 
-const semesters = ["First Semester", "Second Semester"];
 type Props = {
   course?: CourseCombinedType;
   actions: {
@@ -31,6 +31,7 @@ type Props = {
 
 const CourseForm = ({ actions, course }: Props) => {
   const { data: instructors } = useGetInstructorsQuery(null);
+  const { data: semesters } = useGetSemestersQuery(null);
 
   const isEditMode = !!course && "instructors" in course;
   const initialValues: CourseCreateType | CourseType = {
@@ -126,9 +127,9 @@ const CourseForm = ({ actions, course }: Props) => {
                   }}
                   input={<OutlinedInput />}
                 >
-                  {semesters.map((option) => (
-                    <MenuItem key={option} value={option}>
-                      {option}
+                  {semesters?.data.map((option) => (
+                    <MenuItem key={option.name} value={option.id}>
+                      {option.name}
                     </MenuItem>
                   ))}
                 </Select>
