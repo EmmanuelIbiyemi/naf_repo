@@ -205,7 +205,7 @@ const ShareWithList = ({
               <ListItem
                 key={user.id}
                 dense
-                onClick={() => handleToggleUser(user.id, user.user_id)}
+                onClick={() => handleToggleUser((user?.id || 0), user.user_id)}
                 sx={{ cursor: "pointer" }}
               >
                 <ListItemIcon>
