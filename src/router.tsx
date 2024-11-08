@@ -2,10 +2,11 @@
 import { createBrowserRouter } from "react-router-dom";
 import { lazy } from "react";
 import ReportsExpanded from "./Pages/instructor/reports/ReportsExpanded";
+import PrivateRoute from "./components/ProtectedRoutes";
 
 // Admin
 
-const App = lazy(() => import("./App"));
+// const App = lazy(() => import("./App"));
 const Login = lazy(() => import("./Pages/login/Login"));
 const Dashboard = lazy(() => import("./Pages/admin/dashboard/Dashboard"));
 const AdminAcademicsPage = lazy(
@@ -150,7 +151,7 @@ export const router = createBrowserRouter([
   },
   {
     path: "/",
-    element: <App />,
+    element: <PrivateRoute />,
     children: [
       { path: "/", element: <Dashboard /> },
       { path: "/courses", element: <CoursesPage /> },
@@ -227,7 +228,7 @@ export const router = createBrowserRouter([
   },
   {
     path: "/instructor",
-    element: <App />,
+    element: <PrivateRoute />,
     children: [
       { path: "/instructor", element: <InstructorDashboard /> },
       { path: "/instructor/settings", element: <SettingsPage /> },
@@ -278,7 +279,7 @@ export const router = createBrowserRouter([
 
   {
     path: "/student",
-    element: <App />,
+    element: <PrivateRoute />,
     children: [
       { path: "dashboard", element: <StudentDashboard /> },
       { path: "overview", element: <StudentOverview /> },
