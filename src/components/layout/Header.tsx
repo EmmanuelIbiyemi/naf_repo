@@ -68,7 +68,10 @@ const Header = () => {
               <Notifications />
             </IconButton>
           ) : (
-            <IconButton onClick={() => navigate("/instructor/posts")}>
+            // <IconButton onClick={() => navigate("/instructor/postss")}  >
+            //   <Notifications />
+            // </IconButton>
+            <IconButton onClick={() => {}}>
               <Notifications />
             </IconButton>
           )}
@@ -98,7 +101,7 @@ const Header = () => {
             sx={profileImageStyles}
             onClick={handleClick}
           >
-            <img className="bg" src="" alt="" />
+            <img className="bg" src={user?.photo} alt="" />
           </Box>
           <Menu anchorEl={anchorEl} open={open} onClose={handleClose}>
             <Typography sx={{ padding: ".8rem 1rem" }}>

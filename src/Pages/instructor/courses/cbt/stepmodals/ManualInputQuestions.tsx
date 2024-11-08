@@ -10,7 +10,7 @@ import {
   Grid2,
 } from "@mui/material";
 import CreateTestModal from "./CreateTestModal";
-import { useGetParticipantsQuery } from "../../../../../store/api/participants.api";
+import { useGetCourseParticipantsQuery } from "../../../../../store/api/participants.api";
 import { TestFormData, TestQuestion } from "./testformtypes";
 import { ManualUploadQuestion } from "../../../../../types/quizzes";
 
@@ -61,9 +61,13 @@ const ManualInputQuestions: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
 
   const questionsPerPage = 9;
-
+  const locationData = location.pathname.split("/");
+  const courseId = locationData[locationData.length - 3];
   const { data: participants, isLoading: isFetchingParticipants } =
-    useGetParticipantsQuery(null);
+    useGetCourseParticipantsQuery(
+      { course_id: parseInt(courseId) },
+      { skip: !courseId }
+    );
 
   useEffect(() => {
     const localFormData = location.state?.localFormData;
@@ -72,8 +76,7 @@ const ManualInputQuestions: React.FC = () => {
       const totalQuestions = localFormData.totalQuestions || 0;
       const initialQuestions = Array.from({ length: totalQuestions }, () => ({
         question: "",
-        options: ["", "", ""],
-        correctAnswer: "",
+        options: ["", "", "", ""],
       }));
       setQuestions(initialQuestions);
     }
@@ -93,8 +96,8 @@ const ManualInputQuestions: React.FC = () => {
         currentQuestion.options = currentQuestion.options.map((opt, idx) =>
           idx === optionIndex ? value : opt
         );
-      } else if (field === "question" || field === "correctAnswer") {
-        currentQuestion[field] = value;
+      } else if (field === "question") {
+        currentQuestion.question = value;
       }
 
       updatedQuestions[index] = currentQuestion;
@@ -104,7 +107,7 @@ const ManualInputQuestions: React.FC = () => {
 
   const validateQuestions = (): boolean => {
     const isValid = questions.every(
-      (q) => q.question && q.options.every((opt) => opt) && q.correctAnswer
+      (q) => q.question && q.options.every((opt) => opt)
     );
 
     if (!isValid) {
@@ -119,9 +122,9 @@ const ManualInputQuestions: React.FC = () => {
   const transformQuestionsForUpload = (): ManualUploadQuestion => {
     const transformedQuestions = questions.map((question) => ({
       body: question.question,
-      options: question.options.map((option) => ({
+      options: question.options.map((option, index) => ({
         body: option,
-        is_answer: option === question.correctAnswer,
+        is_answer: index === 0,
       })),
     }));
 
@@ -130,6 +133,7 @@ const ManualInputQuestions: React.FC = () => {
       assessment_id: formData.assessmentId,
     };
   };
+
   const handleNext = () => {
     if (!validateQuestions()) return;
 
@@ -141,10 +145,9 @@ const ManualInputQuestions: React.FC = () => {
     setUpdatedFormData(newFormData);
 
     // Log both payloads
-    console.log("Upload Payload:", newUploadPayload);
-    console.log("Updated Form Data:", newFormData);
 
     setCreateTestModalOpen(true);
+    // console.log(uploadPayload);
   };
 
   const indexOfLastQuestion = currentPage * questionsPerPage;
@@ -169,7 +172,8 @@ const ManualInputQuestions: React.FC = () => {
             Input Questions Manually
           </Typography>
           <Typography variant="subtitle1">
-            List of test that have been created in the course “Sosososo And So”
+            List of test that have been created in the course "
+            {formData.subject}"
           </Typography>
         </Box>
         <Box sx={{ display: "flex", gap: 2 }}>
@@ -239,24 +243,10 @@ const ManualInputQuestions: React.FC = () => {
               />
 
               <Grid2 container spacing={2}>
-                <Grid2 size={6}>
-                  <QuestionField
-                    label="Answer"
-                    value={question.correctAnswer}
-                    onChange={(value) =>
-                      handleQuestionChange(
-                        indexOfFirstQuestion + index,
-                        "correctAnswer",
-                        value
-                      )
-                    }
-                    placeholder="Type the correct answer here"
-                  />
-                </Grid2>
                 {question.options.map((option, optIndex) => (
                   <Grid2 size={6} key={optIndex}>
                     <QuestionField
-                      label="Option"
+                      label={`Option ${optIndex + 1}`}
                       value={option}
                       onChange={(value) =>
                         handleQuestionChange(
@@ -266,7 +256,7 @@ const ManualInputQuestions: React.FC = () => {
                           optIndex
                         )
                       }
-                      placeholder="Type an option here"
+                      placeholder={`Type option ${optIndex + 1} here`}
                     />
                   </Grid2>
                 ))}

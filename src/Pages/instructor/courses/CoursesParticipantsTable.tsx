@@ -6,7 +6,7 @@ import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TablePagination from "@mui/material/TablePagination";
 import TableRow from "@mui/material/TableRow";
-import { VisibilityOutlined } from "@mui/icons-material";
+// import { VisibilityOutlined } from "@mui/icons-material";
 import { Box, LinearProgress } from "@mui/material";
 import { useGetCourseParticipantsQuery } from "../../../store/api/participants.api";
 
@@ -34,10 +34,11 @@ const CoursesParticipantsTable = () => {
   const PaginatedRows = React.useMemo(() => {
     const startIndex = page * rowsPerPage;
     return participants?.data?.slice(startIndex, startIndex + rowsPerPage);
-  }, [page, rowsPerPage]);
+  }, [page, participants?.data, rowsPerPage]);
 
   return (
     <Box sx={{ width: "100%", overflow: "hidden" }}>
+      {isFetchingParticipants && <LinearProgress />}
       {isFetchingParticipants && <LinearProgress />}
       <TableContainer>
         <Table stickyHeader aria-label="sticky table">
@@ -60,14 +61,14 @@ const CoursesParticipantsTable = () => {
             {PaginatedRows?.map((row) => (
               <TableRow key={row.id}>
                 <TableCell sx={{ border: "none" }}>
-                  {row.matric_number}
+                  {row.matric_number === null ? "N/A" : row.matric_number}
                 </TableCell>
                 <TableCell
                   sx={{ border: "none" }}
                 >{`${row.first_name} ${row.last_name}`}</TableCell>
                 <TableCell sx={{ border: "none" }}>{row.email}</TableCell>
                 <TableCell sx={{ border: "none" }}>{row.phone}</TableCell>
-                <TableCell
+                {/* <TableCell
                   sx={{
                     display: "flex",
                     alignItems: "center",
@@ -79,7 +80,7 @@ const CoursesParticipantsTable = () => {
                   onClick={() => console.log(row.id)}
                 >
                   <VisibilityOutlined /> View Details{" "}
-                </TableCell>
+                </TableCell> */}
               </TableRow>
             ))}
           </TableBody>
@@ -103,7 +104,7 @@ const tableHead = [
   { id: 2, label: "Name", minWidth: 100 },
   { id: 3, label: "Email Address", minWidth: 170 },
   { id: 4, label: "Phone Number", minWidth: 170 },
-  { id: 5, label: "Actions", minWidth: 170 },
+  // { id: 5, label: "Actions", minWidth: 170 },
 ];
 
 export default CoursesParticipantsTable;

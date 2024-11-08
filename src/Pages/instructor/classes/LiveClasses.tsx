@@ -1,39 +1,107 @@
-import { Box, Grid2, SxProps, Tab } from "@mui/material";
+import {
+  Box,
+  FormControl,
+  Grid2,
+  InputLabel,
+  LinearProgress,
+  MenuItem,
+  Select,
+  SxProps,
+  Tab,
+} from "@mui/material";
 import EmptyState from "../../../components/EmptyState";
-import { SyntheticEvent, useRef, useState } from "react";
+import { SyntheticEvent, useEffect, useRef, useState } from "react";
 import { useAppDispatch } from "../../../store/hooks";
 import { setPageName } from "../../../store/app.slice";
 import InstructorPageHeader from "../../../components/layout/InstructorPageHeader";
 import { TabContext, TabList, TabPanel } from "@mui/lab";
 import LiveClassCard from "./LiveClassCard";
 import CreateClassModal from "./CreateClassModal";
+import { useGetLiveClassesQuery } from "../../../store/api/classes.api";
+import { useGetCurrentSessionQuery } from "../../../store/api/sessions.api";
+import { useGetCurrentSemesterQuery } from "../../../store/api/semesters.api";
+import { useGetInstructorCoursesQuery } from "../../../store/api/courses.api";
+import dayjs from "dayjs";
 
 const LiveClasses = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [openModal, setOpenModal] = useState(false);
+  const [selectedCourseId, setSelectedCourseId] = useState("");
+
+  const { data: instructorCourses, isLoading: isLoadingCourses } =
+    useGetInstructorCoursesQuery(null);
   const handleOpenCreateModal = () => setOpenModal(true);
   const handleCloseCreateModal = () => setOpenModal(false);
 
-  // set page name
+  const { data: currentSession, isLoading: isGettingSession } =
+    useGetCurrentSessionQuery(null);
+  const { data: currentSemester, isLoading: isGettingSemester } =
+    useGetCurrentSemesterQuery(null);
+
+  const currentSemesterString = currentSemester?.data.name;
+  const currentSessionString = currentSession?.data.name;
+
+  const {
+    data: scheduledClasses,
+    isLoading,
+    refetch,
+  } = useGetLiveClassesQuery(
+    {
+      courseId: parseInt(selectedCourseId),
+      semester: currentSemesterString,
+      session: currentSessionString,
+    },
+    { skip: !selectedCourseId }
+  );
+
   const dispatch = useAppDispatch();
-  dispatch(setPageName("Live Classes"));
+  useEffect(() => {
+    dispatch(setPageName("Live Classes"));
+  }, []);
 
   const [tab, setTab] = useState("1");
   const handleChange = (_: SyntheticEvent, newValue: string) => {
     setTab(newValue);
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const handleCourseChange = (event: any) => {
+    setSelectedCourseId(event.target.value);
+  };
+
+  const getClassStatus = (startTime: string, duration: number) => {
+    const start = dayjs(startTime);
+    const end = start.add(duration, "minute");
+    const now = dayjs();
+
+    if (now.isBefore(start)) return "Not Started";
+    if (now.isAfter(start) && now.isBefore(end)) return "Ongoing";
+    return "Ended";
+  };
+
+  const ongoingOrNotStartedClasses = scheduledClasses?.data.filter((item) =>
+    ["Not Started", "Ongoing"].includes(
+      getClassStatus(item.start_time, item.duration)
+    )
+  );
+
+  const endedClasses = scheduledClasses?.data.filter(
+    (item) => getClassStatus(item.start_time, item.duration) === "Ended"
+  );
+
   return (
     <Box ref={containerRef} className="content-container">
+      {isLoading ||
+        isGettingSemester ||
+        isGettingSession ||
+        (isLoadingCourses && <LinearProgress />)}
       <InstructorPageHeader
         additionalButton={{
           action: handleOpenCreateModal,
           text: "Create New Class",
         }}
-        heading={"Live Classes"}
-        subHeading={
-          "List of classes that have been created and shared in the school"
-        }
+        heading="Live Classes"
+        subHeading="List of classes that have been created and shared in the school"
       />
       <Box
         sx={{
@@ -43,8 +111,27 @@ const LiveClasses = () => {
           padding: "var(--padding)",
         }}
       >
+        <Box sx={{ marginBottom: 3 }}>
+          <FormControl fullWidth>
+            <InputLabel id="course-select-label">Select Course</InputLabel>
+            <Select
+              labelId="course-select-label"
+              id="course-select"
+              value={selectedCourseId}
+              label="Select Course"
+              onChange={handleCourseChange}
+            >
+              {instructorCourses?.data.map((course) => (
+                <MenuItem key={course.id} value={course.id}>
+                  {course.name} ({course.code})
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </Box>
+
         <Box sx={{ backgroundColor: "#fff" }}>
-          {scheduledClasses.length ? (
+          {scheduledClasses?.data.length ? (
             <Box sx={{ width: "100%", height: "100%" }}>
               <TabContext value={tab}>
                 <Box>
@@ -58,30 +145,37 @@ const LiveClasses = () => {
                 </Box>
                 <TabPanel value="1" sx={TabStyles}>
                   <Grid2 container spacing={2}>
-                    {scheduledClasses.map((item) => (
+                    {ongoingOrNotStartedClasses?.map((item) => (
                       <Grid2
                         size={4}
+                        key={item.id}
                         sx={{
                           border: "1px solid #CCCCCC",
                           padding: "1em",
                           borderRadius: "10px",
-                          // width: "100%",
                           backgroundColor:
-                            item.status === "Ongoing"
-                              ? "#FFECEC"
-                              : item.status === "Not Started"
+                            getClassStatus(item.start_time, item.duration) ===
+                            "Ongoing"
+                              ? "#ECFFEE"
+                              : getClassStatus(
+                                  item.start_time,
+                                  item.duration
+                                ) === "Not Started"
                               ? "transparent"
                               : "#ECFFEE",
                         }}
-                        key={item.id}
                       >
                         <LiveClassCard
-                          title={item.title}
-                          batchNo={item.batchNo}
-                          date={item.date}
-                          time={item.time}
-                          status={item.status}
-                          btnAction={() => console.log("Joineed")}
+                          title={item.topic}
+                          date={item.start_time}
+                          time={item.start_time}
+                          status={getClassStatus(
+                            item.start_time,
+                            item.duration
+                          )}
+                          btnAction={() =>
+                            window.open(item.meeting.start_url, "_blank")
+                          }
                         />
                       </Grid2>
                     ))}
@@ -89,9 +183,10 @@ const LiveClasses = () => {
                 </TabPanel>
                 <TabPanel value="2" sx={TabStyles}>
                   <Grid2 container spacing={2}>
-                    {endedClasses.map((item) => (
+                    {endedClasses?.map((item) => (
                       <Grid2
                         size={4}
+                        key={item.id}
                         sx={{
                           border: "1px solid #CCCCCC",
                           padding: "1em",
@@ -99,15 +194,15 @@ const LiveClasses = () => {
                           // width: "100%",
                           backgroundColor: "transparent",
                         }}
-                        key={item.id}
                       >
                         <LiveClassCard
-                          title={item.title}
-                          batchNo={item.batchNo}
-                          date={item.date}
-                          time={item.time}
-                          status={item.status}
-                          btnAction={() => console.log("Joineed")}
+                          title={item.topic}
+                          date={item.updated_at}
+                          time={item.start_time}
+                          status="Ended"
+                          btnAction={() =>
+                            window.open(item.meeting.start_url, "_blank")
+                          }
                         />
                       </Grid2>
                     ))}
@@ -117,166 +212,26 @@ const LiveClasses = () => {
             </Box>
           ) : (
             <EmptyState
-              title="Oops! There’s nothing here!"
-              subTitle="Forms will appear here after you add them in your school."
+              title="Please select a course to continue!"
+              subTitle="Choose a course from the dropdown above to view its live classes"
             />
           )}
         </Box>
       </Box>
-      <CreateClassModal open={openModal} handleClose={handleCloseCreateModal} />
+      <CreateClassModal
+        open={openModal}
+        handleClose={handleCloseCreateModal}
+        refetch={() => refetch}
+      />
     </Box>
   );
 };
 
 const TabStyles: SxProps = {
-  // display: "grid",
   gap: "1rem",
-  gridTemplateColumns: "repeat(4,1fr)",
-  // paddingInline: "0 !important",
+  grid2TemplateColumns: "repeat(4,1fr)",
   width: "100%",
   backgroundColor: "#fff",
 };
 
-const scheduledClasses = [
-  {
-    id: 1,
-    title: "How to Make an Array and it’s Types in C++",
-    batchNo: "3CO - JVY",
-    date: "03 Jan 2023",
-    time: "12:40 P:M",
-    status: "Ongoing",
-  },
-  {
-    id: 2,
-    title: "How to Make an Array and it’s Types in C++",
-    batchNo: "3CO - JVY",
-    date: "03 Jan 2023",
-    time: "12:40 P:M",
-    status: "Ongoing",
-  },
-  {
-    id: 3,
-    title: "How to Make an Array and it’s Types in C++",
-    batchNo: "3CO - JVY",
-    date: "03 Jan 2023",
-    time: "12:40 P:M",
-    status: "Starting in 60 Minutes",
-  },
-  {
-    id: 4,
-    title: "How to Make an Array and it’s Types in C++",
-    batchNo: "3CO - JVY",
-    date: "03 Jan 2023",
-    time: "12:40 P:M",
-    status: "Not Started",
-  },
-  {
-    id: 5,
-    title: "How to Make an Array and it’s Types in C++",
-    batchNo: "3CO - JVY",
-    date: "03 Jan 2023",
-    time: "12:40 P:M",
-    status: "Not Started",
-  },
-  {
-    id: 6,
-    title: "How to Make an Array and it’s Types in C++",
-    batchNo: "3CO - JVY",
-    date: "03 Jan 2023",
-    time: "12:40 P:M",
-    status: "Not Started",
-  },
-  {
-    id: 7,
-    title: "How to Make an Array and it’s Types in C++",
-    batchNo: "3CO - JVY",
-    date: "03 Jan 2023",
-    time: "12:40 P:M",
-    status: "Not Started",
-  },
-  {
-    id: 8,
-    title: "How to Make an Array and it’s Types in C++",
-    batchNo: "3CO - JVY",
-    date: "03 Jan 2023",
-    time: "12:40 P:M",
-    status: "Not Started",
-  },
-  {
-    id: 9,
-    title: "How to Make an Array and it’s Types in C++",
-    batchNo: "3CO - JVY",
-    date: "03 Jan 2023",
-    time: "12:40 P:M",
-    status: "Not Started",
-  },
-  {
-    id: 10,
-    title: "How to Make an Array and it’s Types in C++",
-    batchNo: "3CO - JVY",
-    date: "03 Jan 2023",
-    time: "12:40 P:M",
-    status: "Not Started",
-  },
-  {
-    id: 11,
-    title: "How to Make an Array and it’s Types in C++",
-    batchNo: "3CO - JVY",
-    date: "03 Jan 2023",
-    time: "12:40 P:M",
-    status: "Not Started",
-  },
-];
-
-const endedClasses = [
-  {
-    id: 1,
-    title: "How to Make an Array and it’s Types in C++",
-    batchNo: "3CO - JVY",
-    date: "03 Jan 2023",
-    time: "12:40 P:M",
-    status: "Ended",
-  },
-  {
-    id: 2,
-    title: "How to Make an Array and it’s Types in C++",
-    batchNo: "3CO - JVY",
-    date: "03 Jan 2023",
-    time: "12:40 P:M",
-    status: "Ended",
-  },
-
-  {
-    id: 4,
-    title: "How to Make an Array and it’s Types in C++",
-    batchNo: "3CO - JVY",
-    date: "03 Jan 2023",
-    time: "12:40 P:M",
-    status: "Ended",
-  },
-  {
-    id: 5,
-    title: "How to Make an Array and it’s Types in C++",
-    batchNo: "3CO - JVY",
-    date: "03 Jan 2023",
-    time: "12:40 P:M",
-    status: "Ended",
-  },
-  {
-    id: 6,
-    title: "How to Make an Array and it’s Types in C++",
-    batchNo: "3CO - JVY",
-    date: "03 Jan 2023",
-    time: "12:40 P:M",
-    status: "Ended",
-  },
-  {
-    id: 7,
-    title: "How to Make an Array and it’s Types in C++",
-    batchNo: "3CO - JVY",
-    date: "03 Jan 2023",
-    time: "12:40 P:M",
-    status: "Not Started",
-  },
-];
 export default LiveClasses;

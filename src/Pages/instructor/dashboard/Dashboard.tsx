@@ -1,35 +1,31 @@
 import { Box, SxProps, Typography } from "@mui/material";
-import { useRef } from "react";
-import { useAppDispatch } from "../../../store/hooks";
+import { useEffect, useRef } from "react";
+import { useAppDispatch, useAppSelector } from "../../../store/hooks";
 import { setPageName } from "../../../store/app.slice";
 import InstructorPageHeader from "../../../components/layout/InstructorPageHeader";
-import {
-  Assignment,
-  BusinessCenter,
-  Groups,
-  Inventory,
-} from "@mui/icons-material";
+import { BusinessCenter, Inventory } from "@mui/icons-material";
 import { Link } from "react-router-dom";
+import { selectCurrentUser } from "../../../store/auth.slice";
 
 const Dashboard = () => {
   const containerRef = useRef<HTMLDivElement>(null);
+  const user = useAppSelector(selectCurrentUser);
 
   // set page name
   const dispatch = useAppDispatch();
-  dispatch(setPageName("Dashboard"));
+  useEffect(() => {
+    dispatch(setPageName("Dashboard"));
+  }, [dispatch]);
 
   return (
     <Box ref={containerRef} className="content-container">
       <InstructorPageHeader
-        additionalButton={{
-          action: () => console.log("Hello"),
-          text: "Export Report",
-        }}
-        heading={"Welcome Back, Amina"}
-        subHeading={"Lorem ipsum dolor sit amet consectetur. Tdbks akd"}
+        heading={`Welcome Back, ${user?.first_name}`}
+        subHeading={"You are welcome to your dashboard!"}
       />
       <Box
         sx={{
+          // bgcolor: "#fff",
           // bgcolor: "#fff",
           borderRadius: "var(--border-radius)",
           marginInline: "var(--padding)",
@@ -90,20 +86,20 @@ const cardStyles: SxProps = {
 const cards = [
   {
     id: 1,
-    link: "",
+    link: "courses",
     icon: <Inventory />,
     title: "View Course List",
     description:
       "Create rich course content and coaching products for your students. When you give them a pricing plan, they’ll appear on your site!",
   },
-  {
-    id: 2,
-    link: "",
-    icon: <Assignment />,
-    title: "Manage CBT",
-    description:
-      "Create rich course content and coaching products for your students. When you give them a pricing plan, they’ll appear on your site!",
-  },
+  // {
+  //   id: 2,
+  //   link: "",
+  //   icon: <Assignment />,
+  //   title: "Manage CBT",
+  //   description:
+  //     "Create rich course content and coaching products for your students. When you give them a pricing plan, they’ll appear on your site!",
+  // },
   {
     id: 3,
     link: "classes",
@@ -120,14 +116,14 @@ const cards = [
     description:
       "Create rich course content and coaching products for your students. When you give them a pricing plan, they’ll appear on your site!",
   },
-  {
-    id: 5,
-    link: "",
-    icon: <Groups />,
-    title: "Notes and Resources",
-    description:
-      "Create rich course content and coaching products for your students. When you give them a pricing plan, they’ll appear on your site!",
-  },
+  // {
+  //   id: 5,
+  //   link: "",
+  //   icon: <Groups />,
+  //   title: "Notes and Resources",
+  //   description:
+  //     "Create rich course content and coaching products for your students. When you give them a pricing plan, they’ll appear on your site!",
+  // },
 ];
 
 export default Dashboard;

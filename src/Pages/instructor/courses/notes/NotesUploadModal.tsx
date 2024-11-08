@@ -1,9 +1,9 @@
-import { useState } from "react";
+// import { useState } from "react";
 import { Modal, Box, Typography, IconButton, Button } from "@mui/material";
 import { Close } from "@mui/icons-material";
-import csvIcon from "../../../../assets/csvIcon.svg";
+// import csvIcon from "../../../../assets/csvIcon.svg";
 import notesQuestionIcon from "../../../../assets/notesQuestionIcon.svg";
-import UploadFileModal from "../../../../components/UploadFileModal";
+// import UploadFileModal from "../../../../components/UploadFileModal";
 import { useNavigate } from "react-router-dom";
 
 type uplodaModalProps = {
@@ -18,17 +18,17 @@ type uplodaModalProps = {
 const NotesUploadModal = ({
   open,
   handleClose,
-  handleFileChange,
-  handleProcessFileUrl,
-}: //   handleSelectMedia,
+}: // handleFileChange,
+// handleProcessFileUrl,
+//   handleSelectMedia,
 uplodaModalProps) => {
-  const [uploadModalOpen, setUploadModalOpen] = useState(false);
+  // const [uploadModalOpen, setUploadModalOpen] = useState(false);
   const navigate = useNavigate();
 
-  const handleUploadNew = () => {
-    setUploadModalOpen(true);
-    handleClose();
-  };
+  // const handleUploadNew = () => {
+  //   setUploadModalOpen(true);
+  //   handleClose();
+  // };
 
   return (
     <Box>
@@ -75,8 +75,8 @@ uplodaModalProps) => {
               >
                 Create New Note
               </Typography>
-              <Box sx={{ display: "flex", justifyContent: "space-between" }}>
-                <Box
+              <Box sx={{ display: "flex", justifyContent: "center" }}>
+                {/* <Box
                   sx={{
                     backgroundColor: "#fff",
                     display: "flex",
@@ -104,7 +104,7 @@ uplodaModalProps) => {
                   >
                     Import CSV
                   </Button>
-                </Box>
+                </Box> */}
                 <Box
                   sx={{
                     backgroundColor: "#fff",
@@ -139,12 +139,12 @@ uplodaModalProps) => {
           </Box>
         </Box>
       </Modal>
-      <UploadFileModal
+      {/* <UploadFileModal
         open={uploadModalOpen}
         handleClose={() => setUploadModalOpen(false)}
         handleFileChange={handleFileChange}
         handleProcessFileUrl={handleProcessFileUrl}
-      />
+      /> */}
       {/* <LibraryModal
         open={libraryModalOpen}
         handleClose={() => setLibraryModalOpen(false)}

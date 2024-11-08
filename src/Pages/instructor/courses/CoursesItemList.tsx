@@ -6,16 +6,15 @@ import TableContainer from "@mui/material/TableContainer";
 import TableRow from "@mui/material/TableRow";
 import {
   Box,
-  Checkbox,
+  // Checkbox,
   IconButton,
   Menu,
   MenuItem,
   Typography,
 } from "@mui/material";
-import { Delete, Edit, MoreVert } from "@mui/icons-material";
+import { Delete, MoreVert, Visibility } from "@mui/icons-material";
 import CustomPagination from "../../../components/CustomPagination";
 import { note } from "../../../types/notes";
-import { useNavigate } from "react-router-dom";
 
 type ListProps = {
   lists: note[];
@@ -24,7 +23,6 @@ type ListProps = {
   edit?: boolean;
   handleOpenActionsModal: (list: note, type: string) => void;
   handleEditActionsModal: (list: note) => void;
-
 };
 
 const ITEMS_PER_PAGE = 10;
@@ -42,7 +40,6 @@ const CoursesItemList = ({
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
 
-  const navigate = useNavigate();
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
   };
@@ -83,16 +80,13 @@ const CoursesItemList = ({
                 sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
               >
                 <TableCell
-                  component="th"
-                  scope="row"
-                  sx={{ alignItems: "center", display: "flex", gap: "1rem" }}
+                // component="th"
+                // scope="row"
+                // sx={{ alignItems: "center", display: "flex", gap: "1rem" }}
                 >
-                  <Checkbox />
+                  {/* <Checkbox /> */}
 
-                  <Box
-                    onClick={() => navigate(`${list.id}`, { state: { lists } })}
-                    sx={{ cursor: "pointer" }}
-                  >
+                  <Box>
                     <Typography variant="body2" sx={{ color: "#474747" }}>
                       {list.title}
                     </Typography>
@@ -106,7 +100,7 @@ const CoursesItemList = ({
                 <TableCell align="right">
                   {edit && (
                     <IconButton onClick={() => handleEditActionsModal(list)}>
-                      <Edit />
+                      <Visibility />
                     </IconButton>
                   )}
                   {deleteIcon && (

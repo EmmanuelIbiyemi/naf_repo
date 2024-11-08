@@ -2,10 +2,13 @@ type SemesterBase = {
   name: string;
   start_date: string;
   end_date: string;
-  session_id: number;
+  id: number;
+  created_at: string;
+  updated_at: string;
 };
 
-export type SemesterType = SemesterBase & { id?: number };
+export type SemesterType = SemesterBase;
 export type SemesterCreateType = SemesterBase & {};
 
+export type SemesterResponse = { data: SemesterType };
 export type SemestersResponse = { data: SemesterType[] };

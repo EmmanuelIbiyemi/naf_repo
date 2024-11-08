@@ -47,10 +47,13 @@ const ShareWithList = ({
   const handleCloseSuccessModal = () => {
     setOpenSuccessModal(false);
     handleClose();
+    navigate(-1);
   };
+
   interface FormValues {
     participants: number[];
   }
+
   const formik = useFormik<FormValues>({
     initialValues: {
       participants: [],
@@ -59,29 +62,31 @@ const ShareWithList = ({
       participants: yup
         .array()
         .of(yup.number())
-
         .min(1, "At least one participant is required")
         .required("At least one participant is required"),
     }),
     onSubmit: async (values) => {
       try {
         if (noteId) {
-          // For notes, keep the original format with objects containing id
+          // For notes, use the original participant id
           await shareNote({
             note_id: noteId,
             participants: values.participants.map((id) => ({ id })),
           }).unwrap();
           handleOpenSuccessModal();
-        }
-        if (quizId) {
-          // For quizzes, just send the array of ids
+        } else if (quizId) {
+          // For quizzes, use user_id from participants
+          console.log();
           await shareQuiz({
             quiz_id: quizId,
-            participants: values.participants,
+            participants: values.participants
+              .map((id) => {
+                return id;
+              })
+              .filter((id) => id !== null),
           }).unwrap();
           handleOpenSuccessModal();
-        }
-        if (noteId === null && quizId === null) {
+        } else {
           console.log("Shared with: ", values.participants);
           navigate("/instructor/posts");
         }
@@ -96,13 +101,23 @@ const ShareWithList = ({
       formik.resetForm();
       setSearchTerm("");
     }
-  }, [open, formik]);
+  }, [open]);
 
-  const handleToggleUser = (userId: number) => {
+  useEffect(() => {
+    if (!open) {
+      formik.resetForm();
+      setSearchTerm("");
+    }
+  }, [open]);
+
+  const handleToggleUser = (id: number, user_id: number) => {
     const currentParticipants = formik.values.participants;
-    const updatedParticipants = currentParticipants.includes(userId)
-      ? currentParticipants.filter((id) => id !== userId)
-      : [...currentParticipants, userId];
+    const participantId = noteId ? id : user_id;
+    console.log(participantId);
+
+    const updatedParticipants = currentParticipants.includes(participantId)
+      ? currentParticipants.filter((pid) => pid !== participantId)
+      : [...currentParticipants, participantId];
 
     formik.setFieldValue("participants", updatedParticipants);
   };
@@ -190,7 +205,7 @@ const ShareWithList = ({
               <ListItem
                 key={user.id}
                 dense
-                onClick={() => handleToggleUser(user.user_id)}
+                onClick={() => handleToggleUser(user.id, user.user_id)}
                 sx={{ cursor: "pointer" }}
               >
                 <ListItemIcon>

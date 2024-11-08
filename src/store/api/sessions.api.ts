@@ -1,5 +1,6 @@
 import {
   SessionCreateType,
+  SessionResponse,
   SessionsResponse,
   SessionType,
 } from "../../types/sessions";
@@ -11,15 +12,15 @@ const sessionsApi = appApi.injectEndpoints({
       query: () => "/session",
       providesTags: ["Sessions"],
     }),
-    getSession: builder.query<SessionsResponse, number>({
+    getSession: builder.query<SessionResponse, number>({
       query: (session_id) => `/session/${session_id}`,
       providesTags: ["Sessions"],
     }),
-    getCurrentSession: builder.query<SessionsResponse, null>({
+    getCurrentSession: builder.query<SessionResponse, null>({
       query: () => `/session/current`,
       providesTags: ["Sessions"],
     }),
-    addSession: builder.mutation<SessionsResponse, SessionCreateType>({
+    addSession: builder.mutation<SessionResponse, SessionCreateType>({
       query: (session) => ({
         url: `/session`,
         method: "POST",
@@ -27,7 +28,7 @@ const sessionsApi = appApi.injectEndpoints({
       }),
       invalidatesTags: ["Sessions"],
     }),
-    updateSession: builder.mutation<SessionsResponse, SessionType>({
+    updateSession: builder.mutation<SessionResponse, SessionType>({
       query: (session) => ({
         url: `/session/${session.id}`,
         method: "PUT",
@@ -35,7 +36,7 @@ const sessionsApi = appApi.injectEndpoints({
       }),
       invalidatesTags: ["Sessions"],
     }),
-    deleteSession: builder.mutation<SessionsResponse, number>({
+    deleteSession: builder.mutation<SessionResponse, number>({
       query: (session_id) => ({
         url: `/session/${session_id}`,
         method: "DELETE",

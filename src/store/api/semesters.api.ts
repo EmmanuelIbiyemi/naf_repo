@@ -1,5 +1,6 @@
 import {
   SemesterCreateType,
+  SemesterResponse,
   SemestersResponse,
   SemesterType,
 } from "../../types/semesters";
@@ -11,15 +12,15 @@ const semestersApi = appApi.injectEndpoints({
       query: () => "/semester",
       providesTags: ["Semesters"],
     }),
-    getSemester: builder.query<SemestersResponse, number>({
+    getSemester: builder.query<SemesterResponse, number>({
       query: (semester_id) => `/semester/${semester_id}`,
       providesTags: ["Semesters"],
     }),
-    getCurrentSemester: builder.query<SemestersResponse, null>({
+    getCurrentSemester: builder.query<SemesterResponse, null>({
       query: () => `/semester/current`,
       providesTags: ["Semesters"],
     }),
-    addSemester: builder.mutation<SemestersResponse, SemesterCreateType>({
+    addSemester: builder.mutation<SemesterResponse, SemesterCreateType>({
       query: (semester) => ({
         url: `/semester`,
         method: "POST",
@@ -27,7 +28,7 @@ const semestersApi = appApi.injectEndpoints({
       }),
       invalidatesTags: ["Semesters"],
     }),
-    updateSemester: builder.mutation<SemestersResponse, SemesterType>({
+    updateSemester: builder.mutation<SemesterResponse, SemesterType>({
       query: (semester) => ({
         url: `/semester/${semester.id}`,
         method: "PUT",
@@ -35,7 +36,7 @@ const semestersApi = appApi.injectEndpoints({
       }),
       invalidatesTags: ["Semesters"],
     }),
-    deleteSemester: builder.mutation<SemestersResponse, number>({
+    deleteSemester: builder.mutation<SemesterResponse, number>({
       query: (semester_id) => ({
         url: `/semester/${semester_id}`,
         method: "DELETE",

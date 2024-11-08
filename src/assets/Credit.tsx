@@ -18,7 +18,7 @@ export default function Credit({ color }: { color?: string }) {
         fill={color || "white"}
         d="M6.66797 10.667H7.66797"
         stroke="#023678"
-        stroke-miterlimit="10"
+        strokeMiterlimit="10"
         strokeLinecap="round"
         strokeLinejoin="round"
       />
@@ -26,7 +26,7 @@ export default function Credit({ color }: { color?: string }) {
         fill={color || "white"}
         d="M9.66797 10.667H12.0013"
         stroke="#023678"
-        stroke-miterlimit="10"
+        strokeMiterlimit="10"
         strokeLinecap="round"
         strokeLinejoin="round"
       />

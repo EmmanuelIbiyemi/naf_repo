@@ -3,28 +3,61 @@ import { Box, Button, Typography } from "@mui/material";
 
 type LiveClassProps = {
   title: string;
-  batchNo: string;
   date: string;
   time: string;
   status: string;
   btnAction: () => void;
 };
 
+const formatDateTime = (dateTimeString: string) => {
+  try {
+    const date = new Date(dateTimeString);
+
+    const month = (date.getMonth() + 1).toString().padStart(2, "0");
+    const day = date.getDate().toString().padStart(2, "0");
+    const year = date.getFullYear();
+    const formattedDate = `${month}/${day}/${year}`;
+
+    let hours = date.getHours();
+    const minutes = date.getMinutes();
+    const ampm = hours >= 12 ? "PM" : "AM";
+    hours = hours % 12;
+    hours = hours ? hours : 12;
+    const formattedTime = `${hours}:${minutes
+      .toString()
+      .padStart(2, "0")} ${ampm}`;
+
+    return {
+      date: formattedDate,
+      time: formattedTime,
+      fullDateTime: `${formattedDate} ${formattedTime}`,
+    };
+  } catch (error) {
+    console.error("Error formatting datetime:", error);
+    return {
+      date: "",
+      time: "",
+      fullDateTime: "",
+    };
+  }
+};
+
 const LiveClassCard = ({
   title,
-  batchNo,
   date,
   time,
   status,
   btnAction,
 }: LiveClassProps) => {
+  const buttonEnabled = status === "Ongoing";
+
   return (
     <Box>
       <Box
         sx={{
           display: "flex",
           flexDirection: "column",
-          justifyContentL: "center",
+          justifyContent: "center",
           alignItems: "start",
           gap: 1.5,
         }}
@@ -35,32 +68,10 @@ const LiveClassCard = ({
         >
           {title}
         </Typography>
-        <Typography
-          variant="body2"
-          sx={{
-            color: "#989898",
-            fontSize: ".9rem",
-            padding: ".6em ",
-            border: "1px solid #D3D3D3",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            borderRadius: "5px",
-          }}
-        >
-          Batch {batchNo}
-        </Typography>
-        <Box
-          sx={{
-            display: "flex",
-            gap: 1,
-            alignItems: "center",
-          }}
-        >
+        <Box sx={{ display: "flex", gap: 3, alignItems: "center" }}>
           <Box
             sx={{
               display: "flex",
-              justifyContent: "center",
               alignItems: "center",
               gap: 1,
               color: "#989898",
@@ -71,13 +82,12 @@ const LiveClassCard = ({
               variant="body2"
               sx={{ color: "#989898", fontSize: ".9rem" }}
             >
-              {date}
+              {formatDateTime(date).date}
             </Typography>
           </Box>
           <Box
             sx={{
               display: "flex",
-              justifyContent: "center",
               alignItems: "center",
               gap: 1,
               color: "#989898",
@@ -88,47 +98,33 @@ const LiveClassCard = ({
               variant="body2"
               sx={{ color: "#989898", fontSize: ".9rem" }}
             >
-              {time}
+              {formatDateTime(time).time}
             </Typography>
           </Box>
         </Box>
         <Typography
           variant="body2"
           sx={{
-            color:
-              status === "Ongoing"
-                ? "#F12222"
-                : status === "Not Started" || status === "Ended"
-                ? "#9E9E9Et"
-                : "#0CC740",
+            color: buttonEnabled ? "#0CC740" : "#9E9E9E",
             fontSize: ".9rem",
             padding: ".6em ",
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
             borderRadius: "5px",
-            backgroundColor:
-              status === "Ongoing"
-                ? "#FFDDDD"
-                : status === "Not Started" || status === "Ended"
-                ? "#F1F1F1"
-                : "#DDFFE7",
+            backgroundColor: buttonEnabled ? "#DDFFE7" : "#F1F1F1",
           }}
         >
-          Status {status}
+          Status: {status}
         </Typography>
       </Box>
       <Button
         variant="contained"
-        disabled={status === "Not Started" || status === "Ended"}
-        sx={{
-          width: "100%",
-          backgroundColor: "#141414",
-          marginTop: "1em",
-        }}
+        disabled={!buttonEnabled}
+        sx={{ width: "100%", backgroundColor: "#141414", marginTop: "1em" }}
         onClick={btnAction}
       >
-        {status === "Ended" ? "Ended" : "Join now"}
+        {buttonEnabled ? "Join now" : status}
       </Button>
     </Box>
   );

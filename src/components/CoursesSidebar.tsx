@@ -1,10 +1,10 @@
 import { Box, SxProps } from "@mui/material";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { ChevronRight } from "@mui/icons-material";
-import { CoursesResponse } from "../types/courses";
+import { CourseType } from "../types/courses";
 
 type courseProps = {
-  course: CoursesResponse | undefined;
+  course: { data: CourseType } | undefined;
 };
 
 type NavLink = {
@@ -13,10 +13,10 @@ type NavLink = {
   children?: NavLink[];
 };
 const navLinks: NavLink[] = [
-  { content: "Course Details", link: "details" },
-  { content: "Course Students", link: "students" },
-  { content: "Course Notes", link: "notes" },
-  { content: "CBT Tests", link: "tests" },
+  // { content: "Course Details", link: "details" },
+  { content: "Students", link: "students" },
+  { content: "Notes", link: "notes" },
+  { content: "CBT ", link: "tests" },
 ];
 
 const CoursesSidebar = ({ course }: courseProps) => {

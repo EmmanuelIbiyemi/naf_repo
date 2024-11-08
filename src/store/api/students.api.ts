@@ -1,4 +1,5 @@
 import {
+  SingleStudentResponse,
   StudentCreateType,
   StudentsResponse,
   StudentType,
@@ -11,7 +12,7 @@ const studentsApi = appApi.injectEndpoints({
       query: () => "/participant",
       providesTags: ["Students"],
     }),
-    getStudent: builder.query<StudentsResponse, number>({
+    getStudent: builder.query<SingleStudentResponse, number>({
       query: (student_id) => `/participant/${student_id}`,
       providesTags: ["Students"],
     }),

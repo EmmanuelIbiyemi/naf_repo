@@ -12,7 +12,10 @@ const Details = () => {
   const navigate = useNavigate();
   const locationData = location.pathname.split("/");
   const courseId = locationData[locationData.length - 2];
-  const { data: courseData, isLoading } = useGetCourseQuery(parseInt(courseId));
+  const { data: courseData, isLoading } = useGetCourseQuery(
+    parseInt(courseId),
+    { skip: !courseId }
+  );
   const { data: participants, isLoading: isFetchingParticipants } =
     useGetCourseParticipantsQuery({ course_id: parseInt(courseId) });
 

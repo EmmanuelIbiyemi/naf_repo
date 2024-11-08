@@ -26,7 +26,11 @@ const coursesApi = appApi.injectEndpoints({
       query: () => `/course`,
       providesTags: ["Courses"],
     }),
-    getCourse: builder.query<CoursesResponse, number>({
+    getInstructorCourses: builder.query<CoursesResponse, null>({
+      query: () => `/course/instructor`,
+      providesTags: ["Courses"],
+    }),
+    getCourse: builder.query<{ data: CourseType }, number>({
       query: (course_id) => `/course/${course_id}`,
       providesTags: ["Courses"],
     }),
@@ -87,6 +91,7 @@ const coursesApi = appApi.injectEndpoints({
 export const {
   useGetCoursesByLevelQuery,
   useGetCoursesQuery,
+  useGetInstructorCoursesQuery,
   useAddCourseMutation,
   useUpdateCourseMutation,
   useDeleteCourseMutation,

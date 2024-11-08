@@ -1,7 +1,6 @@
 export interface TestQuestion {
   question: string;
   options: string[];
-  correctAnswer: string;
 }
 
 export interface TestFormData {

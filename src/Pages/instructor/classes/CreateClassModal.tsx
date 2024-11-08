@@ -1,8 +1,9 @@
 import {
   AccessTime,
+  // AccessTime,
   CalendarToday,
   Close,
-  CloudUploadOutlined,
+  // CloudUploadOutlined,
   Info,
 } from "@mui/icons-material";
 import {
@@ -19,66 +20,91 @@ import {
 } from "@mui/material";
 import { useFormik } from "formik";
 import * as yup from "yup";
+import { useGetCurrentSemesterQuery } from "../../../store/api/semesters.api";
+import { useGetCurrentSessionQuery } from "../../../store/api/sessions.api";
+import { useGetInstructorCoursesQuery } from "../../../store/api/courses.api";
+import { useAddLiveClassMutation } from "../../../store/api/classes.api";
+// import { CreateLiveClass } from "../../../types/classes";
+import SuccessModal from "../../../components/SuccessModal";
+import { useEffect, useState } from "react";
 
 type createClassModal = {
   open: boolean;
   handleClose: () => void;
+  refetch: () => void;
 };
 
-const CreateClassModal = ({ open, handleClose }: createClassModal) => {
+const CreateClassModal = ({ open, handleClose, refetch }: createClassModal) => {
+  const { data: currentSession, isLoading: isGettingSession } =
+    useGetCurrentSessionQuery(null);
+  const { data: currentSemester, isLoading: isGettingSemester } =
+    useGetCurrentSemesterQuery(null);
+  const { data: courses, isLoading: isFetchingCourses } =
+    useGetInstructorCoursesQuery(null);
+  const currentSemesterString = currentSemester?.data.name;
+  const currentSessionString = currentSession?.data.name;
+  const [createClass, { isLoading }] = useAddLiveClassMutation();
+  const [openSuccessModal, setOpenSuccessModal] = useState(false);
+  const handleOpenSuccessModal = () => setOpenSuccessModal(true);
+  const handleCloseSuccessModal = () => {
+    setOpenSuccessModal(false);
+    handleClose();
+  };
+
   const formik = useFormik({
     initialValues: {
+      course_id: "",
+      session: currentSessionString,
+      semester: currentSemesterString,
+      start_time: "",
+      duration: "",
       topic: "",
-      subject: "",
-      batch: "",
-      course: "",
-      participants: "",
-      link: "",
-      resource: [],
-      fileName: "",
-      day: "",
-      time: "",
+      start_date: "",
     },
     validationSchema: yup.object({
       topic: yup.string().required("Required"),
-      subject: yup.string().required("Required"),
-      recipients: yup.array().required("Required"),
+      session: yup.string().required("Required"),
+      semester: yup.string().required("Required"),
+      start_date: yup.string().required("Date is required"),
+      start_time: yup.string().required("Time is required"),
+      duration: yup.number().required("Required"),
+      course_id: yup.number().required("Required"),
     }),
-    onSubmit: (values) => {
-      console.log(values);
-      //   handleClose();
+    onSubmit: async (values) => {
+      const dateTime = `${values.start_date}T${values.start_time}`;
+      if (values.session && values.semester) {
+        try {
+          await createClass({
+            course_id: parseInt(values.course_id),
+            duration: parseInt(values.duration),
+            semester: values.semester,
+            session: values.session,
+            start_time: dateTime,
+            topic: values.topic,
+          }).unwrap();
+          refetch();
+          handleOpenSuccessModal();
+        } catch (error) {
+          console.error(error);
+        }
+      }
     },
   });
 
-  const handleFileChange = async (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    const file = event.target.files?.[0];
-
-    if (!file) return;
-
-    console.log(file);
-    try {
-      const formData = new FormData();
-      formData.append("resource", file);
-      console.log(file);
-
-      // const response = await uploadResource(formData).unwrap();
-      // formik.setFieldValue("resources", [
-      //   ...formik.values.resources,
-      //   ...response.resources.map((resource) => resource.id),
-      // ]);
-      formik.setFieldValue("fileName", file?.name);
-      //   setOpenFileSuccessModal(true);
-    } catch (error) {
-      console.log(error);
+  // Update session and semester in formik when data is fetched
+  useEffect(() => {
+    if (currentSession?.data?.name && currentSemester?.data?.name) {
+      if (formik.values.session !== currentSession.data.name) {
+        formik.setFieldValue("session", currentSession.data.name);
+      }
+      if (formik.values.semester !== currentSemester.data.name) {
+        formik.setFieldValue("semester", currentSemester.data.name);
+      }
     }
-    // setOpenModal(false);
-    // setOpenFileSuccessModal(true);
-  };
+  }, [currentSession, currentSemester]);
 
   return (
-    <Box component="form" onSubmit={formik.handleSubmit}>
+    <Box>
       <Modal open={open} onClose={handleClose}>
         <Box
           sx={{
@@ -91,6 +117,8 @@ const CreateClassModal = ({ open, handleClose }: createClassModal) => {
             borderRadius: "6px",
             width: { xs: "90%", sm: "70%", md: "30%" },
           }}
+          component="form"
+          onSubmit={formik.handleSubmit}
         >
           <Box
             sx={{
@@ -130,124 +158,35 @@ const CreateClassModal = ({ open, handleClose }: createClassModal) => {
                 onChange={formik.handleChange}
                 sx={{ margin: "1em 0" }}
               />
-              <Box
-                sx={{
-                  border: "1px solid #CCCCCC",
-                  borderRadius: 2,
-                  textAlign: "center",
-                  cursor: "pointer",
-                  width: "100%",
-                  padding: "1em",
-                  marginBottom: ".6em",
-                }}
-              >
-                <input
-                  type="file"
-                  id="fileInput"
-                  style={{ display: "none" }}
-                  onChange={handleFileChange}
-                />
-                <label
-                  htmlFor="fileInput"
-                  style={{
-                    cursor: "pointer",
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    gap: 10,
-                  }}
-                >
-                  <CloudUploadOutlined />
-                  <Typography
-                    sx={{ fontSize: "1rem", fontWeight: 300, color: "#0B0B0B" }}
-                  >
-                    {formik.values.fileName
-                      ? formik.values.fileName
-                      : "Upload Class Material"}
-                  </Typography>
-                </label>
-              </Box>
+
               <FormControl fullWidth>
-                <InputLabel id="subject">Select Subject</InputLabel>
+                <InputLabel id="course_id">Select Course</InputLabel>
                 <Select
                   fullWidth
-                  labelId="subject"
-                  id="subject"
-                  name="subject"
-                  value={formik.values.subject}
-                  label="Subject"
+                  labelId="course_id"
+                  id="course_id"
+                  name="course_id"
+                  value={formik.values.course_id}
+                  label="course_id"
                   onChange={formik.handleChange}
                   sx={{ marginBottom: ".6em" }}
                 >
-                  <MenuItem value={10}>Mathematics</MenuItem>
-                  <MenuItem value={20}>General Studies</MenuItem>
-                  <MenuItem value={30}>Calculus</MenuItem>
+                  {courses?.data.map((course) => (
+                    <MenuItem key={course.id} value={course.id}>
+                      {course.name}
+                    </MenuItem>
+                  ))}
                 </Select>
               </FormControl>
-              <FormControl fullWidth>
-                <InputLabel id="batch">Select Batch</InputLabel>
-                <Select
-                  fullWidth
-                  labelId="batch"
-                  id="batch"
-                  name="batch"
-                  value={formik.values.batch}
-                  label="batch"
-                  onChange={formik.handleChange}
-                  sx={{ marginBottom: ".6em" }}
-                >
-                  <MenuItem value={10}>3CO - JVY</MenuItem>
-                  <MenuItem value={20}>3CO - JVY</MenuItem>
-                  <MenuItem value={30}>3CO - JVY</MenuItem>
-                </Select>
-              </FormControl>
-              <FormControl fullWidth>
-                <InputLabel id="course">Select Course</InputLabel>
-                <Select
-                  fullWidth
-                  labelId="course"
-                  id="course"
-                  name="course"
-                  value={formik.values.course}
-                  label="course"
-                  onChange={formik.handleChange}
-                  sx={{ marginBottom: ".6em" }}
-                >
-                  <MenuItem value={10}>
-                    B.Tech Specialization in Health Informatics
-                  </MenuItem>
-                  <MenuItem value={20}>
-                    B.Tech Specialization in Health Informatics
-                  </MenuItem>
-                  <MenuItem value={30}>
-                    B.Tech Specialization in Health Informatics
-                  </MenuItem>
-                </Select>
-              </FormControl>
-              <FormControl fullWidth>
-                <InputLabel id="participants">Add Paricipants</InputLabel>
-                <Select
-                  fullWidth
-                  labelId="participants"
-                  id="participants"
-                  name="participants"
-                  value={formik.values.participants}
-                  label="participants"
-                  onChange={formik.handleChange}
-                  sx={{ marginBottom: ".6em" }}
-                >
-                  <MenuItem value={10}>John Doe</MenuItem>
-                  <MenuItem value={20}>John Doe</MenuItem>
-                  <MenuItem value={30}>John Doe</MenuItem>
-                </Select>
-              </FormControl>
+
               <TextField
                 fullWidth
                 variant="outlined"
-                id="link"
-                name="link"
-                placeholder="Add Link"
-                value={formik.values.link}
+                id="duration"
+                name="duration"
+                placeholder="Add duration"
+                value={formik.values.duration}
+                type="number"
                 onChange={formik.handleChange}
                 sx={{ marginBottom: ".6em" }}
               />
@@ -275,9 +214,9 @@ const CreateClassModal = ({ open, handleClose }: createClassModal) => {
                   <TextField
                     fullWidth
                     variant="outlined"
-                    id="day"
-                    name="day"
-                    value={formik.values.day}
+                    id="start_date"
+                    name="start_date"
+                    value={formik.values.start_date}
                     onChange={formik.handleChange}
                     type="date"
                   />
@@ -297,9 +236,9 @@ const CreateClassModal = ({ open, handleClose }: createClassModal) => {
                   <TextField
                     fullWidth
                     variant="outlined"
-                    id="time"
-                    name="time"
-                    value={formik.values.time}
+                    id="start_time"
+                    name="start_time"
+                    value={formik.values.start_time}
                     onChange={formik.handleChange}
                     type="time"
                   />
@@ -309,8 +248,14 @@ const CreateClassModal = ({ open, handleClose }: createClassModal) => {
                 variant="contained"
                 type="submit"
                 sx={{ marginTop: "2em", width: "100%" }}
+                disabled={
+                  isGettingSemester ||
+                  isGettingSession ||
+                  isFetchingCourses ||
+                  isLoading
+                }
               >
-                Create Class
+                {isLoading ? "Creating..." : "Create Class"}
               </Button>
               <Box
                 sx={{
@@ -328,14 +273,29 @@ const CreateClassModal = ({ open, handleClose }: createClassModal) => {
                   variant="body2"
                   sx={{ fontSize: ".8rem", color: "#0369A1" }}
                 >
-                  The participants you select will have access view and join the
-                  class
+                  The participants you select will have access to view and join
+                  the class
                 </Typography>
               </Box>
             </Box>
           </Box>
         </Box>
       </Modal>
+      <SuccessModal
+        actions={{
+          proceed: () => {
+            console.log("proceed");
+          },
+          undo: () => {
+            console.log("undo");
+          },
+        }}
+        close={handleCloseSuccessModal}
+        infoText=""
+        open={openSuccessModal}
+        subTitle={`You have successfully created a live class`}
+        title="Successful"
+      />
     </Box>
   );
 };
