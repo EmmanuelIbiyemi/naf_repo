@@ -60,7 +60,7 @@ const participantsApi = appApi.injectEndpoints({
         url: `/participant/${id}`,
         method: "GET",
       }),
-      providesTags: (_result, _error, id) => [{ type: "Participants", id }],
+      providesTags: ["Participants"],
     }),
 
     // POST create participant
@@ -86,10 +86,7 @@ const participantsApi = appApi.injectEndpoints({
         method: "PUT",
         body: data,
       }),
-      invalidatesTags: (_result, _error, { id }) => [
-        "Participants",
-        { type: "Participants", id },
-      ],
+      invalidatesTags: ["Participants"],
     }),
 
     // DELETE participant

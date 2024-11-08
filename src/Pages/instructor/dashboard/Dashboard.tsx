@@ -1,5 +1,5 @@
 import { Box, SxProps, Typography } from "@mui/material";
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import { useAppDispatch, useAppSelector } from "../../../store/hooks";
 import { setPageName } from "../../../store/app.slice";
 import InstructorPageHeader from "../../../components/layout/InstructorPageHeader";
@@ -13,7 +13,9 @@ const Dashboard = () => {
 
   // set page name
   const dispatch = useAppDispatch();
-  dispatch(setPageName("Dashboard"));
+  useEffect(() => {
+    dispatch(setPageName("Dashboard"));
+  }, [dispatch]);
 
   return (
     <Box ref={containerRef} className="content-container">
@@ -23,6 +25,7 @@ const Dashboard = () => {
       />
       <Box
         sx={{
+          // bgcolor: "#fff",
           // bgcolor: "#fff",
           borderRadius: "var(--border-radius)",
           marginInline: "var(--padding)",

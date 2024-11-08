@@ -60,6 +60,48 @@ export interface StudentResultResponse {
   message: string;
   status: string;
 }
+
+export interface ResultCreateType {
+  participant_id: number;
+  session: string;
+  semester: string;
+  department_id: number;
+  level_id: number;
+  details: {
+    course_code: string;
+    course_credit_unit: number;
+    total_obtainable_score: number;
+    total_obtained_score: number;
+  }[];
+}
+
+export interface ResultResponse {
+  data: {
+    id: number;
+    created_at: string;
+    updated_at: string;
+    participant_id: number;
+    session: string;
+    semester: string;
+    department: {
+      id: number;
+      name: string;
+    };
+    level: {
+      id: number;
+      name: string;
+    };
+    summary: {
+      total_credit_units: number;
+      total_grade_points: number;
+      grade_point_average: number;
+      cumulative_grade_point_average: number;
+    };
+  };
+  message: string;
+  status: string;
+}
+
 export interface ResultTaskResponse {
   task_id: string;
   status: "pending" | "in_progress" | "completed" | "failed";
@@ -67,7 +109,6 @@ export interface ResultTaskResponse {
   created_at: string;
   updated_at?: string;
 }
-
 
 export interface TranscriptResponse {
   data: {
@@ -89,6 +130,15 @@ export interface TranscriptResponse {
   message: string;
   status: string;
 }
+
+export interface QuizResult {
+  assessment_id: number;
+  created_at: string;
+  right: number;
+  wrong: number;
+}
+
+export type QuizResults = QuizResult[];
 export type Result = {
   id?: number;
   min_score: number;
@@ -104,10 +154,10 @@ export type ResultsGetInput = {
   session?: string;
   semester?: string;
 };
-export type ResultCreateType = Result & {};
+// export type ResultCreateType = Result & {};
 
-export type ResultResponse = {
-  data: Result[];
-};
+// export type ResultResponse = {
+//   data: Result[];
+// };
 
 export type ResultFormAction = (score: Result) => Promise<void>;

@@ -1,4 +1,8 @@
+import { AnswersResponses } from "./answers";
+import { AssessmentResponses } from "./assessments";
 import { options } from "./options";
+import { ParticipantsMultipleData } from "./participants";
+import { QuizResults } from "./results";
 // import { Participant } from "./participants";
 
 // Base interface for timestamps
@@ -77,6 +81,24 @@ export interface QuizzesResponse {
   }[];
 }
 
+export interface InstructorQuizzesResponse {
+  assessments: unknown;
+  code: string;
+  created_at: string;
+  expiry_date: string;
+  id: number;
+  instructions: string;
+  is_published: boolean;
+  name: string;
+  obtainable_score: number;
+  participants: ParticipantsMultipleData;
+  show_result: boolean;
+  start_date: string;
+  time_allowed: number;
+  type: string;
+  updated_at: string;
+}
+
 
 
 export interface CreateQuiz {
@@ -131,6 +153,28 @@ export interface AssessmentResponse {
 export interface shareQuizInput {
   quiz_id: number;
   participants: number[];
+}
+
+export interface QuizUserResultResponse {
+  answers: AnswersResponses;
+  quiz: {
+    assessments: AssessmentResponses;
+    code: string;
+    created_at: string;
+    expiry_date: string;
+    id: number;
+    instructions: string;
+    is_published: boolean;
+    name: string;
+    obtainable_score: number;
+    participants: ParticipantsMultipleData;
+    show_result: boolean;
+    start_date: string;
+    time_allowed: number;
+    type: string;
+    updated_at: string;
+  };
+  result: QuizResults;
 }
 
 

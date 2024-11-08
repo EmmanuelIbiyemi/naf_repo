@@ -62,8 +62,6 @@ const ShareWithList = ({
       participants: yup
         .array()
         .of(yup.number())
-        .of(yup.number())
-
         .min(1, "At least one participant is required")
         .required("At least one participant is required"),
     }),
@@ -88,6 +86,9 @@ const ShareWithList = ({
               .filter((id) => id !== null),
           }).unwrap();
           handleOpenSuccessModal();
+        } else {
+          console.log("Shared with: ", values.participants);
+          navigate("/instructor/posts");
         }
       } catch (error) {
         console.error("Share failed:", error);
@@ -100,7 +101,7 @@ const ShareWithList = ({
       formik.resetForm();
       setSearchTerm("");
     }
-  }, [open, formik]);
+  }, [open]);
 
   useEffect(() => {
     if (!open) {
@@ -204,7 +205,7 @@ const ShareWithList = ({
               <ListItem
                 key={user.id}
                 dense
-                onClick={() => handleToggleUser(user.id, user.user_id)}
+                onClick={() => handleToggleUser((user?.id || 0), user.user_id)}
                 sx={{ cursor: "pointer" }}
               >
                 <ListItemIcon>

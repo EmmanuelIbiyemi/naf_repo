@@ -76,8 +76,7 @@ const ManualInputQuestions: React.FC = () => {
       const totalQuestions = localFormData.totalQuestions || 0;
       const initialQuestions = Array.from({ length: totalQuestions }, () => ({
         question: "",
-        options: ["", "", ""],
-        correctAnswer: "",
+        options: ["", "", "", ""],
       }));
       setQuestions(initialQuestions);
     }
@@ -97,8 +96,8 @@ const ManualInputQuestions: React.FC = () => {
         currentQuestion.options = currentQuestion.options.map((opt, idx) =>
           idx === optionIndex ? value : opt
         );
-      } else if (field === "question" || field === "correctAnswer") {
-        currentQuestion[field] = value;
+      } else if (field === "question") {
+        currentQuestion.question = value;
       }
 
       updatedQuestions[index] = currentQuestion;
@@ -108,7 +107,7 @@ const ManualInputQuestions: React.FC = () => {
 
   const validateQuestions = (): boolean => {
     const isValid = questions.every(
-      (q) => q.question && q.options.every((opt) => opt) && q.correctAnswer
+      (q) => q.question && q.options.every((opt) => opt)
     );
 
     if (!isValid) {
@@ -123,9 +122,9 @@ const ManualInputQuestions: React.FC = () => {
   const transformQuestionsForUpload = (): ManualUploadQuestion => {
     const transformedQuestions = questions.map((question) => ({
       body: question.question,
-      options: question.options.map((option) => ({
+      options: question.options.map((option, index) => ({
         body: option,
-        is_answer: option === question.correctAnswer,
+        is_answer: index === 0,
       })),
     }));
 
@@ -134,6 +133,7 @@ const ManualInputQuestions: React.FC = () => {
       assessment_id: formData.assessmentId,
     };
   };
+
   const handleNext = () => {
     if (!validateQuestions()) return;
 
@@ -147,6 +147,7 @@ const ManualInputQuestions: React.FC = () => {
     // Log both payloads
 
     setCreateTestModalOpen(true);
+    // console.log(uploadPayload);
   };
 
   const indexOfLastQuestion = currentPage * questionsPerPage;
@@ -242,24 +243,10 @@ const ManualInputQuestions: React.FC = () => {
               />
 
               <Grid2 container spacing={2}>
-                <Grid2 size={6}>
-                  <QuestionField
-                    label="Answer"
-                    value={question.correctAnswer}
-                    onChange={(value) =>
-                      handleQuestionChange(
-                        indexOfFirstQuestion + index,
-                        "correctAnswer",
-                        value
-                      )
-                    }
-                    placeholder="Type the correct answer here"
-                  />
-                </Grid2>
                 {question.options.map((option, optIndex) => (
                   <Grid2 size={6} key={optIndex}>
                     <QuestionField
-                      label="Option"
+                      label={`Option ${optIndex + 1}`}
                       value={option}
                       onChange={(value) =>
                         handleQuestionChange(
@@ -269,7 +256,7 @@ const ManualInputQuestions: React.FC = () => {
                           optIndex
                         )
                       }
-                      placeholder="Type an option here"
+                      placeholder={`Type option ${optIndex + 1} here`}
                     />
                   </Grid2>
                 ))}

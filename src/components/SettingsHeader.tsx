@@ -15,7 +15,7 @@ type Props = {
     text: string;
     action: () => void;
     heading: string;
-    subHeading: string;
+    subHeading?: string;
     image?: string;
   };
 };
@@ -79,15 +79,19 @@ const SettingsHeader = ({ button, additionalButton }: Props) => {
                   sx={{
                     width: "3em",
                     height: "3em",
-                    borderRadius: "50px",
+                    borderRadius: "50%",
                     border: "1px solid #000",
-                    padding: ".4em",
+                    overflow: "hidden",
                   }}
                 >
                   <img
                     src={button?.image || additionalButton?.image}
                     alt=""
-                    style={{ width: "100%" }}
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      objectFit: "cover",
+                    }}
                   />
                 </Box>
                 <Box

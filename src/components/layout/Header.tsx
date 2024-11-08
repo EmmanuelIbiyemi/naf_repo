@@ -69,7 +69,10 @@ const Header = () => {
               <Notifications />
             </IconButton>
           ) : (
-            <IconButton onClick={() => navigate("/instructor/posts")}>
+            // <IconButton onClick={() => navigate("/instructor/postss")}  >
+            //   <Notifications />
+            // </IconButton>
+            <IconButton onClick={() => {}}>
               <Notifications />
             </IconButton>
           )}

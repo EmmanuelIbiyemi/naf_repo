@@ -13,6 +13,7 @@ export interface Meeting {
   pstn_password: string;
   settings: {
     // Add specific settings as needed
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     [key: string]: any;
   };
   start_time: string;

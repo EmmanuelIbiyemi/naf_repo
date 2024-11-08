@@ -14,8 +14,8 @@ type NavLink = {
 };
 const navLinks: NavLink[] = [
   // { content: "Course Details", link: "details" },
-  { content: "Course Students", link: "students" },
-  { content: "Course Notes", link: "notes" },
+  { content: "Students", link: "students" },
+  { content: "Notes", link: "notes" },
   { content: "CBT ", link: "tests" },
 ];
 

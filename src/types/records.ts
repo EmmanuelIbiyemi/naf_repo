@@ -17,6 +17,11 @@ export interface recordInput {
   course_id: number;
 }
 
+export interface updateRecordInput {
+  name: string;
+  obtainable_score: number;
+}
+
 export interface scoresResponse {
   created_at: string;
   id: number;
@@ -41,9 +46,9 @@ export interface scoresResponse {
 export interface scoresInput {
   obtained_score: number;
   participant_id: number;
-  record_id: number;
 }
 
 export interface bulkScoresInput {
   scores: scoresInput[];
+  record_id: number;
 }

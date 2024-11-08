@@ -14,5 +14,6 @@ type SessionBase = {
 export type SessionType = SessionBase;
 export type SessionCreateType = SessionBase & {};
 
+export type SessionResponse = { data: SessionType };
 export type SessionsResponse = { data: SessionType[] };
 export type CurrentSessionResponse = { data: SessionType };

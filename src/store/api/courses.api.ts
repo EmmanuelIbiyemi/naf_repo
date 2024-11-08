@@ -30,7 +30,7 @@ const coursesApi = appApi.injectEndpoints({
         `level/${level_id}/courses?page=${page}&per_page=${per_page}`,
       providesTags: ["Courses"],
     }),
-    getCourses: builder.query<CoursesResponse, GetCoursesParams>({
+    getCourses: builder.query<CoursesResponse, GetCoursesParams | null>({
       query: (params) => ({
         url: "/course",
         params: {

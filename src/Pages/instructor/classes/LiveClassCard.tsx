@@ -3,7 +3,6 @@ import { Box, Button, Typography } from "@mui/material";
 
 type LiveClassProps = {
   title: string;
-  // batchNo: string;
   date: string;
   time: string;
   status: string;
@@ -45,19 +44,20 @@ const formatDateTime = (dateTimeString: string) => {
 
 const LiveClassCard = ({
   title,
-  // batchNo,
   date,
   time,
   status,
   btnAction,
 }: LiveClassProps) => {
+  const buttonEnabled = status === "Ongoing";
+
   return (
     <Box>
       <Box
         sx={{
           display: "flex",
           flexDirection: "column",
-          justifyContentL: "center",
+          justifyContent: "center",
           alignItems: "start",
           gap: 1.5,
         }}
@@ -68,32 +68,10 @@ const LiveClassCard = ({
         >
           {title}
         </Typography>
-        {/* <Typography
-          variant="body2"
-          sx={{
-            color: "#989898",
-            fontSize: ".9rem",
-            padding: ".6em ",
-            border: "1px solid #D3D3D3",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            borderRadius: "5px",
-          }}
-        >
-          Batch {batchNo}
-        </Typography> */}
-        <Box
-          sx={{
-            display: "flex",
-            gap: 3,
-            alignItems: "center",
-          }}
-        >
+        <Box sx={{ display: "flex", gap: 3, alignItems: "center" }}>
           <Box
             sx={{
               display: "flex",
-              justifyContent: "center",
               alignItems: "center",
               gap: 1,
               color: "#989898",
@@ -110,7 +88,6 @@ const LiveClassCard = ({
           <Box
             sx={{
               display: "flex",
-              justifyContent: "center",
               alignItems: "center",
               gap: 1,
               color: "#989898",
@@ -128,40 +105,26 @@ const LiveClassCard = ({
         <Typography
           variant="body2"
           sx={{
-            color:
-              status === "ongoing"
-                ? "#F12222"
-                : status === "waiting" || status === "ended"
-                ? "#9E9E9Et"
-                : "#0CC740",
+            color: buttonEnabled ? "#0CC740" : "#9E9E9E",
             fontSize: ".9rem",
             padding: ".6em ",
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
             borderRadius: "5px",
-            backgroundColor:
-              status === "ongoing"
-                ? "#FFDDDD"
-                : status === "waiting" || status === "ended"
-                ? "#F1F1F1"
-                : "#DDFFE7",
+            backgroundColor: buttonEnabled ? "#DDFFE7" : "#F1F1F1",
           }}
         >
-          Status {status}
+          Status: {status}
         </Typography>
       </Box>
       <Button
         variant="contained"
-        disabled={status === "waiting" || status === "ended"}
-        sx={{
-          width: "100%",
-          backgroundColor: "#141414",
-          marginTop: "1em",
-        }}
+        disabled={!buttonEnabled}
+        sx={{ width: "100%", backgroundColor: "#141414", marginTop: "1em" }}
         onClick={btnAction}
       >
-        {status === "ended" ? "ended" : "Join now"}
+        {buttonEnabled ? "Join now" : status}
       </Button>
     </Box>
   );

@@ -10,7 +10,7 @@ import {
   setUserFromLocalStorage,
 } from "./store/auth.slice";
 import { useAppDispatch, useAppSelector } from "./store/hooks";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { Box, LinearProgress } from "@mui/material";
 import { selectBuilderLoading, selectPageLoading } from "./store/app.slice";
 import LoadingScreen from "./components/LoadingScreen";
@@ -22,7 +22,6 @@ function App() {
   const lastVisitedPage = useAppSelector(selectLastVisitedPage);
   const isBuilderLoading = useAppSelector(selectBuilderLoading);
   const isPageLoading = useAppSelector(selectPageLoading);
-  const [isInitialized, setIsInitialized] = useState(false);
   const location = useLocation();
 
   // Handle initial auth check and local storage restoration
@@ -31,7 +30,6 @@ function App() {
       if (!user) {
         await dispatch(setUserFromLocalStorage());
       }
-      setIsInitialized(true);
     };
 
     initializeAuth();
@@ -81,16 +79,16 @@ function App() {
 
   // Handle layout rendering based on user role
   const renderLayout = () => {
-    if (!user) return null;
-
-    const layouts = {
-      admin: AdminLayout,
-      instructor: InstructorLayout,
-      participant: StudentLayout,
-    };
-
-    const Layout = layouts[user.role as keyof typeof layouts];
-    return Layout ? <Layout /> : null;
+    switch (user?.role) {
+      case "admin":
+        return <AdminLayout />;
+      case "instructor":
+        return <InstructorLayout />;
+      case "participant":
+        return <StudentLayout />;
+      default:
+        return null;
+    }
   };
 
   return (

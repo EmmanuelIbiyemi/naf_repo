@@ -1,4 +1,5 @@
 import { Backdrop, Box, CircularProgress, LinearProgress } from "@mui/material";
+
 import { useEffect, useRef, useState } from "react";
 import InstructorPageHeader from "../../../../components/layout/InstructorPageHeader";
 import { useAppDispatch } from "../../../../store/hooks";
@@ -11,7 +12,7 @@ import DeleteConfirmationModal from "../../../../components/DeleteConfirmationMo
 // import GenerateReportModal from "./GenerateReportModal";
 import CreateTestModal from "./stepmodals/CreateTestModal";
 import QuizzesItemsList from "../QuizzesItemsList";
-import { QuizzesResponse } from "../../../../types/quizzes";
+import { InstructorQuizzesResponse } from "../../../../types/quizzes";
 import {
   useDeleteQuizMutation,
   useGetQuizzesQuery,
@@ -33,7 +34,7 @@ const Tests = () => {
   });
 
   const [selectedTests, setSelectedTests] = useState<
-    QuizzesResponse | undefined
+    InstructorQuizzesResponse | undefined
   >();
   const locationData = location.pathname.split("/");
   const courseId = locationData[locationData.length - 2];
@@ -48,10 +49,11 @@ const Tests = () => {
   // const handleCloseGenerateReportModal = () =>
   //   setOpenGenerateReportModal(false);
   const [openFileSuccessModal, setOpenFileSuccessModal] = useState(false);
+
   const { data: participants, isLoading: isFetchingParticipants } =
     useGetCourseParticipantsQuery({ course_id: parseInt(courseId) });
 
-  const { data: quizzes, isLoading } = useGetQuizzesQuery(null);
+  const { data: quizzes , isLoading } = useGetQuizzesQuery(null);
   const { data: courses, isLoading: isGettingCourses } =
     useGetInstructorCoursesQuery(null);
 
@@ -64,7 +66,10 @@ const Tests = () => {
     }
   };
 
-  const handleOpenActionsModal = (course: QuizzesResponse, type: string) => {
+  const handleOpenActionsModal = (
+    course: InstructorQuizzesResponse,
+    type: string
+  ) => {
     setSelectedTests(course);
     setOpenActionsModal((prev) => ({ ...prev, [type]: true }));
   };
@@ -74,7 +79,7 @@ const Tests = () => {
     setOpenActionsModal((prev) => ({ ...prev, [type]: false }));
   };
 
-  const handleEditActionsModal = async (note: QuizzesResponse) => {
+  const handleEditActionsModal = async (note: InstructorQuizzesResponse) => {
     console.log(note);
     handleCloseActionsModal("edit");
     handleOpenActionsModal(note, "success");
@@ -148,13 +153,13 @@ const Tests = () => {
         />
       </FormModal> */}
 
-      {isLoading || (isFetchingParticipants && <LinearProgress />)}
       <CreateTestModal
         open={openCreateTestModal}
         handleClose={handleCloseCreateTestModal}
         courses={courses?.data}
         participants={participants?.data ?? []}
       />
+      {(isLoading || isFetchingParticipants) && <LinearProgress />}
 
       <CustomSuccessModal
         message="Your document has been added successfully"
@@ -210,7 +215,7 @@ const Tests = () => {
           close={() => handleCloseActionsModal("delete")}
           infoText="The students enrolled in this test will get notified."
           open={openActionsModal.delete}
-          subTitle={`Are you sure you want to delete Test <strong>"${selectedTests?.name}"</strong>? You can't undo this action.`}
+          subTitle={`Are you sure you want to delete Test "${selectedTests?.name}"? You can't undo this action.`}
           title="Delete Test?"
         />
         <Backdrop open={isDeleting}>

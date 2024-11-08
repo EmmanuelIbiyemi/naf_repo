@@ -4,26 +4,22 @@ import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
 import TableRow from "@mui/material/TableRow";
-import {
-  Box,
-  // Checkbox,
-  IconButton,
-  Menu,
-  MenuItem,
-  Typography,
-} from "@mui/material";
+import { Box, IconButton, Menu, MenuItem, Typography } from "@mui/material";
 import { Delete, Edit, MoreVert } from "@mui/icons-material";
 import CustomPagination from "../../../components/CustomPagination";
 import { useNavigate } from "react-router-dom";
-import { QuizzesResponse } from "../../../types/quizzes";
+import { InstructorQuizzesResponse } from "../../../types/quizzes";
 
 type ListProps = {
-  lists: QuizzesResponse[];
+  lists: InstructorQuizzesResponse[];
   menu?: boolean;
   deleteIcon?: boolean;
   edit?: boolean;
-  handleOpenActionsModal: (list: QuizzesResponse, type: string) => void;
-  handleEditActionsModal: (list: QuizzesResponse) => void;
+  handleOpenActionsModal: (
+    list: InstructorQuizzesResponse,
+    type: string
+  ) => void;
+  handleEditActionsModal: (list: InstructorQuizzesResponse) => void;
 };
 
 const ITEMS_PER_PAGE = 10;
@@ -40,9 +36,11 @@ const QuizzesItemsList = ({
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
   const navigate = useNavigate();
+
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
   };
+
   const handleClose = () => {
     setAnchorEl(null);
   };
@@ -54,6 +52,12 @@ const QuizzesItemsList = ({
     setCurrentPage(newPage);
   };
 
+  const handleNavigateToTest = (test: InstructorQuizzesResponse) => {
+    navigate(`${test.id}`, {
+      state: { selectedTest: test },
+    });
+  };
+
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
   const endIndex = Math.min(startIndex + ITEMS_PER_PAGE, lists.length);
   const displayedList = lists.slice(startIndex, endIndex);
@@ -61,43 +65,22 @@ const QuizzesItemsList = ({
   return (
     <Box>
       <TableContainer>
-        {/* ADD
-      <FormModal open={openModal.edit} close={() => handleCloseModal("edit")}>
-        <CourseForm
-          actions={{
-            submit: handleEditCourse as CourseFormAction,
-            cancel: () => handleCloseModal("edit"),
-          }}
-          course={selectedCourse}
-        />
-      </FormModal> */}
-
         <Table sx={{ minWidth: 650 }}>
           <TableBody>
-            {displayedList.map((list) => (
+            {displayedList.reverse().map((list) => (
               <TableRow
                 key={list.id}
                 sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
               >
-                <TableCell
-                  component="th"
-                  scope="row"
-                  // sx={{ alignItems: "center", display: "flex", gap: "1rem" }}
-                >
-                  {/* <Checkbox /> */}
+                <TableCell component="th" scope="row">
                   <Box
-                    onClick={() => navigate(`${list.id}`, { state: { lists } })}
+                    onClick={() => handleNavigateToTest(list)}
                     sx={{ cursor: "pointer" }}
                   >
                     <Typography variant="body2" sx={{ color: "#474747" }}>
                       {list.name}
                     </Typography>
                   </Box>
-                  {/* <Link
-                    to={`${list.id}`}
-                    style={{ textTransform: "capitalize" }}
-                  >
-                  </Link> */}
                 </TableCell>
                 <TableCell align="right">
                   {edit && (
@@ -114,7 +97,6 @@ const QuizzesItemsList = ({
                   )}
                   {menu && (
                     <IconButton
-                      // onClick={() => handleOpenActionsModal(list, "delete")}
                       aria-controls={open ? "basic-menu" : undefined}
                       aria-haspopup="true"
                       aria-expanded={open ? "true" : undefined}

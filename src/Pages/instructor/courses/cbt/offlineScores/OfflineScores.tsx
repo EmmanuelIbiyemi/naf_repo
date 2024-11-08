@@ -15,6 +15,7 @@ import AddRecordModal from "./AddRecordModal";
 import AddScoresModal from "./AddScoresModal";
 import { recordResponse } from "../../../../../types/records";
 import { useGetCourseParticipantsQuery } from "../../../../../store/api/participants.api";
+import UpdateRecordModal from "./UpdateRecordModal";
 
 const OfflineScores = () => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -22,11 +23,15 @@ const OfflineScores = () => {
   const [selectedRecord, setSelectedRecord] =
     React.useState<recordResponse | null>(null);
   const [openAddModal, setOpenAddModal] = React.useState(false);
+  const [openRecordModal, setOpenRecordModal] = React.useState(false);
   const [openScoresModal, setOpenScoresModal] = React.useState(false);
   const { data: courses, isLoading } = useGetInstructorCoursesQuery(null);
 
   const handleClose = () => setOpenAddModal(false);
   const handleOpen = () => setOpenAddModal(true);
+
+  const handleCloseRecordModal = () => setOpenRecordModal(false);
+  const handleOpenRecordModal = () => setOpenRecordModal(true);
 
   const handleCloseScoresModal = () => {
     setOpenScoresModal(false);
@@ -69,7 +74,7 @@ const OfflineScores = () => {
 
   return (
     <Box ref={containerRef} className="content-container">
-      {isFetchingRecords || (isFetchingParticipants && <LinearProgress />)}
+      {(isFetchingRecords || isFetchingParticipants) && <LinearProgress />}
       <Box
         sx={{
           bgcolor: "#fff",
@@ -153,18 +158,32 @@ const OfflineScores = () => {
             >
               Add New Record
             </Button>
+            <Button
+              // sx={{}}
+              onClick={handleOpenRecordModal}
+              variant="contained"
+              disabled={isLoading || !selectedCourse}
+            >
+              Update Record
+            </Button>
           </Box>
         </Box>
         <Box sx={{ margin: "2em 0" }}>
           <RecordsItemsList
             lists={records?.data || []}
             handleButtonClick={handleOpenScoresModal}
+            refetch={refetch}
           />
         </Box>
         <AddRecordModal
           open={openAddModal}
           handleClose={handleClose}
           courseId={parseInt(selectedCourse)}
+        />
+        <UpdateRecordModal
+          open={openRecordModal}
+          handleClose={handleCloseRecordModal}
+          records={records?.data || []}
         />
         <AddScoresModal
           open={openScoresModal}

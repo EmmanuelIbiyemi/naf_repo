@@ -10,4 +10,5 @@ type SemesterBase = {
 export type SemesterType = SemesterBase;
 export type SemesterCreateType = SemesterBase & {};
 
-export type SemestersResponse = { data: SemesterType };
+export type SemesterResponse = { data: SemesterType };
+export type SemestersResponse = { data: SemesterType[] };
