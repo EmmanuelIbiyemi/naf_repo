@@ -121,10 +121,12 @@ const PreviewAnnouncementPage = lazy(
   () => import("./Pages/instructor/announcements/posts/PreviewPost")
 );
 
+
+//Students
+
 const StudentDashboard = lazy(
   () => import("./Pages/student/dashboard/Dashboard")
 );
-const StudentOverview = lazy(() => import("./Pages/student/overview/Overview"));
 const StudentCourses = lazy(
   () => import("./Pages/student/studentCourses/StudentCourses")
 );
@@ -137,7 +139,7 @@ const StudentCourseForm = lazy(
 const StudentEnroll = lazy(
   () => import("./Pages/student/studentCourses/enroll/EnrollCourses")
 );
-
+const StudentOverview = lazy(() => import("./Pages/student/overview/Overview"));
 const StudentTest = lazy(() => import("./Pages/student/courseCBT/CBT"));
 const StudentCBT = lazy(() => import("./Pages/student/courseCBT/CourseCBT"));
 const CBTResult = lazy(() => import("./Pages/student/courseCBT/CBT-result"));
@@ -145,9 +147,7 @@ const StudentNote = lazy(() => import("./Pages/student/notes/Notes"));
 const StudentResults = lazy(() => import("./Pages/student/results/Results"));
 const StudentClass = lazy(() => import("./Pages/student/classes/LiveClasses"));
 const StudentSettings = lazy(() => import("./Pages/student/settings/Settings"));
-const PreviewAnnouncementPage = lazy(
-  () => import("./Pages/instructor/announcements/posts/PreviewPost")
-);
+
 
 export const router = createBrowserRouter([
   {
