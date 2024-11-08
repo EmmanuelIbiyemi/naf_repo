@@ -22,7 +22,6 @@ function App() {
   const lastVisitedPage = useAppSelector(selectLastVisitedPage);
   const isBuilderLoading = useAppSelector(selectBuilderLoading);
   const isPageLoading = useAppSelector(selectPageLoading);
-  const [isInitialized, setIsInitialized] = useState(false);
   const location = useLocation();
 
   // Handle initial auth check and local storage restoration
@@ -31,7 +30,6 @@ function App() {
       if (!user) {
         await dispatch(setUserFromLocalStorage());
       }
-      setIsInitialized(true);
     };
 
     initializeAuth();
