@@ -3,34 +3,9 @@ import { useAppSelector } from "../store/hooks";
 import { selectCurrentUser } from "../store/auth.slice";
 import App from "../App";
 
-const PrivateRoute = () => {
-  const user = useAppSelector(selectCurrentUser);
-  const location = useLocation();
-
-  if (!user) {
-    // Redirect to login if user is not authenticated
-    return <Navigate to="/login" replace />;
-  }
-
-  // Check if user's role is in the allowedRoles
-  if (
-    allowedRoutes[user.role as keyof typeof allowedRoutes].includes(
-      location.pathname
-    )
-  ) {
-    return <App />; // Render the child routes if user is authorized
-  }
-
-  // Redirect to an login page if user does not have permission
-  return <Navigate to="/login" replace />;
-};
-
-export default PrivateRoute;
-
-// Define allowed routes based on user roles
 const allowedRoutes = {
   admin: [
-    "/", // Dashboard
+    "/",
     "/courses",
     "/instructors",
     "/applications",
@@ -39,29 +14,29 @@ const allowedRoutes = {
     "/applicants",
     "/cbt",
     "/cbt/:subject_id",
-    "/academics", // Includes nested routes for admin academics
+    "/academics",
     "/academics/:faculty_id",
     "/academics/:faculty_id/:department_id",
     "/academics/:faculty_id/:department_id/:program_id",
     "/academics/:faculty_id/:department_id/:program_id/:level_id",
-    "/users", // Includes nested routes for admin users
+    "/users",
     "/users/lecturers",
     "/users/students",
     "/users/page/:name",
-    "/fees", // Includes nested routes for fees
+    "/fees",
     "/fees/discount",
     "/fees/page/:name",
-    "/grading", // Includes nested routes for grading
+    "/grading",
     "/grading/scores",
     "/grading/page/:name",
     "/grading/results",
-    "/settings", // Includes nested routes for settings
+    "/settings",
     "/settings/posttype/:resource_type",
     "/settings/posttype/:resource_type/:post_id",
     "/settings/posttype/:resource_type/add",
   ],
   instructor: [
-    "/instructor", // Dashboard
+    "/instructor",
     "/instructor/settings",
     "/instructor/courses",
     "/instructor/courses/:id",
@@ -95,3 +70,30 @@ const allowedRoutes = {
     "/student/settings",
   ],
 };
+
+const pathMatches = (pathPattern: string, currentPath: string): boolean => {
+  // Convert pathPattern with ":params" into a regex
+  const regexPattern = new RegExp(`^${pathPattern.replace(/:\w+/g, "\\w+")}$`);
+  return regexPattern.test(currentPath);
+};
+
+const PrivateRoute = () => {
+  const user = useAppSelector(selectCurrentUser);
+  const location = useLocation();
+
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
+
+  const userAllowedRoutes =
+    allowedRoutes[user.role as keyof typeof allowedRoutes] || [];
+
+  // Check if the current path matches any allowed route, accounting for parameters
+  const isAllowed = userAllowedRoutes.some((allowedRoute) =>
+    pathMatches(allowedRoute, location.pathname)
+  );
+
+  return isAllowed ? <App /> : <Navigate to="/unauthorized" replace />;
+};
+
+export default PrivateRoute;
