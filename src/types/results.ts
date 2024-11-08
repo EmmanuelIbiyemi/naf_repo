@@ -60,50 +60,6 @@ export interface StudentResultResponse {
   message: string;
   status: string;
 }
-
-
-export interface ResultCreateType {
-  participant_id: number;
-  session: string;
-  semester: string;
-  department_id: number;
-  level_id: number;
-  details: {
-    course_code: string;
-    course_credit_unit: number;
-    total_obtainable_score: number;
-    total_obtained_score: number;
-  }[];
-}
-
-export interface ResultResponse {
-  data: {
-    id: number;
-    created_at: string;
-    updated_at: string;
-    participant_id: number;
-    session: string;
-    semester: string;
-    department: {
-      id: number;
-      name: string;
-    };
-    level: {
-      id: number;
-      name: string;
-    };
-    summary: {
-      total_credit_units: number;
-      total_grade_points: number;
-      grade_point_average: number;
-      cumulative_grade_point_average: number;
-    };
-  };
-  message: string;
-  status: string;
-}
-
-
 export interface ResultTaskResponse {
   task_id: string;
   status: "pending" | "in_progress" | "completed" | "failed";
