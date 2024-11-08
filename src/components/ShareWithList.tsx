@@ -101,7 +101,7 @@ const ShareWithList = ({
       formik.resetForm();
       setSearchTerm("");
     }
-  }, [open, formik]);
+  }, [open]);
 
   useEffect(() => {
     if (!open) {

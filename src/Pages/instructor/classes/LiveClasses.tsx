@@ -10,7 +10,7 @@ import {
   Tab,
 } from "@mui/material";
 import EmptyState from "../../../components/EmptyState";
-import { SyntheticEvent, useRef, useState } from "react";
+import { SyntheticEvent, useEffect, useRef, useState } from "react";
 import { useAppDispatch } from "../../../store/hooks";
 import { setPageName } from "../../../store/app.slice";
 import InstructorPageHeader from "../../../components/layout/InstructorPageHeader";
@@ -55,7 +55,9 @@ const LiveClasses = () => {
   );
 
   const dispatch = useAppDispatch();
-  dispatch(setPageName("Live Classes"));
+  useEffect(() => {
+    dispatch(setPageName("Live Classes"));
+  }, []);
 
   const [tab, setTab] = useState("1");
   const handleChange = (_: SyntheticEvent, newValue: string) => {

@@ -1,7 +1,7 @@
-import { Box, Button, Typography } from "@mui/material";
-import { useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
+import { Box, Button, LinearProgress, Typography } from "@mui/material";
 import { AccessTime, CalendarToday } from "@mui/icons-material";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { QuizzesResponse } from "../../../../types/quizzes";
 import TestParticipantsList from "./TestParticipantsList";
 
@@ -9,11 +9,44 @@ const Students = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
   const location = useLocation();
-  const selectedTest = location.state?.selectedTest as
-    | QuizzesResponse
-    | undefined;
+  const { id } = useParams(); // Get the quiz ID from URL params
+  const [quizData, setQuizData] = useState<QuizzesResponse | null>(null);
 
-  console.log(selectedTest);
+  useEffect(() => {
+    const stateData = location.state?.selectedTest as QuizzesResponse;
+
+    if (stateData) {
+      setQuizData(stateData);
+      sessionStorage.setItem(`quiz-${stateData.id}`, JSON.stringify(stateData));
+    } else {
+      // If no location state, try to get from sessionStorage
+      const storedData = sessionStorage.getItem(`quiz-${id}`);
+      if (storedData) {
+        setQuizData(JSON.parse(storedData));
+      } else {
+        // If no stored data, you might want to fetch it from your API
+        // fetchQuizData(id);
+        console.log("No quiz data available");
+      }
+    }
+  }, [location.state, id]);
+
+  // Optional: Cleanup sessionStorage when component unmounts
+  useEffect(() => {
+    return () => {
+      if (quizData) {
+        sessionStorage.removeItem(`quiz-${quizData.id}`);
+      }
+    };
+  }, []);
+
+  if (!quizData) {
+    return (
+      <Box sx={{ p: 3 }}>
+        <LinearProgress />
+      </Box>
+    );
+  }
 
   return (
     <Box ref={containerRef} className="content-container">
@@ -54,7 +87,7 @@ const Students = () => {
                 fontWeight: 300,
               }}
             >
-              List of students that submitted the test "{selectedTest?.name}"
+              List of students that submitted the test "{quizData.name}"
             </Typography>
             <Box
               sx={{
@@ -78,7 +111,7 @@ const Students = () => {
                   variant="body2"
                   sx={{ color: "#989898", fontSize: ".9rem" }}
                 >
-                  {selectedTest?.start_date.split("T")[0]}
+                  {quizData.start_date.split("T")[0]}
                 </Typography>
               </Box>
               <Box
@@ -95,7 +128,7 @@ const Students = () => {
                   variant="body2"
                   sx={{ color: "#989898", fontSize: ".9rem" }}
                 >
-                  {selectedTest?.expiry_date.split("T")[0]}
+                  {quizData.expiry_date.split("T")[0]}
                 </Typography>
               </Box>
             </Box>
@@ -110,9 +143,7 @@ const Students = () => {
           </Box>
         </Box>
         <Box sx={{ margin: "2em 0" }}>
-          <TestParticipantsList
-            participants={selectedTest?.participants || []}
-          />
+          <TestParticipantsList participants={quizData.participants || []} />
         </Box>
       </Box>
     </Box>

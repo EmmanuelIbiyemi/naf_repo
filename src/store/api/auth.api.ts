@@ -71,7 +71,14 @@ export const authApiSlice = createApi({
         body: { ...values },
       }),
     }),
+    resetPassword: builder.mutation<{ message: string }, { password: string }>({
+      query: (values) => ({
+        url: "/user/reset-password",
+        method: "PATCH",
+        body: { ...values },
+      }),
+    }),
   }),
 });
 
-export const { useLoginMutation } = authApiSlice;
+export const { useLoginMutation, useResetPasswordMutation } = authApiSlice;

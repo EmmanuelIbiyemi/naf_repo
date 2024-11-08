@@ -217,7 +217,7 @@ const Tests = () => {
           close={() => handleCloseActionsModal("delete")}
           infoText="The students enrolled in this test will get notified."
           open={openActionsModal.delete}
-          subTitle={`Are you sure you want to delete Test <strong>"${selectedTests?.name}"</strong>? You can't undo this action.`}
+          subTitle={`Are you sure you want to delete Test "${selectedTests?.name}"? You can't undo this action.`}
           title="Delete Test?"
         />
         <Backdrop open={isDeleting}>

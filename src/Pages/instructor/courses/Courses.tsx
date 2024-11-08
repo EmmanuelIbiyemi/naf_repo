@@ -1,5 +1,5 @@
 import { Box, Grid2, LinearProgress, Typography } from "@mui/material";
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import { useAppDispatch } from "../../../store/hooks";
 import { setPageName } from "../../../store/app.slice";
 import CoursesCard from "./CoursesCard";
@@ -11,7 +11,9 @@ const Courses = () => {
 
   // set page name
   const dispatch = useAppDispatch();
-  dispatch(setPageName("Courses"));
+  useEffect(() => {
+    dispatch(setPageName("Courses"));
+  }, [dispatch]);
 
   return (
     <Box ref={containerRef} className="content-container">

@@ -16,7 +16,7 @@ const PostPage = () => {
   const dispatch = useAppDispatch();
   useEffect(() => {
     dispatch(setPageName("Posts"));
-  }, []);
+  }, [dispatch]);
 
   const navigate = useNavigate();
   const forms = useAppSelector(selectAnnouncement);

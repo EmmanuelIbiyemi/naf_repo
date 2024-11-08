@@ -24,6 +24,7 @@ import {
   useUpdateInstructorInfoMutation,
 } from "../../../store/api/settings.api";
 import { useAddMediaMutation } from "../../../store/api/media.api";
+import { useResetPasswordMutation } from "../../../store/api/auth.api";
 
 const UserDetailsForm = () => {
   const user = useAppSelector(selectCurrentUser);
@@ -227,6 +228,7 @@ const PasswordForm = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [resetPassword, { isLoading }] = useResetPasswordMutation();
 
   const handlePasswordVisibility = (field: unknown) => {
     switch (field) {
@@ -251,13 +253,31 @@ const PasswordForm = () => {
       confirm_new_password: "",
     },
     validationSchema: yup.object({
-      current_password: yup.string().required("Required"),
-      new_password: yup.string().required("Required"),
-      confirm_new_password: yup.number().required("Required"),
+      // current_password: yup.string().required("Required"),
+      new_password: yup
+        .string()
+        .required("New password is required")
+        .test(
+          "passwords-match",
+          "Passwords must match",
+          (value, context) => value === context.parent.confirm_new_password
+        ),
+      confirm_new_password: yup
+        .string()
+        .required("Confirm password is required")
+        .test(
+          "passwords-match",
+          "Passwords must match",
+          (value, context) => value === context.parent.new_password
+        ),
     }),
-    onSubmit: (values) => {
-      console.log("Password form data:", values);
-      // Make API call for password change
+    onSubmit: async (values) => {
+      console.log("Password form data:", values.new_password);
+      try {
+        await resetPassword({ password: values.new_password }).unwrap();
+      } catch (error) {
+        console.error(error);
+      }
     },
   });
 
@@ -337,8 +357,9 @@ const PasswordForm = () => {
           color="primary"
           type="submit"
           sx={{ alignSelf: "flex-start" }}
+          disabled={isLoading}
         >
-          Change Password
+          {isLoading ? "Changing" : "Change Password"}
         </Button>
       </Box>
     </form>

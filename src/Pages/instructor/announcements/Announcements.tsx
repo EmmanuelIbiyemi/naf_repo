@@ -11,7 +11,7 @@ const Announcements = () => {
   const dispatch = useAppDispatch();
   useEffect(() => {
     dispatch(setPageName("Announcement"));
-  }, []);
+  }, [dispatch]);
 
   const navigate = useNavigate();
   const forms = useAppSelector(selectAnnouncement);

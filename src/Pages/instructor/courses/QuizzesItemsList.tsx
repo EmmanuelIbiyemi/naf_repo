@@ -8,7 +8,6 @@ import { Box, IconButton, Menu, MenuItem, Typography } from "@mui/material";
 import { Delete, Edit, MoreVert } from "@mui/icons-material";
 import CustomPagination from "../../../components/CustomPagination";
 import { useNavigate } from "react-router-dom";
-import { useNavigate } from "react-router-dom";
 import { QuizzesResponse } from "../../../types/quizzes";
 
 type ListProps = {
@@ -52,7 +51,7 @@ const QuizzesItemsList = ({
 
   const handleNavigateToTest = (test: QuizzesResponse) => {
     navigate(`${test.id}`, {
-      state: { selectedTest: test }, // Pass only the selected test
+      state: { selectedTest: test },
     });
   };
 
@@ -65,7 +64,7 @@ const QuizzesItemsList = ({
       <TableContainer>
         <Table sx={{ minWidth: 650 }}>
           <TableBody>
-            {displayedList.map((list) => (
+            {displayedList.reverse().map((list) => (
               <TableRow
                 key={list.id}
                 sx={{ "&:last-child td, &:last-child th": { border: 0 } }}

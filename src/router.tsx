@@ -142,9 +142,9 @@ const StudentCBT = lazy(() => import("./Pages/student/courseCBT/CourseCBT"));
 const StudentResults = lazy(() => import("./Pages/student/results/Results"));
 const StudentClass = lazy(() => import("./Pages/student/classes/LiveClasses"));
 const StudentSettings = lazy(() => import("./Pages/student/settings/Settings"));
-const PreviewAnnouncementPage = lazy(
-  () => import("./Pages/instructor/announcements/posts/PreviewPost")
-);
+// const PreviewAnnouncementPage = lazy(
+//   () => import("./Pages/instructor/announcements/posts/PreviewPost")
+// );
 
 export const router = createBrowserRouter([
   {

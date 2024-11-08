@@ -1,18 +1,21 @@
 import { Box, Button, SxProps } from "@mui/material";
 import { DndContext, DragEndEvent, DragOverlay } from "@dnd-kit/core";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useAppDispatch, useAppSelector } from "../../../../store/hooks";
 import { setPageName } from "../../../../store/app.slice";
 import { selectCurrentAnnouncement } from "../../../../store/announcement.slice";
 import { PostType } from "../../../../types/posts";
 import ElementsSideBar from "../../../admin/application/components/ElementsSideBar";
 import PropertiesSideBar from "./PropertiesSideBar";
-import PostContentArea from "../../../admin/application copy/components/PostContentArea";
+import PostContentArea from "./PostContentArea";
+// import PostContentArea from "../../../admin/application copy/components/PostContentArea";
 const AddPostPage = () => {
   // set page name
   const dispatch = useAppDispatch();
   const selectedPost = useAppSelector(selectCurrentAnnouncement);
-  dispatch(setPageName("Posts"));
+  useEffect(() => {
+    dispatch(setPageName("Posts"));
+  }, [dispatch]);
 
   // Use global post
   const [post, setForm] = useState<PostType>({

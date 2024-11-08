@@ -12,7 +12,7 @@ import {
   MenuItem,
   Typography,
 } from "@mui/material";
-import { Delete, Edit, MoreVert } from "@mui/icons-material";
+import { Delete, MoreVert, Visibility } from "@mui/icons-material";
 import CustomPagination from "../../../components/CustomPagination";
 import { note } from "../../../types/notes";
 
@@ -100,7 +100,7 @@ const CoursesItemList = ({
                 <TableCell align="right">
                   {edit && (
                     <IconButton onClick={() => handleEditActionsModal(list)}>
-                      <Edit />
+                      <Visibility />
                     </IconButton>
                   )}
                   {deleteIcon && (
