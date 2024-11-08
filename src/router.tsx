@@ -121,27 +121,27 @@ const PreviewAnnouncementPage = lazy(
   () => import("./Pages/instructor/announcements/posts/PreviewPost")
 );
 
-const StudentDashboard = lazy(
-  () => import("./Pages/student/dashboard/Dashboard")
-);
-const StudentOverview = lazy(() => import("./Pages/student/overview/Overview"));
-const StudentCourses = lazy(
-  () => import("./Pages/student/studentCourses/StudentCourses")
-);
-const StudentExamCard = lazy(
-  () => import("./Pages/student/studentCourses/examCard/ExamCard")
-);
-const StudentCourseForm = lazy(
-  () => import("./Pages/student/studentCourses/courseForm/CourseForm")
-);
-const StudentEnroll = lazy(
-  () => import("./Pages/student/studentCourses/enroll/EnrollCourses")
-);
+// const StudentDashboard = lazy(
+//   () => import("./Pages/student/dashboard/Dashboard")
+// );
+// const StudentOverview = lazy(() => import("./Pages/student/overview/Overview"));
+// const StudentCourses = lazy(
+//   () => import("./Pages/student/studentCourses/StudentCourses")
+// );
+// const StudentExamCard = lazy(
+//   () => import("./Pages/student/studentCourses/examCard/ExamCard")
+// );
+// const StudentCourseForm = lazy(
+//   () => import("./Pages/student/studentCourses/courseForm/CourseForm")
+// );
+// const StudentEnroll = lazy(
+//   () => import("./Pages/student/studentCourses/enroll/EnrollCourses")
+// );
 
-const StudentCBT = lazy(() => import("./Pages/student/courseCBT/CourseCBT"));
-const StudentResults = lazy(() => import("./Pages/student/results/Results"));
-const StudentClass = lazy(() => import("./Pages/student/classes/LiveClasses"));
-const StudentSettings = lazy(() => import("./Pages/student/settings/Settings"));
+// const StudentCBT = lazy(() => import("./Pages/student/courseCBT/CourseCBT"));
+// const StudentResults = lazy(() => import("./Pages/student/results/Results"));
+// const StudentClass = lazy(() => import("./Pages/student/classes/LiveClasses"));
+// const StudentSettings = lazy(() => import("./Pages/student/settings/Settings"));
 // const PreviewAnnouncementPage = lazy(
 //   () => import("./Pages/instructor/announcements/posts/PreviewPost")
 // );
@@ -283,22 +283,22 @@ export const router = createBrowserRouter([
     ],
   },
 
-  {
-    path: "/student",
-    element: <App />,
-    children: [
-      { path: "dashboard", element: <StudentDashboard /> },
-      { path: "overview", element: <StudentOverview /> },
-      { path: "courses", element: <StudentCourses /> },
-      { path: "courses/exam-card", element: <StudentExamCard /> },
-      { path: "courses/course-form", element: <StudentCourseForm /> },
-      { path: "courses/add-course", element: <StudentEnroll /> },
-      { path: "courses/:id/notes", element: <StudentEnroll /> },
-      { path: "courses/:id/cbt", element: <StudentEnroll /> },
-      { path: "cbt", element: <StudentCBT /> },
-      { path: "results", element: <StudentResults /> },
-      { path: "live-class", element: <StudentClass /> },
-      { path: "settings", element: <StudentSettings /> },
-    ],
-  },
+  // {
+  //   path: "/student",
+  //   element: <App />,
+  //   children: [
+  //     { path: "dashboard", element: <StudentDashboard /> },
+  //     { path: "overview", element: <StudentOverview /> },
+  //     { path: "courses", element: <StudentCourses /> },
+  //     { path: "courses/exam-card", element: <StudentExamCard /> },
+  //     { path: "courses/course-form", element: <StudentCourseForm /> },
+  //     { path: "courses/add-course", element: <StudentEnroll /> },
+  //     { path: "courses/:id/notes", element: <StudentEnroll /> },
+  //     { path: "courses/:id/cbt", element: <StudentEnroll /> },
+  //     { path: "cbt", element: <StudentCBT /> },
+  //     { path: "results", element: <StudentResults /> },
+  //     { path: "live-class", element: <StudentClass /> },
+  //     { path: "settings", element: <StudentSettings /> },
+  //   ],
+  // },
 ]);
