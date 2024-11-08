@@ -113,33 +113,33 @@ const InstructorOfflineScoresPage = lazy(
 );
 const SettingsPage = lazy(() => import("./Pages/instructor/settings/Settings"));
 
-const StudentDashboard = lazy(
-  () => import("./Pages/student/dashboard/Dashboard")
-);
-const StudentOverview = lazy(() => import("./Pages/student/overview/Overview"));
-const StudentCourses = lazy(
-  () => import("./Pages/student/studentCourses/StudentCourses")
-);
-const StudentExamCard = lazy(
-  () => import("./Pages/student/studentCourses/examCard/ExamCard")
-);
-const StudentCourseForm = lazy(
-  () => import("./Pages/student/studentCourses/courseForm/CourseForm")
-);
-const StudentEnroll = lazy(
-  () => import("./Pages/student/studentCourses/enroll/EnrollCourses")
-);
-const StudentCourseDetails = lazy(
-  () => import("./Pages/student/studentCourses/courseDetails/CourseDetails")
-);
-const StudentCourseNote = lazy(
-  () => import("./Pages/student/studentCourses/courseDetails/Notes/Notes")
-);
-const StudentCourseSchedule = lazy(
-  () => import("./Pages/student/studentCourses/courseDetails/Schedule/Schedule")
-);
-const StudentReports = lazy(() => import("./Pages/student/reports/Reports"));
-const StudentSettings = lazy(() => import("./Pages/student/settings/Settings"));
+// const StudentDashboard = lazy(
+//   () => import("./Pages/student/dashboard/Dashboard")
+// );
+// const StudentOverview = lazy(() => import("./Pages/student/overview/Overview"));
+// const StudentCourses = lazy(
+//   () => import("./Pages/student/studentCourses/StudentCourses")
+// );
+// const StudentExamCard = lazy(
+//   () => import("./Pages/student/studentCourses/examCard/ExamCard")
+// );
+// const StudentCourseForm = lazy(
+//   () => import("./Pages/student/studentCourses/courseForm/CourseForm")
+// );
+// const StudentEnroll = lazy(
+//   () => import("./Pages/student/studentCourses/enroll/EnrollCourses")
+// );
+// const StudentCourseDetails = lazy(
+//   () => import("./Pages/student/studentCourses/courseDetails/CourseDetails")
+// );
+// const StudentCourseNote = lazy(
+//   () => import("./Pages/student/studentCourses/courseDetails/Notes/Notes")
+// );
+// const StudentCourseSchedule = lazy(
+//   () => import("./Pages/student/studentCourses/courseDetails/Schedule/Schedule")
+// );
+// const StudentReports = lazy(() => import("./Pages/student/reports/Reports"));
+// const StudentSettings = lazy(() => import("./Pages/student/settings/Settings"));
 const PreviewAnnouncementPage = lazy(
   () => import("./Pages/instructor/announcements/posts/PreviewPost")
 );
@@ -277,27 +277,27 @@ export const router = createBrowserRouter([
     ],
   },
 
-  {
-    path: "/student",
-    element: <PrivateRoute />,
-    children: [
-      { path: "dashboard", element: <StudentDashboard /> },
-      { path: "overview", element: <StudentOverview /> },
-      { path: "courses", element: <StudentCourses /> },
-      { path: "courses/exam-card", element: <StudentExamCard /> },
-      { path: "courses/course-form", element: <StudentCourseForm /> },
-      { path: "courses/add-course", element: <StudentEnroll /> },
-      {
-        path: "courses/details",
-        element: <StudentCourseDetails />,
-        children: [
-          { path: "notes", element: <StudentCourseNote /> },
-          { path: "schedule", element: <StudentCourseSchedule /> },
-        ],
-      },
-      { path: "reports", element: <StudentReports /> },
-      { path: "live-class", element: <CoursesPage /> },
-      { path: "settings", element: <StudentSettings /> },
-    ],
-  },
+  // {
+  //   path: "/student",
+  //   element: <PrivateRoute />,
+  //   children: [
+  //     { path: "dashboard", element: <StudentDashboard /> },
+  //     { path: "overview", element: <StudentOverview /> },
+  //     { path: "courses", element: <StudentCourses /> },
+  //     { path: "courses/exam-card", element: <StudentExamCard /> },
+  //     { path: "courses/course-form", element: <StudentCourseForm /> },
+  //     { path: "courses/add-course", element: <StudentEnroll /> },
+  //     {
+  //       path: "courses/details",
+  //       element: <StudentCourseDetails />,
+  //       children: [
+  //         { path: "notes", element: <StudentCourseNote /> },
+  //         { path: "schedule", element: <StudentCourseSchedule /> },
+  //       ],
+  //     },
+  //     { path: "reports", element: <StudentReports /> },
+  //     { path: "live-class", element: <CoursesPage /> },
+  //     { path: "settings", element: <StudentSettings /> },
+  //   ],
+  // },
 ]);
