@@ -9,6 +9,8 @@ export type note = {
   title: string;
   updated_at: string;
 };
+export type NoteResponse = { data: note[] };
+
 
 export type noteInput = {
   title: string;

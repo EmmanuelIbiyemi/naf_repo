@@ -1,16 +1,26 @@
+import { CourseBaseType } from "./courses";
+
 interface Participants {
   id: number;
 }
 
 export type ParticipantData = {
+  id?: number;
   address: string;
-  courses: string[];
+  courses: CourseBaseType[];
   created_at: string;
   email: string;
   first_name: string;
-  id: number;
   last_name: string;
-  level: string;
+  level: {
+    name: string;
+    program: {
+      name: string;
+      department: {
+        name: string;
+      };
+    };
+  };
   matric_number: string;
   phone: string;
   photo: string;

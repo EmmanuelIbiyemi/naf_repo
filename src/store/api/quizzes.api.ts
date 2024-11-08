@@ -7,10 +7,43 @@ import {
   QuizUserResultResponse,
   QuizzesResponse,
   shareQuizInput,
+  QuizResultResponse,
+  QuizResponse,
 } from "../../types/quizzes";
 import { appApi } from "./app.api";
 
-// Add these new types for the new endpoints
+// Single quiz submission types
+interface SingleQuizSubmissionRequest {
+  quiz_id: number;
+  option_id: number;
+  time_left: number; // float value for remaining time
+}
+
+interface SingleQuizSubmissionResponse {
+  data: {
+    result: Array<{
+      assessment_id: number;
+      created_at: string;
+      right: number;
+      wrong: number;
+    }>;
+  };
+}
+
+// Bulk quiz submission types
+interface QuizSubmissionResponse {
+  data: {
+    result: Array<{
+      assessment_id: number;
+      created_at: string;
+      right: number;
+      wrong: number;
+    }>;
+  };
+  status: string;
+  message: string;
+}
+
 interface SingleQuizResponse {
   data: QuizzesResponse & {
     assessments: Array<{
@@ -37,29 +70,20 @@ interface SingleQuizResponse {
   status: string;
 }
 
-interface QuizResultResponse {
-  data: {
-    // Add your result type here based on your API response
-    score: number;
-    total: number;
-    // ... other result fields
-  };
-  message: string;
-  status: string;
+interface QuizSubmissionRequest {
+  quiz_id: number;
+  option_ids: number[];
+  time_left: number; // float value for remaining time
 }
 
 const quizzesApi = appApi.injectEndpoints({
   endpoints: (builder) => ({
-    // Existing endpoints
     getQuizzes: builder.query<{ data: QuizzesResponse[] }, null>({
       query: () => `/quiz`,
       providesTags: ["Quiz"],
     }),
 
-    getCourseQuizzes: builder.query<
-      { data: QuizzesResponse[] },
-      { course_id: number }
-    >({
+    getCourseQuizzes: builder.query<QuizzesResponse, { course_id: number }>({
       query: ({ course_id }) => ({
         url: `/quiz?course_id=${course_id}`,
       }),
@@ -72,7 +96,7 @@ const quizzesApi = appApi.injectEndpoints({
     }),
 
     getQuizResult: builder.query<QuizResultResponse, number>({
-      query: (quizId) => `/quiz/result/${quizId}`,
+      query: (quizId: number) => `/quiz/result/${quizId}`,
       providesTags: ["Quiz"],
     }),
 
@@ -83,6 +107,31 @@ const quizzesApi = appApi.injectEndpoints({
       query: ({ quizId, userId }) => `/quiz/result/${quizId}/${userId}`,
       providesTags: ["Quiz"],
     }),
+
+    // Single question submission
+    submitSingleQuiz: builder.mutation<
+      SingleQuizSubmissionResponse,
+      SingleQuizSubmissionRequest
+    >({
+      query: (data) => ({
+        url: "/quiz/submit",
+        method: "POST",
+        body: data,
+      }),
+      invalidatesTags: ["Quiz"],
+    }),
+
+    // Multiple questions submission
+    submitQuiz: builder.mutation<QuizSubmissionResponse, QuizSubmissionRequest>(
+      {
+        query: (data) => ({
+          url: "/quiz/submit/all",
+          method: "POST",
+          body: data,
+        }),
+        invalidatesTags: ["Quiz"],
+      }
+    ),
 
     addQuiz: builder.mutation<{ data: QuizzesResponse }, CreateQuiz>({
       query: (values) => ({
@@ -137,10 +186,23 @@ const quizzesApi = appApi.injectEndpoints({
       }),
       invalidatesTags: ["Quiz"],
     }),
+
     deleteQuiz: builder.mutation<{ message: string }, number>({
       query: (quiz_id) => ({
         url: `/quiz/${quiz_id}`,
         method: "DELETE",
+      }),
+      invalidatesTags: ["Quiz"],
+    }),
+
+    unlockQuiz: builder.mutation<
+      QuizResponse,
+      { quiz_code: string; email: string }
+    >({
+      query: (data) => ({
+        url: `/quiz/unlock`,
+        method: "POST",
+        body: data,
       }),
       invalidatesTags: ["Quiz"],
     }),
@@ -153,10 +215,13 @@ export const {
   useGetSingleQuizQuery,
   useGetQuizResultQuery,
   useGetUserQuizResultQuery,
+  useSubmitSingleQuizMutation,
+  useSubmitQuizMutation,
   useAddQuizMutation,
   useCreateAssessmentMutation,
   useCreateQuestionFromFileMutation,
   useCreateQuestionManuallyMutation,
   useShareQuizMutation,
   useDeleteQuizMutation,
+  useUnlockQuizMutation,
 } = quizzesApi;

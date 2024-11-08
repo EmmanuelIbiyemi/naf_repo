@@ -2,7 +2,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import "./App.scss";
 import AdminLayout from "./components/layout/AdminLayout";
 import InstructorLayout from "./components/layout/InstructorLayout";
-import StudentLayout from "./components/layout/StudentLayout"; // Add this import
+import StudentLayout from "./components/layout/StudentLayout";
 import {
   selectCurrentUser,
   selectLastVisitedPage,
@@ -22,40 +22,64 @@ function App() {
   const lastVisitedPage = useAppSelector(selectLastVisitedPage);
   const isBuilderLoading = useAppSelector(selectBuilderLoading);
   const isPageLoading = useAppSelector(selectPageLoading);
+  const [isInitialized, setIsInitialized] = useState(false);
+  const location = useLocation();
 
+  // Handle initial auth check and local storage restoration
+  useEffect(() => {
+    const initializeAuth = async () => {
+      if (!user) {
+        await dispatch(setUserFromLocalStorage());
+      }
+      setIsInitialized(true);
+    };
+
+    initializeAuth();
+  }, [user, dispatch]);
+
+  // Handle routing after authentication state is confirmed
   useEffect(() => {
     const token = localStorage.getItem("access_token");
-    if (!token) navigate("/login");
-    if (!user) dispatch(setUserFromLocalStorage());
+    if (!token) {
+      navigate("/login");
+      return;
+    }
+    if (!user) {
+      dispatch(setUserFromLocalStorage());
+    }
   }, [dispatch, user, navigate]);
 
+  // Handle routing based on user role
   useEffect(() => {
-    if (user && lastVisitedPage) {
-      navigate(lastVisitedPage);
-    } else if (user) {
-      // Default routes based on user role
-      switch (user.role) {
-        case "admin":
-          navigate("/");
-          break;
-        case "instructor":
-          navigate("/instructor");
-          break;
-        case "participant":
-          navigate("/student/dashboard");
-          break;
-        default:
+    if (user) {
+      if (lastVisitedPage) {
+        navigate(lastVisitedPage);
+      } else {
+        // Default routes based on user role
+        const roleRoutes = {
+          participant: "/student/dashboard",
+          admin: "/",
+          instructor: "/instructor/",
+        };
+
+        const defaultRoute = roleRoutes[user.role as keyof typeof roleRoutes];
+        if (defaultRoute) {
+          navigate(defaultRoute);
+        } else {
+          // Invalid role, log out user
+          console.error("Invalid user role detected:", user.role);
           navigate("/login");
+        }
       }
     }
   }, [user, lastVisitedPage, navigate]);
 
-  const location = useLocation();
-
+  // Update last visited page
   useEffect(() => {
     dispatch(setLastVisitedPage(location.pathname));
-  }, [location]);
+  }, [location, dispatch]);
 
+  // Handle layout rendering based on user role
   const renderLayout = () => {
     switch (user?.role) {
       case "admin":
@@ -70,11 +94,7 @@ function App() {
   };
 
   return (
-    <Box
-      sx={{
-        fontFamily: "outfit",
-      }}
-    >
+    <Box sx={{ fontFamily: 'outfit' }}>
       {isPageLoading && (
         <Box
           sx={{

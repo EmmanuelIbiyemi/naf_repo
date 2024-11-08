@@ -8,6 +8,7 @@ export type CourseBaseType = {
   semester: string;
   type: string;
   level_id: number;
+  invigilatorSign?: string;
   instructors?: InstructorType[];
 };
 
@@ -23,6 +24,12 @@ export type CourseCreateType = CourseBaseType & {
 
 export type CoursesResponse = {
   data: CourseType[];
+  pagination: {
+    page: number;
+    pages: number;
+    per_page: number;
+    total: number;
+  };
 };
 
 export type CourseCombinedType = CourseCreateType | CourseType;

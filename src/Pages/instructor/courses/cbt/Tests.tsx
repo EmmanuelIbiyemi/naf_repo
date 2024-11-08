@@ -15,7 +15,7 @@ import QuizzesItemsList from "../QuizzesItemsList";
 import { QuizzesResponse } from "../../../../types/quizzes";
 import {
   useDeleteQuizMutation,
-  useGetCourseQuizzesQuery,
+  useGetQuizzesQuery,
 } from "../../../../store/api/quizzes.api";
 import {
   useGetCourseQuery,
@@ -53,12 +53,7 @@ const Tests = () => {
   const { data: participants, isLoading: isFetchingParticipants } =
     useGetCourseParticipantsQuery({ course_id: parseInt(courseId) });
 
-  const { data: quizzes, isLoading } = useGetCourseQuizzesQuery(
-    {
-      course_id: parseInt(courseId),
-    },
-    { skip: !courseId }
-  );
+  const { data: quizzes, isLoading } = useGetQuizzesQuery(null);
   const { data: courses, isLoading: isGettingCourses } =
     useGetInstructorCoursesQuery(null);
 

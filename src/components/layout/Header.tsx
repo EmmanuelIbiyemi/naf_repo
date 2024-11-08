@@ -16,6 +16,7 @@ import { MouseEvent, useState } from "react";
 const Header = () => {
   const pageName = useAppSelector(selectPageName);
   const user = useAppSelector(selectCurrentUser);
+  
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const [mainPage, subPage] = pageName.split("/");
