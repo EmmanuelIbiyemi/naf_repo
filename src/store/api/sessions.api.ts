@@ -1,4 +1,5 @@
 import {
+  CurrentSessionResponse,
   SessionCreateType,
   SessionsResponse,
   SessionType,
@@ -15,7 +16,7 @@ const sessionsApi = appApi.injectEndpoints({
       query: (session_id) => `/session/${session_id}`,
       providesTags: ["Sessions"],
     }),
-    getCurrentSession: builder.query<SessionsResponse, null>({
+    getCurrentSession: builder.query<CurrentSessionResponse, null>({
       query: () => `/session/current`,
       providesTags: ["Sessions"],
     }),

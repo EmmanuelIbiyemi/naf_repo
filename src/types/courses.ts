@@ -3,11 +3,12 @@ import { InstructorType } from "./instructors";
 export type CourseBaseType = {
   id?: number;
   code: string;
-  credit_unit: number;
+  credit_units: number;
   name: string;
   semester: string;
   type: string;
   level_id: number;
+  invigilatorSign?: string;
   instructors?: InstructorType[];
 };
 

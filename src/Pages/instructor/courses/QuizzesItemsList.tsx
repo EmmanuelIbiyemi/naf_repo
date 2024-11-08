@@ -6,7 +6,7 @@ import TableContainer from "@mui/material/TableContainer";
 import TableRow from "@mui/material/TableRow";
 import {
   Box,
-  Checkbox,
+  // Checkbox,
   IconButton,
   Menu,
   MenuItem,
@@ -82,9 +82,9 @@ const QuizzesItemsList = ({
                 <TableCell
                   component="th"
                   scope="row"
-                  sx={{ alignItems: "center", display: "flex", gap: "1rem" }}
+                  // sx={{ alignItems: "center", display: "flex", gap: "1rem" }}
                 >
-                  <Checkbox />
+                  {/* <Checkbox /> */}
                   <Box
                     onClick={() => navigate(`${list.id}`, { state: { lists } })}
                     sx={{ cursor: "pointer" }}

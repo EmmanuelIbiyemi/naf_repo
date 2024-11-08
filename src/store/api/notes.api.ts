@@ -1,4 +1,4 @@
-import { note, noteInput, shareNoteInput } from "../../types/notes";
+import { note, noteInput, NoteResponse, shareNoteInput, } from "../../types/notes";
 import { appApi } from "./app.api";
 
 const notesApi = appApi.injectEndpoints({
@@ -15,8 +15,8 @@ const notesApi = appApi.injectEndpoints({
       query: (note_id) => `/note/course/${note_id}`,
       providesTags: ["Notes"],
     }),
-    getParticipantCourseNotes: builder.query<note, number>({
-      query: (note_id) => `/note/mine/course/${note_id}`,
+    getParticipantCourseNotes: builder.query<NoteResponse, number>({
+      query: (course_id) => `/note/mine/course/${course_id}`,
       providesTags: ["Notes"],
     }),
     addNote: builder.mutation<{ data: note }, noteInput>({
@@ -41,14 +41,14 @@ const notesApi = appApi.injectEndpoints({
         method: "PUT",
         body: body,
       }),
-      invalidatesTags: ["Courses"],
+      invalidatesTags: ["Notes"],
     }),
     deleteNote: builder.mutation<{ message: string }, number>({
       query: (note_id) => ({
-        url: `/course/${note_id}`,
+        url: `/note/${note_id}`,
         method: "DELETE",
       }),
-      invalidatesTags: ["Courses"],
+      invalidatesTags: ["Notes"],
     }),
   }),
   overrideExisting: false,

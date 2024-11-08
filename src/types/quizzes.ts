@@ -1,22 +1,83 @@
 import { options } from "./options";
 // import { Participant } from "./participants";
 
-export interface QuizzesResponse {
-  assessments: unknown;
-  code: string;
+// Base interface for timestamps
+interface TimeStamps {
   created_at: string;
-  expiry_date: string;
+  updated_at: string;
+}
+
+// Option interface
+interface Option extends TimeStamps {
   id: number;
+  body: string;
+}
+
+// Question interface
+interface Question extends TimeStamps {
+  id: number;
+  body: string;
+  options: Option[];
+}
+
+// Assessment interface
+interface Assessment extends TimeStamps {
+  id: number;
+  name: string;
+  questions: Question[];
+}
+
+// Quiz Data interface
+interface QuizData extends TimeStamps {
+  id: number;
+  code: string;
+  name: string;
   instructions: string;
   is_published: boolean;
-  name: string;
   obtainable_score: number;
   show_result: boolean;
   start_date: string;
+  expiry_date: string;
   time_allowed: number;
   type: string;
-  updated_at: string;
+  assessments: Assessment[];
 }
+
+// Full Response interface
+interface QuizResponse {
+  data: QuizData;
+  message: string;
+  status: string;
+}
+
+export type { 
+  Option,
+  Question,
+  Assessment,
+  QuizData,
+  QuizResponse
+};
+
+export interface QuizzesResponse {
+  data: {
+    assessments: unknown;
+    code: string;
+    created_at: string;
+    expiry_date: string;
+    id: number;
+    instructions: string;
+    is_published: boolean;
+    name: string;
+    obtainable_score: number;
+    show_result: boolean;
+    start_date: string;
+    time_allowed: number;
+    type: string;
+    updated_at: string;
+  }[];
+}
+
+
 
 export interface CreateQuiz {
   name: string;
@@ -63,11 +124,67 @@ export interface AssessmentResponse {
   created_at: string;
   id: number;
   name: string;
-  questions: unknown;
+  questions: Question;
   updated_at: string;
 }
 
 export interface shareQuizInput {
   quiz_id: number;
   participants: number[];
+}
+
+
+export interface QuizResultResponse {
+  data: {
+    answers: Answer[];
+    quiz: Quiz;
+    result: Result[];
+  };
+  message: string;
+  status: string;
+}
+
+interface Answer {
+  assessment_id: number;
+  created_at: string;
+  id: number;
+  is_correct: boolean;
+  option_id: number;
+  question_id: number;
+  time_left: number;
+  updated_at: string;
+  user_id: number;
+}
+
+interface Quiz {
+  assessments: Assessment[];
+  code: string;
+  created_at: string;
+  expiry_date: string;
+  id: number;
+  instructions: string;
+  is_published: boolean;
+  name: string;
+  obtainable_score: number;
+  participants: string[];
+  show_result: boolean;
+  start_date: string;
+  time_allowed: number;
+  type: string;
+  updated_at: string;
+}
+
+interface Assessment {
+  created_at: string;
+  id: number;
+  name: string;
+  questions: Question[];
+  updated_at: string;
+}
+
+export interface Result {
+  assessment_id: number;
+  created_at: string;
+  right: number;
+  wrong: number;
 }

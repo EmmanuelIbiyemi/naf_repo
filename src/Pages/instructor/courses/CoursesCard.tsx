@@ -1,7 +1,8 @@
 import { Box, Button, Typography } from "@mui/material";
 import { CourseBaseType, CourseType } from "../../../types/courses";
-import { AccessTime, CalendarToday } from "@mui/icons-material";
+// import { AccessTime, CalendarToday } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
+import { useGetCourseParticipantsQuery } from "../../../store/api/participants.api";
 
 type Props = {
   course: CourseBaseType & CourseType;
@@ -9,6 +10,9 @@ type Props = {
 
 const CoursesCard = ({ course }: Props) => {
   const navigate = useNavigate();
+
+  const { data: participants, isLoading: isFetchingParticipants } =
+    useGetCourseParticipantsQuery({ course_id: course?.id || null });
 
   return (
     <Box
@@ -23,6 +27,7 @@ const CoursesCard = ({ course }: Props) => {
         borderRadius: "5px",
       }}
     >
+      {isFetchingParticipants}
       <Typography
         variant="h4"
         sx={{
@@ -53,9 +58,9 @@ const CoursesCard = ({ course }: Props) => {
           fontWeight: 300,
         }}
       >
-        Subject: {course.name}
+        Semester: {course.semester}
       </Typography>
-      <Box sx={{ display: "flex", gap: 2 }}>
+      {/* <Box sx={{ display: "flex", gap: 2 }}>
         <Typography
           variant="body2"
           sx={{
@@ -84,7 +89,7 @@ const CoursesCard = ({ course }: Props) => {
         >
           <AccessTime /> 12:30 AM - 01:40 PM
         </Typography>
-      </Box>
+      </Box> */}
       <Typography
         variant="body2"
         sx={{
@@ -94,14 +99,13 @@ const CoursesCard = ({ course }: Props) => {
           fontWeight: 300,
         }}
       >
-        Students: 120
+        Students: {participants?.data.length}
       </Typography>
       <Button
         variant="contained"
         color="primary"
         sx={{ width: "100%", fontSize: ".8rem" }}
-
-        onClick={() => navigate(`${course.id}/details`, { state: { course } })}
+        onClick={() => navigate(`${course.id}/students`, { state: { course } })}
       >
         View Details
       </Button>

@@ -118,3 +118,4 @@ const tableStyles: SxProps = {
     },
   },
 };
+

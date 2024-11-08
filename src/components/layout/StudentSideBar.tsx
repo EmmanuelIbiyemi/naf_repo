@@ -9,6 +9,7 @@ import { ChevronRight } from "@mui/icons-material";
 import ViewBoard from "../../assets/ViewBoard";
 import ReportsIcon from "../../assets/reportsIcon";
 import LiveClassIcon from "../../assets/liveClassIcon";
+import GraduationScroll from "../../assets/graduation-scroll";
 
 type NavLink = {
   content: string;
@@ -20,7 +21,8 @@ const navLinks: NavLink[] = [
   { content: "Dashboard", icon: HomeIcon, link: "/student/dashboard" },
   { content: "Overview", icon: ViewBoard, link: "/student/overview" },
   { content: "Courses", icon: ClipBoardIcon, link: "/student/courses" },
-  { content: "Reports", icon: ReportsIcon, link: "/student/reports" },
+  { content: "CBT", icon: GraduationScroll, link: "/student/cbt" },
+  { content: "Results", icon: ReportsIcon, link: "/student/results" },
   { content: "Live Class", icon: LiveClassIcon, link: "/student/live-class" },
   { content: "Settings", icon: SettingsIcon, link: "/student/settings" },
 ];

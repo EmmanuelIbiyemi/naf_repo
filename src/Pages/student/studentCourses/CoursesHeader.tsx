@@ -1,10 +1,9 @@
 import { Box, Typography, Button } from "@mui/material";
 import SchoolIcon from '@mui/icons-material/School';
-import DownloadIcon from '@mui/icons-material/Download';
 import { AddCircleOutline } from "@mui/icons-material";
 import { Link } from "react-router-dom"; // or "next/link" if using Next.js
 
-const EnrolledCoursesHeader = () => {
+const CoursesHeader = () => {
   return (
     <Box
       sx={{
@@ -54,7 +53,7 @@ const EnrolledCoursesHeader = () => {
       >
         <Button
           component={Link}
-          to="/student/courses/exam-card" // Link destination
+          to="exam-card" // Link destination
           variant="outlined"
           startIcon={<SchoolIcon />}
           sx={{
@@ -67,9 +66,9 @@ const EnrolledCoursesHeader = () => {
           Exam Card
         </Button>
         
-        <Button
+        {/* <Button
           component={Link}
-          to="/student/courses/course-form" // Link destination
+          to="course-form" // Link destination
           variant="outlined"
           startIcon={<DownloadIcon />}
           sx={{
@@ -80,11 +79,11 @@ const EnrolledCoursesHeader = () => {
           }}
         >
           Course Form
-        </Button>
+        </Button> */}
         
         <Button
           component={Link}
-          to="/student/courses/add-course" // Link destination
+          to="add-course" // Link destination
           variant="contained"
           startIcon={<AddCircleOutline />}
           sx={{
@@ -105,4 +104,4 @@ const EnrolledCoursesHeader = () => {
   );
 };
 
-export default EnrolledCoursesHeader;
+export default CoursesHeader;

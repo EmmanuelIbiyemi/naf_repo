@@ -9,6 +9,7 @@ export type UserType = {
   photo: string;
   role: string;
   updated_at: string;
+  courses?: string[];
 };
 
 export type UserLoginType = {
