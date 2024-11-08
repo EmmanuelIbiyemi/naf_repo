@@ -12,7 +12,7 @@ interface GetCoursesParams {
   semester?: string;
   name?: string;
   code?: string;
-  page?: string;
+  page?: number;
 }
 
 type Pagination = {

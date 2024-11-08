@@ -24,6 +24,12 @@ export type CourseCreateType = CourseBaseType & {
 
 export type CoursesResponse = {
   data: CourseType[];
+  pagination: {
+    page: number;
+    pages: number;
+    per_page: number;
+    total: number;
+  };
 };
 
 export type CourseCombinedType = CourseCreateType | CourseType;
