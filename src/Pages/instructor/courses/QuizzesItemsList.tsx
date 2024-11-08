@@ -8,15 +8,18 @@ import { Box, IconButton, Menu, MenuItem, Typography } from "@mui/material";
 import { Delete, Edit, MoreVert } from "@mui/icons-material";
 import CustomPagination from "../../../components/CustomPagination";
 import { useNavigate } from "react-router-dom";
-import { QuizzesResponse } from "../../../types/quizzes";
+import { InstructorQuizzesResponse } from "../../../types/quizzes";
 
 type ListProps = {
-  lists: QuizzesResponse[];
+  lists: InstructorQuizzesResponse[];
   menu?: boolean;
   deleteIcon?: boolean;
   edit?: boolean;
-  handleOpenActionsModal: (list: QuizzesResponse, type: string) => void;
-  handleEditActionsModal: (list: QuizzesResponse) => void;
+  handleOpenActionsModal: (
+    list: InstructorQuizzesResponse,
+    type: string
+  ) => void;
+  handleEditActionsModal: (list: InstructorQuizzesResponse) => void;
 };
 
 const ITEMS_PER_PAGE = 10;
@@ -49,7 +52,7 @@ const QuizzesItemsList = ({
     setCurrentPage(newPage);
   };
 
-  const handleNavigateToTest = (test: QuizzesResponse) => {
+  const handleNavigateToTest = (test: InstructorQuizzesResponse) => {
     navigate(`${test.id}`, {
       state: { selectedTest: test },
     });

@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Box, Button, LinearProgress, Typography } from "@mui/material";
 import { AccessTime, CalendarToday } from "@mui/icons-material";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
-import { QuizzesResponse } from "../../../../types/quizzes";
+import { InstructorQuizzesResponse } from "../../../../types/quizzes";
 import TestParticipantsList from "./TestParticipantsList";
 
 const Students = () => {
@@ -10,10 +10,10 @@ const Students = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { id } = useParams(); // Get the quiz ID from URL params
-  const [quizData, setQuizData] = useState<QuizzesResponse | null>(null);
+  const [quizData, setQuizData] = useState<InstructorQuizzesResponse | null>(null);
 
   useEffect(() => {
-    const stateData = location.state?.selectedTest as QuizzesResponse;
+    const stateData = location.state?.selectedTest as InstructorQuizzesResponse;
 
     if (stateData) {
       setQuizData(stateData);
@@ -38,7 +38,7 @@ const Students = () => {
         sessionStorage.removeItem(`quiz-${quizData.id}`);
       }
     };
-  }, []);
+  }, [quizData]);
 
   if (!quizData) {
     return (

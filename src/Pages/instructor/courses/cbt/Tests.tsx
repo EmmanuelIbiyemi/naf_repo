@@ -12,7 +12,7 @@ import DeleteConfirmationModal from "../../../../components/DeleteConfirmationMo
 // import GenerateReportModal from "./GenerateReportModal";
 import CreateTestModal from "./stepmodals/CreateTestModal";
 import QuizzesItemsList from "../QuizzesItemsList";
-import { QuizzesResponse } from "../../../../types/quizzes";
+import { InstructorQuizzesResponse } from "../../../../types/quizzes";
 import {
   useDeleteQuizMutation,
   useGetQuizzesQuery,
@@ -34,7 +34,7 @@ const Tests = () => {
   });
 
   const [selectedTests, setSelectedTests] = useState<
-    QuizzesResponse | undefined
+    InstructorQuizzesResponse | undefined
   >();
   const locationData = location.pathname.split("/");
   const courseId = locationData[locationData.length - 2];
@@ -53,7 +53,7 @@ const Tests = () => {
   const { data: participants, isLoading: isFetchingParticipants } =
     useGetCourseParticipantsQuery({ course_id: parseInt(courseId) });
 
-  const { data: quizzes, isLoading } = useGetQuizzesQuery(null);
+  const { data: quizzes , isLoading } = useGetQuizzesQuery(null);
   const { data: courses, isLoading: isGettingCourses } =
     useGetInstructorCoursesQuery(null);
 
@@ -66,7 +66,10 @@ const Tests = () => {
     }
   };
 
-  const handleOpenActionsModal = (course: QuizzesResponse, type: string) => {
+  const handleOpenActionsModal = (
+    course: InstructorQuizzesResponse,
+    type: string
+  ) => {
     setSelectedTests(course);
     setOpenActionsModal((prev) => ({ ...prev, [type]: true }));
   };
@@ -76,7 +79,7 @@ const Tests = () => {
     setOpenActionsModal((prev) => ({ ...prev, [type]: false }));
   };
 
-  const handleEditActionsModal = async (note: QuizzesResponse) => {
+  const handleEditActionsModal = async (note: InstructorQuizzesResponse) => {
     console.log(note);
     handleCloseActionsModal("edit");
     handleOpenActionsModal(note, "success");

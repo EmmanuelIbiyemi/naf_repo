@@ -6,7 +6,7 @@ import PrivateRoute from "./components/ProtectedRoutes";
 
 // Admin
 
-// const App = lazy(() => import("./App"));
+const App = lazy(() => import("./App"));
 const Login = lazy(() => import("./Pages/login/Login"));
 const Dashboard = lazy(() => import("./Pages/admin/dashboard/Dashboard"));
 const AdminAcademicsPage = lazy(

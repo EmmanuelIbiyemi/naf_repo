@@ -9,6 +9,7 @@ import {
   shareQuizInput,
   QuizResultResponse,
   QuizResponse,
+  InstructorQuizzesResponse,
 } from "../../types/quizzes";
 import { appApi } from "./app.api";
 
@@ -78,7 +79,7 @@ interface QuizSubmissionRequest {
 
 const quizzesApi = appApi.injectEndpoints({
   endpoints: (builder) => ({
-    getQuizzes: builder.query<{ data: QuizzesResponse[] }, null>({
+    getQuizzes: builder.query<{ data: InstructorQuizzesResponse[] }, null>({
       query: () => `/quiz`,
       providesTags: ["Quiz"],
     }),
@@ -133,7 +134,7 @@ const quizzesApi = appApi.injectEndpoints({
       }
     ),
 
-    addQuiz: builder.mutation<{ data: QuizzesResponse }, CreateQuiz>({
+    addQuiz: builder.mutation<{ data: InstructorQuizzesResponse }, CreateQuiz>({
       query: (values) => ({
         url: `/quiz`,
         method: "POST",
