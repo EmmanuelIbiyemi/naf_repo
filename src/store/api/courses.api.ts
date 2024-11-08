@@ -12,6 +12,7 @@ interface GetCoursesParams {
   semester?: string;
   name?: string;
   code?: string;
+  page?: string;
 }
 
 type Pagination = {
@@ -36,6 +37,7 @@ const coursesApi = appApi.injectEndpoints({
           semester: params?.semester || "",
           name: params?.name || "",
           code: params?.code || "",
+          page: params?.page || "",
         },
       }),
       providesTags: ["Courses"],
