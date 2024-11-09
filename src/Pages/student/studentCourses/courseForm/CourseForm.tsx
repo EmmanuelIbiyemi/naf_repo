@@ -10,7 +10,7 @@ import {
   TableRow,
   Button,
 } from "@mui/material";
-import Breadcrumb from "../components/Breadcrumb";
+import Breadcrumb from "../components/BreadCrumb";
 
 const CourseRegistrationForm = () => {
   const courseData = [
@@ -67,7 +67,7 @@ const CourseRegistrationForm = () => {
               Amina Rabiu Mustapha
             </Typography>
             <Typography variant="body2" color="text.secondary">
-              NAFCONS/01/CSC/2020
+              ATSTC/01/CSC/2020
             </Typography>
             <Box sx={{ display: "flex", gap: 2, mt: 1 }}>
               <Typography variant="caption" color="text.secondary">

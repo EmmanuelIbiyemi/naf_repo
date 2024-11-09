@@ -1,12 +1,9 @@
-import React, { useEffect } from 'react';
+import React, { useEffect } from "react";
+import { School, AssignmentTurnedIn } from "@mui/icons-material";
 import {
-  School,
-  AssignmentTurnedIn,
-} from "@mui/icons-material";
-import { 
-  Box, 
-  Button, 
-  Typography, 
+  Box,
+  Button,
+  Typography,
   Avatar,
   SxProps,
   Theme,
@@ -15,9 +12,9 @@ import {
 import { Link } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../../../store/hooks";
 import { setPageName } from "../../../store/app.slice";
-import { useGetParticipantQuery } from '../../../store/api/participants.api';
+import { useGetParticipantQuery } from "../../../store/api/participants.api";
 import EmptyState from "../../../components/EmptyState";
-import { selectCurrentUser } from '../../../store/auth.slice';
+import { selectCurrentUser } from "../../../store/auth.slice";
 
 // Types
 interface DashboardCard {
@@ -33,7 +30,11 @@ const Dashboard: React.FC = () => {
   // Assuming we're getting the participant ID from somewhere (e.g., context, route params)
   const user = useAppSelector(selectCurrentUser);
   const participantId = user?.id || 0; // Replace with actual ID source
-  const { data: participantData, isLoading, error } = useGetParticipantQuery(participantId);
+  const {
+    data: participantData,
+    isLoading,
+    error,
+  } = useGetParticipantQuery(participantId);
 
   useEffect(() => {
     dispatch(setPageName("Dashboard"));
@@ -44,7 +45,9 @@ const Dashboard: React.FC = () => {
       id: 1,
       icon: <School />,
       title: "Course Enrollment",
-      description: `View and manage your ${participantData?.data.courses?.length || 0} course enrollments`,
+      description: `View and manage your ${
+        participantData?.data.courses?.length || 0
+      } course enrollments`,
       link: "/student/courses",
     },
     {
@@ -54,18 +57,19 @@ const Dashboard: React.FC = () => {
       description: "View your academic performance and semester results",
       link: "/student/results",
     },
-    
   ];
 
   if (isLoading) {
     return (
-      <Box sx={{ 
-        padding: "2rem", 
-        display: 'flex', 
-        justifyContent: 'center',
-        alignItems: 'center',
-        minHeight: '50vh'
-      }}>
+      <Box
+        sx={{
+          padding: "2rem",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          minHeight: "50vh",
+        }}
+      >
         <CircularProgress />
       </Box>
     );
@@ -89,14 +93,14 @@ const Dashboard: React.FC = () => {
       {/* Header */}
       <Box sx={{ textAlign: "center", marginBottom: "2rem" }}>
         <Typography variant="h1" sx={{ fontSize: "2rem", fontWeight: 500 }}>
-          Welcome to your NAFCONS Student dashboard
+          Welcome to your ATSTC Student dashboard
         </Typography>
         <Typography
-          sx={{ 
-            fontSize: "1.1rem", 
-            fontWeight: 300, 
-            marginTop: ".5rem", 
-            color: "text.secondary" 
+          sx={{
+            fontSize: "1.1rem",
+            fontWeight: 300,
+            marginTop: ".5rem",
+            color: "text.secondary",
           }}
         >
           {participant.first_name} {participant.last_name}
@@ -114,10 +118,10 @@ const Dashboard: React.FC = () => {
         {/* Left Side - Cards */}
         <Box sx={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
           {cards.map((card) => (
-            <Link 
+            <Link
               key={`dashboard-card-${card.id}`}
               to={card.link}
-              style={{ textDecoration: 'none' }}
+              style={{ textDecoration: "none" }}
             >
               <Box
                 sx={{
@@ -176,28 +180,34 @@ const Dashboard: React.FC = () => {
                 width: 128,
                 height: 128,
                 marginBottom: "1rem",
-                bgcolor: 'primary.main',
-                fontSize: '3rem'
+                bgcolor: "primary.main",
+                fontSize: "3rem",
               }}
             >
-              {participant.first_name?.[0]}{participant.last_name?.[0]}
+              {participant.first_name?.[0]}
+              {participant.last_name?.[0]}
             </Avatar>
           )}
           <Typography sx={{ fontSize: "1.1rem", fontWeight: 500 }}>
             {participant.first_name} {participant.last_name}
           </Typography>
           <Typography sx={{ color: "text.secondary", fontSize: "0.9rem" }}>
-            {participant.matric_number || 'N/A'}
+            {participant.matric_number || "N/A"}
           </Typography>
-          <Typography sx={{ color: "text.secondary", fontSize: "0.9rem", mt: 0.5 }}>
-            {participant.level?.program?.department?.name || 'N/A'} • {participant.level?.name || 'N/A'}
+          <Typography
+            sx={{ color: "text.secondary", fontSize: "0.9rem", mt: 0.5 }}
+          >
+            {participant.level?.program?.department?.name || "N/A"} •{" "}
+            {participant.level?.name || "N/A"}
           </Typography>
-          <Box sx={{ width: '100%', mt: 2 }}>
-            <Typography sx={{ 
-              color: "text.secondary", 
-              fontSize: "0.9rem", 
-              mb: 1 
-            }}>
+          <Box sx={{ width: "100%", mt: 2 }}>
+            <Typography
+              sx={{
+                color: "text.secondary",
+                fontSize: "0.9rem",
+                mb: 1,
+              }}
+            >
               Contact Information
             </Typography>
             <Typography sx={{ fontSize: "0.9rem" }}>
@@ -210,15 +220,11 @@ const Dashboard: React.FC = () => {
               Address: {participant.address}
             </Typography>
           </Box>
-          <Link 
+          <Link
             to="/student/settings"
-            style={{ textDecoration: 'none', width: '100%' }}
+            style={{ textDecoration: "none", width: "100%" }}
           >
-            <Button
-              variant="contained"
-              fullWidth
-              sx={{ marginTop: "1.5rem" }}
-            >
+            <Button variant="contained" fullWidth sx={{ marginTop: "1.5rem" }}>
               Profile Settings
             </Button>
           </Link>
@@ -236,7 +242,7 @@ const cardStyles: SxProps<Theme> = {
   gap: "1rem",
   padding: "1rem",
   boxShadow: 1,
-  color: 'text.primary',
+  color: "text.primary",
 
   ".icon": {
     bgcolor: "rgba(239, 243, 250, 1)",

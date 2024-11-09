@@ -34,7 +34,7 @@ import { Save } from "@mui/icons-material";
 import { selectCurrentUser } from "../../../../store/auth.slice";
 import { CourseBaseType } from "../../../../types/courses";
 import { ApiError } from "../../../../types/errors";
-import Breadcrumb from "../components/Breadcrumb";
+import Breadcrumb from "../components/BreadCrumb";
 
 const EnrollCoursesPage = () => {
   const dispatch = useAppDispatch();

@@ -1,5 +1,5 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useState, useEffect, useCallback, useRef } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import {
   Box,
   Button,
@@ -19,21 +19,22 @@ import {
   DialogContent,
   DialogActions,
   Paper,
-} from '@mui/material';
+} from "@mui/material";
+import { AccessTime, Assignment, Close } from "@mui/icons-material";
 import {
-  AccessTime,
-  Assignment,
-  Close,
-} from '@mui/icons-material';
-import { 
   useSubmitQuizMutation,
   useSubmitSingleQuizMutation,
-  useUnlockQuizMutation
-} from '../../../store/api/quizzes.api';
-import QuestionSummaryGrid from './CBTSummary';
-import { Assessment, Option, Question, QuizzesResponse } from "../../../types/quizzes";
-import { useAppSelector } from '../../../store/hooks';
-import { selectCurrentUser } from '../../../store/auth.slice';
+  useUnlockQuizMutation,
+} from "../../../store/api/quizzes.api";
+import QuestionSummaryGrid from "./CBTSummary";
+import {
+  Assessment,
+  Option,
+  Question,
+  QuizzesResponse,
+} from "../../../types/quizzes";
+import { useAppSelector } from "../../../store/hooks";
+import { selectCurrentUser } from "../../../store/auth.slice";
 
 interface TimerProps {
   duration: number;
@@ -44,7 +45,7 @@ interface TimerProps {
 const Timer = ({ duration, onTimeUp, onTick }: TimerProps) => {
   const [timeLeft, setTimeLeft] = useState(duration * 60);
   // Changed from null to NodeJS.Timeout
-  const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
     // Initial setup of timer
@@ -223,8 +224,6 @@ const CBTTest = () => {
       });
     }
   }, [quizCode, unlockQuiz, user?.email]);
-
-
 
   const handleTimeTick = useCallback((newTimeLeft: number) => {
     setTimeLeft(newTimeLeft);
