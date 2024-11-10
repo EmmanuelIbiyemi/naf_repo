@@ -9,6 +9,7 @@ import {
   MenuItem,
   Select,
   SelectChangeEvent,
+  TableBody,
   TableHead,
 } from "@mui/material";
 import { useState } from "react";
@@ -35,8 +36,8 @@ const ResultsList = () => {
     session: "",
     semester: "",
   });
-  // const [getResults, resultState] = useGetResultsMMutation();
-  const [getResults] = useGetResultsMMutation();
+  const [getResults, resultState] = useGetResultsMMutation();
+  // const [getResults] = useGetResultsMMutation();
 
   const handleChange = async (e: SelectChangeEvent<number | string>) => {
     const { target } = e;
@@ -194,9 +195,6 @@ const ResultsList = () => {
               Current GPA
             </TableCell>
             <TableCell component="th" scope="row">
-              Previous GPA
-            </TableCell>
-            <TableCell component="th" scope="row">
               Cummulative GPA
             </TableCell>
             <TableCell component="th" scope="row">
@@ -204,31 +202,35 @@ const ResultsList = () => {
             </TableCell>
           </TableRow>
         </TableHead>
-        {/* {results?.data.length ? (
+        {resultState.data?.data.length ? (
           <TableBody>
-            {results?.data.map((result: Result) => (
+            {resultState?.data.data.map((result) => (
               <TableRow
                 key={result.id}
                 sx={{
                   "&:last-child td, &:last-child th": { border: 0 },
                 }}
               >
+                <TableCell>{result.participant.matric_number}</TableCell>
                 <TableCell
                   component="th"
                   scope="row"
                   sx={{ alignItems: "center", display: "flex", gap: "1rem" }}
                 >
-                  <Link to={`/results/${result.id}`}>{result.name}</Link>
+                  {result.participant.first_name} {result.participant.last_name}
                 </TableCell>
-                <TableCell>{result.remark}</TableCell>
-                <TableCell>{result.remark}</TableCell>
-                <TableCell>{result.remark}</TableCell>
+                <TableCell>{result.level.name}</TableCell>
+                <TableCell>{result.summary.grade_point_average}</TableCell>
+                <TableCell>
+                  {result.summary.cumulative_grade_point_average}
+                </TableCell>
+                <TableCell>{result.details[0].score_remark}</TableCell>
               </TableRow>
             ))}
           </TableBody>
         ) : (
           <Box>No results found.</Box>
-        )} */}
+        )}
       </Table>
     </TableContainer>
   );
