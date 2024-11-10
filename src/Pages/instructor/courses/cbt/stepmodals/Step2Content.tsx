@@ -1,5 +1,12 @@
 import React, { useState } from "react";
-import { Box, Button, Slider, TextField, Typography } from "@mui/material";
+import {
+  Box,
+  Button,
+  Checkbox,
+  Slider,
+  TextField,
+  Typography,
+} from "@mui/material";
 import { TestFormData } from "./testformtypes";
 import { AccessTime, CalendarToday } from "@mui/icons-material";
 import { ParticipantData } from "../../../../../types/participants";
@@ -69,7 +76,10 @@ const Step2Content: React.FC<ModalProps> = ({
     useCreateQuestionManuallyMutation();
   const [createAssessment, { isLoading: isCreatingAssessment }] =
     useCreateAssessmentMutation();
-
+  const [checked, setChecked] = useState(false);
+  const handleShowResult = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setChecked(event.target.checked);
+  };
   const handleCreateQuiz = async () => {
     const createQuizData: CreateQuiz & { course_id: number } = {
       name: formData.subject,
@@ -79,7 +89,7 @@ const Step2Content: React.FC<ModalProps> = ({
       expiry_date: formData.expirationDate,
       obtainable_score: formData.passingPercentage,
       type: formData.type,
-      show_result: true,
+      show_result: checked,
       course_id: parseInt(courseId),
     };
     try {
@@ -219,6 +229,17 @@ const Step2Content: React.FC<ModalProps> = ({
                 disabled={disabledInput}
               />
             </Box>
+          </Box>
+
+          <Box>
+            <Checkbox
+              checked={checked}
+              onChange={handleShowResult}
+              inputProps={{ "aria-label": "controlled" }}
+            />
+            <label htmlFor="result" style={{ color: "#1D2026" }}>
+              Display Result
+            </label>
           </Box>
 
           <label htmlFor="type" style={{ color: "#1D2026" }}>

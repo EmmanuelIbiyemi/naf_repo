@@ -67,7 +67,7 @@ const QuizzesItemsList = ({
       <TableContainer>
         <Table sx={{ minWidth: 650 }}>
           <TableBody>
-            {displayedList.reverse().map((list) => (
+            {displayedList.map((list) => (
               <TableRow
                 key={list.id}
                 sx={{ "&:last-child td, &:last-child th": { border: 0 } }}

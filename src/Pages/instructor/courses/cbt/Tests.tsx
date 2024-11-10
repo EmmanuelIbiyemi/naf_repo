@@ -15,11 +15,11 @@ import QuizzesItemsList from "../QuizzesItemsList";
 import { InstructorQuizzesResponse } from "../../../../types/quizzes";
 import {
   useDeleteQuizMutation,
-  useGetQuizzesQuery,
+  useGetInstructorCourseQuizzesQuery,
 } from "../../../../store/api/quizzes.api";
 import {
   useGetCourseQuery,
-  useGetInstructorCoursesQuery,
+  // useGetInstructorCoursesQuery,
 } from "../../../../store/api/courses.api";
 import { useGetCourseParticipantsQuery } from "../../../../store/api/participants.api";
 
@@ -53,9 +53,12 @@ const Tests = () => {
   const { data: participants, isLoading: isFetchingParticipants } =
     useGetCourseParticipantsQuery({ course_id: parseInt(courseId) });
 
-  const { data: quizzes , isLoading } = useGetQuizzesQuery(null);
-  const { data: courses, isLoading: isGettingCourses } =
-    useGetInstructorCoursesQuery(null);
+  const { data: quizzes, isLoading } = useGetInstructorCourseQuizzesQuery(
+    { course_id: parseInt(courseId) },
+    { skip: !courseId }
+  );
+  // const { data: courses, isLoading: isGettingCourses } =
+  //   useGetInstructorCoursesQuery(null);
 
   const handleDelete = (testId: number) => {
     try {
@@ -156,7 +159,7 @@ const Tests = () => {
       <CreateTestModal
         open={openCreateTestModal}
         handleClose={handleCloseCreateTestModal}
-        courses={courses?.data}
+        // courses={courses?.data}
         participants={participants?.data ?? []}
       />
       {(isLoading || isFetchingParticipants) && <LinearProgress />}
@@ -187,7 +190,7 @@ const Tests = () => {
           additionalButton={{
             action: handleOpenCreateTestModal,
             text: "Create New Test",
-            isLoading: isGettingCourses,
+            // isLoading: isGettingCourses,
           }}
         />
         {/* <GenerateReportModal

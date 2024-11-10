@@ -2,6 +2,7 @@ import { AnswersResponses } from "./answers";
 import { AssessmentResponses } from "./assessments";
 import { options } from "./options";
 import { ParticipantsMultipleData } from "./participants";
+import { Questions } from "./questions";
 import { QuizResults } from "./results";
 // import { Participant } from "./participants";
 
@@ -54,13 +55,7 @@ interface QuizResponse {
   status: string;
 }
 
-export type { 
-  Option,
-  Question,
-  Assessment,
-  QuizData,
-  QuizResponse
-};
+export type { Option, Question, Assessment, QuizData, QuizResponse };
 
 export interface QuizzesResponse {
   data: {
@@ -81,8 +76,16 @@ export interface QuizzesResponse {
   }[];
 }
 
+export interface InstructorAssessments {
+  created_at: string;
+  id: number;
+  name: string;
+  questions: Questions;
+  updated_at: string;
+}
+
 export interface InstructorQuizzesResponse {
-  assessments: unknown;
+  assessments: InstructorAssessments[];
   code: string;
   created_at: string;
   expiry_date: string;
@@ -98,8 +101,6 @@ export interface InstructorQuizzesResponse {
   type: string;
   updated_at: string;
 }
-
-
 
 export interface CreateQuiz {
   name: string;
@@ -176,7 +177,6 @@ export interface QuizUserResultResponse {
   };
   result: QuizResults;
 }
-
 
 export interface QuizResultResponse {
   data: {

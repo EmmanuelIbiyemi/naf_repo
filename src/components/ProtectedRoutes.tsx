@@ -53,7 +53,7 @@ const allowedRoutes = {
     "/instructor/reports/:id",
     "/instructor/classes",
     "/instructor/posts/preview",
-    "/instructor/offline-scores",
+    "/instructor/scores",
   ],
   student: [
     "/student/dashboard",

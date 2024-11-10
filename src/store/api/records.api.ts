@@ -1,5 +1,6 @@
 import {
   bulkScoresInput,
+  importQuizScoresInput,
   recordInput,
   recordResponse,
   scoresInput,
@@ -54,6 +55,17 @@ const recordsApi = appApi.injectEndpoints({
       }),
       invalidatesTags: ["Record"],
     }),
+    importScoresFromRecord: builder.mutation<
+      { message: string; status: string },
+      importQuizScoresInput
+    >({
+      query: (score) => ({
+        url: `/score/import/quiz`,
+        method: "POST",
+        body: score,
+      }),
+      invalidatesTags: ["Record"],
+    }),
     deleteRecord: builder.mutation<
       { message: string; status: string },
       { record_id: number }
@@ -84,6 +96,7 @@ export const {
   useUpdateRecordMutation,
   useAddRecordScoresMutation,
   useAddBulkRecordScoresMutation,
+  useImportScoresFromRecordMutation,
   useDeleteRecordMutation,
   useDeleteRecordScoreMutation,
 } = recordsApi;

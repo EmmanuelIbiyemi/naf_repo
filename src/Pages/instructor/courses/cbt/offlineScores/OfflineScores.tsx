@@ -101,7 +101,7 @@ const OfflineScores = () => {
                 marginBottom: ".2em",
               }}
             >
-              Manage Offline Scores
+              Manage Scores
             </Typography>
             <Typography
               variant="body2"
@@ -192,6 +192,7 @@ const OfflineScores = () => {
           recordId={selectedRecord?.id ? selectedRecord?.id : null}
           courseParticipants={participants?.data || []}
           refetch={refetch}
+          courseId={parseInt(selectedCourse)}
         />
       </Box>
     </Box>

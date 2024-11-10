@@ -168,7 +168,6 @@ const StudentResults = lazy(() => import("./Pages/student/results/Results"));
 const StudentClass = lazy(() => import("./Pages/student/classes/LiveClasses"));
 const StudentSettings = lazy(() => import("./Pages/student/settings/Settings"));
 
-
 export const router = createBrowserRouter([
   {
     path: "/login",
@@ -298,7 +297,7 @@ export const router = createBrowserRouter([
       //   element: <PreviewAnnouncementPage />,
       // },
       {
-        path: "/instructor/offline-scores",
+        path: "/instructor/scores",
         element: <InstructorOfflineScoresPage />,
       },
       // { path: "/instructor/post", element: <PostPage /> },
