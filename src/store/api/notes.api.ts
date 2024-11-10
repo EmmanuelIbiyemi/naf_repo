@@ -1,5 +1,17 @@
-import { note, noteInput, NoteResponse, shareNoteInput, } from "../../types/notes";
+import {
+  note,
+  noteInput,
+  NoteResponse,
+  shareNoteInput,
+} from "../../types/notes";
 import { appApi } from "./app.api";
+
+type PaginationType = {
+  page: number;
+  pages: number;
+  per_page: number;
+  total: number;
+};
 
 const notesApi = appApi.injectEndpoints({
   endpoints: (builder) => ({
@@ -11,8 +23,11 @@ const notesApi = appApi.injectEndpoints({
       query: (note_id) => `/note/${note_id}`,
       providesTags: ["Notes"],
     }),
-    getCourseNotes: builder.query<{ data: note[] }, number>({
-      query: (note_id) => `/note/course/${note_id}`,
+    getCourseNotes: builder.query<
+      { data: note[]; pagination: PaginationType },
+      { course_id: number; page: number }
+    >({
+      query: ({ course_id, page }) => `/note/course/${course_id}?page=${page}`,
       providesTags: ["Notes"],
     }),
     getParticipantCourseNotes: builder.query<NoteResponse, number>({
