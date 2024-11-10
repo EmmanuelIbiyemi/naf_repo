@@ -2,6 +2,8 @@ import { Search } from "@mui/icons-material";
 import { Box, Button, SxProps } from "@mui/material";
 import { Field, Form, Formik } from "formik";
 import * as Yup from "yup";
+import { useAppDispatch } from "../store/hooks";
+import { setKeyword } from "../store/app.slice";
 
 type Props = {
   button?: {
@@ -15,18 +17,16 @@ type Props = {
 };
 
 const PageHeader = ({ button, secondaryButton }: Props) => {
+  const dispatch = useAppDispatch();
+
   const initialValues = {
-    filter: "",
     keyword: "",
   };
 
-  const validationSchema = Yup.object({
-    filter: Yup.string().optional(),
-    keyword: Yup.string().required("Required"),
-  });
+  const validationSchema = Yup.object({});
 
-  const handleSubmit = async (values: unknown) => {
-    console.log(values);
+  const handleSubmit = async (value: typeof initialValues) => {
+    dispatch(setKeyword(value.keyword));
   };
 
   return (

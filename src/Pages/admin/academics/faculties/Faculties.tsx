@@ -21,7 +21,7 @@ const FacultiesPage = () => {
   });
   const [facultyName, setFacultyName] = useState("");
   const [selectedFaculty, setSelectedFaculty] = useState<Faculty>();
-  const { data: Faculties } = useGetFacultiesQuery(null);
+  const { data: faculties } = useGetFacultiesQuery(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [addFaculty] = useAddFacultyMutation();
 
@@ -96,7 +96,7 @@ const FacultiesPage = () => {
           padding: "var(--padding)",
         }}
       >
-        {Faculties?.data.length ? (
+        {faculties?.data.length ? (
           <FacultyList />
         ) : (
           <EmptyState

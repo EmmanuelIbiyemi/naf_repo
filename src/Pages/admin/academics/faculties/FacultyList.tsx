@@ -8,7 +8,7 @@ import { Button, Checkbox, IconButton } from "@mui/material";
 import { Delete, Edit } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import DeleteConfirmationModal from "../../../../components/DeleteConfirmationModal";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   useDeleteFacultyMutation,
   useGetFacultiesQuery,
@@ -17,6 +17,8 @@ import {
 import FormModal from "../../../../components/FormModal";
 import FacultyForm from "./FacultyForm";
 import SuccessModal from "../../../../components/SuccessModal";
+import { useAppSelector } from "../../../../store/hooks";
+import { selectKeyword } from "../../../../store/app.slice";
 
 const FacultyList = () => {
   const navigate = useNavigate();
@@ -26,9 +28,21 @@ const FacultyList = () => {
     delete: false,
   });
   const [selectedFaculty, setSelectedFaculty] = useState<Faculty>();
-  const { data: faculty } = useGetFacultiesQuery(null);
+  const { data: facs } = useGetFacultiesQuery(null);
   const [deleteFaculty] = useDeleteFacultyMutation();
   const [updateFaculty] = useUpdateFacultyMutation();
+  const [faculties, setFaculties] = useState<Faculty[] | undefined>(facs?.data);
+  const keyword = useAppSelector(selectKeyword);
+
+  useEffect(() => {
+    if (keyword && facs?.data)
+      setFaculties(
+        facs.data.filter((f) =>
+          f.name.toLowerCase().includes(keyword.toLowerCase())
+        )
+      );
+    else setFaculties(facs?.data);
+  }, [keyword]);
 
   const handleOpenModal = (faculty: Faculty, type: string) => {
     setSelectedFaculty(faculty);
@@ -111,7 +125,20 @@ const FacultyList = () => {
 
       <Table sx={{ minWidth: 650 }}>
         <TableBody>
-          {faculty?.data.map((faculty: Faculty) => (
+          {!faculties?.length ? (
+            <TableRow
+              sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+            >
+              <TableCell
+                component="th"
+                scope="row"
+                sx={{ alignItems: "center", display: "flex", gap: "1rem" }}
+              >
+                No items found
+              </TableCell>
+            </TableRow>
+          ) : null}
+          {faculties?.map((faculty: Faculty) => (
             <TableRow
               key={faculty.id}
               sx={{ "&:last-child td, &:last-child th": { border: 0 } }}

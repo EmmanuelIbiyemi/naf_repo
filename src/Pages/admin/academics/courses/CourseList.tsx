@@ -8,7 +8,7 @@ import { Checkbox, IconButton, Typography } from "@mui/material";
 import { Delete, Edit } from "@mui/icons-material";
 import { useParams } from "react-router-dom";
 import DeleteConfirmationModal from "../../../../components/DeleteConfirmationModal";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   useDeleteCourseMutation,
   useGetCoursesByLevelQuery,
@@ -18,6 +18,8 @@ import FormModal from "../../../../components/FormModal";
 import CourseForm from "./CourseForm";
 import SuccessModal from "../../../../components/SuccessModal";
 import { FormAction } from "../../../../types/forms";
+import { useAppSelector } from "../../../../store/hooks";
+import { selectKeyword } from "../../../../store/app.slice";
 
 const CourseList = () => {
   const { level_id } = useParams();
@@ -27,11 +29,23 @@ const CourseList = () => {
     delete: false,
   });
   const [selectedCourse, setSelectedCourse] = useState<CourseType>();
-  const { data: courses } = useGetCoursesByLevelQuery({
+  const { data: crs } = useGetCoursesByLevelQuery({
     level_id: +(level_id || 0),
   });
+  const [courses, setCourses] = useState<CourseType[] | undefined>(crs?.data);
   const [deleteCourse] = useDeleteCourseMutation();
   const [updateCourse] = useUpdateCourseMutation();
+  const keyword = useAppSelector(selectKeyword);
+
+  useEffect(() => {
+    if (keyword && crs?.data)
+      setCourses(
+        crs.data.filter((f) =>
+          f.name.toLowerCase().includes(keyword.toLowerCase())
+        )
+      );
+    else setCourses(crs?.data);
+  }, [keyword]);
 
   const handleOpenModal = (course: CourseType, type: string) => {
     setSelectedCourse(course);
@@ -114,7 +128,20 @@ const CourseList = () => {
 
       <Table sx={{ minWidth: 650 }}>
         <TableBody>
-          {courses?.data.map((course) => (
+          {!courses?.length ? (
+            <TableRow
+              sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+            >
+              <TableCell
+                component="th"
+                scope="row"
+                sx={{ alignItems: "center", display: "flex", gap: "1rem" }}
+              >
+                No items found
+              </TableCell>
+            </TableRow>
+          ) : null}
+          {courses?.map((course) => (
             <TableRow
               key={course.id}
               sx={{ "&:last-child td, &:last-child th": { border: 0 } }}

@@ -11,7 +11,7 @@ import { Button, Checkbox, IconButton } from "@mui/material";
 import { Delete, Edit } from "@mui/icons-material";
 import { useNavigate, useParams } from "react-router-dom";
 import DeleteConfirmationModal from "../../../../components/DeleteConfirmationModal";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   useDeleteDepartmentMutation,
   useGetDepartmentsQuery,
@@ -20,6 +20,8 @@ import {
 import FormModal from "../../../../components/FormModal";
 import DepartmentForm from "./DepartmentForm";
 import SuccessModal from "../../../../components/SuccessModal";
+import { selectKeyword } from "../../../../store/app.slice";
+import { useAppSelector } from "../../../../store/hooks";
 
 const DepartmentList = () => {
   const { faculty_id } = useParams();
@@ -30,9 +32,23 @@ const DepartmentList = () => {
     delete: false,
   });
   const [selectedDepartment, setSelectedDepartment] = useState<Department>();
-  const { data: departments } = useGetDepartmentsQuery(+(faculty_id || 0));
+  const { data: deps } = useGetDepartmentsQuery(+(faculty_id || 0));
+  const [departments, setDepartments] = useState<Department[] | undefined>(
+    deps?.data
+  );
   const [deleteDepartment] = useDeleteDepartmentMutation();
   const [updateDepartment] = useUpdateDepartmentMutation();
+  const keyword = useAppSelector(selectKeyword);
+
+  useEffect(() => {
+    if (keyword && deps?.data)
+      setDepartments(
+        deps.data.filter((f) =>
+          f.name.toLowerCase().includes(keyword.toLowerCase())
+        )
+      );
+    else setDepartments(deps?.data);
+  }, [keyword]);
 
   const handleOpenModal = (department: Department, type: string) => {
     setSelectedDepartment(department);
@@ -116,7 +132,20 @@ const DepartmentList = () => {
 
       <Table sx={{ minWidth: 650 }}>
         <TableBody>
-          {departments?.data.map((department: Department) => (
+          {!departments?.length ? (
+            <TableRow
+              sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+            >
+              <TableCell
+                component="th"
+                scope="row"
+                sx={{ alignItems: "center", display: "flex", gap: "1rem" }}
+              >
+                No items found
+              </TableCell>
+            </TableRow>
+          ) : null}
+          {departments?.map((department: Department) => (
             <TableRow
               key={department.id}
               sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
