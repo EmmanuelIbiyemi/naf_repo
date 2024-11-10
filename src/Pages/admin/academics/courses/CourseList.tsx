@@ -141,6 +141,19 @@ const CourseList = () => {
               </TableCell>
             </TableRow>
           ) : null}
+          {!courses?.length ? (
+            <TableRow
+              sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+            >
+              <TableCell
+                component="th"
+                scope="row"
+                sx={{ alignItems: "center", display: "flex", gap: "1rem" }}
+              >
+                No items found
+              </TableCell>
+            </TableRow>
+          ) : null}
           {courses?.map((course) => (
             <TableRow
               key={course.id}

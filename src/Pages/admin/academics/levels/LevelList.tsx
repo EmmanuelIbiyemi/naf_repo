@@ -8,7 +8,7 @@ import { Button, Checkbox, IconButton } from "@mui/material";
 import { Delete, Edit } from "@mui/icons-material";
 import { useNavigate, useParams } from "react-router-dom";
 import DeleteConfirmationModal from "../../../../components/DeleteConfirmationModal";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   useDeleteLevelMutation,
   useGetLevelsQuery,
@@ -18,6 +18,8 @@ import FormModal from "../../../../components/FormModal";
 import LevelForm from "./LevelForm";
 import SuccessModal from "../../../../components/SuccessModal";
 import { FormAction } from "../../../../types/forms";
+import { useAppSelector } from "../../../../store/hooks";
+import { selectKeyword } from "../../../../store/app.slice";
 
 const LevelList = () => {
   const { faculty_id, department_id, program_id } = useParams();
@@ -28,10 +30,21 @@ const LevelList = () => {
     delete: false,
   });
   const [selectedLevel, setSelectedLevel] = useState<LevelType>();
-  const { data: levels } = useGetLevelsQuery(+(program_id || 0));
-
+  const { data: lvls } = useGetLevelsQuery(+(program_id || 0));
+  const [levels, setLevels] = useState(lvls?.data);
   const [deleteLevel] = useDeleteLevelMutation();
   const [updateLevel] = useUpdateLevelMutation();
+  const keyword = useAppSelector(selectKeyword);
+
+  useEffect(() => {
+    if (keyword && lvls?.data)
+      setLevels(
+        lvls.data.filter((f) =>
+          f.name.toLowerCase().includes(keyword.toLowerCase())
+        )
+      );
+    else setLevels(lvls?.data);
+  }, [keyword]);
 
   const handleOpenModal = (level: LevelType, type: string) => {
     setSelectedLevel(level);
@@ -114,7 +127,20 @@ const LevelList = () => {
 
       <Table sx={{ minWidth: 650 }}>
         <TableBody>
-          {levels?.data.map((level: LevelType) => (
+          {!levels?.length ? (
+            <TableRow
+              sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+            >
+              <TableCell
+                component="th"
+                scope="row"
+                sx={{ alignItems: "center", display: "flex", gap: "1rem" }}
+              >
+                No items found
+              </TableCell>
+            </TableRow>
+          ) : null}
+          {levels?.map((level: LevelType) => (
             <TableRow
               key={level.id}
               sx={{ "&:last-child td, &:last-child th": { border: 0 } }}

@@ -10,7 +10,7 @@ import {
 import { Box, Button, Checkbox, IconButton, TableHead } from "@mui/material";
 import { Delete, Edit } from "@mui/icons-material";
 import DeleteConfirmationModal from "../../../components/DeleteConfirmationModal";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import InstructorSidebar from "./InstructorsSidebar";
 import {
   useDeleteInstructorMutation,
@@ -21,6 +21,8 @@ import LoadingScreen from "../../../components/LoadingScreen";
 import SuccessModal from "../../../components/SuccessModal";
 import FormModal from "../../../components/FormModal";
 import InstructorForm from "./InstructorsForm";
+import { useAppSelector } from "../../../store/hooks";
+import { selectKeyword } from "../../../store/app.slice";
 
 type Props = {
   selectedInstructor: InstructorType | undefined;
@@ -37,9 +39,24 @@ const InstructorList = ({
     success: false,
   });
   const [openSidebar, setOpenSidebar] = useState(false);
-  const { data: instructors, isLoading } = useGetInstructorsQuery(null);
+  const { data: instrs, isLoading } = useGetInstructorsQuery(null);
+  const [instructors, setInstructors] = useState(instrs?.data);
   const [deleteInstructor, deleteState] = useDeleteInstructorMutation();
   const [updateInstructor, updateState] = useUpdateInstructorMutation();
+  const keyword = useAppSelector(selectKeyword);
+
+  useEffect(() => {
+    if (keyword && instrs?.data)
+      setInstructors(
+        instrs.data.filter(
+          (f) =>
+            f.first_name.toLowerCase().includes(keyword.toLowerCase()) ||
+            f.last_name.toLowerCase().includes(keyword.toLowerCase()) ||
+            f.email.toLowerCase().includes(keyword.toLowerCase())
+        )
+      );
+    else setInstructors(instrs?.data);
+  }, [keyword]);
 
   const handleOpenModal = (instructor: InstructorType, type: string) => {
     setSelectedInstructor(instructor);
@@ -163,7 +180,20 @@ const InstructorList = ({
           </TableRow>
         </TableHead>
         <TableBody>
-          {instructors?.data.map((instructor) => (
+          {!instructors?.length ? (
+            <TableRow
+              sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+            >
+              <TableCell
+                component="th"
+                scope="row"
+                sx={{ alignItems: "center", display: "flex", gap: "1rem" }}
+              >
+                No items found
+              </TableCell>
+            </TableRow>
+          ) : null}
+          {instructors?.map((instructor) => (
             <TableRow
               key={instructor.id}
               sx={{ "&:last-child td, &:last-child th": { border: 0 } }}

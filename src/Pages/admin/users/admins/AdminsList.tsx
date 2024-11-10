@@ -7,7 +7,7 @@ import { AdminFormAction, Admin } from "../../../../types/admins";
 import { Checkbox, IconButton, Typography } from "@mui/material";
 import { Delete, Edit } from "@mui/icons-material";
 import DeleteConfirmationModal from "../../../../components/DeleteConfirmationModal";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   useDeleteAdminMutation,
   useGetAdminsQuery,
@@ -16,6 +16,8 @@ import {
 import FormModal from "../../../../components/FormModal";
 import AdminForm from "./AdminsForm";
 import SuccessModal from "../../../../components/SuccessModal";
+import { useAppSelector } from "../../../../store/hooks";
+import { selectKeyword } from "../../../../store/app.slice";
 
 const AdminsList = () => {
   const [openModal, setOpenModal] = useState({
@@ -24,9 +26,24 @@ const AdminsList = () => {
     delete: false,
   });
   const [selectedAdmin, setSelectedAdmin] = useState<Admin>();
-  const { data: admins } = useGetAdminsQuery(null);
+  const { data: adminsData } = useGetAdminsQuery(null);
+  const [admins, setAdmins] = useState<Admin[] | undefined>(adminsData?.data);
   const [deleteAdmin] = useDeleteAdminMutation();
   const [updateAdmin] = useUpdateAdminMutation();
+  const keyword = useAppSelector(selectKeyword);
+
+  useEffect(() => {
+    if (keyword && adminsData?.data)
+      setAdmins(
+        adminsData.data.filter(
+          (f) =>
+            f.first_name.toLowerCase().includes(keyword.toLowerCase()) ||
+            f.last_name.toLowerCase().includes(keyword.toLowerCase()) ||
+            f.email.toLowerCase().includes(keyword.toLowerCase())
+        )
+      );
+    else setAdmins(adminsData?.data);
+  }, [keyword]);
 
   const handleOpenModal = (admin: Admin, type: string) => {
     setSelectedAdmin(admin);
@@ -111,7 +128,20 @@ const AdminsList = () => {
 
       <Table sx={{ minWidth: 650 }}>
         <TableBody>
-          {admins?.data.map((admin: Admin) => (
+          {!admins?.length ? (
+            <TableRow
+              sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+            >
+              <TableCell
+                component="th"
+                scope="row"
+                sx={{ alignItems: "center", display: "flex", gap: "1rem" }}
+              >
+                No items found
+              </TableCell>
+            </TableRow>
+          ) : null}
+          {admins?.map((admin: Admin) => (
             <TableRow
               key={admin.id}
               sx={{ "&:last-child td, &:last-child th": { border: 0 } }}

@@ -7,7 +7,7 @@ import { StudentFormAction, StudentType } from "../../../../types/students";
 import { Checkbox, IconButton, Typography } from "@mui/material";
 import { Delete, Edit } from "@mui/icons-material";
 import DeleteConfirmationModal from "../../../../components/DeleteConfirmationModal";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   useDeleteStudentMutation,
   useGetStudentsQuery,
@@ -16,6 +16,8 @@ import {
 import FormModal from "../../../../components/FormModal";
 import StudentForm from "./StudentsForm";
 import SuccessModal from "../../../../components/SuccessModal";
+import { useAppSelector } from "../../../../store/hooks";
+import { selectKeyword } from "../../../../store/app.slice";
 
 const StudentsList = () => {
   const [openModal, setOpenModal] = useState({
@@ -24,9 +26,24 @@ const StudentsList = () => {
     delete: false,
   });
   const [selectedStudent, setSelectedStudent] = useState<StudentType>();
-  const { data: students } = useGetStudentsQuery(null);
+  const { data: stds } = useGetStudentsQuery(null);
+  const [students, setStudents] = useState(stds?.data);
   const [deleteStudent] = useDeleteStudentMutation();
   const [updateStudent] = useUpdateStudentMutation();
+  const keyword = useAppSelector(selectKeyword);
+
+  useEffect(() => {
+    if (keyword && stds?.data)
+      setStudents(
+        stds.data.filter(
+          (f) =>
+            f.first_name.toLowerCase().includes(keyword.toLowerCase()) ||
+            f.last_name.toLowerCase().includes(keyword.toLowerCase()) ||
+            f.email.toLowerCase().includes(keyword.toLowerCase())
+        )
+      );
+    else setStudents(stds?.data);
+  }, [keyword]);
 
   const handleOpenModal = (student: StudentType, type: string) => {
     setSelectedStudent(student);
@@ -111,7 +128,20 @@ const StudentsList = () => {
 
       <Table sx={{ minWidth: 650 }}>
         <TableBody>
-          {students?.data.map((student: StudentType) => (
+          {!students?.length ? (
+            <TableRow
+              sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+            >
+              <TableCell
+                component="th"
+                scope="row"
+                sx={{ alignItems: "center", display: "flex", gap: "1rem" }}
+              >
+                No items found
+              </TableCell>
+            </TableRow>
+          ) : null}
+          {students?.map((student: StudentType) => (
             <TableRow
               key={student.id}
               sx={{ "&:last-child td, &:last-child th": { border: 0 } }}

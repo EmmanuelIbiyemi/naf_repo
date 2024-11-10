@@ -7,7 +7,7 @@ import { Programme, ProgrammeFormAction } from "../../../../types/programmes";
 import { Button, Checkbox, IconButton } from "@mui/material";
 import { Delete, Edit } from "@mui/icons-material";
 import DeleteConfirmationModal from "../../../../components/DeleteConfirmationModal";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   useDeleteProgrammeMutation,
   useGetProgrammesQuery,
@@ -17,6 +17,8 @@ import FormModal from "../../../../components/FormModal";
 import ProgrammeForm from "./ProgrammeForm";
 import SuccessModal from "../../../../components/SuccessModal";
 import { useNavigate, useParams } from "react-router-dom";
+import { useAppSelector } from "../../../../store/hooks";
+import { selectKeyword } from "../../../../store/app.slice";
 
 const ProgrammeList = () => {
   const { department_id, faculty_id } = useParams();
@@ -27,9 +29,21 @@ const ProgrammeList = () => {
     delete: false,
   });
   const [selectedProgramme, setSelectedProgramme] = useState<Programme>();
-  const { data: programme } = useGetProgrammesQuery(+(department_id || 0));
+  const { data: prgms } = useGetProgrammesQuery(+(department_id || 0));
+  const [programmes, setProgrammes] = useState(prgms?.data);
   const [deleteProgramme] = useDeleteProgrammeMutation();
   const [updateProgramme] = useUpdateProgrammeMutation();
+  const keyword = useAppSelector(selectKeyword);
+
+  useEffect(() => {
+    if (keyword && prgms?.data)
+      setProgrammes(
+        prgms.data.filter((f) =>
+          f.name.toLowerCase().includes(keyword.toLowerCase())
+        )
+      );
+    else setProgrammes(prgms?.data);
+  }, [keyword]);
 
   const handleOpenModal = (programme: Programme, type: string) => {
     setSelectedProgramme(programme);
@@ -112,7 +126,20 @@ const ProgrammeList = () => {
 
       <Table sx={{ minWidth: 650 }}>
         <TableBody>
-          {programme?.data.map((programme: Programme) => (
+          {!programmes?.length ? (
+            <TableRow
+              sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+            >
+              <TableCell
+                component="th"
+                scope="row"
+                sx={{ alignItems: "center", display: "flex", gap: "1rem" }}
+              >
+                No items found
+              </TableCell>
+            </TableRow>
+          ) : null}
+          {programmes?.map((programme: Programme) => (
             <TableRow
               key={programme.id}
               sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
