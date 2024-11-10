@@ -14,7 +14,7 @@ import {
   TableHead,
   Typography,
 } from "@mui/material";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import DeleteConfirmationModal from "../../../../components/DeleteConfirmationModal";
 import { Check, Delete } from "@mui/icons-material";
 import LoadingScreen from "../../../../components/LoadingScreen";
@@ -23,6 +23,8 @@ import {
   useGetApplicantsQuery,
   useUpdateApplicantStatusMutation,
 } from "../../../../store/api/applicants.api";
+import { useAppSelector } from "../../../../store/hooks";
+import { selectKeyword } from "../../../../store/app.slice";
 
 const ApplicantList = () => {
   const [openModal, setOpenModal] = useState({
@@ -33,10 +35,25 @@ const ApplicantList = () => {
   const [selectedApplicant, setSelectedApplicant] = useState<ApplicantType>();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
-  const { data: applicants, isLoading } = useGetApplicantsQuery(null);
+  const { data: apcts, isLoading } = useGetApplicantsQuery(null);
+  const [applicants, setApplicants] = useState(apcts?.data);
   const [deleteApplicant, deleteState] = useDeleteApplicantMutation();
   const [updateApplicantStatus, updateState] =
     useUpdateApplicantStatusMutation();
+  const keyword = useAppSelector(selectKeyword);
+
+  useEffect(() => {
+    if (keyword && apcts?.data)
+      setApplicants(
+        apcts.data.filter(
+          (f) =>
+            f.data.first_name.toLowerCase().includes(keyword.toLowerCase()) ||
+            f.data.last_name.toLowerCase().includes(keyword.toLowerCase()) ||
+            f.data.email.toLowerCase().includes(keyword.toLowerCase())
+        )
+      );
+    else setApplicants(apcts?.data);
+  }, [keyword]);
 
   const menuList = [
     {
@@ -173,7 +190,20 @@ const ApplicantList = () => {
           </TableRow>
         </TableHead>
         <TableBody>
-          {applicants?.data.map((applicant) => (
+          {!applicants?.length ? (
+            <TableRow
+              sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+            >
+              <TableCell
+                component="th"
+                scope="row"
+                sx={{ alignItems: "center", display: "flex", gap: "1rem" }}
+              >
+                No items found
+              </TableCell>
+            </TableRow>
+          ) : null}
+          {applicants?.map((applicant) => (
             <TableRow
               key={applicant.id}
               sx={{ "&:last-child td, &:last-child th": { border: 0 } }}

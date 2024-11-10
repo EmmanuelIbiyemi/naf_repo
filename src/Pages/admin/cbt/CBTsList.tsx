@@ -6,7 +6,7 @@ import TableRow from "@mui/material/TableRow";
 import { InstructorQuizzesResponse } from "../../../types/quizzes";
 import { Box, IconButton, TableHead } from "@mui/material";
 import DeleteConfirmationModal from "../../../components/DeleteConfirmationModal";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   useDeleteQuizMutation,
   useGetQuizzesQuery,
@@ -16,6 +16,8 @@ import LoadingScreen from "../../../components/LoadingScreen";
 import dayjs from "dayjs";
 import { Delete } from "@mui/icons-material";
 import { Link } from "react-router-dom";
+import { useAppSelector } from "../../../store/hooks";
+import { selectKeyword } from "../../../store/app.slice";
 
 const QuizList = () => {
   const [openModal, setOpenModal] = useState({
@@ -23,9 +25,21 @@ const QuizList = () => {
     delete: false,
     success: false,
   });
-  const { data: Quizzes, isLoading } = useGetQuizzesQuery(null);
+  const { data: qzs, isLoading } = useGetQuizzesQuery(null);
+  const [quizzes, setQuizzes] = useState(qzs?.data);
   const [deleteQuiz, deleteState] = useDeleteQuizMutation();
   const [selectedQuiz, setSelectedQuiz] = useState<InstructorQuizzesResponse>();
+  const keyword = useAppSelector(selectKeyword);
+
+  useEffect(() => {
+    if (keyword && qzs?.data)
+      setQuizzes(
+        qzs.data.filter((f) =>
+          f.name.toLowerCase().includes(keyword.toLowerCase())
+        )
+      );
+    else setQuizzes(qzs?.data);
+  }, [keyword]);
 
   const handleOpenModal = (quiz: InstructorQuizzesResponse, type: string) => {
     setSelectedQuiz(quiz);
@@ -108,7 +122,20 @@ const QuizList = () => {
           </TableRow>
         </TableHead>
         <TableBody>
-          {Quizzes?.data.map((quiz) => (
+          {!quizzes?.length ? (
+            <TableRow
+              sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+            >
+              <TableCell
+                component="th"
+                scope="row"
+                sx={{ alignItems: "center", display: "flex", gap: "1rem" }}
+              >
+                No items found
+              </TableCell>
+            </TableRow>
+          ) : null}
+          {quizzes?.map((quiz) => (
             <TableRow
               key={quiz.id}
               sx={{ "&:last-child td, &:last-child th": { border: 0 } }}

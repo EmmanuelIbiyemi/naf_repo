@@ -7,7 +7,7 @@ import { Box, Checkbox, IconButton, Typography } from "@mui/material";
 import { Delete, Edit } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import DeleteConfirmationModal from "../../../../components/DeleteConfirmationModal";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useAppDispatch, useAppSelector } from "../../../../store/hooks";
 import {
   selectCurrentForm,
@@ -19,14 +19,27 @@ import {
   useGetFormsQuery,
 } from "../../../../store/api/form.api";
 import dayjs from "dayjs";
+import { selectKeyword } from "../../../../store/app.slice";
 
 const FormList = () => {
-  const { data: forms } = useGetFormsQuery(null);
+  const { data: frms } = useGetFormsQuery(null);
+  const [forms, setForms] = useState(frms?.data);
   const dispatch = useAppDispatch();
   const selectedForm = useAppSelector(selectCurrentForm);
   const [openModal, setOpenModal] = useState(false);
   const navigate = useNavigate();
   const [deleteForm] = useDeleteFormMutation();
+  const keyword = useAppSelector(selectKeyword);
+
+  useEffect(() => {
+    if (keyword && frms?.data)
+      setForms(
+        frms.data.filter((f) =>
+          f.name.toLowerCase().includes(keyword.toLowerCase())
+        )
+      );
+    else setForms(frms?.data);
+  }, [keyword]);
 
   const handleOpenModal = (form: FormType2) => {
     dispatch(setCurrentForm(form));
@@ -67,7 +80,20 @@ const FormList = () => {
 
       <Table sx={{ minWidth: 650 }}>
         <TableBody>
-          {forms?.data.map((form) => (
+          {!forms?.length ? (
+            <TableRow
+              sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+            >
+              <TableCell
+                component="th"
+                scope="row"
+                sx={{ alignItems: "center", display: "flex", gap: "1rem" }}
+              >
+                No items found
+              </TableCell>
+            </TableRow>
+          ) : null}
+          {forms?.map((form) => (
             <TableRow
               key={form.id}
               sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
