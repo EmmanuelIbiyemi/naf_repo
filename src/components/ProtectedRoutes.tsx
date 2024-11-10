@@ -46,7 +46,7 @@ const allowedRoutes = {
     "/instructor/courses/:id/notes/new",
     "/instructor/courses/:id/tests",
     "/instructor/courses/:id/tests/:testId",
-    "/instructor/courses/:id/tests/:testId/detail/:id",
+    "/instructor/courses/:id/tests/:testId/detail/:user_id/:id",
     "/instructor/courses/:id/classes",
     "/instructor/courses/:id/tests/manual-input",
     "/instructor/reports",

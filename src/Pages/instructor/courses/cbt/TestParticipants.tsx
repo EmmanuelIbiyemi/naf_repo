@@ -47,6 +47,8 @@ const Students = () => {
     );
   }
 
+  console.log(quizData);
+
   return (
     <Box ref={containerRef} className="content-container">
       <Box

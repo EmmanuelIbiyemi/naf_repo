@@ -9,7 +9,6 @@ import * as yup from "yup";
 import CustomSuccessModal from "../../../../components/CustomSuccessModal";
 import SuccessModal from "../../../../components/SuccessModal";
 import DeleteConfirmationModal from "../../../../components/DeleteConfirmationModal";
-// import GenerateReportModal from "./GenerateReportModal";
 import CreateTestModal from "./stepmodals/CreateTestModal";
 import QuizzesItemsList from "../QuizzesItemsList";
 import { InstructorQuizzesResponse } from "../../../../types/quizzes";
@@ -17,16 +16,12 @@ import {
   useDeleteQuizMutation,
   useGetInstructorCourseQuizzesQuery,
 } from "../../../../store/api/quizzes.api";
-import {
-  useGetCourseQuery,
-  // useGetInstructorCoursesQuery,
-} from "../../../../store/api/courses.api";
+import { useGetCourseQuery } from "../../../../store/api/courses.api";
 import { useGetCourseParticipantsQuery } from "../../../../store/api/participants.api";
 
 const Tests = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [openCreateTestModal, setOpenCreateTestModal] = useState(false);
-  // const [openGenerateReportModal, setOpenGenerateReportModal] = useState(false);
   const [openActionsModal, setOpenActionsModal] = useState({
     edit: false,
     success: false,
@@ -45,9 +40,6 @@ const Tests = () => {
 
   const handleOpenCreateTestModal = () => setOpenCreateTestModal(true);
   const handleCloseCreateTestModal = () => setOpenCreateTestModal(false);
-  // const handleOpenGenerateReportModal = () => setOpenGenerateReportModal(true);
-  // const handleCloseGenerateReportModal = () =>
-  //   setOpenGenerateReportModal(false);
   const [openFileSuccessModal, setOpenFileSuccessModal] = useState(false);
 
   const { data: participants, isLoading: isFetchingParticipants } =
@@ -118,26 +110,19 @@ const Tests = () => {
     },
   });
 
-  // const { data: courses } = useGetCoursesQuery(null);
-  // const [addCourse] = useAddCourseMutation();
-
   // set page name
   const dispatch = useAppDispatch();
   useEffect(() => {
     dispatch(setPageName("Course"));
   }, [dispatch]);
 
-  // const handleAddCourse = async (course: CourseCreateType2) => {
-  //   try {
-  //     // await addCourse(course).unwrap();
-  //     console.log("Added");
-  //     handleCloseActionsModal("add");
-  //     handleOpenModal("success");
-  //     setCourseName(course.name);
-  //   } catch (error) {
-  //     console.log(error);
-  //   }
-  // };
+  const sortedQuizzes = quizzes?.data
+    ? [...quizzes.data].sort((a, b) => {
+        return (
+          new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+        );
+      })
+    : [];
 
   return (
     <Box
@@ -146,16 +131,6 @@ const Tests = () => {
       component="form"
       onSubmit={formik.handleSubmit}
     >
-      {/* <FormModal open={openActionsModal.edit} close={() => handleCloseActionsModal("edit")}>
-        <NotesForm
-          actions={{
-            submit: handleAddCourse as CourseFormAction,
-            cancel: () => handleCloseActionsModal("add"),
-          }}
-          course={selectedTests}
-        />
-      </FormModal> */}
-
       <CreateTestModal
         open={openCreateTestModal}
         handleClose={handleCloseCreateTestModal}
@@ -199,7 +174,7 @@ const Tests = () => {
         /> */}
         <Box>
           <QuizzesItemsList
-            lists={quizzes?.data || []}
+            lists={sortedQuizzes}
             handleOpenActionsModal={handleOpenActionsModal}
             handleEditActionsModal={handleEditActionsModal}
             deleteIcon={true}
