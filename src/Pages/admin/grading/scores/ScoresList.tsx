@@ -16,7 +16,7 @@ import {
 import { Delete, Edit } from "@mui/icons-material";
 import { Link } from "react-router-dom";
 import DeleteConfirmationModal from "../../../../components/DeleteConfirmationModal";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   useDeleteScoreMutation,
   useGetScoresQuery,
@@ -28,6 +28,8 @@ import SuccessModal from "../../../../components/SuccessModal";
 import { useGetFacultiesQuery } from "../../../../store/api/faculties.api";
 import { useGetDepartmentsMMutation } from "../../../../store/api/departments.api";
 import { useGetProgrammesMMutation } from "../../../../store/api/programmes.api";
+import { useAppSelector } from "../../../../store/hooks";
+import { selectKeyword } from "../../../../store/app.slice";
 
 const ScoresList = () => {
   const [openModal, setOpenModal] = useState({
@@ -46,7 +48,19 @@ const ScoresList = () => {
     department_id: 0,
     program_id: 0,
   });
-  const { data: scores } = useGetScoresQuery(filters.program_id);
+  const { data: scrs } = useGetScoresQuery(filters.program_id);
+  const [scores, setScores] = useState(scrs?.data);
+  const keyword = useAppSelector(selectKeyword);
+
+  useEffect(() => {
+    if (keyword && scrs?.data)
+      setScores(
+        scrs.data.filter((f) =>
+          f.name.toLowerCase().includes(keyword.toLowerCase())
+        )
+      );
+    else setScores(scrs?.data);
+  }, [keyword]);
 
   const handleOpenModal = (score: Score, type: string) => {
     setSelectedScore(score);
@@ -211,39 +225,49 @@ const ScoresList = () => {
             <TableCell align="center">Actions</TableCell>
           </TableRow>
         </TableHead>
-        {scores?.data.length ? (
-          <TableBody>
-            {scores?.data.map((score: Score) => (
-              <TableRow
-                key={score.id}
-                sx={{
-                  "&:last-child td, &:last-child th": { border: 0 },
-                }}
+
+        <TableBody>
+          {!scores?.length ? (
+            <TableRow
+              sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+            >
+              <TableCell
+                component="th"
+                scope="row"
+                sx={{ alignItems: "center", display: "flex", gap: "1rem" }}
               >
-                <TableCell
-                  component="th"
-                  scope="row"
-                  sx={{ alignItems: "center", display: "flex", gap: "1rem" }}
-                >
-                  <Link to={`/scores/${score.id}`}>{score.name}</Link>
-                </TableCell>
-                <TableCell>{score.min_score}</TableCell>
-                <TableCell>{score.max_score}</TableCell>
-                <TableCell>{score.remark}</TableCell>
-                <TableCell align="center">
-                  <IconButton onClick={() => handleOpenModal(score, "edit")}>
-                    <Edit />
-                  </IconButton>
-                  <IconButton onClick={() => handleOpenModal(score, "delete")}>
-                    <Delete />
-                  </IconButton>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        ) : (
-          <Box>No scores found.</Box>
-        )}
+                No items found
+              </TableCell>
+            </TableRow>
+          ) : null}
+          {scores?.map((score: Score) => (
+            <TableRow
+              key={score.id}
+              sx={{
+                "&:last-child td, &:last-child th": { border: 0 },
+              }}
+            >
+              <TableCell
+                component="th"
+                scope="row"
+                sx={{ alignItems: "center", display: "flex", gap: "1rem" }}
+              >
+                <Link to={`/scores/${score.id}`}>{score.name}</Link>
+              </TableCell>
+              <TableCell>{score.min_score}</TableCell>
+              <TableCell>{score.max_score}</TableCell>
+              <TableCell>{score.remark}</TableCell>
+              <TableCell align="center">
+                <IconButton onClick={() => handleOpenModal(score, "edit")}>
+                  <Edit />
+                </IconButton>
+                <IconButton onClick={() => handleOpenModal(score, "delete")}>
+                  <Delete />
+                </IconButton>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
       </Table>
     </TableContainer>
   );

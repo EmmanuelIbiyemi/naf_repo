@@ -12,7 +12,7 @@ import {
   TableBody,
   TableHead,
 } from "@mui/material";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useGetResultsMMutation } from "../../../../store/api/results.api";
 import { useGetFacultiesQuery } from "../../../../store/api/faculties.api";
 import { useGetDepartmentsMMutation } from "../../../../store/api/departments.api";
@@ -20,6 +20,8 @@ import { useGetProgrammesMMutation } from "../../../../store/api/programmes.api"
 import { useGetLevelsMMutation } from "../../../../store/api/levels.api";
 import { useGetSessionsQuery } from "../../../../store/api/sessions.api";
 import { useGetSemestersQuery } from "../../../../store/api/semesters.api";
+import { selectKeyword } from "../../../../store/app.slice";
+import { useAppSelector } from "../../../../store/hooks";
 
 const ResultsList = () => {
   const { data: faculties } = useGetFacultiesQuery(null);
@@ -37,7 +39,25 @@ const ResultsList = () => {
     semester: "",
   });
   const [getResults, resultState] = useGetResultsMMutation();
-  // const [getResults] = useGetResultsMMutation();
+  const [results, setResults] = useState(resultState.data?.data);
+  const keyword = useAppSelector(selectKeyword);
+
+  useEffect(() => {
+    if (keyword && resultState.data?.data)
+      setResults(
+        resultState.data?.data.filter(
+          (f) =>
+            f.participant.first_name
+              .toLowerCase()
+              .includes(keyword.toLowerCase()) ||
+            f.participant.last_name
+              .toLowerCase()
+              .includes(keyword.toLowerCase()) ||
+            f.participant.email.toLowerCase().includes(keyword.toLowerCase())
+        )
+      );
+    else setResults(resultState.data?.data);
+  }, [keyword]);
 
   const handleChange = async (e: SelectChangeEvent<number | string>) => {
     const { target } = e;
@@ -202,35 +222,45 @@ const ResultsList = () => {
             </TableCell>
           </TableRow>
         </TableHead>
-        {resultState.data?.data.length ? (
-          <TableBody>
-            {resultState?.data.data.map((result) => (
-              <TableRow
-                key={result.id}
-                sx={{
-                  "&:last-child td, &:last-child th": { border: 0 },
-                }}
+
+        <TableBody>
+          {!results?.length ? (
+            <TableRow
+              sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+            >
+              <TableCell
+                component="th"
+                scope="row"
+                sx={{ alignItems: "center", display: "flex", gap: "1rem" }}
               >
-                <TableCell>{result.participant.matric_number}</TableCell>
-                <TableCell
-                  component="th"
-                  scope="row"
-                  sx={{ alignItems: "center", display: "flex", gap: "1rem" }}
-                >
-                  {result.participant.first_name} {result.participant.last_name}
-                </TableCell>
-                <TableCell>{result.level.name}</TableCell>
-                <TableCell>{result.summary.grade_point_average}</TableCell>
-                <TableCell>
-                  {result.summary.cumulative_grade_point_average}
-                </TableCell>
-                <TableCell>{result.details[0].score_remark}</TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        ) : (
-          <Box>No results found.</Box>
-        )}
+                No items found
+              </TableCell>
+            </TableRow>
+          ) : null}
+          {results?.map((result) => (
+            <TableRow
+              key={result.id}
+              sx={{
+                "&:last-child td, &:last-child th": { border: 0 },
+              }}
+            >
+              <TableCell>{result.participant.matric_number}</TableCell>
+              <TableCell
+                component="th"
+                scope="row"
+                sx={{ alignItems: "center", display: "flex", gap: "1rem" }}
+              >
+                {result.participant.first_name} {result.participant.last_name}
+              </TableCell>
+              <TableCell>{result.level.name}</TableCell>
+              <TableCell>{result.summary.grade_point_average}</TableCell>
+              <TableCell>
+                {result.summary.cumulative_grade_point_average}
+              </TableCell>
+              <TableCell>{result.details[0].score_remark}</TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
       </Table>
     </TableContainer>
   );

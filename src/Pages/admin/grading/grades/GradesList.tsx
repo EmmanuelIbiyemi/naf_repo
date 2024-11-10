@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Table,
   TableBody,
@@ -30,6 +30,8 @@ import { Grade, GradeFormAction } from "../../../../types/grades";
 import { useGetDepartmentsMMutation } from "../../../../store/api/departments.api";
 import { useGetProgrammesMMutation } from "../../../../store/api/programmes.api";
 import { useGetFacultiesQuery } from "../../../../store/api/faculties.api";
+import { useAppSelector } from "../../../../store/hooks";
+import { selectKeyword } from "../../../../store/app.slice";
 
 const GradesList: React.FC = () => {
   const [openModal, setOpenModal] = useState({
@@ -48,7 +50,19 @@ const GradesList: React.FC = () => {
     department_id: 0,
     program_id: 0,
   });
-  const { data: grades, isLoading } = useGetGradesQuery(filters.program_id);
+  const { data: grds, isLoading } = useGetGradesQuery(filters.program_id);
+  const [grades, setGrades] = useState(grds?.data);
+  const keyword = useAppSelector(selectKeyword);
+
+  useEffect(() => {
+    if (keyword && grds?.data)
+      setGrades(
+        grds.data.filter((f) =>
+          f.name.toLowerCase().includes(keyword.toLowerCase())
+        )
+      );
+    else setGrades(grds?.data);
+  }, [keyword]);
 
   const handleOpenModal = (grade: Grade, type: string) => {
     setSelectedGrade(grade);
@@ -226,47 +240,56 @@ const GradesList: React.FC = () => {
           </TableRow>
         </TableHead>
 
-        {grades?.data.length ? (
-          <TableBody>
-            {grades.data.map((grade: Grade) => (
-              <TableRow
-                key={grade.id}
-                sx={{
-                  "&:last-child td, &:last-child th": { border: 0 },
-                  "td.MuiTableCell-body": {
-                    padding: 0,
-                  },
-                }}
+        <TableBody>
+          {!grades?.length ? (
+            <TableRow
+              sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+            >
+              <TableCell
+                component="th"
+                scope="row"
+                sx={{ alignItems: "center", display: "flex", gap: "1rem" }}
               >
-                <TableCell
-                  component="th"
-                  scope="row"
-                  sx={{ alignItems: "center", display: "flex", gap: "1rem" }}
+                No items found
+              </TableCell>
+            </TableRow>
+          ) : null}
+          {grades?.map((grade: Grade) => (
+            <TableRow
+              key={grade.id}
+              sx={{
+                "&:last-child td, &:last-child th": { border: 0 },
+                "td.MuiTableCell-body": {
+                  padding: 0,
+                },
+              }}
+            >
+              <TableCell
+                component="th"
+                scope="row"
+                sx={{ alignItems: "center", display: "flex", gap: "1rem" }}
+              >
+                <Checkbox />
+                <Link
+                  to={`/grades/${grade.id}`}
+                  style={{ textTransform: "capitalize" }}
                 >
-                  <Checkbox />
-                  <Link
-                    to={`/grades/${grade.id}`}
-                    style={{ textTransform: "capitalize" }}
-                  >
-                    {grade.name}
-                  </Link>
-                </TableCell>
-                <TableCell align="right">{grade.point}</TableCell>
-                <TableCell align="right">{grade.program_id}</TableCell>
-                <TableCell align="right">
-                  <IconButton onClick={() => handleOpenModal(grade, "edit")}>
-                    <Edit />
-                  </IconButton>
-                  <IconButton onClick={() => handleOpenModal(grade, "delete")}>
-                    <Delete />
-                  </IconButton>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        ) : (
-          <Box>No grades found.</Box>
-        )}
+                  {grade.name}
+                </Link>
+              </TableCell>
+              <TableCell align="right">{grade.point}</TableCell>
+              <TableCell align="right">{grade.program_id}</TableCell>
+              <TableCell align="right">
+                <IconButton onClick={() => handleOpenModal(grade, "edit")}>
+                  <Edit />
+                </IconButton>
+                <IconButton onClick={() => handleOpenModal(grade, "delete")}>
+                  <Delete />
+                </IconButton>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
       </Table>
     </TableContainer>
   );

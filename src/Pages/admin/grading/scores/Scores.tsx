@@ -94,14 +94,6 @@ const ScoresPage = () => {
         }}
       >
         <ScoreList />
-        {/* {scores?.data && scores.data.length > 0 ? (
-          <ScoreList />
-        ) : (
-          <EmptyState
-            title="No Scores at this time"
-            subTitle="Scores will appear here after you add them in your school."
-          />
-        )} */}
       </Box>
     </Box>
   );
