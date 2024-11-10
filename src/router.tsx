@@ -66,6 +66,7 @@ const PostTypeItemsAddPage = lazy(
   () => import("./Pages/admin/pages/DynamicPage")
 );
 const CBTsPage = lazy(() => import("./Pages/admin/cbt/CBT"));
+const Profile = lazy(() => import("./Pages/admin/settings/Profile"));
 
 // Instructor
 
@@ -234,6 +235,7 @@ export const router = createBrowserRouter([
         element: <AdminSettingsPage />,
         children: [
           { path: "", element: <MediaLibrary /> },
+          { path: "profile", element: <Profile /> },
           { path: "posttype/:resource_type", element: <PostTypeItemsPage /> },
           {
             path: "posttype/:resource_type/:post_id",

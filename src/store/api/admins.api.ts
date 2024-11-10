@@ -1,8 +1,4 @@
-import {
-  Admin,
-  AdminCreateType,
-  AdminResponse,
-} from "../../types/admins";
+import { Admin, AdminCreateType, AdminResponse } from "../../types/admins";
 import { appApi } from "./app.api";
 
 const adminsApi = appApi.injectEndpoints({
@@ -11,7 +7,7 @@ const adminsApi = appApi.injectEndpoints({
       query: () => "/admin",
       providesTags: ["Admins"],
     }),
-    getAdmin: builder.query<AdminResponse, number>({
+    getAdmin: builder.query<{ data: Admin }, number>({
       query: (admin_id) => `/admin/${admin_id}`,
       providesTags: ["Admins"],
     }),

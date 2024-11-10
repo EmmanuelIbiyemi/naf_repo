@@ -33,6 +33,7 @@ const allowedRoutes = {
     "/grading/page/:name",
     "/grading/results",
     "/settings",
+    "/settings/profile",
     "/settings/posttype/:resource_type",
     "/settings/posttype/:resource_type/:post_id",
     "/settings/posttype/:resource_type/add",
@@ -95,7 +96,7 @@ const PrivateRoute = () => {
     pathMatches(allowedRoute, location.pathname)
   );
 
-  return isAllowed ? <App /> : <Navigate to="/unauthorized" replace />;
+  return isAllowed ? <App /> : <Navigate to="/login" replace />;
 };
 
 export default PrivateRoute;
