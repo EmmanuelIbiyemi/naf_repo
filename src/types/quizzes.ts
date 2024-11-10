@@ -54,13 +54,7 @@ interface QuizResponse {
   status: string;
 }
 
-export type { 
-  Option,
-  Question,
-  Assessment,
-  QuizData,
-  QuizResponse
-};
+export type { Option, Question, Assessment, QuizData, QuizResponse };
 
 export interface QuizzesResponse {
   data: {
@@ -99,9 +93,18 @@ export interface InstructorQuizzesResponse {
   updated_at: string;
 }
 
-
-
 export interface CreateQuiz {
+  name: string;
+  instructions: string;
+  time_allowed: number;
+  start_date: string;
+  expiry_date: string;
+  obtainable_score: number;
+  type: string;
+  show_result: boolean;
+}
+
+export interface CreateQuiz2 {
   name: string;
   instructions: string;
   time_allowed: number;
@@ -177,7 +180,6 @@ export interface QuizUserResultResponse {
   result: QuizResults;
 }
 
-
 export interface QuizResultResponse {
   data: {
     answers: Answer[];
@@ -200,7 +202,7 @@ interface Answer {
   user_id: number;
 }
 
-interface Quiz {
+export interface Quiz {
   assessments: Assessment[];
   code: string;
   created_at: string;

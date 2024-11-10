@@ -53,7 +53,7 @@ const Login = () => {
     const roleRoutes = {
       participant: "/student/dashboard",
       admin: "/",
-      instructor: "/instructor"
+      instructor: "/instructor",
     };
     return roleRoutes[role as keyof typeof roleRoutes] || "/login";
   };
@@ -65,23 +65,19 @@ const Login = () => {
     try {
       setError(null);
       const response = await loginUser(values).unwrap();
-      
+
       // Log the response to debug
-      console.log('Login response:', response);
-      
       if (!response.user?.role) {
-        throw new Error('User role not found in response');
+        throw new Error("User role not found in response");
       }
 
       dispatch(login(response));
-      
+
       // Navigate based on role
       const initialRoute = getInitialRoute(response.user.role);
-      console.log('Navigating to:', initialRoute);
       navigate(initialRoute);
-      
     } catch (error) {
-      console.error('Login error:', error);
+      console.error("Login error:", error);
       const loginError = error as LoginError;
       setError(
         loginError.data?.message ||
@@ -91,7 +87,7 @@ const Login = () => {
       setSubmitting(false);
     }
   };
-  
+
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
   };

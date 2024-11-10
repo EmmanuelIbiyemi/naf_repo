@@ -45,14 +45,6 @@ const PageHeader = ({ button, secondaryButton }: Props) => {
       >
         <Form>
           <Box sx={formGroupStyles}>
-            <Box sx={fieldStyles}>
-              <Field as="select" name="filter">
-                <option value="">Add filter</option>
-                <option value="1">option</option>
-                <option value="2">option</option>
-                <option value="3">option</option>
-              </Field>
-            </Box>
             <Box sx={searchFieldStyles}>
               <Search />
               <Field name="keyword" placeholder="Search..." />
@@ -62,29 +54,30 @@ const PageHeader = ({ button, secondaryButton }: Props) => {
       </Formik>
       {button ? (
         <Box sx={formGroupStyles}>
-          {secondaryButton ? (
-            <Button
-              onClick={secondaryButton.action}
-              variant="contained"
-              sx={{
-                bgcolor: "#fff",
-                color: "primary.main",
-                textTransform: "capitalize",
-              }}
-            >
-              {secondaryButton.text}
-            </Button>
-          ) : null
-          // <Button
-          //   variant="contained"
-          //   sx={{
-          //     bgcolor: "#fff",
-          //     color: "primary.main",
-          //     textTransform: "capitalize",
-          //   }}
-          // >
-          //   Export CSV
-          // </Button>
+          {
+            secondaryButton ? (
+              <Button
+                onClick={secondaryButton.action}
+                variant="contained"
+                sx={{
+                  bgcolor: "#fff",
+                  color: "primary.main",
+                  textTransform: "capitalize",
+                }}
+              >
+                {secondaryButton.text}
+              </Button>
+            ) : null
+            // <Button
+            //   variant="contained"
+            //   sx={{
+            //     bgcolor: "#fff",
+            //     color: "primary.main",
+            //     textTransform: "capitalize",
+            //   }}
+            // >
+            //   Export CSV
+            // </Button>
           }
           <Button
             onClick={button.action}

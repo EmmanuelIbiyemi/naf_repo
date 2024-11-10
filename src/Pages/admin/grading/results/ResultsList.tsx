@@ -205,30 +205,30 @@ const ResultsList = () => {
           </TableRow>
         </TableHead>
         {/* {results?.data.length ? (
-            <TableBody>
-              {results?.data.map((result: Result) => (
-                <TableRow
-                  key={result.id}
-                  sx={{
-                    "&:last-child td, &:last-child th": { border: 0 },
-                  }}
+          <TableBody>
+            {results?.data.map((result: Result) => (
+              <TableRow
+                key={result.id}
+                sx={{
+                  "&:last-child td, &:last-child th": { border: 0 },
+                }}
+              >
+                <TableCell
+                  component="th"
+                  scope="row"
+                  sx={{ alignItems: "center", display: "flex", gap: "1rem" }}
                 >
-                  <TableCell
-                    component="th"
-                    scope="row"
-                    sx={{ alignItems: "center", display: "flex", gap: "1rem" }}
-                  >
-                    <Link to={`/results/${result.id}`}>{result.name}</Link>
-                  </TableCell>
-                  <TableCell>{result.remark}</TableCell>
-                  <TableCell>{result.remark}</TableCell>
-                  <TableCell>{result.remark}</TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          ) : (
-            <Box>No results found.</Box>
-          )} */}
+                  <Link to={`/results/${result.id}`}>{result.name}</Link>
+                </TableCell>
+                <TableCell>{result.remark}</TableCell>
+                <TableCell>{result.remark}</TableCell>
+                <TableCell>{result.remark}</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        ) : (
+          <Box>No results found.</Box>
+        )} */}
       </Table>
     </TableContainer>
   );

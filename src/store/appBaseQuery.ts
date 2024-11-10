@@ -32,13 +32,17 @@ export const baseQueryWithReauth: BaseQueryFn<
   if (result.error && result.error.status === 401) {
     // Attempt to refresh the token
     const refreshToken = localStorage.getItem("refresh_token");
+    const user = JSON.parse(localStorage.getItem("user") as string);
 
-    if (refreshToken) {
+    if (refreshToken && user) {
       const refreshResult = await myBaseQuery(
         {
-          url: "/auth/refresh",
+          url: "/user/refresh",
           method: "POST",
-          body: { refresh_token: refreshToken },
+          headers: {
+            Authorization: `Bearer ${refreshToken}`,
+          },
+          body: { email: user.email },
         },
         api,
         extraOptions

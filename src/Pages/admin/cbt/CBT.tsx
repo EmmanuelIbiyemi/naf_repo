@@ -1,118 +1,58 @@
 import { Box } from "@mui/material";
+import { useEffect, useState } from "react";
+import CBTForm from "./components/QuizzesForm";
+import QuizList from "./CBTsList";
 import { useAppDispatch } from "../../../store/hooks";
 import { setPageName } from "../../../store/app.slice";
-import PageHeader from "../../../components/PageHeader";
-import FormModal from "../../../components/FormModal";
-import { useState } from "react";
-import CBTSubjectForm from "./CBTSubjectForm";
 import SuccessModal from "../../../components/SuccessModal";
-import { CBTSubjectType } from "../../../types/subjects";
+import LoadingScreen from "../../../components/LoadingScreen";
+import FormModal from "../../../components/FormModal";
 import EmptyState from "../../../components/EmptyState";
-import CBTtList from "./CBTList";
-import HostCBTModal from "./components/HostCBTModal";
+import { useGetQuizzesQuery } from "../../../store/api/quizzes.api";
+import PageHeader from "../../../components/PageHeader";
 
-const CBTPage = () => {
+const CBTsPage = () => {
   const [openModal, setOpenModal] = useState({
     add: false,
     edit: false,
     success: false,
-    delete: false,
-    host: false,
+    delete: true,
   });
-  const [selectedSubject, setSelectedSubject] = useState<CBTSubjectType>();
-  const [subjects, setSubjects] = useState<CBTSubjectType[]>([
-    {
-      id: 1,
-      name: "Subject 1",
-      questions: [
-        {
-          id: 1,
-          options: ["option 1", "option 2", "option 3", "option 4"],
-          question: "What is the meaning of life ?",
-          answer: "option 1",
-        },
-        {
-          id: 2,
-          options: ["option 1", "option 2", "option 3", "option 4"],
-          question: "What is the meaning of life ?",
-          answer: "option 1",
-        },
-        {
-          id: 3,
-          options: ["option 1", "option 2", "option 3", "option 4"],
-          question: "What is the meaning of life ?",
-          answer: "option 1",
-        },
-      ],
-    },
-  ]);
+  const { data: Quizzes, isLoading } = useGetQuizzesQuery(null);
 
+  // set page name
   const dispatch = useAppDispatch();
-  dispatch(setPageName("CBT Screening"));
-
-  const handleCloseModal = (type: string) => {
-    setOpenModal((prev) => ({ ...prev, [type]: false }));
-  };
+  useEffect(() => {
+    dispatch(setPageName("Quizzes"));
+  }, []);
 
   const handleOpenModal = (type: string) => {
     setOpenModal((prev) => ({ ...prev, [type]: true }));
   };
 
-  const handleOpenEditModal = (subject: CBTSubjectType) => {
-    handleOpenModal("edit");
-    setSelectedSubject(subject);
-  };
-
-  const handleOpenDeleteModal = (subject: CBTSubjectType) => {
-    handleOpenModal("delete");
-    setSelectedSubject(subject);
-  };
-
-  const handleAddSubject = (subject: CBTSubjectType) => {
-    subject.id = subjects.length + 1;
-    setSubjects((prev) => [...prev, subject]);
-    handleCloseModal("add");
-    setSelectedSubject(subject);
-    handleOpenModal("success");
-  };
-  const handdleEditSubject = (subject: CBTSubjectType) => {
-    setSubjects((prev) => {
-      const temp = [...prev];
-      const foundSubjectIndex = subjects.findIndex(
-        (sub) => sub.id == subject.id
-      );
-      temp[foundSubjectIndex] = subject;
-      return temp;
-    });
-    handleCloseModal("edit");
-    handleOpenModal("success");
+  const handleCloseModal = (type: string) => {
+    setOpenModal((prev) => ({ ...prev, [type]: false }));
   };
 
   return (
     <Box className="content-container">
+      {[isLoading].some((item) => item) ? (
+        <Box sx={{ position: "relative", zIndex: 2000 }}>
+          <LoadingScreen />
+        </Box>
+      ) : null}
       <FormModal
         open={openModal.add || openModal.edit}
         close={() => {
           handleCloseModal("add");
-          handleCloseModal("edit");
         }}
       >
-        <CBTSubjectForm
+        <CBTForm
           actions={{
-            submit: openModal.add ? handleAddSubject : handdleEditSubject,
-            cancel: () =>
-              openModal.add
-                ? handleCloseModal("add")
-                : handleCloseModal("edit"),
+            cancel: () => handleCloseModal("add"),
           }}
-          subject={selectedSubject}
         />
       </FormModal>
-
-      <HostCBTModal
-        open={openModal.host}
-        close={() => handleCloseModal("host")}
-      />
 
       <SuccessModal
         actions={{
@@ -123,50 +63,33 @@ const CBTPage = () => {
             console.log("undo");
           },
         }}
-        close={() => {
-          handleCloseModal("success");
-          setSelectedSubject(undefined);
-        }}
-        infoText=""
+        close={() => handleCloseModal("success")}
+        infoText="The Quiz added will get notified via mail."
         open={openModal.success}
-        subTitle={`You have successfully added a new subject`}
+        subTitle={`You have successfully added a new Quiz to your school.`}
         title="Updates Successful"
       />
+
       <PageHeader
         button={{
-          action: () => handleOpenModal("host"),
-          text: "Host Test",
-        }}
-        secondaryButton={{
-          action: () => console.log("active tests"),
-          text: "Active Tests",
+          action: () => handleOpenModal("add"),
+          text: "Add Quiz",
         }}
       />
       <Box
         sx={{
-          bgcolor: "rgba(252, 250, 250, 1)",
+          bgcolor: "#fff",
           borderRadius: "var(--border-radius)",
           marginInline: "var(--padding)",
           padding: "var(--padding)",
         }}
       >
-        {subjects.length ? (
-          <CBTtList
-            subjects={subjects}
-            setSubjects={setSubjects}
-            selectedSubject={selectedSubject}
-            modals={{
-              openModals: openModal,
-              handleOpenModal,
-              handleCloseModal,
-              handleOpenEditModal,
-              handleOpenDeleteModal,
-            }}
-          />
+        {Quizzes?.data.length ? (
+          <QuizList />
         ) : (
           <EmptyState
-            title="Oops there’s nothing here!"
-            subTitle="There are no Subjects at the moment."
+            title="No Exams at this time"
+            subTitle="Exams will appear here after you add them in your school."
           />
         )}
       </Box>
@@ -174,4 +97,4 @@ const CBTPage = () => {
   );
 };
 
-export default CBTPage;
+export default CBTsPage;

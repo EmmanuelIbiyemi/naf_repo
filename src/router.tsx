@@ -55,10 +55,6 @@ const PreviewFormPage = lazy(
 const ApplicantsPage = lazy(
   () => import("./Pages/admin/applicants/ApplicantsPage")
 );
-const CBT = lazy(() => import("./Pages/admin/cbt/CBT"));
-const CBTQuestionsPage = lazy(
-  () => import("./Pages/admin/cbtQuestions/CBTQuestions")
-);
 const AdminSettingsPage = lazy(() => import("./Pages/admin/settings/Settings"));
 const MediaLibrary = lazy(() => import("./Pages/admin/media/MediaLibrary"));
 const Page = lazy(() => import("./Pages/admin/pages/Page"));
@@ -69,6 +65,8 @@ const PostTypeItemsPage = lazy(
 const PostTypeItemsAddPage = lazy(
   () => import("./Pages/admin/pages/DynamicPage")
 );
+const CBTsPage = lazy(() => import("./Pages/admin/cbt/CBT"));
+
 // Instructor
 
 const InstructorDashboard = lazy(
@@ -168,7 +166,6 @@ const StudentResults = lazy(() => import("./Pages/student/results/Results"));
 const StudentClass = lazy(() => import("./Pages/student/classes/LiveClasses"));
 const StudentSettings = lazy(() => import("./Pages/student/settings/Settings"));
 
-
 export const router = createBrowserRouter([
   {
     path: "/login",
@@ -185,8 +182,7 @@ export const router = createBrowserRouter([
       { path: "/form/:form_id", element: <AddFormPage /> },
       { path: "/form/:form_id/preview", element: <PreviewFormPage /> },
       { path: "/applicants", element: <ApplicantsPage /> },
-      { path: "/cbt", element: <CBT /> },
-      { path: "/cbt/:subject_id", element: <CBTQuestionsPage /> },
+      { path: "/cbt", element: <CBTsPage /> },
       {
         path: "/academics",
         element: <AdminAcademicsPage />,
