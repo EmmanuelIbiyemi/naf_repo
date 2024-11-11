@@ -68,22 +68,15 @@ const ShareWithList = ({
     onSubmit: async (values) => {
       try {
         if (noteId) {
-          // For notes, use the original participant id
           await shareNote({
             note_id: noteId,
             participants: values.participants.map((id) => ({ id })),
           }).unwrap();
           handleOpenSuccessModal();
         } else if (quizId) {
-          // For quizzes, use user_id from participants
-          console.log();
           await shareQuiz({
             quiz_id: quizId,
-            participants: values.participants
-              .map((id) => {
-                return id;
-              })
-              .filter((id) => id !== null),
+            participants: values.participants,
           }).unwrap();
           handleOpenSuccessModal();
         } else {
@@ -103,17 +96,9 @@ const ShareWithList = ({
     }
   }, [open]);
 
-  useEffect(() => {
-    if (!open) {
-      formik.resetForm();
-      setSearchTerm("");
-    }
-  }, [open]);
-
   const handleToggleUser = (id: number, user_id: number) => {
+    const participantId = noteId ? id : user_id; // Use 'id' for notes, 'user_id' for quizzes
     const currentParticipants = formik.values.participants;
-    const participantId = noteId ? id : user_id;
-    console.log(participantId);
 
     const updatedParticipants = currentParticipants.includes(participantId)
       ? currentParticipants.filter((pid) => pid !== participantId)
@@ -121,12 +106,13 @@ const ShareWithList = ({
 
     formik.setFieldValue("participants", updatedParticipants);
   };
+
   const handleSelectAll = () => {
-    const allUserIds = participants.map((user) => user.user_id);
+    const allIds = noteId
+      ? participants.map((user) => user.id)
+      : participants.map((user) => user.user_id);
     const newSelection =
-      formik.values.participants.length === participants.length
-        ? []
-        : allUserIds;
+      formik.values.participants.length === participants.length ? [] : allIds;
     formik.setFieldValue("participants", newSelection);
   };
 
@@ -201,26 +187,31 @@ const ShareWithList = ({
           </Box>
 
           <List sx={{ maxHeight: 300, overflow: "auto", mb: 2 }}>
-            {filteredUsers.map((user) => (
-              <ListItem
-                key={user.id}
-                dense
-                onClick={() => handleToggleUser((user?.id || 0), user.user_id)}
-                sx={{ cursor: "pointer" }}
-              >
-                <ListItemIcon>
-                  <Checkbox
-                    edge="start"
-                    checked={formik.values.participants.includes(user.user_id)}
-                    tabIndex={-1}
-                    disableRipple
+            {filteredUsers.map((user) => {
+              const participantId = noteId ? user.id : user.user_id;
+              return (
+                <ListItem
+                  key={user.id}
+                  dense
+                  onClick={() => handleToggleUser(user.id, user.user_id)}
+                  sx={{ cursor: "pointer" }}
+                >
+                  <ListItemIcon>
+                    <Checkbox
+                      edge="start"
+                      checked={formik.values.participants.includes(
+                        participantId
+                      )}
+                      tabIndex={-1}
+                      disableRipple
+                    />
+                  </ListItemIcon>
+                  <ListItemText
+                    primary={`${user.first_name} ${user.last_name}`}
                   />
-                </ListItemIcon>
-                <ListItemText
-                  primary={`${user.first_name} ${user.last_name}`}
-                />
-              </ListItem>
-            ))}
+                </ListItem>
+              );
+            })}
           </List>
 
           {formik.touched.participants && formik.errors.participants && (

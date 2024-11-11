@@ -6,23 +6,22 @@ import {
   Tooltip,
   Tabs,
   Tab,
-  Dialog,
-  DialogTitle,
-  DialogActions,
-  DialogContent,
-  TextField,
+  // Dialog,
+  // DialogTitle,
+  // DialogActions,
+  // DialogContent,
+  // TextField,
 } from "@mui/material";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import {
   FormatBold,
   FormatItalic,
   Code,
-  Link,
-  FormatListBulleted,
-  FormatListNumbered,
-  // Image,
+  // Link,
+  // FormatListBulleted,
+  // FormatListNumbered,
   Undo,
   Redo,
 } from "@mui/icons-material";
@@ -33,7 +32,8 @@ type Props = {
   minHeight?: string;
   onChange: (markdown: string) => void;
   disabled?: boolean;
-  handleImageUpload: (file: File) => void; // Image upload handler
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  handleImageUpload: (file: File) => any;
   isLoading: boolean;
 };
 
@@ -46,109 +46,129 @@ const CustomMarkdownEditor = ({
   handleImageUpload,
   isLoading,
 }: Props) => {
+  const components = {
+    a: ({ ...props }) => (
+      <a
+        {...props}
+        style={{ color: "#0066cc", textDecoration: "none" }}
+        target="_blank"
+        rel="noopener noreferrer"
+      />
+    ),
+    img: ({ ...props }) => (
+      <img
+        {...props}
+        style={{
+          maxWidth: "100%",
+          height: "auto",
+          display: "block",
+          margin: "1rem 0",
+        }}
+      />
+    ),
+  };
+
   const [markdownText, setMarkdownText] = useState(value || "");
-  const [mode, setMode] = useState<"write" | "preview">("write"); // Specify mode type
+  const [mode, setMode] = useState<"write" | "preview">("write");
   const [history, setHistory] = useState<string[]>([markdownText]);
   const [historyIndex, setHistoryIndex] = useState(0);
-  const [openLinkDialog, setOpenLinkDialog] = useState(false);
-  const [linkText, setLinkText] = useState("");
-  const [linkURL, setLinkURL] = useState("");
+  // const [openLinkDialog, setOpenLinkDialog] = useState(false);
+  // const [linkText, setLinkText] = useState("");
+  // const [linkURL, setLinkURL] = useState("");
+  const textAreaRef = useRef<HTMLTextAreaElement>(null);
+  const [lastCursorPosition, setLastCursorPosition] = useState<number>(0);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const newText = e.target.value;
     setMarkdownText(newText);
     onChange(newText);
-
-    // Update history
-    if (historyIndex === history.length - 1) {
-      setHistory([...history, newText]);
-    } else {
-      setHistory([...history.slice(0, historyIndex + 1), newText]);
-    }
+    setHistory((prev) => [...prev.slice(0, historyIndex + 1), newText]);
     setHistoryIndex((prev) => prev + 1);
+  };
+
+  const handleCursorChange = () => {
+    if (textAreaRef.current) {
+      setLastCursorPosition(textAreaRef.current.selectionStart);
+    }
   };
 
   const insertText = (
     tag: string,
-    placeholder: string = "",
-    type: "list" | "text" = "text"
+    placeholder: string = ""
+    // type: "list" | "text" = "text"
   ) => {
-    const textarea = document.querySelector("textarea");
-    if (!textarea) return;
+    if (!textAreaRef.current) return;
 
-    const start = textarea.selectionStart;
-    const end = textarea.selectionEnd;
+    const start = textAreaRef.current.selectionStart;
+    const end = textAreaRef.current.selectionEnd;
     const beforeText = markdownText.substring(0, start);
     const afterText = markdownText.substring(end);
     const selectedText = markdownText.substring(start, end);
 
-    // Handle duplicate bullet or numbered list
-    if (
-      type === "list" &&
-      (beforeText.endsWith("\n- ") || beforeText.endsWith("\n1. "))
-    ) {
-      return;
-    }
+    let updatedText;
+    let newCursorPosition;
 
-    // Handle selection removal if already wrapped
     if (selectedText.startsWith(tag) && selectedText.endsWith(tag)) {
-      const updatedText = `${beforeText}${selectedText.slice(
+      updatedText = `${beforeText}${selectedText.slice(
         tag.length,
         -tag.length
       )}${afterText}`;
-      setMarkdownText(updatedText);
-      onChange(updatedText);
-      textarea.selectionStart = textarea.selectionEnd = start;
-      textarea.focus();
-      return;
+      newCursorPosition = start;
+    } else {
+      if (selectedText) {
+        updatedText = `${beforeText}${tag}${selectedText}${tag}${afterText}`;
+        newCursorPosition =
+          start + tag.length + selectedText.length + tag.length;
+      } else {
+        updatedText = `${beforeText}${tag}${placeholder}${tag}${afterText}`;
+        newCursorPosition = start + tag.length + placeholder.length;
+      }
     }
 
-    const updatedText = `${beforeText}${tag}${placeholder}${tag}${afterText}`;
     setMarkdownText(updatedText);
     onChange(updatedText);
 
-    const cursorPosition = start + tag.length + placeholder.length;
     setTimeout(() => {
-      textarea.selectionStart = textarea.selectionEnd = cursorPosition;
-      textarea.focus();
+      if (textAreaRef.current) {
+        textAreaRef.current.selectionStart = newCursorPosition;
+        textAreaRef.current.selectionEnd = newCursorPosition;
+        textAreaRef.current.focus();
+      }
     }, 0);
   };
 
-  const handleUndo = () => {
-    if (historyIndex > 0) {
-      setHistoryIndex((prev) => prev - 1);
-      setMarkdownText(history[historyIndex - 1]);
-      onChange(history[historyIndex - 1]);
-    }
-  };
+  const handleImageInsert = async (file: File) => {
+    if (!textAreaRef.current) return;
 
-  const handleRedo = () => {
-    if (historyIndex < history.length - 1) {
-      setHistoryIndex((prev) => prev + 1);
-      setMarkdownText(history[historyIndex + 1]);
-      onChange(history[historyIndex + 1]);
-    }
-  };
+    try {
+      const imageData = await handleImageUpload(file);
 
-  const handleLinkInsert = () => {
-    const linkMarkdown = `[${linkText}](${linkURL})`;
-    insertText(linkMarkdown);
-    setOpenLinkDialog(false);
-    setLinkText("");
-    setLinkURL("");
-  };
+      const imageMarkdown = `![${imageData[0]}](${imageData[1]})`;
 
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      handleImageUpload(file);
+      const updatedText = `${markdownText.slice(
+        0,
+        lastCursorPosition
+      )}${imageMarkdown}${markdownText.slice(lastCursorPosition)}`;
+
+      setMarkdownText(updatedText);
+      onChange(updatedText);
+
+      setTimeout(() => {
+        if (textAreaRef.current) {
+          const newCursorPos = lastCursorPosition + imageMarkdown.length;
+          textAreaRef.current.selectionStart = newCursorPos;
+          textAreaRef.current.selectionEnd = newCursorPos;
+          textAreaRef.current.focus();
+        }
+      }, 0);
+    } catch (error) {
+      console.error("Error uploading image:", error);
     }
   };
 
   return (
     <Box
       sx={{
-        // maxWidth: "600px",
         mx: "auto",
         mt: 2,
         bgcolor: "#fff",
@@ -186,26 +206,6 @@ const CustomMarkdownEditor = ({
                 <Code style={{ color: "#02306B" }} />
               </IconButton>
             </Tooltip>
-            <Tooltip title="Link">
-              <IconButton onClick={() => setOpenLinkDialog(true)}>
-                <Link style={{ color: "#02306B" }} />
-              </IconButton>
-            </Tooltip>
-            <Tooltip title="Bulleted List">
-              <IconButton onClick={() => insertText("- ", "", "list")}>
-                <FormatListBulleted style={{ color: "#02306B" }} />
-              </IconButton>
-            </Tooltip>
-            <Tooltip title="Numbered List">
-              <IconButton onClick={() => insertText("1. ", "", "list")}>
-                <FormatListNumbered style={{ color: "#02306B" }} />
-              </IconButton>
-            </Tooltip>
-            {/* <Tooltip title="Image"> */}
-            {/* <IconButton >
-                <Image style={{ color: "#02306B" }} />
-                <input type="file" hidden onChange={handleFileChange} />
-              </IconButton> */}
             <Button
               variant="contained"
               component="label"
@@ -217,26 +217,42 @@ const CustomMarkdownEditor = ({
               }}
               disabled={isLoading}
             >
-              {isLoading ? "Uploading..." : "Upload File"}
-              <input type="file" hidden onChange={handleFileChange} />
+              {isLoading ? "Uploading..." : "Upload image"}
+              <input
+                type="file"
+                hidden
+                onChange={(e) =>
+                  e.target.files && handleImageInsert(e.target.files[0])
+                }
+              />
             </Button>
-            {/* </Tooltip> */}
             <Tooltip title="Undo">
-              <IconButton onClick={handleUndo}>
+              <IconButton
+                onClick={() => setHistoryIndex((prev) => Math.max(prev - 1, 0))}
+              >
                 <Undo style={{ color: "#02306B" }} />
               </IconButton>
             </Tooltip>
             <Tooltip title="Redo">
-              <IconButton onClick={handleRedo}>
+              <IconButton
+                onClick={() =>
+                  setHistoryIndex((prev) =>
+                    Math.min(prev + 1, history.length - 1)
+                  )
+                }
+              >
                 <Redo style={{ color: "#02306B" }} />
               </IconButton>
             </Tooltip>
           </Box>
 
           <TextareaAutosize
+            ref={textAreaRef}
             placeholder={placeholder}
             value={markdownText}
             onChange={handleInputChange}
+            onKeyUp={handleCursorChange}
+            onClick={handleCursorChange}
             disabled={disabled}
             minRows={5}
             style={{
@@ -264,41 +280,11 @@ const CustomMarkdownEditor = ({
             color: "#000",
           }}
         >
-          <ReactMarkdown remarkPlugins={[remarkGfm]}>
+          <ReactMarkdown remarkPlugins={[remarkGfm]} components={components}>
             {markdownText}
           </ReactMarkdown>
         </Box>
       )}
-
-      {/* Link dialog */}
-      <Dialog open={openLinkDialog} onClose={() => setOpenLinkDialog(false)}>
-        <DialogTitle>Insert Link</DialogTitle>
-        <DialogContent>
-          <TextField
-            autoFocus
-            margin="dense"
-            label="Link Text"
-            type="text"
-            fullWidth
-            variant="standard"
-            value={linkText}
-            onChange={(e) => setLinkText(e.target.value)}
-          />
-          <TextField
-            margin="dense"
-            label="URL"
-            type="url"
-            fullWidth
-            variant="standard"
-            value={linkURL}
-            onChange={(e) => setLinkURL(e.target.value)}
-          />
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setOpenLinkDialog(false)}>Cancel</Button>
-          <Button onClick={handleLinkInsert}>Insert</Button>
-        </DialogActions>
-      </Dialog>
     </Box>
   );
 };

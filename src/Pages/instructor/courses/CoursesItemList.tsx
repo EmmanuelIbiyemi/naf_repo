@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
@@ -13,7 +13,7 @@ import {
   Typography,
 } from "@mui/material";
 import { Delete, MoreVert, Visibility } from "@mui/icons-material";
-import CustomPagination from "../../../components/CustomPagination";
+// import CustomPagination from "../../../components/CustomPagination";
 import { note } from "../../../types/notes";
 
 type ListProps = {
@@ -25,7 +25,7 @@ type ListProps = {
   handleEditActionsModal: (list: note) => void;
 };
 
-const ITEMS_PER_PAGE = 10;
+// const ITEMS_PER_PAGE = 10;
 
 const CoursesItemList = ({
   lists,
@@ -36,7 +36,7 @@ const CoursesItemList = ({
   handleOpenActionsModal,
   handleEditActionsModal,
 }: ListProps) => {
-  const [currentPage, setCurrentPage] = useState(1);
+  // const [currentPage, setCurrentPage] = useState(1);
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
 
@@ -47,16 +47,16 @@ const CoursesItemList = ({
     setAnchorEl(null);
   };
 
-  const handleChangePage = (
-    _event: React.ChangeEvent<unknown>,
-    newPage: number
-  ) => {
-    setCurrentPage(newPage);
-  };
+  // const handleChangePage = (
+  //   _event: React.ChangeEvent<unknown>,
+  //   newPage: number
+  // ) => {
+  //   setCurrentPage(newPage);
+  // };
 
-  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-  const endIndex = Math.min(startIndex + ITEMS_PER_PAGE, lists.length);
-  const displayedList = lists.slice(startIndex, endIndex);
+  // const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  // const endIndex = Math.min(startIndex + ITEMS_PER_PAGE, lists.length);
+  // const displayedList = lists.slice(startIndex, endIndex);
 
   return (
     <Box>
@@ -74,7 +74,7 @@ const CoursesItemList = ({
 
         <Table sx={{ minWidth: 650 }}>
           <TableBody>
-            {displayedList.map((list) => (
+            {lists.map((list) => (
               <TableRow
                 key={list.id}
                 sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
@@ -140,14 +140,14 @@ const CoursesItemList = ({
           </TableBody>
         </Table>
       </TableContainer>
-      <CustomPagination
+      {/* <CustomPagination
         startIndex={startIndex + 1}
         endIndex={endIndex}
         totalNumber={lists.length}
         count={Math.ceil(lists.length / ITEMS_PER_PAGE)}
         page={currentPage}
         handleChangePage={handleChangePage}
-      />
+      /> */}
     </Box>
   );
 };

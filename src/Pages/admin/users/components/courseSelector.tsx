@@ -1,32 +1,49 @@
-import React, { useState, useEffect } from 'react';
-import { useField } from 'formik';
-import { Autocomplete, TextField, Chip, Box, Typography } from '@mui/material';
-import { CourseType } from '../../../../types/courses';
-import { useGetCoursesQuery } from '../../../../store/api/courses.api';
+import React, { useState, useEffect } from "react";
+import { useField } from "formik";
+import { Autocomplete, TextField, Chip, Box, Typography } from "@mui/material";
+import { CourseType } from "../../../../types/courses";
+import { useGetCoursesQuery } from "../../../../store/api/courses.api";
 
 interface StudentCourseSelectorProps {
   name: string;
 }
 
-const StudentCourseSelector: React.FC<StudentCourseSelectorProps> = ({ name }) => {
+const StudentCourseSelector: React.FC<StudentCourseSelectorProps> = ({
+  name,
+}) => {
   const [field, meta, helpers] = useField(name);
-  const { data: coursesData, isLoading, error } = useGetCoursesQuery(null);
-  const [inputValue, setInputValue] = useState('');
+  const {
+    data: coursesData,
+    isLoading,
+    error,
+  } = useGetCoursesQuery({
+    per_page: 1000,
+  });
+  const [inputValue, setInputValue] = useState("");
 
-  const [selectedCourses, setSelectedCourses] = useState<CourseType[]>(field.value || []);
+  const [selectedCourses, setSelectedCourses] = useState<CourseType[]>(
+    field.value || []
+  );
 
   useEffect(() => {
     helpers.setValue(selectedCourses);
   }, [selectedCourses, helpers]);
 
   if (isLoading) return <Typography>Loading courses...</Typography>;
-  if (error) return <Typography color="error">Error loading courses</Typography>;
+  if (error)
+    return <Typography color="error">Error loading courses</Typography>;
 
-  const handleCourseChange = (_event: React.SyntheticEvent, value: CourseType[]) => {
+  const handleCourseChange = (
+    _event: React.SyntheticEvent,
+    value: CourseType[]
+  ) => {
     setSelectedCourses(value);
   };
 
-  const handleInputChange = (_event: React.SyntheticEvent, newInputValue: string) => {
+  const handleInputChange = (
+    _event: React.SyntheticEvent,
+    newInputValue: string
+  ) => {
     setInputValue(newInputValue);
   };
 

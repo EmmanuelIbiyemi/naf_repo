@@ -1,7 +1,11 @@
 import { Navigate, useLocation } from "react-router-dom";
-import { useAppSelector } from "../store/hooks";
-import { selectCurrentUser } from "../store/auth.slice";
+import { useAppDispatch, useAppSelector } from "../store/hooks";
+import {
+  selectCurrentUser,
+  setUserFromLocalStorage,
+} from "../store/auth.slice";
 import App from "../App";
+import { useEffect } from "react";
 
 const allowedRoutes = {
   admin: [
@@ -49,14 +53,14 @@ const allowedRoutes = {
     "/instructor/courses/:id/notes/new",
     "/instructor/courses/:id/tests",
     "/instructor/courses/:id/tests/:testId",
-    "/instructor/courses/:id/tests/:testId/detail/:id",
+    "/instructor/courses/:id/tests/:testId/detail/:user_id/:id",
     "/instructor/courses/:id/classes",
     "/instructor/courses/:id/tests/manual-input",
     "/instructor/reports",
     "/instructor/reports/:id",
     "/instructor/classes",
     "/instructor/posts/preview",
-    "/instructor/offline-scores",
+    "/instructor/scores",
   ],
   student: [
     "/student/dashboard",
@@ -83,9 +87,15 @@ const pathMatches = (pathPattern: string, currentPath: string): boolean => {
 const PrivateRoute = () => {
   const user = useAppSelector(selectCurrentUser);
   const location = useLocation();
+  const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    console.log(user);
+  }, [user]);
 
   if (!user) {
-    return <Navigate to="/login" replace />;
+    dispatch(setUserFromLocalStorage());
+    if (!user) return <Navigate to="/login" replace />;
   }
 
   const userAllowedRoutes =

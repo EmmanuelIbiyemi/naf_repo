@@ -246,7 +246,7 @@ const ManualInputQuestions: React.FC = () => {
                 {question.options.map((option, optIndex) => (
                   <Grid2 size={6} key={optIndex}>
                     <QuestionField
-                      label={`Option ${optIndex + 1}`}
+                      label={optIndex === 0 ? `Answer` : `Option ${optIndex}`}
                       value={option}
                       onChange={(value) =>
                         handleQuestionChange(
@@ -256,7 +256,11 @@ const ManualInputQuestions: React.FC = () => {
                           optIndex
                         )
                       }
-                      placeholder={`Type option ${optIndex + 1} here`}
+                      placeholder={
+                        optIndex === 0
+                          ? `Type your answer here`
+                          : `Type option ${optIndex} here`
+                      }
                     />
                   </Grid2>
                 ))}

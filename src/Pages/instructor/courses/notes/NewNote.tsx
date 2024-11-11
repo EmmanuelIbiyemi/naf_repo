@@ -25,24 +25,21 @@ const NewNote = () => {
   const [uploadFile, { isLoading: isUploadingFile }] = useAddMediaMutation();
 
   const { data: participants, isLoading: isFetchingParticipants } =
-    useGetCourseParticipantsQuery({ course_id: parseInt(courseId) });
-  // console.log(participants?.data.first_name);
-  // console.log(participants?.data);
-
+    useGetCourseParticipantsQuery(
+      { course_id: parseInt(courseId) },
+      { skip: !courseId }
+    );
   const formik = useFormik<noteInput>({
     initialValues: {
       title: "Untitled Document",
       content: "",
       media: [],
       course_id: parseInt(courseId),
-      // note_id: 0,
-      // participants: []
     },
     validationSchema: yup.object({
       title: yup.string().required("Required"),
       content: yup.string().required("Required"),
       course_id: yup.number().required(),
-      // recipients: yup.array().required("Required"),
     }),
     onSubmit: async (values: noteInput) => {
       try {
@@ -57,17 +54,20 @@ const NewNote = () => {
 
   const handleImageUpload = async (file: File) => {
     try {
-      const image = file;
       const formData = new FormData();
-      formData.append("file", image);
-      console.log(formData);
+      formData.append("file", file);
+
       const response = await uploadFile(formData).unwrap();
+      const imageUrl = response.media[0].url;
+      const imageName = file.name;
       formik.setFieldValue("media", [
         ...formik.values.media,
         ...response.media.map((resource) => ({ id: resource.id })),
       ]);
+
+      return [imageName, imageUrl];
     } catch (error) {
-      console.log(error);
+      console.error("Error uploading file:", error);
     }
   };
 
@@ -93,24 +93,6 @@ const NewNote = () => {
             alignItems: "center",
           }}
         >
-          {/* <Box sx={{ padding: "1.5rem" }}>
-            <input
-              type="text"
-
-              name="title"
-              id="title"
-              onChange={formik.handleChange}
-              value={formik.values.title}
-              style={{
-                border: "none",
-                fontWeight: 500,
-                fontSize: "1.8rem",
-                color: "#8E8E93",
-                outline: "none",
-                // width: "500px",
-              }}
-            />
-          </Box> */}
           <Box sx={{ padding: "1.5rem" }}>
             <input
               name="title"
@@ -123,7 +105,6 @@ const NewNote = () => {
                 fontSize: "1.8rem",
                 color: "#8E8E93",
                 outline: "none",
-                // width: "500px",
               }}
             />
           </Box>
@@ -148,7 +129,7 @@ const NewNote = () => {
                 alignSelf: "end",
               }}
               type="submit"
-              // onClick={handleOpenModal}
+              disabled={isFetchingParticipants || isCreatingNote}
             >
               {isCreatingNote ? "Loading" : "Save & Share"}
             </Button>
@@ -167,7 +148,6 @@ const NewNote = () => {
       <ShareWithModal
         open={openModal}
         handleClose={handleCloseModal}
-        // handleSelectedRecipients={handleSelectedRecipients}
         noteId={noteId}
         participants={participants?.data ?? []}
       />

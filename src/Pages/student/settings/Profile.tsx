@@ -13,30 +13,31 @@ import { useState, useEffect } from "react";
 import { useAppDispatch, useAppSelector } from "../../../store/hooks";
 import { setPageName } from "../../../store/app.slice";
 import {
-  useGetAdminQuery,
-  useUpdateAdminMutation,
-} from "../../../store/api/admins.api";
+  useGetParticipantQuery,
+  useUpdateParticipantMutation,
+} from "../../../store/api/participants.api";
 import { useAddMediaMutation } from "../../../store/api/media.api";
 import EmptyState from "../../../components/EmptyState";
 import { selectCurrentUser } from "../../../store/auth.slice";
 import { useResetPasswordMutation } from "../../../store/api/auth.api";
-import { Admin } from "../../../types/admins";
 
-const ProfileSettings = () => {
+const AccountSettings = () => {
   const dispatch = useAppDispatch();
   const user = useAppSelector(selectCurrentUser);
   const participantId = user?.id || 0;
-  const { data: participantData, isLoading } = useGetAdminQuery(participantId);
-  const [updateAdmin, { isLoading: isUpdating }] = useUpdateAdminMutation();
+  const { data: participantData, isLoading } =
+    useGetParticipantQuery(participantId);
+  const [updateParticipant, { isLoading: isUpdating }] =
+    useUpdateParticipantMutation();
   const [addMedia, { isLoading: isUploadingMedia }] = useAddMediaMutation();
 
-  const [formData, setFormData] = useState<Admin>({
+  const [formData, setFormData] = useState({
     first_name: "",
     last_name: "",
     email: "",
     phone: "",
     photo: "",
-    address: "",
+    // photo_id: null as number | null,
   });
 
   const [passwords, setPasswords] = useState({
@@ -55,7 +56,7 @@ const ProfileSettings = () => {
   const [success, setSuccess] = useState("");
 
   useEffect(() => {
-    dispatch(setPageName("Profile"));
+    dispatch(setPageName("Account settings"));
   }, [dispatch]);
 
   useEffect(() => {
@@ -67,7 +68,6 @@ const ProfileSettings = () => {
         email: data.email || "",
         phone: data.phone || "",
         photo: data.photo || "",
-        address: data.address || "",
       });
     }
   }, [participantData]);
@@ -139,14 +139,16 @@ const ProfileSettings = () => {
       setError("");
       setSuccess("");
 
-      await updateAdmin({
+      await updateParticipant({
         id: participantId,
-        first_name: formData.first_name,
-        last_name: formData.last_name,
-        email: formData.email,
-        phone: formData.phone,
-        photo: formData.photo,
-        address: formData.address,
+        data: {
+          first_name: formData.first_name,
+          last_name: formData.last_name,
+          email: formData.email,
+          phone: formData.phone,
+          photo: formData.photo,
+          // photo_id: formData.photo_id, // Include photo_id in the update
+        },
       }).unwrap();
 
       setSuccess("Profile updated successfully");
@@ -492,4 +494,4 @@ const changePasswordButtonStyle = {
   bgcolor: "primary.main",
 };
 
-export default ProfileSettings;
+export default AccountSettings;

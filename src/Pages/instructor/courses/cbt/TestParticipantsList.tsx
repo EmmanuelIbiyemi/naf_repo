@@ -20,10 +20,6 @@ const TestParticipantsList = ({ participants }: TestParticipantsListProps) => {
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
   const navigate = useNavigate();
-  // const locationData = location.pathname.split("/");
-  // const courseId = locationData[locationData.length - 3];
-  // const { data: participants, isLoading: isFetchingParticipants } =
-  //   useGetCourseParticipantsQuery({ course_id: parseInt(courseId) });
 
   const handleChangePage = (_event: unknown, newPage: number) => {
     setPage(newPage);

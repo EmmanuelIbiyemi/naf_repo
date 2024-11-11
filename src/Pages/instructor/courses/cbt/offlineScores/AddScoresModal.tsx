@@ -28,6 +28,7 @@ import {
   useDeleteRecordScoreMutation,
 } from "../../../../../store/api/records.api";
 import DeleteConfirmationModal from "../../../../../components/DeleteConfirmationModal";
+import ImportFromQuiz from "./ImportFromQuizModal";
 
 interface AddScoresModalProps {
   open: boolean;
@@ -36,6 +37,7 @@ interface AddScoresModalProps {
   recordId: number | null;
   courseParticipants: ParticipantData[];
   refetch: () => void;
+  courseId: number | null;
 }
 
 const AddScoresModal = ({
@@ -45,6 +47,7 @@ const AddScoresModal = ({
   recordId,
   courseParticipants,
   refetch,
+  courseId,
 }: AddScoresModalProps) => {
   const [rows, setRows] = useState<
     Array<{
@@ -65,6 +68,7 @@ const AddScoresModal = ({
     useDeleteRecordScoreMutation();
   const [openSuccessModal, setOpenSuccessModal] = useState(false);
   const [openDeletedSuccessModal, setOpenDeletedSuccessModal] = useState(false);
+  const [openImportFromQuizModal, setOpenImportFromQuizModal] = useState(false);
 
   useEffect(() => {
     if (!open) {
@@ -295,14 +299,23 @@ const AddScoresModal = ({
           </TableContainer>
 
           <Box sx={{ display: "flex", justifyContent: "space-between", mt: 2 }}>
-            <Button
-              startIcon={<Add />}
-              onClick={addRow}
-              variant="outlined"
-              size="small"
-            >
-              Add Row
-            </Button>
+            <Box sx={{ display: "flex", gap: 2 }}>
+              <Button
+                startIcon={<Add />}
+                onClick={addRow}
+                variant="outlined"
+                size="small"
+              >
+                Add Row
+              </Button>
+              <Button
+                onClick={() => setOpenImportFromQuizModal(true)}
+                variant="contained"
+                size="small"
+              >
+                Import from quiz
+              </Button>
+            </Box>
             <Button
               type="submit"
               variant="contained"
@@ -354,6 +367,13 @@ const AddScoresModal = ({
           open={openDeletedSuccessModal}
           subTitle="Score has been successfully deleted!"
           title="Successful"
+        />
+        <ImportFromQuiz
+          open={openImportFromQuizModal}
+          handleClose={() => setOpenImportFromQuizModal(false)}
+          recordId={recordId}
+          courseId={courseId}
+          refetch={refetch}
         />
       </Box>
     </Modal>

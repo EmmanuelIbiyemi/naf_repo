@@ -91,6 +91,16 @@ const quizzesApi = appApi.injectEndpoints({
       providesTags: ["Quiz"],
     }),
 
+    getInstructorCourseQuizzes: builder.query<
+      { data: InstructorQuizzesResponse[] },
+      { course_id: number }
+    >({
+      query: ({ course_id }) => ({
+        url: `/quiz?course_id=${course_id}`,
+      }),
+      providesTags: ["Quiz"],
+    }),
+
     getSingleQuiz: builder.query<SingleQuizResponse, number>({
       query: (quizId) => `/quiz/${quizId}`,
       providesTags: ["Quiz"],
@@ -213,6 +223,7 @@ const quizzesApi = appApi.injectEndpoints({
 export const {
   useGetQuizzesQuery,
   useGetCourseQuizzesQuery,
+  useGetInstructorCourseQuizzesQuery,
   useGetSingleQuizQuery,
   useGetQuizResultQuery,
   useGetUserQuizResultQuery,

@@ -25,6 +25,7 @@ import {
 } from "../../../store/api/settings.api";
 import { useAddMediaMutation } from "../../../store/api/media.api";
 import { useResetPasswordMutation } from "../../../store/api/auth.api";
+import SuccessModal from "../../../components/SuccessModal";
 
 const UserDetailsForm = () => {
   const user = useAppSelector(selectCurrentUser);
@@ -225,16 +226,21 @@ const UserDetailsForm = () => {
 
 const PasswordForm = () => {
   // State for password visibility toggles
-  const [showPassword, setShowPassword] = useState(false);
+  // const [showPassword, setShowPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [resetPassword, { isLoading }] = useResetPasswordMutation();
+  const [openSuccessModal, setOpenSuccessModal] = useState(false);
+
+  const handleCloseSuccessModal = () => {
+    setOpenSuccessModal(false);
+  };
 
   const handlePasswordVisibility = (field: unknown) => {
     switch (field) {
-      case "current":
-        setShowPassword(!showPassword);
-        break;
+      // case "current":
+      //   setShowPassword(!showPassword);
+      //   break;
       case "new":
         setShowNewPassword(!showNewPassword);
         break;
@@ -248,7 +254,7 @@ const PasswordForm = () => {
 
   const formik = useFormik({
     initialValues: {
-      current_password: "",
+      // current_password: "",
       new_password: "",
       confirm_new_password: "",
     },
@@ -272,9 +278,9 @@ const PasswordForm = () => {
         ),
     }),
     onSubmit: async (values) => {
-      console.log("Password form data:", values.new_password);
       try {
         await resetPassword({ password: values.new_password }).unwrap();
+        setOpenSuccessModal(true);
       } catch (error) {
         console.error(error);
       }
@@ -291,7 +297,7 @@ const PasswordForm = () => {
           width: "50%",
         }}
       >
-        <TextField
+        {/* <TextField
           id="current_password"
           name="current_password"
           type={showPassword ? "text" : "password"}
@@ -311,7 +317,7 @@ const PasswordForm = () => {
               ),
             },
           }}
-        />
+        /> */}
         <TextField
           id="new_password"
           name="new_password"
@@ -362,6 +368,21 @@ const PasswordForm = () => {
           {isLoading ? "Changing" : "Change Password"}
         </Button>
       </Box>
+      <SuccessModal
+        actions={{
+          proceed: () => {
+            console.log("proceed");
+          },
+          undo: () => {
+            console.log("undo");
+          },
+        }}
+        close={handleCloseSuccessModal}
+        infoText=""
+        open={openSuccessModal}
+        subTitle={`You have successfully updated your password`}
+        title="Successful"
+      />
     </form>
   );
 };
