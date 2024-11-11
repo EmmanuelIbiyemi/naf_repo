@@ -1,46 +1,18 @@
-import React, { useState } from "react";
-import {
-  Box,
-  FormControlLabel,
-  InputAdornment,
-  Radio,
-  RadioGroup,
-  TextField,
-  Typography,
-} from "@mui/material";
-import { Search } from "@mui/icons-material";
+import React from "react";
+import { Box, TextField, Typography } from "@mui/material";
 import { TestFormData } from "./testformtypes";
-import { CourseType } from "../../../../../types/courses";
 
 interface ModalProps {
   formData: TestFormData;
   onChange: (newData: Partial<TestFormData>) => void;
   onImportCSV: () => void;
   onInputManually: () => void;
-  subjects?: CourseType[];
 }
 
-const Step1Content: React.FC<ModalProps> = ({
-  formData,
-  onChange,
-  subjects,
-}) => {
-  const [searchTerm, setSearchTerm] = useState("");
-
+const Step1Content: React.FC<ModalProps> = ({ formData, onChange }) => {
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedSubject = event.target.value;
-    onChange({ subject: selectedSubject });
+    onChange({ subject: event.target.value });
   };
-
-  const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchTerm(event.target.value);
-  };
-
-  const filteredSubjects = subjects
-    ?.filter((subj) => subj.name !== null)
-    ?.filter((subj) =>
-      subj.name.toLowerCase().includes(searchTerm.toLowerCase())
-    );
 
   return (
     <Box>
@@ -68,41 +40,20 @@ const Step1Content: React.FC<ModalProps> = ({
             marginBottom: ".7em",
           }}
         >
-          Select Course
+          Input CBT name
         </Typography>
-        <TextField
-          fullWidth
-          variant="outlined"
-          placeholder="Select Course"
-          value={searchTerm}
-          onChange={handleSearch}
-          slotProps={{
-            input: {
-              startAdornment: (
-                <InputAdornment position="start">
-                  <Search />
-                </InputAdornment>
-              ),
-            },
-          }}
-          sx={{ marginBottom: "1em" }}
-        />
         <Box sx={{ maxHeight: "35vh", overflowY: "scroll" }}>
-          <RadioGroup value={formData.subject} onChange={handleChange}>
-            {filteredSubjects?.map((subject) => (
-              <FormControlLabel
-                value={subject.name}
-                control={<Radio />}
-                label={subject.name}
-                key={subject.id}
-                sx={{
-                  color: "#6A6A6A",
-                  fontSize: ".9rem",
-                  margin: ".2em 0",
-                }}
-              />
-            ))}
-          </RadioGroup>
+          <TextField
+            id="subject"
+            placeholder="Input subject name"
+            value={formData.subject}
+            onChange={handleChange}
+            sx={{
+              marginBottom: "1em",
+              width: "100%",
+              backgroundColor: "#F1F1F1",
+            }}
+          />
         </Box>
       </Box>
     </Box>

@@ -296,7 +296,7 @@ export const router = createBrowserRouter([
       //   element: <PreviewAnnouncementPage />,
       // },
       {
-        path: "/instructor/offline-scores",
+        path: "/instructor/scores",
         element: <InstructorOfflineScoresPage />,
       },
       // { path: "/instructor/post", element: <PostPage /> },

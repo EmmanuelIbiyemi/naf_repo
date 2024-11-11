@@ -9,8 +9,10 @@ const Students = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
   const location = useLocation();
-  const { id } = useParams(); // Get the quiz ID from URL params
-  const [quizData, setQuizData] = useState<InstructorQuizzesResponse | null>(null);
+  const { id } = useParams();
+  const [quizData, setQuizData] = useState<InstructorQuizzesResponse | null>(
+    null
+  );
 
   useEffect(() => {
     const stateData = location.state?.selectedTest as InstructorQuizzesResponse;
@@ -19,19 +21,16 @@ const Students = () => {
       setQuizData(stateData);
       sessionStorage.setItem(`quiz-${stateData.id}`, JSON.stringify(stateData));
     } else {
-      // If no location state, try to get from sessionStorage
       const storedData = sessionStorage.getItem(`quiz-${id}`);
       if (storedData) {
         setQuizData(JSON.parse(storedData));
-      } else {
-        // If no stored data, you might want to fetch it from your API
-        // fetchQuizData(id);
-        console.log("No quiz data available");
       }
+      // else {
+      //   console.log("No quiz data available");
+      // }
     }
   }, [location.state, id]);
 
-  // Optional: Cleanup sessionStorage when component unmounts
   useEffect(() => {
     return () => {
       if (quizData) {
@@ -47,6 +46,8 @@ const Students = () => {
       </Box>
     );
   }
+
+  console.log(quizData);
 
   return (
     <Box ref={containerRef} className="content-container">

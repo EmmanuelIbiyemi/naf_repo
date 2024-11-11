@@ -52,3 +52,8 @@ export interface bulkScoresInput {
   scores: scoresInput[];
   record_id: number;
 }
+
+export interface importQuizScoresInput {
+  record_id: number;
+  quiz_id: number;
+}

@@ -5,11 +5,6 @@ import { useAppDispatch } from "../../../../store/hooks";
 import { setPageName } from "../../../../store/app.slice";
 import { useFormik } from "formik";
 import * as yup from "yup";
-// import {
-//   useAddCourseMutation,
-//   useGetCoursesQuery,
-// } from "../../../store/api/courses.api";
-
 import CustomSuccessModal from "../../../../components/CustomSuccessModal";
 import NotesUploadModal from "./NotesUploadModal";
 import CoursesItemList from "../CoursesItemList";
@@ -23,9 +18,11 @@ import {
 import { note } from "../../../../types/notes";
 import CustomPreviewModal from "../../../../components/CustomPreviewModal";
 import { useGetCourseQuery } from "../../../../store/api/courses.api";
-// import FormModal from "../../../../components/FormModal";
+import { useNavigate } from "react-router-dom";
+import CustomPagination from "../../../../components/CustomPagination";
 const Notes = () => {
   const containerRef = useRef<HTMLDivElement>(null);
+  const navigate = useNavigate();
   const [openModal, setOpenModal] = useState(false);
   const [openActionsModal, setOpenActionsModal] = useState({
     edit: false,
@@ -33,19 +30,25 @@ const Notes = () => {
     delete: false,
   });
   const [selectedNotes, setSelectedNotes] = useState<note | undefined>();
+  const [currentPage, setCurrentPage] = useState(1);
   const locationData = location.pathname.split("/");
   const courseId = locationData[locationData.length - 2];
   const { data: course } = useGetCourseQuery(parseInt(courseId), {
     skip: !courseId,
   });
 
-  const handleUploadModalOpen = () => setOpenModal(true);
   const handleUploadModalClose = () => setOpenModal(false);
   const [openFileSuccessModal, setOpenFileSuccessModal] = useState(false);
 
-  const { data: note, isLoading: isGettingNotes } = useGetCourseNotesQuery(
-    parseInt(courseId)
-  );
+  const { data: note, isLoading: isGettingNotes } = useGetCourseNotesQuery({
+    course_id: parseInt(courseId),
+    page: currentPage,
+  });
+  const totalItems = note?.pagination?.total || 0;
+  // const totalPages = note?.pagination?.pages || 1;
+  const itemsPerPage = note?.pagination.per_page || 1;
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = Math.min(startIndex + itemsPerPage, totalItems);
 
   const [deleteNote, { isLoading: isDeleting }] = useDeleteNoteMutation();
   const [openPreviewModals, setOpenPreviewModals] = useState<{
@@ -101,8 +104,6 @@ const Notes = () => {
       try {
         // await createNote(values).unwrap();
         console.log(values);
-        // setOpenSuccessModal(true);
-        // navigate("");
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
       } catch (error) {
         console.log("error");
@@ -110,26 +111,11 @@ const Notes = () => {
     },
   });
 
-  // const { data: courses } = useGetCoursesQuery(null);
-  // const [addCourse] = useAddCourseMutation();
-
   // set page name
   const dispatch = useAppDispatch();
   useEffect(() => {
     dispatch(setPageName("Course"));
   }, [dispatch]);
-
-  // const handleAddCourse = async (course: CourseCreateType2) => {
-  //   try {
-  //     // await addCourse(course).unwrap();
-  //     console.log("Added");
-  //     handleCloseActionsModal("add");
-  //     handleOpenModal("success");
-  //     setCourseName(course.name);
-  //   } catch (error) {
-  //     console.log(error);
-  //   }
-  // };
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleFileChange = async (file: any) => {
@@ -137,12 +123,6 @@ const Notes = () => {
       const formData = new FormData();
       formData.append("file", file);
       console.log(file);
-
-      // const response = await uploadResource(formData).unwrap();
-      // formik.setFieldValue("resources", [
-      //   ...formik.values.resources,
-      //   ...response.resources.map((resource) => resource.id),
-      // ]);
       formik.setFieldValue("fileName", file.name);
       setOpenFileSuccessModal(true);
     } catch (error) {
@@ -156,6 +136,13 @@ const Notes = () => {
     console.log(fileUrl);
   };
 
+  const handleChangePage = (
+    _event: React.ChangeEvent<unknown>,
+    newPage: number
+  ) => {
+    setCurrentPage(newPage);
+  };
+
   return (
     <Box
       ref={containerRef}
@@ -164,15 +151,7 @@ const Notes = () => {
       onSubmit={formik.handleSubmit}
     >
       {isGettingNotes && <LinearProgress />}
-      {/* <FormModal open={openActionsModal.edit} close={() => handleCloseActionsModal("edit")}>
-        <NotesForm
-          actions={{
-            submit: handleAddCourse as CourseFormAction,
-            cancel: () => handleCloseActionsModal("add"),
-          }}
-          course={selectedNotes}
-        />
-      </FormModal> */}
+
       <NotesUploadModal
         open={openModal}
         handleClose={handleUploadModalClose}
@@ -204,7 +183,7 @@ const Notes = () => {
           //   text: "Generate Report",
           // }}
           additionalButton={{
-            action: handleUploadModalOpen,
+            action: () => navigate("new"),
             text: "Create New Note",
           }}
         />
@@ -262,6 +241,14 @@ const Notes = () => {
           open={openActionsModal.success}
           subTitle={`You have successfully added a new Course <strong>"${selectedNotes?.title}"</strong>.`}
           title="Updates Successful"
+        />
+        <CustomPagination
+          startIndex={startIndex + 1}
+          endIndex={endIndex}
+          totalNumber={totalItems}
+          count={Math.ceil(totalItems / itemsPerPage)}
+          page={currentPage}
+          handleChangePage={handleChangePage}
         />
       </Box>
     </Box>

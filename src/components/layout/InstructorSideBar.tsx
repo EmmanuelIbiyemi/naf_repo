@@ -25,9 +25,9 @@ const navLinks: NavLink[] = [
     link: "/instructor/classes",
   },
   {
-    content: "Offline Scores",
+    content: "Scores",
     icon: reportsIcon,
-    link: "/instructor/offline-scores",
+    link: "/instructor/scores",
   },
   { content: "Settings", icon: SettingsIcon, link: "/instructor/settings" },
 ];

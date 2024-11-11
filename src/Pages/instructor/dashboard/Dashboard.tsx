@@ -110,9 +110,9 @@ const cards = [
   },
   {
     id: 4,
-    link: "offline-scores",
+    link: "scores",
     icon: <Inventory />,
-    title: "Record Offline Scores",
+    title: "Record Scores",
     description:
       "Create rich course content and coaching products for your students. When you give them a pricing plan, they’ll appear on your site!",
   },

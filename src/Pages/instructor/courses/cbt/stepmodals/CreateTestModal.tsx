@@ -15,7 +15,7 @@ import Step3Content from "./Step3Content";
 import { TestFormData } from "./testformtypes";
 import UploadFileModal from "../../../../../components/UploadFileModal";
 import { ParticipantData } from "../../../../../types/participants";
-import { CourseType } from "../../../../../types/courses";
+// import { CourseType } from "../../../../../types/courses";
 import { useAddMediaMutation } from "../../../../../store/api/media.api";
 import { useCreateQuestionFromFileMutation } from "../../../../../store/api/quizzes.api";
 import { ManualUploadQuestion } from "../../../../../types/quizzes";
@@ -48,7 +48,7 @@ interface CreateTestModalProps {
   uploadPayload?: ManualUploadQuestion | null;
   activeStep?: number;
   participants?: ParticipantData[];
-  courses?: CourseType[];
+  // courses?: CourseType[];
 }
 
 const CreateTestModal: React.FC<CreateTestModalProps> = ({
@@ -58,7 +58,7 @@ const CreateTestModal: React.FC<CreateTestModalProps> = ({
   uploadPayload,
   activeStep = 0,
   participants,
-  courses = [],
+  // courses = [],
 }) => {
   const [currentActiveStep, setCurrentActiveStep] = useState(activeStep);
   const [openCSVModal, setOpenCSVModal] = useState(false);
@@ -214,10 +214,9 @@ const CreateTestModal: React.FC<CreateTestModalProps> = ({
                     (!!localFormData.questions &&
                       localFormData.questions.length > 0) ||
                     (!!localFormData.file && localFormData.file !== "") ||
-                    !!uploadPayload // Add this condition to check for uploadPayload
+                    !!uploadPayload
                   }
                   participants={participants}
-                  subjects={courses}
                 />
                 {currentActiveStep !== 4 && (
                   <Box

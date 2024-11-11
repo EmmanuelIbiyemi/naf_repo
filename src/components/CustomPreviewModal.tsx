@@ -83,11 +83,6 @@ const CustomPreviewModal = ({
               <ReactMarkdown remarkPlugins={[remarkGfm]}>
                 {note.content}
               </ReactMarkdown>
-              <Box>
-                {note.media.map((item) => (
-                  <img src={item.url} style={{ width: "100%" }} />
-                ))}
-              </Box>
             </Box>
           </Box>
         </Box>

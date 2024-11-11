@@ -5,7 +5,7 @@ interface Participants {
 }
 
 export type ParticipantData = {
-  id?: number;
+  id: number;
   address: string;
   courses: CourseBaseType[];
   created_at: string;
