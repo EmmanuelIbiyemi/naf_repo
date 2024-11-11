@@ -23,7 +23,11 @@ const postsApi = appApi.injectEndpoints({
       query: () => `/post/categories`,
       providesTags: ["Posts"],
     }),
-    getPostByCategory: builder.query<PostsResponseAnnouncement, string>({
+    getPostByCategory: builder.query<PostsResponse, string>({
+      query: (tag) => `post/category/${tag}`,
+      providesTags: ["Posts"],
+    }),
+    getAnnouncements: builder.query<PostsResponseAnnouncement, string>({
       query: (tag) => `post/category/${tag}`,
       providesTags: ["Posts"],
     }),
@@ -77,4 +81,5 @@ export const {
   useGetPostCategoriesByTagQuery,
   useGetPostBySlugQuery,
   useGetPostByCategoryQuery,
+  useGetAnnouncementsQuery
 } = postsApi;

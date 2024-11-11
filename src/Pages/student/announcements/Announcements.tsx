@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useGetPostByCategoryQuery } from "../../../store/api/posts.api";
+import { useGetAnnouncementsQuery } from "../../../store/api/posts.api";
 import {
   Box,
   Card,
@@ -14,7 +14,7 @@ import { Post } from "../../../types/announcements";
 
 const AnnouncementsPage = () => {
   const [page, setPage] = useState(1);
-  const { data, isLoading, isError } = useGetPostByCategoryQuery(
+  const { data, isLoading, isError } = useGetAnnouncementsQuery(
     "announcement",
     {
       skip: false,
