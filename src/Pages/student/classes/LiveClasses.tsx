@@ -10,6 +10,8 @@ import {
   Typography,
   CircularProgress,
   Grid,
+  Pagination,
+  Stack,
 } from "@mui/material";
 import { ArrowForward, Quiz } from "@mui/icons-material";
 import React, { useEffect, useState } from "react";
@@ -30,7 +32,7 @@ const LiveClasses = () => {
     id: number;
     name: string;
   } | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [page, setPage] = useState(1);
 
   // Set page name
   useEffect(() => {
@@ -51,15 +53,14 @@ const LiveClasses = () => {
   const { data: currentSession, isLoading: isSessionLoading } =
     useGetCurrentSessionQuery(null);
 
-  // Fetch live classes with current semester and session
-  const {
-    data: liveClasses,
-    isFetching,
-  } = useGetLiveClassesQuery(
+  // Fetch live classes with current semester, session, and pagination
+  const { data: liveClasses, isFetching } = useGetLiveClassesQuery(
     {
       course_id: selectedCourse?.id ? String(selectedCourse.id) : "",
       semester: currentSemester?.data?.name || "",
       session: currentSession?.data?.name || "",
+      page: page,
+      per_page: 10, // Adjust this value based on your needs
     },
     {
       // Skip the query if we don't have semester, session, or participant data yet
@@ -69,7 +70,6 @@ const LiveClasses = () => {
         !participantData?.data,
     }
   );
-
 
   // Process live classes data
   const processClassStatus = (liveClass: { start_time: string }) => {
@@ -83,14 +83,20 @@ const LiveClasses = () => {
     return "Not Started";
   };
 
+  // Handle page change
+  const handlePageChange = (
+    _event: React.ChangeEvent<unknown>,
+    value: number
+  ) => {
+    setPage(value);
+    // Simulate loading delay
+    
+  };
+
   // Update loading state when selected course changes
   useEffect(() => {
-    setIsLoading(true);
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 500);
-
-    return () => clearTimeout(timer);
+    setPage(1); // Reset to first page when course changes
+    
   }, [selectedCourse]);
 
   // Combined loading state
@@ -98,8 +104,7 @@ const LiveClasses = () => {
     !isParticipantLoading &&
     !isSemesterLoading &&
     !isSessionLoading &&
-    !isFetching &&
-    !isLoading;
+    !isFetching
 
   return (
     <Box className="content-container">
@@ -160,7 +165,9 @@ const LiveClasses = () => {
                 <Box sx={{ p: 3, textAlign: "center" }}>
                   <CircularProgress />
                 </Box>
-              ) : !currentSemester?.data || !currentSession?.data || !selectedCourse ? (
+              ) : !currentSemester?.data ||
+                !currentSession?.data ||
+                !selectedCourse ? (
                 <EmptyState
                   title="No course selected"
                   subTitle="Please select a course"
@@ -202,6 +209,20 @@ const LiveClasses = () => {
                       );
                     })}
                   </Grid2>
+
+                  {/* Pagination */}
+                  <Stack spacing={2} sx={{ mt: 4, alignItems: "center" }}>
+                    <Pagination
+                      count={liveClasses.pagination.pages}
+                      page={page}
+                      onChange={handlePageChange}
+                      color="primary"
+                      disabled={isFetching}
+                    />
+                    {isFetching && (
+                      <CircularProgress size={24} sx={{ mt: 2 }} />
+                    )}
+                  </Stack>
                 </Box>
               ) : (
                 <EmptyState

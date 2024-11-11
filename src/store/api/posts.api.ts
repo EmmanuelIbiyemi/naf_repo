@@ -1,3 +1,4 @@
+import { PostsResponseAnnouncement } from "../../types/announcements";
 import { PostCreateType, PostResponse, PostsResponse } from "../../types/posts";
 import { appApi } from "./app.api";
 
@@ -22,7 +23,7 @@ const postsApi = appApi.injectEndpoints({
       query: () => `/post/categories`,
       providesTags: ["Posts"],
     }),
-    getPostByCategory: builder.query<PostsResponse, string>({
+    getPostByCategory: builder.query<PostsResponseAnnouncement, string>({
       query: (tag) => `post/category/${tag}`,
       providesTags: ["Posts"],
     }),

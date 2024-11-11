@@ -9,7 +9,7 @@ const liveClassApi = appApi.injectEndpoints({
   endpoints: (builder) => ({
     getLiveClasses: builder.query<
       LiveClassResponse,
-      { course_id: string; semester: string; session: string }
+      { course_id: string; semester: string; session: string; page:number; per_page:number }
     >({
       query: (params) => ({
         url: "/liveclass",

@@ -54,6 +54,32 @@ interface QuizResponse {
   status: string;
 }
 
+export interface QuizResponse1 {
+  data: {
+    id: number;
+    name: string;
+    instructions: string;
+    time_allowed: number;
+    obtainable_score: number;
+    quiz: {
+      id: number;
+      code: string;
+      name: string;
+      instructions: string;
+      is_published: boolean;
+      obtainable_score: number;
+      show_result: boolean;
+      start_date: string;
+      expiry_date: string;
+      time_allowed: number;
+      type: string;
+      assessments: Assessment[];
+    };
+  };
+  status: string;
+  message: string;
+}
+
 export type { Option, Question, Assessment, QuizData, QuizResponse };
 
 export interface QuizzesResponse {

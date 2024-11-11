@@ -28,10 +28,9 @@ import {
 } from "../../../store/api/quizzes.api";
 import QuestionSummaryGrid from "./CBTSummary";
 import {
-  Assessment,
   Option,
   Question,
-  QuizzesResponse,
+  QuizResponse1,
 } from "../../../types/quizzes";
 import { useAppSelector } from "../../../store/hooks";
 import { selectCurrentUser } from "../../../store/auth.slice";
@@ -100,7 +99,7 @@ const QuizInfoModal = ({
   onClose,
   onStart,
 }: {
-  quiz?: QuizzesResponse["data"][0];
+  quiz?: QuizResponse1["data"]["quiz"];
   open: boolean;
   onClose: () => void;
   onStart: () => void;
@@ -249,7 +248,7 @@ const CBTTest = () => {
         }));
 
         await submitSingleQuiz({
-          quiz_id: quizData?.data.id || 0,
+          quiz_id: quizData?.data.quiz.id || 0,
           option_id: optionId,
           time_left: timeLeft,
         }).unwrap();
@@ -274,23 +273,23 @@ const CBTTest = () => {
     try {
       setSubmitting(true);
 
-      const quiz = quizData?.data;
-      const questions = quiz?.assessments as Assessment[];
+      const quiz = quizData?.data.quiz;
+      const questions = quiz?.assessments[0].questions;
 
-      const unansweredCount = questions.length - Object.keys(answers).length;
+      const unansweredCount = (questions?.length || 0) - Object.keys(answers).length;
       if (unansweredCount > 0) {
         throw new Error(
           `Please answer all questions. ${unansweredCount} questions remaining.`
         );
       }
 
-      const orderedOptionIds = questions.map((question) =>
+      const orderedOptionIds = questions?.map((question) =>
         Number(answers[question.id])
       );
 
       const submissionData = {
         quiz_id: quiz?.id || 0,
-        option_ids: orderedOptionIds,
+        option_ids: orderedOptionIds || [],
         time_left: timeLeft,
       };
 
@@ -338,7 +337,7 @@ const CBTTest = () => {
     );
   }
 
-  const quiz = quizData?.data;
+  const quiz = quizData?.data.quiz;
   const questions = quiz?.assessments[0].questions as Question[];
 
   return (

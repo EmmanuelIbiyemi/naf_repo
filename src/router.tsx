@@ -166,6 +166,7 @@ const StudentNote = lazy(() => import("./Pages/student/notes/Notes"));
 const StudentResults = lazy(() => import("./Pages/student/results/Results"));
 const StudentClass = lazy(() => import("./Pages/student/classes/LiveClasses"));
 const StudentSettings = lazy(() => import("./Pages/student/settings/Settings"));
+const StudentAnnouncement = lazy(() => import("./Pages/student/announcements/Announcements"));
 
 export const router = createBrowserRouter([
   {
@@ -309,6 +310,7 @@ export const router = createBrowserRouter([
     path: "/student",
     element: <App />,
     children: [
+      { path: "announcements", element: <StudentAnnouncement /> },
       { path: "dashboard", element: <StudentDashboard /> },
       { path: "overview", element: <StudentOverview /> },
       { path: "courses", element: <StudentCourses /> },

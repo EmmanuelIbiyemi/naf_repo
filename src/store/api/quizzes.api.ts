@@ -8,8 +8,8 @@ import {
   QuizzesResponse,
   shareQuizInput,
   QuizResultResponse,
-  QuizResponse,
   InstructorQuizzesResponse,
+  QuizResponse1,
 } from "../../types/quizzes";
 import { appApi } from "./app.api";
 
@@ -197,7 +197,7 @@ const quizzesApi = appApi.injectEndpoints({
     }),
 
     unlockQuiz: builder.mutation<
-      QuizResponse,
+      QuizResponse1,
       { quiz_code: string; email: string }
     >({
       query: (data) => ({

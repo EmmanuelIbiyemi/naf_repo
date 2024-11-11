@@ -36,6 +36,16 @@ const Header = () => {
     navigate("/login");
   };
 
+  const handleNavigation = () => {
+    if (user?.role === "admin") {
+      navigate("/settings/posttype/announcement");
+    } else if (user?.role === "instructor") {
+      navigate("/instructor/posts");
+    } else if (user?.role === "participant") {
+      navigate("/student/announcements");
+    }
+  };
+
   return (
     <Box className="header" sx={headerStyles}>
       <Typography
@@ -62,20 +72,9 @@ const Header = () => {
       </Typography>
       <Box sx={actionsStyles}>
         <Box>
-          {user?.role != "instructor" ? (
-            <IconButton
-              onClick={() => navigate("/settings/posttype/announcement")}
-            >
-              <Notifications />
-            </IconButton>
-          ) : (
-            // <IconButton onClick={() => navigate("/instructor/postss")}  >
-            //   <Notifications />
-            // </IconButton>
-            <IconButton onClick={() => {}}>
-              <Notifications />
-            </IconButton>
-          )}
+          <IconButton onClick={handleNavigation}>
+            <Notifications />
+          </IconButton>
         </Box>
         <Box sx={flexStyles}>
           <Box
