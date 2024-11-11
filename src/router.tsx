@@ -1,7 +1,5 @@
-/* eslint-disable react-refresh/only-export-components */
 import { createBrowserRouter } from "react-router-dom";
 import { lazy } from "react";
-// import ReportsExpanded from "./Pages/instructor/reports/ReportsExpanded";
 import PrivateRoute from "./components/ProtectedRoutes";
 
 // Admin
@@ -66,7 +64,7 @@ const PostTypeItemsAddPage = lazy(
   () => import("./Pages/admin/pages/DynamicPage")
 );
 const CBTsPage = lazy(() => import("./Pages/admin/cbt/CBT"));
-const Profile = lazy(() => import("./Pages/admin/settings/Profile"));
+const ProfileSettings = lazy(() => import("./Pages/admin/settings/Profile"));
 
 // Instructor
 
@@ -77,9 +75,6 @@ const InstructorCoursesPage = lazy(
   () => import("./Pages/instructor/courses/Courses")
 );
 const CoursesLayout = lazy(() => import("./components/CoursesLayout"));
-// const CoursesDetailsPage = lazy(
-//   () => import("./Pages/instructor/courses/Details")
-// );
 const CoursesParicipantsPage = lazy(
   () => import("./Pages/instructor/courses/Participants")
 );
@@ -111,37 +106,6 @@ const InstructorOfflineScoresPage = lazy(
   () => import("./Pages/instructor/courses/cbt/offlineScores/OfflineScores")
 );
 const SettingsPage = lazy(() => import("./Pages/instructor/settings/Settings"));
-
-// const StudentDashboard = lazy(
-//   () => import("./Pages/student/dashboard/Dashboard")
-// );
-// const StudentOverview = lazy(() => import("./Pages/student/overview/Overview"));
-// const StudentCourses = lazy(
-//   () => import("./Pages/student/studentCourses/StudentCourses")
-// );
-// const StudentExamCard = lazy(
-//   () => import("./Pages/student/studentCourses/examCard/ExamCard")
-// );
-// const StudentCourseForm = lazy(
-//   () => import("./Pages/student/studentCourses/courseForm/CourseForm")
-// );
-// const StudentEnroll = lazy(
-//   () => import("./Pages/student/studentCourses/enroll/EnrollCourses")
-// );
-// const StudentCourseDetails = lazy(
-//   () => import("./Pages/student/studentCourses/courseDetails/CourseDetails")
-// );
-// const StudentCourseNote = lazy(
-//   () => import("./Pages/student/studentCourses/courseDetails/Notes/Notes")
-// );
-// const StudentCourseSchedule = lazy(
-//   () => import("./Pages/student/studentCourses/courseDetails/Schedule/Schedule")
-// );
-// const StudentReports = lazy(() => import("./Pages/student/reports/Reports"));
-// const StudentSettings = lazy(() => import("./Pages/student/settings/Settings"));
-// const PreviewAnnouncementPage = lazy(
-//   () => import("./Pages/instructor/announcements/posts/PreviewPost")
-// );
 
 const StudentDashboard = lazy(
   () => import("./Pages/student/dashboard/Dashboard")
@@ -235,7 +199,7 @@ export const router = createBrowserRouter([
         element: <AdminSettingsPage />,
         children: [
           { path: "", element: <MediaLibrary /> },
-          { path: "profile", element: <Profile /> },
+          { path: "profile", element: <ProfileSettings /> },
           { path: "posttype/:resource_type", element: <PostTypeItemsPage /> },
           {
             path: "posttype/:resource_type/:post_id",
@@ -286,22 +250,11 @@ export const router = createBrowserRouter([
           { path: "tests/manual-input", element: <InputQuestionsManually /> },
         ],
       },
-      // { path: "/instructor/reports", element: <ReportsPage /> },
-      // { path: "/instructor/reports/:id", element: <ReportsExpanded /> },
       { path: "classes", element: <LiveClassesPage /> },
-      // { path: "/instructor/posts", element: <AnnouncementPage /> },
-      // { path: "/instructor/posts/add", element: <AddAnnouncementPage /> },
-      // {
-      //   path: "/instructor/posts/preview",
-      //   element: <PreviewAnnouncementPage />,
-      // },
       {
         path: "/instructor/scores",
         element: <InstructorOfflineScoresPage />,
       },
-      // { path: "/instructor/post", element: <PostPage /> },
-      // { path: "/instructor/posts/add", element: <AddPostPage /> },
-      // { path: "/instructor/post/preview", element: <PreviewPostPage /> },
     ],
   },
 
