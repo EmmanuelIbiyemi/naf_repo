@@ -150,6 +150,7 @@ const AccountSettings = () => {
         //     // photo_id: formData.photo_id, // Include photo_id in the update
         // }
         {
+          id: userId,
           first_name: formData.first_name,
           email: formData.email,
           last_name: formData.last_name,
