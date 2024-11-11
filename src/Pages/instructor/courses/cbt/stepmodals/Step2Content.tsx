@@ -17,6 +17,7 @@ import {
   useCreateQuestionManuallyMutation,
 } from "../../../../../store/api/quizzes.api";
 import { CreateQuiz, ManualUploadQuestion } from "../../../../../types/quizzes";
+// import { useNavigate } from "react-router-dom";
 
 interface ModalProps {
   formData: TestFormData;
@@ -68,8 +69,12 @@ const Step2Content: React.FC<ModalProps> = ({
   const [openShareModal, setOpenShareModal] = useState(false);
   const [disableUploadQuestions, setDisableUploadQuestions] = useState(true);
   const [createTest, setCreateTest] = useState(false);
+  const [hasShared, setHasShared] = useState(false);
+  // const navigate = useNavigate();
+
   const handleCloseShareModal = () => {
     setOpenShareModal(false);
+    setHasShared(true);
   };
   const [createQuiz, { isLoading }] = useAddQuizMutation();
   const [uploadManualQuestion, { isLoading: isUploadingQuestions }] =
@@ -114,10 +119,10 @@ const Step2Content: React.FC<ModalProps> = ({
     }
 
     try {
-      if (uploadPayload) {
+      if (uploadPayload && !hasShared) {
         await uploadManualQuestion(uploadPayload).unwrap();
+        setOpenShareModal(true);
       }
-      setOpenShareModal(true);
     } catch (error) {
       console.error(error);
     }
@@ -302,12 +307,14 @@ const Step2Content: React.FC<ModalProps> = ({
           </Box>
         </Box>
       </Box>
-      <ShareWithModal
-        open={openShareModal}
-        handleClose={handleCloseShareModal}
-        participants={participants || []}
-        quizId={formData.quizId}
-      />
+      {!hasShared && (
+        <ShareWithModal
+          open={openShareModal}
+          handleClose={handleCloseShareModal}
+          participants={participants || []}
+          quizId={formData.quizId}
+        />
+      )}
     </Box>
   );
 };

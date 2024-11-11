@@ -88,7 +88,8 @@ const Students = () => {
                 fontWeight: 300,
               }}
             >
-              List of students that submitted the test "{quizData.name}"
+              List of students that are participating in the test "
+              {quizData.name}"
             </Typography>
             <Box
               sx={{

@@ -42,12 +42,15 @@ const ShareWithList = ({
   const [shareQuiz, { isLoading: isSharingQuiz }] = useShareQuizMutation();
   const [openSuccessModal, setOpenSuccessModal] = useState(false);
   const navigate = useNavigate();
+  // const locationData = location.pathname.split("/");
+  // const courseId = locationData[locationData.length - 2];
+  // const noteCourseId = locationData[locationData.length - 3];
 
   const handleOpenSuccessModal = () => setOpenSuccessModal(true);
   const handleCloseSuccessModal = () => {
     setOpenSuccessModal(false);
-    handleClose();
     navigate(-1);
+    handleClose();
   };
 
   interface FormValues {
@@ -241,9 +244,7 @@ const ShareWithList = ({
       </Modal>
       <SuccessModal
         actions={{
-          proceed: () => {
-            console.log("proceed");
-          },
+          proceed: handleCloseSuccessModal,
           undo: () => {
             console.log("undo");
           },

@@ -353,7 +353,7 @@ const AddScoresModal = ({
           }}
           infoText=""
           open={openSuccessModal}
-          subTitle="Scores have been successfully updated!"
+          subTitle="Scores are being updated! Please check back in the next 2 minutes"
           title="Successful"
         />
 
