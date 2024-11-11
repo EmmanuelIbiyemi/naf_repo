@@ -1,7 +1,8 @@
 import {
   InstructorCreateType,
+  instructorSingleResponse,
   InstructorsResponse,
-  InstructorType,
+  updateInstructor,
 } from "../../types/instructors";
 import { appApi } from "./app.api";
 
@@ -11,7 +12,7 @@ const instructorsApi = appApi.injectEndpoints({
       query: () => "/instructor",
       providesTags: ["Instructors"],
     }),
-    getInstructor: builder.query<InstructorsResponse, number>({
+    getInstructor: builder.query<instructorSingleResponse, number>({
       query: (instructor_id) => `/instructor/${instructor_id}`,
       providesTags: ["Instructors"],
     }),
@@ -23,7 +24,7 @@ const instructorsApi = appApi.injectEndpoints({
       }),
       invalidatesTags: ["Instructors"],
     }),
-    updateInstructor: builder.mutation<InstructorsResponse, InstructorType>({
+    updateInstructor: builder.mutation<InstructorsResponse, updateInstructor>({
       query: (instructor) => ({
         url: `/instructor/${instructor.id}`,
         method: "PUT",
