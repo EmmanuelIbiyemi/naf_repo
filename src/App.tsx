@@ -7,7 +7,6 @@ import {
   selectCurrentUser,
   selectLastVisitedPage,
   setLastVisitedPage,
-  setUserFromLocalStorage,
 } from "./store/auth.slice";
 import { useAppDispatch, useAppSelector } from "./store/hooks";
 import { useEffect } from "react";
@@ -23,29 +22,6 @@ function App() {
   const isBuilderLoading = useAppSelector(selectBuilderLoading);
   const isPageLoading = useAppSelector(selectPageLoading);
   const location = useLocation();
-
-  // Handle initial auth check and local storage restoration
-  useEffect(() => {
-    const initializeAuth = async () => {
-      if (!user) {
-        await dispatch(setUserFromLocalStorage());
-      }
-    };
-
-    initializeAuth();
-  }, [user, dispatch]);
-
-  // Handle routing after authentication state is confirmed
-  useEffect(() => {
-    const token = localStorage.getItem("access_token");
-    if (!token) {
-      navigate("/login");
-      return;
-    }
-    if (!user) {
-      dispatch(setUserFromLocalStorage());
-    }
-  }, [dispatch, user, navigate]);
 
   // Handle routing based on user role
   useEffect(() => {
@@ -92,7 +68,7 @@ function App() {
   };
 
   return (
-    <Box sx={{ fontFamily: 'outfit' }}>
+    <Box sx={{ fontFamily: "outfit" }}>
       {isPageLoading && (
         <Box
           sx={{
