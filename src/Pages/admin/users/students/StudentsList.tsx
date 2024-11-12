@@ -45,7 +45,7 @@ const StudentsList = () => {
         )
       );
     else setStudents(stds?.data);
-  }, [keyword]);
+  }, [keyword, stds]);
 
   useEffect(() => {
     if (isFetching) dispatch(setPageLoading(true));
