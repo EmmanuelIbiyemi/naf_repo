@@ -7,7 +7,7 @@ type InstructorBase = {
   last_name: string;
   phone: string;
   photo: string;
-  signature: string;
+  signature?: string;
 };
 
 export type updateInstructor = {

@@ -6,7 +6,7 @@ import {
   CardContent,
   CardHeader,
   Divider,
-  Grid,
+  Grid2,
   Pagination,
   Typography,
 } from "@mui/material";
@@ -110,9 +110,9 @@ const AnnouncementsPage = () => {
         Announcements
       </Typography>
 
-      <Grid container spacing={3}>
+      <Grid2 container spacing={3}>
         {post.map((announcement: Post) => (
-          <Grid item xs={12} sm={6} md={4} key={announcement.id}>
+          <Grid2 size={12} key={announcement.id}>
             <Card>
               <CardHeader title={announcement.title} />
               <CardContent>
@@ -129,9 +129,9 @@ const AnnouncementsPage = () => {
                 )}
               </CardContent>
             </Card>
-          </Grid>
+          </Grid2>
         ))}
-      </Grid>
+      </Grid2>
 
       <Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
         <Pagination
