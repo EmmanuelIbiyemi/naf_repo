@@ -3,7 +3,6 @@ import { lazy } from "react";
 import PrivateRoute from "./components/ProtectedRoutes";
 
 // Admin
-
 const App = lazy(() => import("./App"));
 const Login = lazy(() => import("./Pages/login/Login"));
 const Dashboard = lazy(() => import("./Pages/admin/dashboard/Dashboard"));
@@ -41,10 +40,6 @@ const AdminGradingPage = lazy(
 );
 const GradesPage = lazy(() => import("./Pages/admin/grading/grades/Grades"));
 const ScoresPage = lazy(() => import("./Pages/admin/grading/scores/Scores"));
-
-const InstructorsPage = lazy(
-  () => import("./Pages/admin/instructors/Instructors")
-);
 const FormsPage = lazy(() => import("./Pages/admin/application/FormsPage"));
 const AddFormPage = lazy(() => import("./Pages/admin/application/AddFormPage"));
 const PreviewFormPage = lazy(
@@ -133,7 +128,9 @@ const StudentNote = lazy(() => import("./Pages/student/notes/Notes"));
 const StudentResults = lazy(() => import("./Pages/student/results/Results"));
 const StudentClass = lazy(() => import("./Pages/student/classes/LiveClasses"));
 const StudentSettings = lazy(() => import("./Pages/student/settings/Settings"));
-const StudentAnnouncement = lazy(() => import("./Pages/student/announcements/Announcements"));
+const StudentAnnouncement = lazy(
+  () => import("./Pages/student/announcements/Announcements")
+);
 
 export const router = createBrowserRouter([
   {
@@ -145,8 +142,6 @@ export const router = createBrowserRouter([
     element: <PrivateRoute />,
     children: [
       { path: "/", element: <Dashboard /> },
-      { path: "/courses", element: <CoursesPage /> },
-      { path: "/instructors", element: <InstructorsPage /> },
       { path: "/applications", element: <FormsPage /> },
       { path: "/form/:form_id", element: <AddFormPage /> },
       { path: "/form/:form_id/preview", element: <PreviewFormPage /> },

@@ -1,6 +1,5 @@
 import { Box } from "@mui/material";
 import PageHeader from "../../../../components/PageHeader";
-import EmptyState from "../../../../components/EmptyState";
 import FormModal from "../../../../components/FormModal";
 import { useEffect, useRef, useState } from "react";
 import AdminForm from "./AdminsForm";
@@ -9,10 +8,7 @@ import { Admin, AdminFormAction } from "../../../../types/admins.ts";
 import { useAppDispatch } from "../../../../store/hooks";
 import { setPageName } from "../../../../store/app.slice";
 import SuccessModal from "../../../../components/SuccessModal";
-import {
-  useAddAdminMutation,
-  useGetAdminsQuery,
-} from "../../../../store/api/admins.api.ts";
+import { useAddAdminMutation } from "../../../../store/api/admins.api.ts";
 
 const AdminsPage = () => {
   const [openModal, setOpenModal] = useState({
@@ -21,7 +17,6 @@ const AdminsPage = () => {
   });
   const [adminName, setAdminName] = useState("");
   const [selectedAdmin, setSelectedAdmin] = useState<Admin>();
-  const { data: admins } = useGetAdminsQuery(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [addAdmin] = useAddAdminMutation();
 
@@ -96,14 +91,7 @@ const AdminsPage = () => {
           padding: "var(--padding)",
         }}
       >
-        {admins?.data && admins.data.length > 0 ? (
-          <AdminList />
-        ) : (
-          <EmptyState
-            title="No Admins at this time"
-            subTitle="Admins will appear here after you add them in your school."
-          />
-        )}
+        <AdminList />
       </Box>
     </Box>
   );

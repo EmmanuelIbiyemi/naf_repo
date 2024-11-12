@@ -16,8 +16,9 @@ import {
 import FormModal from "../../../../components/FormModal";
 import AdminForm from "./AdminsForm";
 import SuccessModal from "../../../../components/SuccessModal";
-import { useAppSelector } from "../../../../store/hooks";
-import { selectKeyword } from "../../../../store/app.slice";
+import { useAppDispatch, useAppSelector } from "../../../../store/hooks";
+import { selectKeyword, setPageLoading } from "../../../../store/app.slice";
+import EmptyState from "../../../../components/EmptyState";
 
 const AdminsList = () => {
   const [openModal, setOpenModal] = useState({
@@ -26,11 +27,12 @@ const AdminsList = () => {
     delete: false,
   });
   const [selectedAdmin, setSelectedAdmin] = useState<Admin>();
-  const { data: adminsData } = useGetAdminsQuery(null);
+  const { data: adminsData, isFetching, isError } = useGetAdminsQuery(null);
   const [admins, setAdmins] = useState<Admin[] | undefined>(adminsData?.data);
   const [deleteAdmin] = useDeleteAdminMutation();
   const [updateAdmin] = useUpdateAdminMutation();
   const keyword = useAppSelector(selectKeyword);
+  const dispatch = useAppDispatch();
 
   useEffect(() => {
     if (keyword && adminsData?.data)
@@ -43,7 +45,13 @@ const AdminsList = () => {
         )
       );
     else setAdmins(adminsData?.data);
-  }, [keyword]);
+  }, [keyword, adminsData]);
+
+  useEffect(() => {
+    if (isFetching) dispatch(setPageLoading(true));
+    else if (isError) dispatch(setPageLoading(false));
+    else dispatch(setPageLoading(false));
+  }, [isFetching, isError, adminsData]);
 
   const handleOpenModal = (admin: Admin, type: string) => {
     setSelectedAdmin(admin);
@@ -128,18 +136,17 @@ const AdminsList = () => {
 
       <Table sx={{ minWidth: 650 }}>
         <TableBody>
+          {isError ? (
+            <EmptyState
+              title="Could not fetch Lecturers"
+              subTitle="Check your internet connection"
+            />
+          ) : null}
           {!admins?.length ? (
-            <TableRow
-              sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-            >
-              <TableCell
-                component="th"
-                scope="row"
-                sx={{ alignItems: "center", display: "flex", gap: "1rem" }}
-              >
-                No items found
-              </TableCell>
-            </TableRow>
+            <EmptyState
+              title="No Lecturers found"
+              subTitle="Lecturers will appear here after you add them in your school."
+            />
           ) : null}
           {admins?.map((admin: Admin) => (
             <TableRow

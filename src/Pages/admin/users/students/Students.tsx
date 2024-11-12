@@ -1,6 +1,5 @@
 import { Box } from "@mui/material";
 import PageHeader from "../../../../components/PageHeader";
-import EmptyState from "../../../../components/EmptyState";
 import FormModal from "../../../../components/FormModal";
 import { useEffect, useRef, useState } from "react";
 import StudentForm from "./StudentsForm";
@@ -9,10 +8,7 @@ import { StudentType, StudentFormAction } from "../../../../types/students";
 import { useAppDispatch } from "../../../../store/hooks";
 import { setPageName } from "../../../../store/app.slice";
 import SuccessModal from "../../../../components/SuccessModal";
-import {
-  useAddStudentMutation,
-  useGetStudentsQuery,
-} from "../../../../store/api/students.api";
+import { useAddStudentMutation } from "../../../../store/api/students.api";
 
 const StudentsPage = () => {
   const [openModal, setOpenModal] = useState({
@@ -21,7 +17,6 @@ const StudentsPage = () => {
   });
   const [studentName, setStudentName] = useState("");
   const [selectedStudent, setSelectedStudent] = useState<StudentType>();
-  const { data: students } = useGetStudentsQuery(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [addStudent] = useAddStudentMutation();
 
@@ -96,14 +91,7 @@ const StudentsPage = () => {
           padding: "var(--padding)",
         }}
       >
-        {students?.data.length ? (
-          <StudentList />
-        ) : (
-          <EmptyState
-            title="No Students at this time"
-            subTitle="Students will appear here after you add them in your school."
-          />
-        )}
+        <StudentList />
       </Box>
     </Box>
   );

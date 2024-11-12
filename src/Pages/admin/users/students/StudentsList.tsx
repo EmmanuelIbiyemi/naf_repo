@@ -16,8 +16,9 @@ import {
 import FormModal from "../../../../components/FormModal";
 import StudentForm from "./StudentsForm";
 import SuccessModal from "../../../../components/SuccessModal";
-import { useAppSelector } from "../../../../store/hooks";
-import { selectKeyword } from "../../../../store/app.slice";
+import { useAppDispatch, useAppSelector } from "../../../../store/hooks";
+import { selectKeyword, setPageLoading } from "../../../../store/app.slice";
+import EmptyState from "../../../../components/EmptyState";
 
 const StudentsList = () => {
   const [openModal, setOpenModal] = useState({
@@ -26,11 +27,12 @@ const StudentsList = () => {
     delete: false,
   });
   const [selectedStudent, setSelectedStudent] = useState<StudentType>();
-  const { data: stds } = useGetStudentsQuery(null);
+  const { data: stds, isFetching, isError } = useGetStudentsQuery(null);
   const [students, setStudents] = useState(stds?.data);
   const [deleteStudent] = useDeleteStudentMutation();
   const [updateStudent] = useUpdateStudentMutation();
   const keyword = useAppSelector(selectKeyword);
+  const dispatch = useAppDispatch();
 
   useEffect(() => {
     if (keyword && stds?.data)
@@ -44,6 +46,12 @@ const StudentsList = () => {
       );
     else setStudents(stds?.data);
   }, [keyword]);
+
+  useEffect(() => {
+    if (isFetching) dispatch(setPageLoading(true));
+    else if (isError) dispatch(setPageLoading(false));
+    else dispatch(setPageLoading(false));
+  }, [isFetching, isError, stds]);
 
   const handleOpenModal = (student: StudentType, type: string) => {
     setSelectedStudent(student);
@@ -128,18 +136,17 @@ const StudentsList = () => {
 
       <Table sx={{ minWidth: 650 }}>
         <TableBody>
+          {isError ? (
+            <EmptyState
+              title="Could not fetch Students"
+              subTitle="Check your internet connection"
+            />
+          ) : null}
           {!students?.length ? (
-            <TableRow
-              sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-            >
-              <TableCell
-                component="th"
-                scope="row"
-                sx={{ alignItems: "center", display: "flex", gap: "1rem" }}
-              >
-                No items found
-              </TableCell>
-            </TableRow>
+            <EmptyState
+              title="No Students found"
+              subTitle="Students will appear here after you add them in your school."
+            />
           ) : null}
           {students?.map((student: StudentType) => (
             <TableRow

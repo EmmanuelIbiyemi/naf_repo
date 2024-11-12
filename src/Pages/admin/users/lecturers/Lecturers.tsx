@@ -1,18 +1,14 @@
 import { Box } from "@mui/material";
 import PageHeader from "../../../../components/PageHeader";
-import EmptyState from "../../../../components/EmptyState";
 import FormModal from "../../../../components/FormModal";
 import { useEffect, useRef, useState } from "react";
 import LecturerForm from "./LecturersForm";
 import LecturerList from "./LecturersList";
 import { Lecturer, LecturerFormAction } from "../../../../types/lecturers";
 import { useAppDispatch } from "../../../../store/hooks";
-import { setPageName } from "../../../../store/app.slice";
+import { setPageLoading, setPageName } from "../../../../store/app.slice";
 import SuccessModal from "../../../../components/SuccessModal";
-import {
-  useAddLecturerMutation,
-  useGetLecturersQuery,
-} from "../../../../store/api/lecturers.api";
+import { useAddLecturerMutation } from "../../../../store/api/lecturers.api";
 
 const LecturersPage = () => {
   const [openModal, setOpenModal] = useState({
@@ -21,9 +17,8 @@ const LecturersPage = () => {
   });
   const [lecturerName, setLecturerName] = useState("");
   const [selectedLecturer, setSelectedLecturer] = useState<Lecturer>();
-  const { data: lecturers } = useGetLecturersQuery(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const [addLecturer] = useAddLecturerMutation();
+  const [addLecturer, addState] = useAddLecturerMutation();
 
   // set page name
   const dispatch = useAppDispatch();
@@ -50,6 +45,12 @@ const LecturersPage = () => {
       console.log(error);
     }
   };
+
+  useEffect(() => {
+    if (addState.isLoading) dispatch(setPageLoading(true));
+    else if (addState.isError) dispatch(setPageLoading(false));
+    else dispatch(setPageLoading(false));
+  }, [addState]);
 
   return (
     <Box ref={containerRef} className="content-container">
@@ -96,14 +97,7 @@ const LecturersPage = () => {
           padding: "var(--padding)",
         }}
       >
-        {lecturers?.data && lecturers.data.length > 0 ? (
-          <LecturerList />
-        ) : (
-          <EmptyState
-            title="No Lecturers at this time"
-            subTitle="Lecturers will appear here after you add them in your school."
-          />
-        )}
+        <LecturerList />
       </Box>
     </Box>
   );

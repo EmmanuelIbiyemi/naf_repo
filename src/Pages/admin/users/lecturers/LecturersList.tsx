@@ -7,7 +7,7 @@ import { LecturerFormAction, Lecturer } from "../../../../types/lecturers";
 import { Checkbox, IconButton, Typography } from "@mui/material";
 import { Delete, Edit } from "@mui/icons-material";
 import DeleteConfirmationModal from "../../../../components/DeleteConfirmationModal";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   useDeleteLecturerMutation,
   useGetLecturersQuery,
@@ -16,6 +16,9 @@ import {
 import FormModal from "../../../../components/FormModal";
 import LecturerForm from "./LecturersForm";
 import SuccessModal from "../../../../components/SuccessModal";
+import { selectKeyword, setPageLoading } from "../../../../store/app.slice";
+import { useAppDispatch, useAppSelector } from "../../../../store/hooks";
+import EmptyState from "../../../../components/EmptyState";
 
 const LecturersList = () => {
   const [openModal, setOpenModal] = useState({
@@ -24,9 +27,25 @@ const LecturersList = () => {
     delete: false,
   });
   const [selectedLecturer, setSelectedLecturer] = useState<Lecturer>();
-  const { data: lecturers } = useGetLecturersQuery(null);
+  const { data: ltcs, isFetching, isError } = useGetLecturersQuery(null);
+  const [lecturers, setLecturers] = useState(ltcs?.data);
   const [deleteLecturer] = useDeleteLecturerMutation();
   const [updateLecturer] = useUpdateLecturerMutation();
+  const dispatch = useAppDispatch();
+  const keyword = useAppSelector(selectKeyword);
+
+  useEffect(() => {
+    if (keyword && ltcs?.data)
+      setLecturers(
+        ltcs.data.filter(
+          (f) =>
+            f.first_name.toLowerCase().includes(keyword.toLowerCase()) ||
+            f.last_name.toLowerCase().includes(keyword.toLowerCase()) ||
+            f.email.toLowerCase().includes(keyword.toLowerCase())
+        )
+      );
+    else setLecturers(ltcs?.data);
+  }, [keyword, ltcs]);
 
   const handleOpenModal = (lecturer: Lecturer, type: string) => {
     setSelectedLecturer(lecturer);
@@ -55,6 +74,12 @@ const LecturersList = () => {
     handleCloseModal("edit");
     handleOpenModal(lecturer, "success");
   };
+
+  useEffect(() => {
+    if (isFetching) dispatch(setPageLoading(true));
+    else if (isError) dispatch(setPageLoading(false));
+    else dispatch(setPageLoading(false));
+  }, [isFetching, isError, lecturers]);
 
   return (
     <TableContainer>
@@ -111,7 +136,19 @@ const LecturersList = () => {
 
       <Table sx={{ minWidth: 650 }}>
         <TableBody>
-          {lecturers?.data.map((lecturer: Lecturer) => (
+          {isError ? (
+            <EmptyState
+              title="Could not fetch Lecturers"
+              subTitle="Check your internet connection"
+            />
+          ) : null}
+          {!lecturers?.length ? (
+            <EmptyState
+              title="No Lecturers found"
+              subTitle="Lecturers will appear here after you add them in your school."
+            />
+          ) : null}
+          {lecturers?.map((lecturer: Lecturer) => (
             <TableRow
               key={lecturer.id}
               sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
