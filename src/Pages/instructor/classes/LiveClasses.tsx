@@ -55,20 +55,18 @@ const LiveClasses = () => {
     { skip: !selectedCourseId }
   );
 
-  const totalItems = scheduledClasses?.pagination?.total || 0; //
-  // const totalPages = scheduledClasses?.pagination?.pages || 1; //
-  const itemsPerPage = scheduledClasses?.pagination.per_page || 1; //
-  const startIndex = (currentPage - 1) * itemsPerPage; //
-  const endIndex = Math.min(startIndex + itemsPerPage, totalItems); //
+  const totalItems = scheduledClasses?.pagination?.total || 0;
+  // const totalPages = scheduledClasses?.pagination?.pages || 1;
+  const itemsPerPage = scheduledClasses?.pagination.per_page || 1;
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = Math.min(startIndex + itemsPerPage, totalItems);
 
   const handleChangePage = (
-    //
-    _event: React.ChangeEvent<unknown>, //
-    newPage: number //
+    _event: React.ChangeEvent<unknown>,
+    newPage: number
   ) => {
-    //
-    setCurrentPage(newPage); //
-  }; //
+    setCurrentPage(newPage);
+  };
 
   const dispatch = useAppDispatch();
   useEffect(() => {
@@ -165,13 +163,13 @@ const LiveClasses = () => {
                   );
                 })}
               </Grid2>
-              <CustomPagination //
-                startIndex={startIndex + 1} //
-                endIndex={endIndex} //
-                totalNumber={totalItems} //
-                count={Math.ceil(totalItems / itemsPerPage)} //
-                page={currentPage} //
-                handleChangePage={handleChangePage} //
+              <CustomPagination
+                startIndex={startIndex + 1}
+                endIndex={endIndex}
+                totalNumber={totalItems}
+                count={Math.ceil(totalItems / itemsPerPage)}
+                page={currentPage}
+                handleChangePage={handleChangePage}
               />
             </Box>
           ) : (

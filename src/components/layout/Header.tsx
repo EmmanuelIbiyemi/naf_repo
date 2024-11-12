@@ -16,7 +16,7 @@ import { MouseEvent, useState } from "react";
 const Header = () => {
   const pageName = useAppSelector(selectPageName);
   const user = useAppSelector(selectCurrentUser);
-  
+
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const [mainPage, subPage] = pageName.split("/");
@@ -40,7 +40,7 @@ const Header = () => {
     if (user?.role === "admin") {
       navigate("/settings/posttype/announcement");
     } else if (user?.role === "instructor") {
-      navigate("/instructor/posts");
+      navigate("/instructor/announcements");
     } else if (user?.role === "participant") {
       navigate("/student/announcements");
     }

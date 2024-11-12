@@ -107,6 +107,10 @@ const InstructorOfflineScoresPage = lazy(
 );
 const SettingsPage = lazy(() => import("./Pages/instructor/settings/Settings"));
 
+const InstructorAnnouncementPage = lazy(
+  () => import("./Pages/instructor/announcements/Announcements")
+);
+
 const StudentDashboard = lazy(
   () => import("./Pages/student/dashboard/Dashboard")
 );
@@ -130,7 +134,9 @@ const StudentNote = lazy(() => import("./Pages/student/notes/Notes"));
 const StudentResults = lazy(() => import("./Pages/student/results/Results"));
 const StudentClass = lazy(() => import("./Pages/student/classes/LiveClasses"));
 const StudentSettings = lazy(() => import("./Pages/student/settings/Settings"));
-const StudentAnnouncement = lazy(() => import("./Pages/student/announcements/Announcements"));
+const StudentAnnouncement = lazy(
+  () => import("./Pages/student/announcements/Announcements")
+);
 
 export const router = createBrowserRouter([
   {
@@ -255,6 +261,10 @@ export const router = createBrowserRouter([
       {
         path: "/instructor/scores",
         element: <InstructorOfflineScoresPage />,
+      },
+      {
+        path: "/instructor/announcements",
+        element: <InstructorAnnouncementPage />,
       },
     ],
   },
