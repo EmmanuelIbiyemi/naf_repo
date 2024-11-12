@@ -26,6 +26,7 @@ const InstructorForm = ({ actions, instructor }: Props) => {
     photo: instructor?.photo || "",
     address: instructor?.address || "",
     created_at: instructor?.created_at || "",
+    signature: instructor?.signature || "",
   };
 
   const validationSchema = Yup.object({

@@ -32,6 +32,7 @@ const navLinks: NavLink[] = [
         link: "/applicants",
       },
       { content: "Student Exam", icon: ChevronLeft, link: "/cbt" },
+      { content: "Upload Eligibles", icon: ChevronLeft, link: "/eligibles" },
     ],
   },
   { content: "Grading System", icon: GraduationScroll, link: "/grading" },

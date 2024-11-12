@@ -11,6 +11,7 @@ export const instructors: InstructorType[] = [
     created_at: "",
     photo: "",
     updated_at: "",
+    signature: "",
   },
   {
     id: 2,
@@ -22,6 +23,7 @@ export const instructors: InstructorType[] = [
     created_at: "",
     photo: "",
     updated_at: "",
+    signature: "",
   },
   {
     id: 3,
@@ -33,5 +35,6 @@ export const instructors: InstructorType[] = [
     created_at: "",
     photo: "",
     updated_at: "",
+    signature: "",
   },
 ];

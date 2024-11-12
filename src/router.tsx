@@ -65,6 +65,9 @@ const PostTypeItemsAddPage = lazy(
 );
 const CBTsPage = lazy(() => import("./Pages/admin/cbt/CBT"));
 const ProfileSettings = lazy(() => import("./Pages/admin/settings/Profile"));
+const Eligibles = lazy(
+  () => import("./Pages/admin/grading/eligibles/Eligibles")
+);
 
 // Instructor
 
@@ -148,6 +151,7 @@ export const router = createBrowserRouter([
       { path: "/form/:form_id", element: <AddFormPage /> },
       { path: "/form/:form_id/preview", element: <PreviewFormPage /> },
       { path: "/applicants", element: <ApplicantsPage /> },
+      { path: "/eligibles", element: <Eligibles /> },
       { path: "/cbt", element: <CBTsPage /> },
       {
         path: "/academics",
