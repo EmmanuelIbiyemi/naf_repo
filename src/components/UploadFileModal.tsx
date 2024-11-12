@@ -7,6 +7,8 @@ import {
   TextField,
   InputAdornment,
   Button,
+  Backdrop,
+  CircularProgress,
 } from "@mui/material";
 import uploadIcon from "../assets/uploadIcon.svg";
 import { useState } from "react";
@@ -17,6 +19,7 @@ type uploadFileModalProps = {
   // handleFileChange: (e: React.ChangeEvent<HTMLInputElement>) => Promise<void>;
   handleFileChange: (file: File) => void;
   handleProcessFileUrl?: (fileUrl: string) => void;
+  isUploading?: boolean;
 };
 
 const UploadFileModal = ({
@@ -24,6 +27,7 @@ const UploadFileModal = ({
   handleClose,
   handleFileChange,
   handleProcessFileUrl,
+  isUploading,
 }: uploadFileModalProps) => {
   const [fileUrl, setFileUrl] = useState("");
 
@@ -247,6 +251,11 @@ const UploadFileModal = ({
             </Box>
           )}
         </Box>
+        {isUploading && (
+          <Backdrop open={isUploading}>
+            <CircularProgress />
+          </Backdrop>
+        )}
       </Box>
     </Modal>
   );

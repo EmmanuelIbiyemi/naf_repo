@@ -35,7 +35,7 @@ const ShareWithModal = ({
   const handleContinue = () => {
     if (shareOption === "selectedUsers" || shareOption === "byCourse") {
       setShowShareWithList(true);
-      handleClose();
+      // handleClose();
     } else {
       // Handle sharing with everyone
       console.log("Sharing with everyone");

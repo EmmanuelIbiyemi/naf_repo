@@ -20,6 +20,7 @@ import { useAddMediaMutation } from "../../../../../store/api/media.api";
 import { useCreateQuestionFromFileMutation } from "../../../../../store/api/quizzes.api";
 import { ManualUploadQuestion } from "../../../../../types/quizzes";
 import ShareWithModal from "../../../../../components/ShareWithModal";
+import SuccessModal from "../../../../../components/SuccessModal";
 
 const initialFormData: TestFormData = {
   subject: "",
@@ -75,7 +76,9 @@ const CreateTestModal: React.FC<CreateTestModalProps> = ({
   const navigate = useNavigate();
   const [uploadMedia] = useAddMediaMutation();
   const [createQuestionFromFile] = useCreateQuestionFromFileMutation();
+  const [uploadingDocument, setUploadingDocument] = useState(false);
   const [openShareModal, setOpenShareModal] = useState(false);
+  const [openSuccessModal, setOpenSuccessModal] = useState(false);
   const handleCloseShareModal = () => {
     setOpenShareModal(false);
   };
@@ -101,6 +104,7 @@ const CreateTestModal: React.FC<CreateTestModalProps> = ({
 
   const handleFileChange = async (file: File) => {
     try {
+      setUploadingDocument(true);
       const formData = new FormData();
       formData.append("file", file);
 
@@ -122,9 +126,12 @@ const CreateTestModal: React.FC<CreateTestModalProps> = ({
           file_url: fileUrl,
         });
 
+        setUploadingDocument(false);
+        setOpenCSVModal(false);
         setOpenShareModal(true);
+        handleClose();
 
-        handleBack();
+        // handleBack();
       } else {
         console.error("File URL not found in the response.");
       }
@@ -267,6 +274,26 @@ const CreateTestModal: React.FC<CreateTestModalProps> = ({
         open={openCSVModal}
         handleClose={() => setOpenCSVModal(false)}
         handleFileChange={handleFileChange}
+        isUploading={uploadingDocument}
+      />
+
+      <SuccessModal
+        actions={{
+          proceed: () => {
+            console.log("proceed");
+          },
+          undo: () => {
+            console.log("undo");
+          },
+        }}
+        close={() => {
+          setOpenSuccessModal(false);
+          setOpenCSVModal(false);
+        }}
+        infoText=""
+        open={openSuccessModal}
+        subTitle={`File has been successfully uploaded`}
+        title="Successful"
       />
       <ShareWithModal
         open={openShareModal}
