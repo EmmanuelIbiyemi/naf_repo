@@ -245,7 +245,7 @@ const AccountSettings = () => {
   }
 
   return (
-    <Box sx={{ padding: "2rem", width: "100%", margin: "0 auto" }}>
+    <Box sx={{ padding: "2rem", maxWidth: "1000px", margin: "0 auto" }}>
       {error && (
         <Alert severity="error" sx={{ mb: 2 }}>
           {error}
@@ -493,7 +493,7 @@ const passwordSectionStyle = {
   borderRadius: "var(--border-radius)",
   padding: "2rem",
   boxShadow: 1,
-  maxWidth: "40em",
+  maxWidth: "400px",
 };
 
 const changePasswordButtonStyle = {
