@@ -82,10 +82,11 @@ const ShareWithList = ({
             participants: values.participants,
           }).unwrap();
           handleOpenSuccessModal();
-        } else {
-          console.log("Shared with: ", values.participants);
-          navigate("/instructor/posts");
         }
+        // else {
+        //   console.log("Shared with: ", values.participants);
+        //   navigate("/instructor/posts");
+        // }
       } catch (error) {
         console.error("Share failed:", error);
       }
