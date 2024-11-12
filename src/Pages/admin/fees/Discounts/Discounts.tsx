@@ -5,10 +5,7 @@ import FormModal from "../../../../components/FormModal.tsx";
 import { useEffect, useRef, useState } from "react";
 import DiscountForm from "./DiscountsForm.tsx";
 import DiscountList from "./DiscountsList.tsx";
-import {
-  Discount,
-  DiscountFormAction
-} from "../../../../types/discounts.ts";
+import { Discount, DiscountFormAction } from "../../../../types/discounts.ts";
 import { useAppDispatch } from "../../../../store/hooks.ts";
 import { setPageName } from "../../../../store/app.slice.ts";
 import SuccessModal from "../../../../components/SuccessModal.tsx";
@@ -81,7 +78,7 @@ const DiscountsPage = () => {
         }}
         infoText="The instructors added in this discount will get notified."
         open={openModal.success}
-        subTitle={`You have successfully added a new discount <strong>"${discountName}"</strong>.`}
+        subTitle={`You have successfully added a new discount <strong>"${discountName}.`}
         title="Updates Successful"
       />
 

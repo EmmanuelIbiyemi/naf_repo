@@ -215,7 +215,7 @@ const Tests = () => {
           }}
           infoText=""
           open={openActionsModal.success}
-          subTitle={`You have successfully added a new Course <strong>"${selectedTests?.name}"</strong>.`}
+          subTitle={`You have successfully added a new Course <strong>"${selectedTests?.name}.`}
           title="Updates Successful"
         />
       </Box>

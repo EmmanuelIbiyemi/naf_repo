@@ -1,32 +1,25 @@
 import { Box } from "@mui/material";
 import PageHeader from "../../../../components/PageHeader";
-import EmptyState from "../../../../components/EmptyState";
 import FormModal from "../../../../components/FormModal";
 import { useEffect, useRef, useState } from "react";
 import { useAppDispatch } from "../../../../store/hooks";
 import { setPageName } from "../../../../store/app.slice";
 import SuccessModal from "../../../../components/SuccessModal";
-import {
-  useAddDepartmentMutation,
-  useGetDepartmentsQuery,
-} from "../../../../store/api/departments.api";
+import { useAddDepartmentMutation } from "../../../../store/api/departments.api";
 import {
   Department,
   DepartmentFormAction,
 } from "../../../../types/departments";
 import DepartmentForm from "./DepartmentForm";
 import DepartmentList from "./DepartmentList";
-import { useParams } from "react-router-dom";
 
 const DepartmentsPage = () => {
-  const { faculty_id } = useParams();
   const [openModal, setOpenModal] = useState({
     add: false,
     success: false,
   });
   const [departmentName, setDepartmentName] = useState("");
   const [selectedDepartment, setSelectedDepartment] = useState<Department>();
-  const { data: departments } = useGetDepartmentsQuery(+(faculty_id || 1));
   const containerRef = useRef<HTMLDivElement>(null);
   const [addDepartment] = useAddDepartmentMutation();
 
@@ -83,7 +76,7 @@ const DepartmentsPage = () => {
         }}
         infoText="The instructors added in this department will get notified."
         open={openModal.success}
-        subTitle={`You have successfully added a new department <strong>“${departmentName}”</strong>.`}
+        subTitle={`You have successfully added a new department “${departmentName}”.`}
         title="Updates Successful"
       />
 
@@ -101,14 +94,7 @@ const DepartmentsPage = () => {
           padding: "var(--padding)",
         }}
       >
-        {departments?.data.length ? (
-          <DepartmentList />
-        ) : (
-          <EmptyState
-            title="No Departments at this time"
-            subTitle="Departments will appear here after you add them in your school."
-          />
-        )}
+        <DepartmentList />
       </Box>
     </Box>
   );

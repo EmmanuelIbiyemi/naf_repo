@@ -5,23 +5,31 @@ import {
   TableContainer,
   TableRow,
   TableHead,
-  // Button,
+  Button,
 } from "@mui/material";
 import { Link } from "react-router-dom";
-import { useGetEligiblesQuery } from "../../../../store/api/eligibles.api";
+import {
+  useDeleteEligiblesMutation,
+  useGetEligiblesQuery,
+} from "../../../../store/api/eligibles.api";
 import { EligibleType } from "../../../../types/eligibles";
 import dayjs from "dayjs";
-// import { Delete } from "@mui/icons-material";
-import { useAppSelector } from "../../../../store/hooks";
-import { selectKeyword } from "../../../../store/app.slice";
+import { Delete } from "@mui/icons-material";
+import { useAppDispatch, useAppSelector } from "../../../../store/hooks";
+import { selectKeyword, setPageLoading } from "../../../../store/app.slice";
 import { useEffect, useState } from "react";
+import DeleteConfirmationModal from "../../../../components/DeleteConfirmationModal";
 
 const EligiblesList: React.FC = () => {
-  const { data: elgbles, isLoading } = useGetEligiblesQuery(null);
+  const { data: elgbles, isFetching } = useGetEligiblesQuery(null);
+  const [deleteEligible, deleteState] = useDeleteEligiblesMutation();
+  const [openModal, setOpenModal] = useState(false);
+  const [selectedEligible, setSelectedEligible] = useState<EligibleType>();
   const [eligibles, setEligibles] = useState<EligibleType[] | undefined>(
     elgbles?.data
   );
   const keyword = useAppSelector(selectKeyword);
+  const dispatch = useAppDispatch();
 
   useEffect(() => {
     if (keyword && elgbles?.data)
@@ -33,12 +41,47 @@ const EligiblesList: React.FC = () => {
     else setEligibles(elgbles?.data);
   }, [keyword, elgbles]);
 
-  if (isLoading) {
-    return <div>Loading...</div>;
-  }
+  const handleDelete = async (id: number) => {
+    try {
+      await deleteEligible(id).unwrap();
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const handleOpenDeleteModal = (eligible: EligibleType) => {
+    setOpenModal(true);
+    setSelectedEligible(eligible);
+  };
+  const handleCloseDeleteModal = () => {
+    setOpenModal(false);
+  };
+
+  useEffect(() => {
+    if (isFetching || deleteState.isLoading) dispatch(setPageLoading(true));
+    else dispatch(setPageLoading(false));
+  }, [isFetching, deleteState]);
 
   return (
     <TableContainer>
+      {/* DELETE */}
+      <DeleteConfirmationModal
+        actions={{
+          proceed: () => {
+            if (selectedEligible) handleDelete(selectedEligible.id as number);
+            console.log("proceed");
+          },
+          undo: () => {
+            console.log("cancel");
+          },
+        }}
+        close={() => handleCloseDeleteModal()}
+        infoText="You can’t undo this action !"
+        open={openModal}
+        subTitle={`Are you sure you want to delete “${selectedEligible?.reg_number}” ?`}
+        title="Delete Eligible ?"
+      />
+
       <Table
         sx={{
           minWidth: 650,
@@ -64,7 +107,7 @@ const EligiblesList: React.FC = () => {
             </TableCell>
             <TableCell align="center">Session</TableCell>
             <TableCell align="center">Date</TableCell>
-            {/* <TableCell align="center">Actions</TableCell> */}
+            <TableCell align="center">Actions</TableCell>
           </TableRow>
         </TableHead>
 
@@ -108,11 +151,11 @@ const EligiblesList: React.FC = () => {
               <TableCell align="center">
                 {dayjs(eligible.created_at).format("DD-MM-YYYY")}
               </TableCell>
-              {/* <TableCell align="center">
-                <Button onClick={() => {}}>
+              <TableCell align="center">
+                <Button onClick={() => handleOpenDeleteModal(eligible)}>
                   <Delete />
                 </Button>
-              </TableCell> */}
+              </TableCell>
             </TableRow>
           ))}
         </TableBody>

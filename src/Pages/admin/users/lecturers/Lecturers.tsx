@@ -5,10 +5,7 @@ import FormModal from "../../../../components/FormModal";
 import { useEffect, useRef, useState } from "react";
 import LecturerForm from "./LecturersForm";
 import LecturerList from "./LecturersList";
-import {
-  Lecturer,
-  LecturerFormAction
-} from "../../../../types/lecturers";
+import { Lecturer, LecturerFormAction } from "../../../../types/lecturers";
 import { useAppDispatch } from "../../../../store/hooks";
 import { setPageName } from "../../../../store/app.slice";
 import SuccessModal from "../../../../components/SuccessModal";
@@ -81,7 +78,7 @@ const LecturersPage = () => {
         }}
         infoText="The instructors added in this lecturer will get notified."
         open={openModal.success}
-        subTitle={`You have successfully added a new lecturer <strong>"${lecturerName}"</strong>.`}
+        subTitle={`You have successfully added a new lecturer <strong>"${lecturerName}.`}
         title="Updates Successful"
       />
 

@@ -78,7 +78,7 @@ const StudentsPage = () => {
         }}
         infoText="The instructors added in this student will get notified."
         open={openModal.success}
-        subTitle={`You have successfully added a new student <strong>“${studentName}”</strong>.`}
+        subTitle={`You have successfully added a new student ${studentName}”</strong>.`}
         title="Updates Successful"
       />
 

@@ -76,7 +76,7 @@ function App() {
             position: "fixed",
             top: 0,
             width: "100%",
-            zIndex: 101,
+            zIndex: 2000,
           }}
         >
           <LoadingScreen />
@@ -90,7 +90,7 @@ function App() {
             position: "fixed",
             top: 0,
             width: "100%",
-            zIndex: 100,
+            zIndex: 1999,
           }}
         >
           <LinearProgress color="inherit" sx={{ height: "10px" }} />

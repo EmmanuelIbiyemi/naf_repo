@@ -26,4 +26,8 @@ const eligiblesApi = appApi.injectEndpoints({
   overrideExisting: false,
 });
 
-export const { useGetEligiblesQuery, useAddEligiblesMutation } = eligiblesApi;
+export const {
+  useGetEligiblesQuery,
+  useAddEligiblesMutation,
+  useDeleteEligiblesMutation,
+} = eligiblesApi;

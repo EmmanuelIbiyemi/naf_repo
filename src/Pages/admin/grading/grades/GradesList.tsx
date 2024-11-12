@@ -135,7 +135,7 @@ const GradesList: React.FC = () => {
         close={() => handleCloseModal("delete")}
         infoText="The students enrolled in this Grade will get notified."
         open={openModal.delete}
-        subTitle={`Are you sure you want to delete Grade <strong>"${selectedGrade?.name}"</strong>? You can't undo this action.`}
+        subTitle={`Are you sure you want to delete Grade <strong>"${selectedGrade?.name}? You can't undo this action.`}
         title="Delete Grade?"
       />
 
@@ -154,7 +154,7 @@ const GradesList: React.FC = () => {
         }}
         infoText=""
         open={openModal.success}
-        subTitle={`You have successfully updated the Grade <strong>"${selectedGrade?.name}"</strong>.`}
+        subTitle={`You have successfully updated the Grade <strong>"${selectedGrade?.name}.`}
         title="Updates Successful"
       />
 

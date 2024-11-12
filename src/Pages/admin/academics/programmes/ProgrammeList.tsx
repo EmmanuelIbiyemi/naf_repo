@@ -17,8 +17,9 @@ import FormModal from "../../../../components/FormModal";
 import ProgrammeForm from "./ProgrammeForm";
 import SuccessModal from "../../../../components/SuccessModal";
 import { useNavigate, useParams } from "react-router-dom";
-import { useAppSelector } from "../../../../store/hooks";
-import { selectKeyword } from "../../../../store/app.slice";
+import { useAppDispatch, useAppSelector } from "../../../../store/hooks";
+import { selectKeyword, setPageLoading } from "../../../../store/app.slice";
+import EmptyState from "../../../../components/EmptyState";
 
 const ProgrammeList = () => {
   const { department_id, faculty_id } = useParams();
@@ -29,11 +30,16 @@ const ProgrammeList = () => {
     delete: false,
   });
   const [selectedProgramme, setSelectedProgramme] = useState<Programme>();
-  const { data: prgms } = useGetProgrammesQuery(+(department_id || 0));
+  const {
+    data: prgms,
+    isFetching,
+    isError,
+  } = useGetProgrammesQuery(+(department_id || 0));
   const [programmes, setProgrammes] = useState(prgms?.data);
   const [deleteProgramme] = useDeleteProgrammeMutation();
   const [updateProgramme] = useUpdateProgrammeMutation();
   const keyword = useAppSelector(selectKeyword);
+  const dispatch = useAppDispatch();
 
   useEffect(() => {
     if (keyword && prgms?.data)
@@ -43,7 +49,13 @@ const ProgrammeList = () => {
         )
       );
     else setProgrammes(prgms?.data);
-  }, [keyword]);
+  }, [keyword, prgms]);
+
+  useEffect(() => {
+    if (isFetching) dispatch(setPageLoading(true));
+    else if (isError) dispatch(setPageLoading(false));
+    else dispatch(setPageLoading(false));
+  }, [isFetching, isError, prgms]);
 
   const handleOpenModal = (programme: Programme, type: string) => {
     setSelectedProgramme(programme);
@@ -100,7 +112,7 @@ const ProgrammeList = () => {
         close={() => handleCloseModal("delete")}
         infoText="The instructors enrolled in this Programme will get notified."
         open={openModal.delete}
-        subTitle={`Are you sure you want to delete Programme <strong>“${selectedProgramme?.name}”</strong>? You can’t undo this action.`}
+        subTitle={`Are you sure you want to delete Programme ${selectedProgramme?.name}”</strong>? You can’t undo this action.`}
         title="Delete Programme?"
       />
 
@@ -120,24 +132,23 @@ const ProgrammeList = () => {
         }}
         infoText=""
         open={openModal.success}
-        subTitle={`You have successfully added a new Programme <strong>“${selectedProgramme?.name}”</strong>.`}
+        subTitle={`You have successfully added a new Programme ${selectedProgramme?.name}”</strong>.`}
         title="Updates Successful"
       />
 
       <Table sx={{ minWidth: 650 }}>
         <TableBody>
+          {isError ? (
+            <EmptyState
+              title="Could not fetch Programs"
+              subTitle="Check your internet connection"
+            />
+          ) : null}
           {!programmes?.length ? (
-            <TableRow
-              sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-            >
-              <TableCell
-                component="th"
-                scope="row"
-                sx={{ alignItems: "center", display: "flex", gap: "1rem" }}
-              >
-                No items found
-              </TableCell>
-            </TableRow>
+            <EmptyState
+              title="No Programs found"
+              subTitle="Programs will appear here after you add them in your school."
+            />
           ) : null}
           {programmes?.map((programme: Programme) => (
             <TableRow

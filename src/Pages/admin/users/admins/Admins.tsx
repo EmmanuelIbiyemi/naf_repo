@@ -5,10 +5,7 @@ import FormModal from "../../../../components/FormModal";
 import { useEffect, useRef, useState } from "react";
 import AdminForm from "./AdminsForm";
 import AdminList from "./AdminsList";
-import {
-  Admin,
-  AdminFormAction
-} from "../../../../types/admins.ts";
+import { Admin, AdminFormAction } from "../../../../types/admins.ts";
 import { useAppDispatch } from "../../../../store/hooks";
 import { setPageName } from "../../../../store/app.slice";
 import SuccessModal from "../../../../components/SuccessModal";
@@ -81,7 +78,7 @@ const AdminsPage = () => {
         }}
         infoText="The instructors added in this admin will get notified."
         open={openModal.success}
-        subTitle={`You have successfully added a new admin <strong>"${adminName}"</strong>.`}
+        subTitle={`You have successfully added a new admin <strong>"${adminName}.`}
         title="Updates Successful"
       />
 

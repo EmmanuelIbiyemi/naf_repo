@@ -128,7 +128,7 @@ const InstructorList = ({
         close={() => handleCloseModal("delete")}
         infoText=""
         open={openModal.delete}
-        subTitle={`Are you sure you want to delete <strong>“${selectedInstructor?.first_name} ${selectedInstructor?.last_name}”</strong>? You can’t undo this action.`}
+        subTitle={`Are you sure you want to delete ${selectedInstructor?.first_name} ${selectedInstructor?.last_name}”</strong>? You can’t undo this action.`}
         title="Delete Instructor?"
       />
 

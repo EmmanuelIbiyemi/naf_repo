@@ -22,7 +22,6 @@ interface FeesListProps {
   level: string | null;
 }
 
-
 const FeesList: React.FC<FeesListProps> = ({ level }) => {
   const [openModal, setOpenModal] = useState({
     edit: false,
@@ -30,10 +29,12 @@ const FeesList: React.FC<FeesListProps> = ({ level }) => {
     delete: false,
   });
   const [selectedFee, setSelectedFee] = useState<Fee>();
-  const { data: fees, isLoading } = useGetLevelFeesQuery(level ? level.toString() : null);
+  const { data: fees, isLoading } = useGetLevelFeesQuery(
+    level ? level.toString() : null
+  );
   const [deleteFee] = useDeleteFeeMutation();
   const [updateFee] = useUpdateFeeMutation();
-  
+
   const handleOpenModal = (fee: Fee, type: string) => {
     setSelectedFee(fee);
     setOpenModal((prev) => ({ ...prev, [type]: true }));
@@ -95,7 +96,7 @@ const FeesList: React.FC<FeesListProps> = ({ level }) => {
         close={() => handleCloseModal("delete")}
         infoText="The students enrolled in this Fee will get notified."
         open={openModal.delete}
-        subTitle={`Are you sure you want to delete Fee <strong>"${selectedFee?.name}"</strong>? You can't undo this action.`}
+        subTitle={`Are you sure you want to delete Fee <strong>"${selectedFee?.name}? You can't undo this action.`}
         title="Delete Fee?"
       />
 
@@ -114,7 +115,7 @@ const FeesList: React.FC<FeesListProps> = ({ level }) => {
         }}
         infoText=""
         open={openModal.success}
-        subTitle={`You have successfully updated the Fee <strong>"${selectedFee?.name}"</strong>.`}
+        subTitle={`You have successfully updated the Fee <strong>"${selectedFee?.name}.`}
         title="Updates Successful"
       />
 

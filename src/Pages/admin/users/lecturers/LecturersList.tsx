@@ -83,7 +83,7 @@ const LecturersList = () => {
         close={() => handleCloseModal("delete")}
         infoText="The students enrolled in this Lecturer will get notified."
         open={openModal.delete}
-        subTitle={`Are you sure you want to delete Lecturer <strong>“${
+        subTitle={`Are you sure you want to delete Lecturer ${
           selectedLecturer?.first_name + " " + selectedLecturer?.last_name
         }”</strong>? You can’t undo this action.`}
         title="Delete Lecturer?"
@@ -105,7 +105,7 @@ const LecturersList = () => {
         }}
         infoText=""
         open={openModal.success}
-        subTitle={`You have successfully added a new Lecturer <strong>“${selectedLecturer?.first_name}”</strong>.`}
+        subTitle={`You have successfully added a new Lecturer ${selectedLecturer?.first_name}”</strong>.`}
         title="Updates Successful"
       />
 

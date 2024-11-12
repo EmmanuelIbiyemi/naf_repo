@@ -18,8 +18,9 @@ import FormModal from "../../../../components/FormModal";
 import LevelForm from "./LevelForm";
 import SuccessModal from "../../../../components/SuccessModal";
 import { FormAction } from "../../../../types/forms";
-import { useAppSelector } from "../../../../store/hooks";
-import { selectKeyword } from "../../../../store/app.slice";
+import { useAppDispatch, useAppSelector } from "../../../../store/hooks";
+import { selectKeyword, setPageLoading } from "../../../../store/app.slice";
+import EmptyState from "../../../../components/EmptyState";
 
 const LevelList = () => {
   const { faculty_id, department_id, program_id } = useParams();
@@ -30,11 +31,16 @@ const LevelList = () => {
     delete: false,
   });
   const [selectedLevel, setSelectedLevel] = useState<LevelType>();
-  const { data: lvls } = useGetLevelsQuery(+(program_id || 0));
+  const {
+    data: lvls,
+    isFetching,
+    isError,
+  } = useGetLevelsQuery(+(program_id || 0));
   const [levels, setLevels] = useState(lvls?.data);
   const [deleteLevel] = useDeleteLevelMutation();
   const [updateLevel] = useUpdateLevelMutation();
   const keyword = useAppSelector(selectKeyword);
+  const dispatch = useAppDispatch();
 
   useEffect(() => {
     if (keyword && lvls?.data)
@@ -44,7 +50,13 @@ const LevelList = () => {
         )
       );
     else setLevels(lvls?.data);
-  }, [keyword]);
+  }, [keyword, lvls]);
+
+  useEffect(() => {
+    if (isFetching) dispatch(setPageLoading(true));
+    else if (isError) dispatch(setPageLoading(false));
+    else dispatch(setPageLoading(false));
+  }, [isFetching, isError, lvls]);
 
   const handleOpenModal = (level: LevelType, type: string) => {
     setSelectedLevel(level);
@@ -101,7 +113,7 @@ const LevelList = () => {
         close={() => handleCloseModal("delete")}
         infoText="The instructors enrolled in this Level will get notified."
         open={openModal.delete}
-        subTitle={`Are you sure you want to delete Level <strong>“${selectedLevel?.name}”</strong>? You can’t undo this action.`}
+        subTitle={`Are you sure you want to delete Level ${selectedLevel?.name}”</strong>? You can’t undo this action.`}
         title="Delete Level?"
       />
 
@@ -121,24 +133,23 @@ const LevelList = () => {
         }}
         infoText=""
         open={openModal.success}
-        subTitle={`You have successfully added a new Level <strong>“${selectedLevel?.name}”</strong>.`}
+        subTitle={`You have successfully added a new Level ${selectedLevel?.name}”</strong>.`}
         title="Updates Successful"
       />
 
       <Table sx={{ minWidth: 650 }}>
         <TableBody>
+          {isError ? (
+            <EmptyState
+              title="Could not fetch Levels"
+              subTitle="Check your internet connection"
+            />
+          ) : null}
           {!levels?.length ? (
-            <TableRow
-              sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-            >
-              <TableCell
-                component="th"
-                scope="row"
-                sx={{ alignItems: "center", display: "flex", gap: "1rem" }}
-              >
-                No items found
-              </TableCell>
-            </TableRow>
+            <EmptyState
+              title="No Levels found"
+              subTitle="Levels will appear here after you add them in your school."
+            />
           ) : null}
           {levels?.map((level: LevelType) => (
             <TableRow

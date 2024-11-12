@@ -100,7 +100,7 @@ const StudentsList = () => {
         close={() => handleCloseModal("delete")}
         infoText="The students enrolled in this Student will get notified."
         open={openModal.delete}
-        subTitle={`Are you sure you want to delete Student <strong>“${
+        subTitle={`Are you sure you want to delete Student ${
           selectedStudent?.first_name + " " + selectedStudent?.last_name
         }”</strong>? You can’t undo this action.`}
         title="Delete Student?"
@@ -122,7 +122,7 @@ const StudentsList = () => {
         }}
         infoText=""
         open={openModal.success}
-        subTitle={`You have successfully added a new Student <strong>“${selectedStudent?.first_name}”</strong>.`}
+        subTitle={`You have successfully added a new Student ${selectedStudent?.first_name}”</strong>.`}
         title="Updates Successful"
       />
 

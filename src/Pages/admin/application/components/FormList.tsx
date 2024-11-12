@@ -74,7 +74,7 @@ const FormList = () => {
         close={() => setOpenModal(false)}
         infoText="The students enrolled in this subject will get notified."
         open={openModal}
-        subTitle={`Are you sure you want to delete subject <strong>“${selectedForm?.name}”</strong>? You can’t undo this action.`}
+        subTitle={`Are you sure you want to delete subject ${selectedForm?.name}”</strong>? You can’t undo this action.`}
         title="Delete Course?"
       />
 

@@ -33,7 +33,6 @@ const CourseForm = ({ actions, course }: Props) => {
   const { data: instructors } = useGetInstructorsQuery(null);
   const { data: semesters } = useGetSemestersQuery(null);
 
-  const isEditMode = !!course && "instructors" in course;
   const initialValues: CourseCreateType | CourseType = {
     id: (course as CourseType)?.id || 0,
     name: course?.name || "",
@@ -42,17 +41,16 @@ const CourseForm = ({ actions, course }: Props) => {
     semester: course?.semester || "",
     type: course?.type || "",
     level_id: course?.level_id || 0,
-    instructor_ids: isEditMode
-      ? (course.instructors as InstructorType[])
-          .map((ins) => ins.id)
-          .filter((id) => id !== undefined)
-      : course?.instructor_ids || [],
+    instructor_ids:
+      (course?.instructors as InstructorType[])
+        ?.map((ins) => ins.id)
+        .filter((id) => id !== undefined) || [],
   };
 
   const validationSchema = Yup.object({
     name: Yup.string().required("Required"),
     code: Yup.string().required("Required"),
-    credit_unit: Yup.number().required("Required"),
+    credit_units: Yup.number().required("Required"),
     semester: Yup.string().required("Required"),
     level_id: Yup.string().required("Required"),
     type: Yup.string().required("Required"),
@@ -71,8 +69,9 @@ const CourseForm = ({ actions, course }: Props) => {
       initialValues={initialValues}
       validationSchema={validationSchema}
       onSubmit={handleSubmit}
+      enableReinitialize={true}
     >
-      {({ isValid, dirty, values, setFieldValue }) => (
+      {({ isValid, dirty, values, setFieldValue, errors }) => (
         <Form className={formStyles.modal_form}>
           <Typography
             variant="h5"
@@ -105,8 +104,8 @@ const CourseForm = ({ actions, course }: Props) => {
             }}
           >
             <Box>
-              <label htmlFor="credit_unit">Credit Unit</label>
-              <Field id="credit_unit" name="credit_unit" type="number" />
+              <label htmlFor="credit_units">Credit Unit</label>
+              <Field id="credit_units" name="credit_units" type="number" />
             </Box>
             <Box>
               <FormControl fullWidth>
@@ -122,6 +121,7 @@ const CourseForm = ({ actions, course }: Props) => {
                     const {
                       target: { value },
                     } = event;
+                    console.log(errors);
 
                     setFieldValue("semester", value);
                   }}

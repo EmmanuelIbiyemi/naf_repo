@@ -80,7 +80,7 @@ const ProgrammesPage = () => {
         }}
         infoText="The instructors added in this programme will get notified."
         open={openModal.success}
-        subTitle={`You have successfully added a new programme <strong>“${programmeName}”</strong>.`}
+        subTitle={`You have successfully added a new programme ${programmeName}”</strong>.`}
         title="Updates Successful"
       />
 

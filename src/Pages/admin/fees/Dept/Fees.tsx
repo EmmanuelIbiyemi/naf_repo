@@ -4,10 +4,7 @@ import PageHeader from "../../../../components/PageHeader";
 import EmptyState from "../../../../components/EmptyState";
 import FormModal from "../../../../components/FormModal";
 import FeeForm from "./FeesForm";
-import {
-  Fee,
-  FeeFormAction
-} from "../../../../types/fees";
+import { Fee, FeeFormAction } from "../../../../types/fees";
 import { useAppDispatch } from "../../../../store/hooks";
 import { setPageName } from "../../../../store/app.slice";
 import SuccessModal from "../../../../components/SuccessModal";
@@ -26,7 +23,8 @@ const FeesPage = () => {
   const [feeName, setFeeName] = useState("");
   const [selectedFee, setSelectedFee] = useState<Fee>();
   const [selectedLevel, setSelectedLevel] = useState<string | null>(null);
-  const { data: fees, refetch: refetchFees } = useGetLevelFeesQuery(selectedLevel);
+  const { data: fees, refetch: refetchFees } =
+    useGetLevelFeesQuery(selectedLevel);
   const containerRef = useRef<HTMLDivElement>(null);
   const [addFee] = useAddFeeMutation();
 
@@ -88,7 +86,7 @@ const FeesPage = () => {
         }}
         infoText="The instructors added in this fee will get notified."
         open={openModal.success}
-        subTitle={`You have successfully added a new fee <strong>"${feeName}"</strong>.`}
+        subTitle={`You have successfully added a new fee <strong>"${feeName}.`}
         title="Updates Successful"
       />
 
@@ -106,10 +104,7 @@ const FeesPage = () => {
           padding: "var(--padding)",
         }}
       >
-        <LevelSelector 
-          value={selectedLevel}
-          onChange={handleLevelChange}
-        />
+        <LevelSelector value={selectedLevel} onChange={handleLevelChange} />
         {fees?.data && fees.data.length > 0 ? (
           <FeesList level={selectedLevel} />
         ) : (

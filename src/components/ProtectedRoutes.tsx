@@ -5,7 +5,6 @@ import {
   setUserFromLocalStorage,
 } from "../store/auth.slice";
 import App from "../App";
-import { useEffect } from "react";
 
 const allowedRoutes = {
   admin: [
@@ -89,10 +88,6 @@ const PrivateRoute = () => {
   const user = useAppSelector(selectCurrentUser);
   const location = useLocation();
   const dispatch = useAppDispatch();
-
-  useEffect(() => {
-    console.log(user);
-  }, [user]);
 
   if (!user) {
     dispatch(setUserFromLocalStorage());

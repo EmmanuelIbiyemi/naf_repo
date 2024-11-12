@@ -18,8 +18,9 @@ import FormModal from "../../../../components/FormModal";
 import CourseForm from "./CourseForm";
 import SuccessModal from "../../../../components/SuccessModal";
 import { FormAction } from "../../../../types/forms";
-import { useAppSelector } from "../../../../store/hooks";
-import { selectKeyword } from "../../../../store/app.slice";
+import { useAppDispatch, useAppSelector } from "../../../../store/hooks";
+import { selectKeyword, setPageLoading } from "../../../../store/app.slice";
+import EmptyState from "../../../../components/EmptyState";
 
 const CourseList = () => {
   const { level_id } = useParams();
@@ -29,13 +30,19 @@ const CourseList = () => {
     delete: false,
   });
   const [selectedCourse, setSelectedCourse] = useState<CourseType>();
-  const { data: crs } = useGetCoursesByLevelQuery({
+  const {
+    data: crs,
+    isError,
+    isFetching,
+  } = useGetCoursesByLevelQuery({
     level_id: +(level_id || 0),
+    per_page: 1000,
   });
   const [courses, setCourses] = useState<CourseType[] | undefined>(crs?.data);
   const [deleteCourse] = useDeleteCourseMutation();
   const [updateCourse] = useUpdateCourseMutation();
   const keyword = useAppSelector(selectKeyword);
+  const dispatch = useAppDispatch();
 
   useEffect(() => {
     if (keyword && crs?.data)
@@ -45,7 +52,13 @@ const CourseList = () => {
         )
       );
     else setCourses(crs?.data);
-  }, [keyword]);
+  }, [keyword, crs]);
+
+  useEffect(() => {
+    if (isFetching) dispatch(setPageLoading(true));
+    else if (isError) dispatch(setPageLoading(false));
+    else dispatch(setPageLoading(false));
+  }, [isFetching, isError, crs]);
 
   const handleOpenModal = (course: CourseType, type: string) => {
     setSelectedCourse(course);
@@ -102,7 +115,7 @@ const CourseList = () => {
         close={() => handleCloseModal("delete")}
         infoText="The students enrolled in this Course will get notified."
         open={openModal.delete}
-        subTitle={`Are you sure you want to delete Course <strong>“${selectedCourse?.name}”</strong>? You can’t undo this action.`}
+        subTitle={`Are you sure you want to delete Course ${selectedCourse?.name}” ? You can’t undo this action.`}
         title="Delete Course?"
       />
 
@@ -122,37 +135,23 @@ const CourseList = () => {
         }}
         infoText=""
         open={openModal.success}
-        subTitle={`You have successfully added a new Course <strong>“${selectedCourse?.name}”</strong>.`}
+        subTitle={`You have successfully added a new Course “${selectedCourse?.name}”.`}
         title="Updates Successful"
       />
 
       <Table sx={{ minWidth: 650 }}>
         <TableBody>
-          {!courses?.length ? (
-            <TableRow
-              sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-            >
-              <TableCell
-                component="th"
-                scope="row"
-                sx={{ alignItems: "center", display: "flex", gap: "1rem" }}
-              >
-                No items found
-              </TableCell>
-            </TableRow>
+          {isError ? (
+            <EmptyState
+              title="Could not fetch Courses"
+              subTitle="Check your internet connection"
+            />
           ) : null}
           {!courses?.length ? (
-            <TableRow
-              sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-            >
-              <TableCell
-                component="th"
-                scope="row"
-                sx={{ alignItems: "center", display: "flex", gap: "1rem" }}
-              >
-                No items found
-              </TableCell>
-            </TableRow>
+            <EmptyState
+              title="No Courses found"
+              subTitle="Courses will appear here after you add them in your school."
+            />
           ) : null}
           {courses?.map((course) => (
             <TableRow
@@ -166,7 +165,7 @@ const CourseList = () => {
               >
                 <Checkbox />
                 <Typography
-                  sx={{ fontWeight: 900, textTransform: "capitalize" }}
+                  sx={{ fontWeight: 500, textTransform: "capitalize" }}
                 >
                   {course.name}
                 </Typography>

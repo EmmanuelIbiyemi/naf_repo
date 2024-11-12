@@ -75,7 +75,7 @@ const ScoresPage = () => {
         }}
         infoText="The instructors added in this score will get notified."
         open={openModal.success}
-        subTitle={`You have successfully added a new score <strong>"${scoreName}"</strong>.`}
+        subTitle={`You have successfully added a new score <strong>"${scoreName}.`}
         title="Updates Successful"
       />
 

@@ -17,8 +17,9 @@ import {
 import FormModal from "../../../../components/FormModal";
 import FacultyForm from "./FacultyForm";
 import SuccessModal from "../../../../components/SuccessModal";
-import { useAppSelector } from "../../../../store/hooks";
-import { selectKeyword } from "../../../../store/app.slice";
+import { useAppDispatch, useAppSelector } from "../../../../store/hooks";
+import { selectKeyword, setPageLoading } from "../../../../store/app.slice";
+import EmptyState from "../../../../components/EmptyState";
 
 const FacultyList = () => {
   const navigate = useNavigate();
@@ -28,11 +29,12 @@ const FacultyList = () => {
     delete: false,
   });
   const [selectedFaculty, setSelectedFaculty] = useState<Faculty>();
-  const { data: facs } = useGetFacultiesQuery(null);
+  const { data: facs, isFetching, isError } = useGetFacultiesQuery(null);
   const [deleteFaculty] = useDeleteFacultyMutation();
   const [updateFaculty] = useUpdateFacultyMutation();
   const [faculties, setFaculties] = useState<Faculty[] | undefined>(facs?.data);
   const keyword = useAppSelector(selectKeyword);
+  const dispatch = useAppDispatch();
 
   useEffect(() => {
     if (keyword && facs?.data)
@@ -42,7 +44,13 @@ const FacultyList = () => {
         )
       );
     else setFaculties(facs?.data);
-  }, [keyword]);
+  }, [keyword, facs]);
+
+  useEffect(() => {
+    if (isFetching) dispatch(setPageLoading(true));
+    else if (isError) dispatch(setPageLoading(false));
+    else dispatch(setPageLoading(false));
+  }, [isFetching, isError, facs]);
 
   const handleOpenModal = (faculty: Faculty, type: string) => {
     setSelectedFaculty(faculty);
@@ -99,7 +107,7 @@ const FacultyList = () => {
         close={() => handleCloseModal("delete")}
         infoText="The instructors enrolled in this Faculty will get notified."
         open={openModal.delete}
-        subTitle={`Are you sure you want to delete Faculty <strong>“${selectedFaculty?.name}”</strong>? You can’t undo this action.`}
+        subTitle={`Are you sure you want to delete Faculty ${selectedFaculty?.name}”</strong>? You can’t undo this action.`}
         title="Delete Faculty?"
       />
 
@@ -119,24 +127,23 @@ const FacultyList = () => {
         }}
         infoText=""
         open={openModal.success}
-        subTitle={`You have successfully added a new Faculty <strong>“${selectedFaculty?.name}”</strong>.`}
+        subTitle={`You have successfully added a new Faculty ${selectedFaculty?.name}”</strong>.`}
         title="Updates Successful"
       />
 
       <Table sx={{ minWidth: 650 }}>
         <TableBody>
+          {isError ? (
+            <EmptyState
+              title="Could not fetch Faculties"
+              subTitle="Check your internet connection"
+            />
+          ) : null}
           {!faculties?.length ? (
-            <TableRow
-              sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-            >
-              <TableCell
-                component="th"
-                scope="row"
-                sx={{ alignItems: "center", display: "flex", gap: "1rem" }}
-              >
-                No items found
-              </TableCell>
-            </TableRow>
+            <EmptyState
+              title="No Faculties found"
+              subTitle="Faculties will appear here after you add them in your school."
+            />
           ) : null}
           {faculties?.map((faculty: Faculty) => (
             <TableRow

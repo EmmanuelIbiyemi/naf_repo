@@ -6,11 +6,13 @@ import formStyles from "../../../../components/form/form.module.scss";
 import { useGetFacultiesQuery } from "../../../../store/api/faculties.api";
 import { useGetDepartmentsMMutation } from "../../../../store/api/departments.api";
 import { useGetProgrammesMMutation } from "../../../../store/api/programmes.api";
-import { ChangeEvent } from "react";
+import { ChangeEvent, useEffect } from "react";
 import { EligibleCreateType } from "../../../../types/eligibles";
 import { useGetLevelsMMutation } from "../../../../store/api/levels.api";
 import { useAddMediaMutation } from "../../../../store/api/media.api";
 import { useGetSessionsQuery } from "../../../../store/api/sessions.api";
+import { useAppDispatch } from "../../../../store/hooks";
+import { setPageLoading } from "../../../../store/app.slice";
 
 type Props = {
   actions: {
@@ -26,6 +28,7 @@ const EligibleForm = ({ actions }: Props) => {
   const [getLevels, levelsState] = useGetLevelsMMutation();
   const [uploadFile, uploadState] = useAddMediaMutation();
   const { data: sessions } = useGetSessionsQuery(null);
+  const dispatch = useAppDispatch();
 
   const initialValues: EligibleCreateType & {
     faculty_id: number;
@@ -93,6 +96,16 @@ const EligibleForm = ({ actions }: Props) => {
       console.log(error);
     }
   };
+
+  useEffect(() => {
+    if (
+      departmentsState.isLoading ||
+      programsState.isLoading ||
+      levelsState.isLoading
+    )
+      dispatch(setPageLoading(true));
+    else dispatch(setPageLoading(false));
+  }, [departmentsState, programsState, levelsState]);
 
   return (
     <Formik

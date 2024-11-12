@@ -20,8 +20,9 @@ import {
 import FormModal from "../../../../components/FormModal";
 import DepartmentForm from "./DepartmentForm";
 import SuccessModal from "../../../../components/SuccessModal";
-import { selectKeyword } from "../../../../store/app.slice";
-import { useAppSelector } from "../../../../store/hooks";
+import { selectKeyword, setPageLoading } from "../../../../store/app.slice";
+import { useAppDispatch, useAppSelector } from "../../../../store/hooks";
+import EmptyState from "../../../../components/EmptyState";
 
 const DepartmentList = () => {
   const { faculty_id } = useParams();
@@ -32,13 +33,18 @@ const DepartmentList = () => {
     delete: false,
   });
   const [selectedDepartment, setSelectedDepartment] = useState<Department>();
-  const { data: deps } = useGetDepartmentsQuery(+(faculty_id || 0));
+  const {
+    data: deps,
+    isFetching,
+    isError,
+  } = useGetDepartmentsQuery(+(faculty_id || 0));
   const [departments, setDepartments] = useState<Department[] | undefined>(
     deps?.data
   );
   const [deleteDepartment] = useDeleteDepartmentMutation();
   const [updateDepartment] = useUpdateDepartmentMutation();
   const keyword = useAppSelector(selectKeyword);
+  const dispatch = useAppDispatch();
 
   useEffect(() => {
     if (keyword && deps?.data)
@@ -48,7 +54,13 @@ const DepartmentList = () => {
         )
       );
     else setDepartments(deps?.data);
-  }, [keyword]);
+  }, [keyword, deps]);
+
+  useEffect(() => {
+    if (isFetching) dispatch(setPageLoading(true));
+    else if (isError) dispatch(setPageLoading(false));
+    else dispatch(setPageLoading(false));
+  }, [isFetching, isError, deps]);
 
   const handleOpenModal = (department: Department, type: string) => {
     setSelectedDepartment(department);
@@ -106,7 +118,7 @@ const DepartmentList = () => {
         close={() => handleCloseModal("delete")}
         infoText="The instructors enrolled in this Department will get notified."
         open={openModal.delete}
-        subTitle={`Are you sure you want to delete Department <strong>“${selectedDepartment?.name}”</strong>? You can’t undo this action.`}
+        subTitle={`Are you sure you want to delete Department “${selectedDepartment?.name}” ? You can’t undo this action.`}
         title="Delete Department?"
       />
 
@@ -126,24 +138,23 @@ const DepartmentList = () => {
         }}
         infoText=""
         open={openModal.success}
-        subTitle={`You have successfully added a new Department <strong>“${selectedDepartment?.name}”</strong>.`}
+        subTitle={`You have successfully added a new Department “${selectedDepartment?.name}”.`}
         title="Updates Successful"
       />
 
       <Table sx={{ minWidth: 650 }}>
         <TableBody>
+          {isError ? (
+            <EmptyState
+              title="Could not fetch Departments"
+              subTitle="Check your internet connection"
+            />
+          ) : null}
           {!departments?.length ? (
-            <TableRow
-              sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-            >
-              <TableCell
-                component="th"
-                scope="row"
-                sx={{ alignItems: "center", display: "flex", gap: "1rem" }}
-              >
-                No items found
-              </TableCell>
-            </TableRow>
+            <EmptyState
+              title="No Departments found"
+              subTitle="Departments will appear here after you add them in your school."
+            />
           ) : null}
           {departments?.map((department: Department) => (
             <TableRow

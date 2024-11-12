@@ -75,7 +75,7 @@ const GradesPage = () => {
         }}
         infoText="The instructors added in this grade will get notified."
         open={openModal.success}
-        subTitle={`You have successfully added a new grade <strong>"${gradeName}"</strong>.`}
+        subTitle={`You have successfully added a new grade <strong>"${gradeName}.`}
         title="Updates Successful"
       />
 

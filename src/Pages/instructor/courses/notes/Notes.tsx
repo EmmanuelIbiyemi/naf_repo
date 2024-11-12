@@ -239,7 +239,7 @@ const Notes = () => {
           }}
           infoText=""
           open={openActionsModal.success}
-          subTitle={`You have successfully added a new Course <strong>"${selectedNotes?.title}"</strong>.`}
+          subTitle={`You have successfully added a new Course <strong>"${selectedNotes?.title}.`}
           title="Updates Successful"
         />
         <CustomPagination

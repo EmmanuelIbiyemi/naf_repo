@@ -1,6 +1,5 @@
 import { Box } from "@mui/material";
 import PageHeader from "../../../../components/PageHeader";
-import EmptyState from "../../../../components/EmptyState";
 import FormModal from "../../../../components/FormModal";
 import { useEffect, useRef, useState } from "react";
 import CourseForm from "./CourseForm";
@@ -16,7 +15,6 @@ import SuccessModal from "../../../../components/SuccessModal";
 import {
   useAddCourseMutation,
   useAddLevelCourseMutation,
-  useGetCoursesByLevelQuery,
 } from "../../../../store/api/courses.api";
 import { useParams } from "react-router-dom";
 import { FormAction } from "../../../../types/forms";
@@ -29,9 +27,6 @@ const CoursesPage = () => {
   });
   const [courseName, setCourseName] = useState("");
   const [selectedCourse, setSelectedCourse] = useState<CourseType>();
-  const { data: courses } = useGetCoursesByLevelQuery({
-    level_id: +(level_id || 0),
-  });
   const containerRef = useRef<HTMLDivElement>(null);
   const [addCourse] = useAddCourseMutation();
   const [addCourseToLevel] = useAddLevelCourseMutation();
@@ -94,7 +89,7 @@ const CoursesPage = () => {
         }}
         infoText="The instructors added in this course will get notified."
         open={openModal.success}
-        subTitle={`You have successfully added a new course <strong>“${courseName}”</strong>.`}
+        subTitle={`You have successfully added a new course “${courseName}”.`}
         title="Updates Successful"
       />
 
@@ -112,14 +107,7 @@ const CoursesPage = () => {
           padding: "var(--padding)",
         }}
       >
-        {courses?.data.length ? (
-          <CourseList />
-        ) : (
-          <EmptyState
-            title="No Courses at this time"
-            subTitle="Courses will appear here after you add them in your school."
-          />
-        )}
+        <CourseList />
       </Box>
     </Box>
   );
