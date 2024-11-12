@@ -105,6 +105,10 @@ const InstructorOfflineScoresPage = lazy(
 );
 const SettingsPage = lazy(() => import("./Pages/instructor/settings/Settings"));
 
+const InstructorAnnouncementPage = lazy(
+  () => import("./Pages/instructor/announcements/Announcements")
+);
+
 const StudentDashboard = lazy(
   () => import("./Pages/student/dashboard/Dashboard")
 );
@@ -254,6 +258,10 @@ export const router = createBrowserRouter([
       {
         path: "/instructor/scores",
         element: <InstructorOfflineScoresPage />,
+      },
+      {
+        path: "/instructor/announcements",
+        element: <InstructorAnnouncementPage />,
       },
     ],
   },
