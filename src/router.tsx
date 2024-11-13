@@ -1,6 +1,7 @@
 import { createBrowserRouter } from "react-router-dom";
 import { lazy } from "react";
 import PrivateRoute from "./components/ProtectedRoutes";
+import AssessmentsPage from "./Pages/admin/cbt/assessments/Assessments";
 
 // Admin
 const App = lazy(() => import("./App"));
@@ -62,6 +63,12 @@ const CBTsPage = lazy(() => import("./Pages/admin/cbt/CBT"));
 const ProfileSettings = lazy(() => import("./Pages/admin/settings/Profile"));
 const Eligibles = lazy(
   () => import("./Pages/admin/grading/eligibles/Eligibles")
+);
+const SessionsPage = lazy(
+  () => import("./Pages/admin/academics/sessions/Sessions")
+);
+const QuestionsPage = lazy(
+  () => import("./Pages/admin/cbt/questions/Questions")
 );
 
 // Instructor
@@ -152,6 +159,9 @@ export const router = createBrowserRouter([
       { path: "/applicants", element: <ApplicantsPage /> },
       { path: "/eligibles", element: <Eligibles /> },
       { path: "/cbt", element: <CBTsPage /> },
+      { path: "/cbt/:quiz_id", element: <AssessmentsPage /> },
+      { path: "/cbt/:quiz_id/:assessment_id", element: <QuestionsPage /> },
+      { path: "/sessions", element: <SessionsPage /> },
       {
         path: "/academics",
         element: <AdminAcademicsPage />,

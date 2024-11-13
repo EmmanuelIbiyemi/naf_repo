@@ -22,6 +22,16 @@ export type CourseCreateType = CourseBaseType & {
   instructor_ids: number[];
 };
 
+export type CourseResponse = {
+  data: CourseType;
+  pagination: {
+    page: number;
+    pages: number;
+    per_page: number;
+    total: number;
+  };
+};
+
 export type CoursesResponse = {
   data: CourseType[];
   pagination: {

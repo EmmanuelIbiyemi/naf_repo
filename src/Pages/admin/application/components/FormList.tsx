@@ -19,16 +19,17 @@ import {
   useGetFormsQuery,
 } from "../../../../store/api/form.api";
 import dayjs from "dayjs";
-import { selectKeyword } from "../../../../store/app.slice";
+import { selectKeyword, setPageLoading } from "../../../../store/app.slice";
+import EmptyState from "../../../../components/EmptyState";
 
 const FormList = () => {
-  const { data: frms } = useGetFormsQuery(null);
+  const { data: frms, isFetching, isError } = useGetFormsQuery(null);
   const [forms, setForms] = useState(frms?.data);
   const dispatch = useAppDispatch();
   const selectedForm = useAppSelector(selectCurrentForm);
   const [openModal, setOpenModal] = useState(false);
   const navigate = useNavigate();
-  const [deleteForm] = useDeleteFormMutation();
+  const [deleteForm, deleteState] = useDeleteFormMutation();
   const keyword = useAppSelector(selectKeyword);
 
   useEffect(() => {
@@ -39,7 +40,13 @@ const FormList = () => {
         )
       );
     else setForms(frms?.data);
-  }, [keyword]);
+  }, [keyword, frms]);
+
+  useEffect(() => {
+    if (isFetching || deleteState.isLoading) dispatch(setPageLoading(true));
+    else if (isError) dispatch(setPageLoading(false));
+    else dispatch(setPageLoading(false));
+  }, [isFetching, isError, frms, deleteState]);
 
   const handleOpenModal = (form: FormType2) => {
     dispatch(setCurrentForm(form));
@@ -72,27 +79,27 @@ const FormList = () => {
           },
         }}
         close={() => setOpenModal(false)}
-        infoText="The students enrolled in this subject will get notified."
+        infoText=""
         open={openModal}
-        subTitle={`Are you sure you want to delete subject ${selectedForm?.name}”</strong>? You can’t undo this action.`}
+        subTitle={`Are you sure you want to delete form ${selectedForm?.name}”</strong>? You can’t undo this action.`}
         title="Delete Course?"
       />
 
+      {isError ? (
+        <EmptyState
+          title="Could not fetch Forms"
+          subTitle="Check your internet connection"
+        />
+      ) : null}
+      {!forms?.length ? (
+        <EmptyState
+          title="No Forms found"
+          subTitle="Forms will appear here after you add them in your school."
+        />
+      ) : null}
+
       <Table sx={{ minWidth: 650 }}>
         <TableBody>
-          {!forms?.length ? (
-            <TableRow
-              sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-            >
-              <TableCell
-                component="th"
-                scope="row"
-                sx={{ alignItems: "center", display: "flex", gap: "1rem" }}
-              >
-                No items found
-              </TableCell>
-            </TableRow>
-          ) : null}
           {forms?.map((form) => (
             <TableRow
               key={form.id}

@@ -24,6 +24,13 @@ const studentsApi = appApi.injectEndpoints({
       }),
       invalidatesTags: ["Students"],
     }),
+    promoteAll: builder.mutation<StudentsResponse, null>({
+      query: () => ({
+        url: `/participant/promote`,
+        method: "POST",
+      }),
+      invalidatesTags: ["Students"],
+    }),
     updateStudent: builder.mutation<StudentsResponse, StudentType>({
       query: (student) => ({
         url: `/participant/${student.id}`,
@@ -49,4 +56,5 @@ export const {
   useUpdateStudentMutation,
   useDeleteStudentMutation,
   useGetStudentQuery,
+  usePromoteAllMutation,
 } = studentsApi;

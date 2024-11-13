@@ -9,15 +9,15 @@ import App from "../App";
 const allowedRoutes = {
   admin: [
     "/",
-    "/courses",
-    "/instructors",
+    "/sessions",
     "/applications",
     "/eligibles",
     "/form/:form_id",
     "/form/:form_id/preview",
     "/applicants",
     "/cbt",
-    "/cbt/:testId",
+    "/cbt/:quiz_id",
+    "/cbt/:quiz_id/:assessment_id",
     "/cbt/:testId/detail/:user_id/:id",
     "/cbt/manual-input",
     "/academics",

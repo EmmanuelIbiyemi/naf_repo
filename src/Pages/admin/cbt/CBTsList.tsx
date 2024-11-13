@@ -4,7 +4,7 @@ import TableCell from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
 import TableRow from "@mui/material/TableRow";
 import { InstructorQuizzesResponse } from "../../../types/quizzes";
-import { Box, IconButton, TableHead } from "@mui/material";
+import { Box, Checkbox, IconButton, TableHead } from "@mui/material";
 import DeleteConfirmationModal from "../../../components/DeleteConfirmationModal";
 import { useEffect, useState } from "react";
 import {
@@ -12,12 +12,12 @@ import {
   useGetQuizzesQuery,
 } from "../../../store/api/quizzes.api";
 import SuccessModal from "../../../components/SuccessModal";
-import LoadingScreen from "../../../components/LoadingScreen";
 import dayjs from "dayjs";
 import { Delete } from "@mui/icons-material";
 import { Link } from "react-router-dom";
-import { useAppSelector } from "../../../store/hooks";
-import { selectKeyword } from "../../../store/app.slice";
+import { useAppDispatch, useAppSelector } from "../../../store/hooks";
+import { selectKeyword, setPageLoading } from "../../../store/app.slice";
+import EmptyState from "../../../components/EmptyState";
 
 const QuizList = () => {
   const [openModal, setOpenModal] = useState({
@@ -25,11 +25,12 @@ const QuizList = () => {
     delete: false,
     success: false,
   });
-  const { data: qzs, isLoading } = useGetQuizzesQuery(null);
+  const { data: qzs, isFetching, isError } = useGetQuizzesQuery(null);
   const [quizzes, setQuizzes] = useState(qzs?.data);
   const [deleteQuiz, deleteState] = useDeleteQuizMutation();
   const [selectedQuiz, setSelectedQuiz] = useState<InstructorQuizzesResponse>();
   const keyword = useAppSelector(selectKeyword);
+  const dispatch = useAppDispatch();
 
   useEffect(() => {
     if (keyword && qzs?.data)
@@ -39,7 +40,13 @@ const QuizList = () => {
         )
       );
     else setQuizzes(qzs?.data);
-  }, [keyword]);
+  }, [keyword, qzs]);
+
+  useEffect(() => {
+    if (isFetching || deleteState.isLoading) dispatch(setPageLoading(true));
+    else if (isError) dispatch(setPageLoading(false));
+    else dispatch(setPageLoading(false));
+  }, [isFetching, isError, qzs, deleteState]);
 
   const handleOpenModal = (quiz: InstructorQuizzesResponse, type: string) => {
     setSelectedQuiz(quiz);
@@ -62,11 +69,6 @@ const QuizList = () => {
 
   return (
     <TableContainer>
-      {[isLoading, deleteState.isLoading].some((item) => item) ? (
-        <Box sx={{ position: "relative", zIndex: 2000 }}>
-          <LoadingScreen />
-        </Box>
-      ) : null}
       <DeleteConfirmationModal
         actions={{
           proceed: () => {
@@ -100,70 +102,72 @@ const QuizList = () => {
         title="Updates Successful"
       />
 
-      <Table
-        sx={{
-          minWidth: 650,
-          ".MuiTableCell-root": {
-            maxWidth: 200,
-            a: {
-              overflow: "hidden",
-              textOverflow: "ellipsis",
-              whiteSpace: "nowrap",
-            },
-          },
-        }}
-      >
-        <TableHead>
-          <TableRow>
-            <TableCell>Name</TableCell>
-            <TableCell>Start Date</TableCell>
-            <TableCell>Expiry Date</TableCell>
-            <TableCell>Actions</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {!quizzes?.length ? (
-            <TableRow
-              sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-            >
-              <TableCell
-                component="th"
-                scope="row"
-                sx={{ alignItems: "center", display: "flex", gap: "1rem" }}
-              >
-                No items found
-              </TableCell>
-            </TableRow>
-          ) : null}
-          {quizzes?.map((quiz) => (
-            <TableRow
-              key={quiz.id}
-              sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-            >
-              <TableCell component="th" scope="row">
-                <Link
-                  to={`/cbt/${quiz.id}`}
-                  style={{ textTransform: "capitalize", fontWeight: 600 }}
-                >
-                  {quiz.name}
-                </Link>
-              </TableCell>
-              <TableCell component="th" scope="row">
-                {dayjs(quiz.start_date).format("DD-MM-YYYY")}
-              </TableCell>
-              <TableCell component="th" scope="row">
-                {dayjs(quiz.expiry_date).format("DD-MM-YYYY")}
-              </TableCell>
+      {isError ? (
+        <EmptyState
+          title="Could not fetch Quizzes"
+          subTitle="Check your internet connection"
+        />
+      ) : null}
+      {!quizzes?.length ? (
+        <EmptyState title="No Quizzes found" subTitle="" />
+      ) : null}
 
-              <TableCell>
-                <IconButton onClick={() => handleOpenModal(quiz, "delete")}>
-                  <Delete />
-                </IconButton>
-              </TableCell>
+      {quizzes?.length ? (
+        <Table
+          sx={{
+            minWidth: 650,
+            ".MuiTableCell-root": {
+              maxWidth: 200,
+              a: {
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
+              },
+            },
+          }}
+        >
+          <TableHead>
+            <TableRow>
+              <TableCell>Name</TableCell>
+              <TableCell>Start Date</TableCell>
+              <TableCell>Expiry Date</TableCell>
+              <TableCell>Actions</TableCell>
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+          </TableHead>
+          <TableBody>
+            {quizzes?.map((quiz) => (
+              <TableRow
+                key={quiz.id}
+                sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+              >
+                <TableCell component="th" scope="row">
+                  <Box sx={{ alignItems: "center", display: "flex" }}>
+                    <Checkbox />
+                    <Link
+                      to={`/cbt/${quiz.id}`}
+                      style={{ textTransform: "capitalize" }}
+                    >
+                      {quiz.name}
+                    </Link>
+                  </Box>
+                </TableCell>
+                <TableCell component="th" scope="row">
+                  {dayjs(quiz.start_date).format("DD-MM-YYYY")}
+                </TableCell>
+                <TableCell component="th" scope="row">
+                  {dayjs(quiz.expiry_date).format("DD-MM-YYYY")}
+                </TableCell>
+
+                <TableCell>
+                  <IconButton onClick={() => handleOpenModal(quiz, "delete")}>
+                    <Delete />
+                  </IconButton>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      ) : null}
     </TableContainer>
   );
 };

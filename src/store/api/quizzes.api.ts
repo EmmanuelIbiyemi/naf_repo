@@ -10,6 +10,7 @@ import {
   QuizResultResponse,
   InstructorQuizzesResponse,
   QuizResponse1,
+  Assessment,
 } from "../../types/quizzes";
 import { appApi } from "./app.api";
 
@@ -103,6 +104,11 @@ const quizzesApi = appApi.injectEndpoints({
 
     getSingleQuiz: builder.query<SingleQuizResponse, number>({
       query: (quizId) => `/quiz/${quizId}`,
+      providesTags: ["Quiz"],
+    }),
+
+    getSingleAssessment: builder.query<{ data: Assessment }, number>({
+      query: (assessment_id) => `/assessment/${assessment_id}`,
       providesTags: ["Quiz"],
     }),
 
@@ -205,7 +211,20 @@ const quizzesApi = appApi.injectEndpoints({
       }),
       invalidatesTags: ["Quiz"],
     }),
-
+    deleteAssessment: builder.mutation<{ message: string }, number>({
+      query: (question_id) => ({
+        url: `/assessment/${question_id}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["Quiz"],
+    }),
+    deleteQuestion: builder.mutation<{ message: string }, number>({
+      query: (question_id) => ({
+        url: `/question/${question_id}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["Quiz"],
+    }),
     unlockQuiz: builder.mutation<
       QuizResponse1,
       { quiz_code: string; email: string }
@@ -236,4 +255,7 @@ export const {
   useShareQuizMutation,
   useDeleteQuizMutation,
   useUnlockQuizMutation,
+  useDeleteQuestionMutation,
+  useGetSingleAssessmentQuery,
+  useDeleteAssessmentMutation,
 } = quizzesApi;

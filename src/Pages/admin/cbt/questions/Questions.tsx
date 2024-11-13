@@ -1,14 +1,14 @@
 import { Box } from "@mui/material";
 import { useEffect, useState } from "react";
-import CBTForm from "./components/QuizzesForm";
-import QuizList from "./CBTsList";
-import { useAppDispatch } from "../../../store/hooks";
-import { setPageName } from "../../../store/app.slice";
-import SuccessModal from "../../../components/SuccessModal";
-import FormModal from "../../../components/FormModal";
-import PageHeader from "../../../components/PageHeader";
+import { useAppDispatch } from "../../../../store/hooks";
+import { setPageName } from "../../../../store/app.slice";
+import SuccessModal from "../../../../components/SuccessModal";
+import FormModal from "../../../../components/FormModal";
+import PageHeader from "../../../../components/PageHeader";
+import QuestionList from "./QuestionList";
+import QuestionsForm from "./components/QuestionsForm";
 
-const CBTsPage = () => {
+const QuestionsPage = () => {
   const [openModal, setOpenModal] = useState({
     add: false,
     edit: false,
@@ -19,7 +19,7 @@ const CBTsPage = () => {
   // set page name
   const dispatch = useAppDispatch();
   useEffect(() => {
-    dispatch(setPageName("Quizzes"));
+    dispatch(setPageName("Quizzes/Questions"));
   }, []);
 
   const handleOpenModal = (type: string) => {
@@ -38,12 +38,9 @@ const CBTsPage = () => {
           handleCloseModal("add");
         }}
       >
-        <CBTForm
+        <QuestionsForm
           actions={{
-            cancel: () => {
-              handleCloseModal("add");
-              handleCloseModal("success");
-            },
+            cancel: () => handleCloseModal("add"),
           }}
         />
       </FormModal>
@@ -58,16 +55,16 @@ const CBTsPage = () => {
           },
         }}
         close={() => handleCloseModal("success")}
-        infoText=""
+        infoText="The Quiz added will get notified via mail."
         open={openModal.success}
-        subTitle={`You have successfully added a new Quiz to your school.`}
+        subTitle={`You have successfully added a new questions your school.`}
         title="Updates Successful"
       />
 
       <PageHeader
         button={{
           action: () => handleOpenModal("add"),
-          text: "Add Quiz",
+          text: "Upload Questions",
         }}
       />
       <Box
@@ -78,10 +75,10 @@ const CBTsPage = () => {
           padding: "var(--padding)",
         }}
       >
-        <QuizList />
+        <QuestionList />
       </Box>
     </Box>
   );
 };
 
-export default CBTsPage;
+export default QuestionsPage;

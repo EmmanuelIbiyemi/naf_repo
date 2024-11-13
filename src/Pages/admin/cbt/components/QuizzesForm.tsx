@@ -3,11 +3,7 @@ import { Formik, Form } from "formik";
 import * as Yup from "yup";
 import Step1Content from "./Step1Content";
 import { CreateQuiz2 } from "../../../../types/quizzes";
-import {
-  useAddQuizMutation,
-  useCreateQuestionFromFileMutation,
-} from "../../../../store/api/quizzes.api";
-import { useAddMediaMutation } from "../../../../store/api/media.api";
+import { useAddQuizMutation } from "../../../../store/api/quizzes.api";
 
 type Props = {
   actions: {
@@ -17,8 +13,6 @@ type Props = {
 
 const CBTForm = ({ actions }: Props) => {
   const [addQuiz] = useAddQuizMutation();
-  const [addQuestionsFromFile] = useCreateQuestionFromFileMutation();
-  const [uploadMedia] = useAddMediaMutation();
 
   const initialValues: CreateQuiz2 = {
     name: "",
@@ -37,7 +31,6 @@ const CBTForm = ({ actions }: Props) => {
     instructions: Yup.string().required("Instructions date is required"),
     start_date: Yup.string().required("Start date is required"),
     expiry_date: Yup.string().required("Expiry date is required"),
-    questions: Yup.mixed().required("Questions are required"),
     time_allowed: Yup.number()
       .min(1)
       .max(100)
@@ -48,82 +41,68 @@ const CBTForm = ({ actions }: Props) => {
       .required("Passing Percentage is required"),
   });
 
-  const handleSubmit = async (quiz: CreateQuiz2 & { questions?: File }) => {
-    const payload = { ...quiz };
-    const questionsFile = payload.questions;
-    delete payload.questions;
-    console.log(questionsFile);
-
-    const form = new FormData();
-    if (questionsFile) {
-      form.append("file", questionsFile as File);
-    } else {
-      console.error("File not found in payload");
-      return;
-    }
+  const handleSubmit = async (quiz: CreateQuiz2) => {
     try {
-      const mediaResponse = await uploadMedia(form).unwrap();
-      const response = await addQuiz(quiz).unwrap();
-      await addQuestionsFromFile({
-        assessment_id: response.data.id,
-        file_url: mediaResponse.media[0].url,
-      }).unwrap();
+      await addQuiz(quiz).unwrap();
     } catch (error) {
       console.log(error);
     }
+    actions.cancel();
   };
 
   return (
-    <Formik
-      initialValues={initialValues}
-      validationSchema={validationSchema}
-      onSubmit={handleSubmit}
-    >
-      {({ isValid, dirty }) => (
-        <Form style={{ width: "100%" }}>
-          <Typography
-            variant="h5"
-            component="h2"
-            sx={{ marginTop: "1rem", textAlign: "center" }}
-          >
-            Add Quiz
-          </Typography>
-          <Box sx={{ marginTop: "1em" }}>
-            <Step1Content />
-          </Box>
+    <>
+      <Formik
+        initialValues={initialValues}
+        validationSchema={validationSchema}
+        onSubmit={handleSubmit}
+      >
+        {({ isValid, dirty }) => (
+          <Form style={{ width: "100%" }}>
+            <Typography
+              variant="h5"
+              component="h2"
+              sx={{ marginTop: "1rem", textAlign: "center" }}
+            >
+              Add Quiz
+            </Typography>
+            <Box sx={{ marginTop: "1em" }}>
+              <Step1Content />
+            </Box>
 
-          <Box
-            sx={{
-              display: "flex",
-              gap: "1rem",
-              justifyContent: "center",
-              button: { padding: ".4rem 2rem", width: "100%" },
-              marginTop: "1em",
-            }}
-          >
-            <Button
+            <Box
               sx={{
-                bgcolor: "transparent",
-                border: "1px solid rgba(138, 138, 138, 1)",
-                color: "rgba(138, 138, 138, 1)",
+                display: "flex",
+                gap: "1rem",
+                justifyContent: "center",
+                button: { padding: ".4rem 2rem", width: "100%" },
+                marginTop: "1em",
               }}
-              variant="contained"
-              type="button"
-              onClick={actions.cancel}
             >
-              Cancel
-            </Button>
-            <Button
-              variant="contained"
-              type="submit"
-              disabled={!(isValid && dirty)}
-            >
-              Create Quiz
-            </Button>
-          </Box>
-        </Form>
-      )}
-    </Formik>
+              <Button
+                sx={{
+                  bgcolor: "transparent",
+                  border: "1px solid rgba(138, 138, 138, 1)",
+                  color: "rgba(138, 138, 138, 1)",
+                }}
+                variant="contained"
+                type="button"
+                onClick={actions.cancel}
+              >
+                Cancel
+              </Button>
+              <Button
+                variant="contained"
+                type="submit"
+                disabled={!(isValid && dirty)}
+              >
+                Create Quiz
+              </Button>
+            </Box>
+          </Form>
+        )}
+      </Formik>
+    </>
   );
 };
 
