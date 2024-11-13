@@ -119,30 +119,13 @@ const Step1Content = () => {
             )}
           </Field>
         </Box>
-        <Box>
-          <label htmlFor="questions">Upload Questions</label>
-          <Field name="questions">
-            {({ form, meta }: FieldProps) => (
-              <TextField
-                type="file"
-                fullWidth
-                error={!!meta.error && meta.touched}
-                helperText={meta.touched && meta.error}
-                onChange={(ev) => {
-                  const file = (ev.currentTarget as HTMLInputElement)
-                    .files?.[0];
-                  form.setFieldValue("questions", file || null);
-                }}
-              />
-            )}
-          </Field>
-        </Box>
       </Box>
       <Box sx={{ display: "flex", alignItems: "center" }}>
         <Field name="show_result">
           {({ field, form }: FieldProps) => (
             <Checkbox
               {...field}
+              id="show_result"
               onClick={(ev) =>
                 form.setFieldValue(
                   "show_result",
@@ -152,7 +135,7 @@ const Step1Content = () => {
             />
           )}
         </Field>
-        <label htmlFor="" style={{ margin: 0 }}>
+        <label htmlFor="show_result" style={{ margin: 0 }}>
           Show Results
         </label>
       </Box>

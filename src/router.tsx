@@ -1,6 +1,7 @@
 import { createBrowserRouter } from "react-router-dom";
 import { lazy } from "react";
 import PrivateRoute from "./components/ProtectedRoutes";
+import AssessmentsPage from "./Pages/admin/cbt/assessments/Assessments";
 
 // Admin
 
@@ -70,6 +71,9 @@ const Eligibles = lazy(
 );
 const SessionsPage = lazy(
   () => import("./Pages/admin/academics/sessions/Sessions")
+);
+const QuestionsPage = lazy(
+  () => import("./Pages/admin/cbt/questions/Questions")
 );
 
 // Instructor
@@ -162,6 +166,8 @@ export const router = createBrowserRouter([
       { path: "/applicants", element: <ApplicantsPage /> },
       { path: "/eligibles", element: <Eligibles /> },
       { path: "/cbt", element: <CBTsPage /> },
+      { path: "/cbt/:quiz_id", element: <AssessmentsPage /> },
+      { path: "/cbt/:quiz_id/:assessment_id", element: <QuestionsPage /> },
       { path: "/sessions", element: <SessionsPage /> },
       {
         path: "/academics",

@@ -4,7 +4,7 @@ import TableCell from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
 import TableRow from "@mui/material/TableRow";
 import { InstructorQuizzesResponse } from "../../../types/quizzes";
-import { IconButton, TableHead } from "@mui/material";
+import { Box, Checkbox, IconButton, TableHead } from "@mui/material";
 import DeleteConfirmationModal from "../../../components/DeleteConfirmationModal";
 import { useEffect, useState } from "react";
 import {
@@ -112,57 +112,62 @@ const QuizList = () => {
         <EmptyState title="No Quizzes found" subTitle="" />
       ) : null}
 
-      <Table
-        sx={{
-          minWidth: 650,
-          ".MuiTableCell-root": {
-            maxWidth: 200,
-            a: {
-              overflow: "hidden",
-              textOverflow: "ellipsis",
-              whiteSpace: "nowrap",
+      {quizzes?.length ? (
+        <Table
+          sx={{
+            minWidth: 650,
+            ".MuiTableCell-root": {
+              maxWidth: 200,
+              a: {
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
+              },
             },
-          },
-        }}
-      >
-        <TableHead>
-          <TableRow>
-            <TableCell>Name</TableCell>
-            <TableCell>Start Date</TableCell>
-            <TableCell>Expiry Date</TableCell>
-            <TableCell>Actions</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {quizzes?.map((quiz) => (
-            <TableRow
-              key={quiz.id}
-              sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-            >
-              <TableCell component="th" scope="row">
-                <Link
-                  to={`/cbt/${quiz.id}`}
-                  style={{ textTransform: "capitalize", fontWeight: 600 }}
-                >
-                  {quiz.name}
-                </Link>
-              </TableCell>
-              <TableCell component="th" scope="row">
-                {dayjs(quiz.start_date).format("DD-MM-YYYY")}
-              </TableCell>
-              <TableCell component="th" scope="row">
-                {dayjs(quiz.expiry_date).format("DD-MM-YYYY")}
-              </TableCell>
-
-              <TableCell>
-                <IconButton onClick={() => handleOpenModal(quiz, "delete")}>
-                  <Delete />
-                </IconButton>
-              </TableCell>
+          }}
+        >
+          <TableHead>
+            <TableRow>
+              <TableCell>Name</TableCell>
+              <TableCell>Start Date</TableCell>
+              <TableCell>Expiry Date</TableCell>
+              <TableCell>Actions</TableCell>
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+          </TableHead>
+          <TableBody>
+            {quizzes?.map((quiz) => (
+              <TableRow
+                key={quiz.id}
+                sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+              >
+                <TableCell component="th" scope="row">
+                  <Box sx={{ alignItems: "center", display: "flex" }}>
+                    <Checkbox />
+                    <Link
+                      to={`/cbt/${quiz.id}`}
+                      style={{ textTransform: "capitalize" }}
+                    >
+                      {quiz.name}
+                    </Link>
+                  </Box>
+                </TableCell>
+                <TableCell component="th" scope="row">
+                  {dayjs(quiz.start_date).format("DD-MM-YYYY")}
+                </TableCell>
+                <TableCell component="th" scope="row">
+                  {dayjs(quiz.expiry_date).format("DD-MM-YYYY")}
+                </TableCell>
+
+                <TableCell>
+                  <IconButton onClick={() => handleOpenModal(quiz, "delete")}>
+                    <Delete />
+                  </IconButton>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      ) : null}
     </TableContainer>
   );
 };
