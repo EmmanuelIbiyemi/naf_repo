@@ -152,7 +152,10 @@ const EligiblesList: React.FC = () => {
                 {dayjs(eligible.created_at).format("DD-MM-YYYY")}
               </TableCell>
               <TableCell align="center">
-                <Button onClick={() => handleOpenDeleteModal(eligible)}>
+                <Button
+                  sx={{ color: "grey" }}
+                  onClick={() => handleOpenDeleteModal(eligible)}
+                >
                   <Delete />
                 </Button>
               </TableCell>

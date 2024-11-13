@@ -7,7 +7,7 @@ import SettingsIcon from "../../assets/settingsIcon";
 import { ElementType } from "react";
 import ClipBoardIcon from "../../assets/clipboardIcon";
 import SchoolIcon from "../../assets/schoolIcon";
-import { ChevronLeft, ChevronRight } from "@mui/icons-material";
+import { ChevronLeft, ChevronRight, Restore } from "@mui/icons-material";
 import GraduationScroll from "../../assets/graduation-scroll";
 
 type NavLink = {
@@ -20,6 +20,7 @@ const navLinks: NavLink[] = [
   { content: "Dashboard", icon: HomeIcon, link: "/" },
   { content: "Academics", icon: ClipBoardIcon, link: "/academics" },
   { content: "Users", icon: SchoolIcon, link: "/users" },
+  { content: "Sessions", icon: Restore, link: "/sessions" },
   {
     content: "Applications",
     icon: BankIcon,
@@ -144,6 +145,10 @@ const navLinkStyles: SxProps = {
 
   img: {
     height: "1.4rem",
+  },
+
+  svg: {
+    fontSize: "1.2rem",
   },
 
   "a.active": {

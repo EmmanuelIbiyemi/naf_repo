@@ -1,10 +1,15 @@
 import {
   CourseCreateType,
   CourseInstructor,
+  CourseResponse,
   CoursesResponse,
   CourseType,
 } from "../../types/courses";
-import { LevelCourseCreateType, LevelsResponse } from "../../types/levels";
+import {
+  LevelCourseCreateType,
+  LevelResponse,
+  LevelsResponse,
+} from "../../types/levels";
 import { appApi } from "./app.api";
 
 interface GetCoursesParams {
@@ -49,11 +54,11 @@ const coursesApi = appApi.injectEndpoints({
       query: () => `/course/instructor`,
       providesTags: ["Courses"],
     }),
-    getCourse: builder.query<{ data: CourseType }, number>({
+    getCourse: builder.query<CourseResponse, number>({
       query: (course_id) => `/course/${course_id}`,
       providesTags: ["Courses"],
     }),
-    addCourse: builder.mutation<{ data: CourseType }, CourseCreateType>({
+    addCourse: builder.mutation<CourseResponse, CourseCreateType>({
       query: (course) => ({
         url: `/course`,
         method: "POST",
@@ -61,7 +66,7 @@ const coursesApi = appApi.injectEndpoints({
       }),
       invalidatesTags: ["Courses"],
     }),
-    addCourseInstructor: builder.mutation<CoursesResponse, CourseInstructor>({
+    addCourseInstructor: builder.mutation<CourseResponse, CourseInstructor>({
       query: (course_instructor) => ({
         url: `/course/instructor`,
         method: "POST",
@@ -69,7 +74,7 @@ const coursesApi = appApi.injectEndpoints({
       }),
       invalidatesTags: ["Courses"],
     }),
-    updateCourse: builder.mutation<CoursesResponse, CourseType>({
+    updateCourse: builder.mutation<CourseResponse, CourseType>({
       query: (course) => ({
         url: `/course/${course.id}`,
         method: "PUT",
@@ -77,7 +82,7 @@ const coursesApi = appApi.injectEndpoints({
       }),
       invalidatesTags: ["Courses"],
     }),
-    deleteCourse: builder.mutation<CoursesResponse, number>({
+    deleteCourse: builder.mutation<CourseResponse, number>({
       query: (course_id) => ({
         url: `/course/${course_id}`,
         method: "DELETE",
@@ -85,7 +90,7 @@ const coursesApi = appApi.injectEndpoints({
       invalidatesTags: ["Courses"],
     }),
 
-    addLevelCourse: builder.mutation<LevelsResponse, LevelCourseCreateType>({
+    addLevelCourse: builder.mutation<LevelResponse, LevelCourseCreateType>({
       query: (course) => ({
         url: `/level/course`,
         method: "POST",

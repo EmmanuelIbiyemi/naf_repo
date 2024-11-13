@@ -11,6 +11,9 @@ export type LevelCourseCreateType = {
   type: string;
 };
 
+export type LevelResponse = {
+  data: LevelType;
+};
 export type LevelsResponse = {
   data: LevelType[];
 };

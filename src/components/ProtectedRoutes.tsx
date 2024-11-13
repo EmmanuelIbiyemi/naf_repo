@@ -9,8 +9,7 @@ import App from "../App";
 const allowedRoutes = {
   admin: [
     "/",
-    "/courses",
-    "/instructors",
+    "/sessions",
     "/applications",
     "/eligibles",
     "/form/:form_id",

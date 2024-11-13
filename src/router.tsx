@@ -68,6 +68,9 @@ const ProfileSettings = lazy(() => import("./Pages/admin/settings/Profile"));
 const Eligibles = lazy(
   () => import("./Pages/admin/grading/eligibles/Eligibles")
 );
+const SessionsPage = lazy(
+  () => import("./Pages/admin/academics/sessions/Sessions")
+);
 
 // Instructor
 
@@ -159,6 +162,7 @@ export const router = createBrowserRouter([
       { path: "/applicants", element: <ApplicantsPage /> },
       { path: "/eligibles", element: <Eligibles /> },
       { path: "/cbt", element: <CBTsPage /> },
+      { path: "/sessions", element: <SessionsPage /> },
       {
         path: "/academics",
         element: <AdminAcademicsPage />,

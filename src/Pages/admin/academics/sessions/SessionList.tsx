@@ -3,108 +3,94 @@ import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
 import TableRow from "@mui/material/TableRow";
-import { CourseCombinedType, CourseType } from "../../../../types/courses";
+import { SessionCombinedType, SessionType } from "../../../../types/sessions";
 import { Checkbox, IconButton, Typography } from "@mui/material";
 import { Delete, Edit } from "@mui/icons-material";
-import { useParams } from "react-router-dom";
 import DeleteConfirmationModal from "../../../../components/DeleteConfirmationModal";
 import { useEffect, useState } from "react";
 import {
-  useAddLevelCourseMutation,
-  useDeleteCourseMutation,
-  useGetCoursesByLevelQuery,
-  useUpdateCourseMutation,
-} from "../../../../store/api/courses.api";
+  useDeleteSessionMutation,
+  useGetSessionsQuery,
+  useUpdateSessionMutation,
+} from "../../../../store/api/sessions.api";
 import FormModal from "../../../../components/FormModal";
-import CourseForm from "./CourseForm";
+import SessionForm from "./SessionForm";
 import SuccessModal from "../../../../components/SuccessModal";
 import { FormAction } from "../../../../types/forms";
 import { useAppDispatch, useAppSelector } from "../../../../store/hooks";
 import { selectKeyword, setPageLoading } from "../../../../store/app.slice";
 import EmptyState from "../../../../components/EmptyState";
 
-const CourseList = () => {
-  const { level_id } = useParams();
+const SessionList = () => {
   const [openModal, setOpenModal] = useState({
     edit: false,
     success: false,
     delete: false,
   });
-  const [selectedCourse, setSelectedCourse] = useState<CourseType>();
-  const {
-    data: crs,
-    isError,
-    isFetching,
-  } = useGetCoursesByLevelQuery({
-    level_id: +(level_id || 0),
-    per_page: 1000,
-  });
-  const [courses, setCourses] = useState<CourseType[] | undefined>(crs?.data);
-  const [deleteCourse] = useDeleteCourseMutation();
-  const [updateCourse] = useUpdateCourseMutation();
-  const [addCourseToLevel] = useAddLevelCourseMutation();
+  const { data: sessionss, isFetching, isError } = useGetSessionsQuery(null);
+  const [selectedSession, setSelectedSession] = useState<SessionType>();
+  const [sessions, setSessions] = useState<SessionType[] | undefined>(
+    sessionss?.data
+  );
+  const [deleteSession] = useDeleteSessionMutation();
+  const [updateSession] = useUpdateSessionMutation();
   const keyword = useAppSelector(selectKeyword);
   const dispatch = useAppDispatch();
 
   useEffect(() => {
-    if (keyword && crs?.data)
-      setCourses(
-        crs.data.filter((f) =>
+    if (keyword && sessionss?.data)
+      setSessions(
+        sessionss.data.filter((f) =>
           f.name.toLowerCase().includes(keyword.toLowerCase())
         )
       );
-    else setCourses(crs?.data);
-  }, [keyword, crs]);
+    else setSessions(sessionss?.data);
+  }, [keyword, sessionss]);
 
   useEffect(() => {
     if (isFetching) dispatch(setPageLoading(true));
     else if (isError) dispatch(setPageLoading(false));
     else dispatch(setPageLoading(false));
-  }, [isFetching, isError, crs]);
+  }, [isFetching, isError, sessionss]);
 
-  const handleOpenModal = (course: CourseType, type: string) => {
-    setSelectedCourse(course);
+  const handleOpenModal = (session: SessionType, type: string) => {
+    setSelectedSession(session);
     setOpenModal((prev) => ({ ...prev, [type]: true }));
   };
 
   const handleCloseModal = (type: string) => {
-    setSelectedCourse(undefined);
+    setSelectedSession(undefined);
     setOpenModal((prev) => ({ ...prev, [type]: false }));
   };
 
-  const handleDelete = async (course_id: number) => {
+  const handleDelete = async (session_id: number) => {
     try {
-      await deleteCourse(course_id).unwrap();
+      await deleteSession(session_id).unwrap();
     } catch (error) {
       console.log(error);
     }
   };
 
-  const handleEditCourse = async (course: CourseType) => {
+  const handleEditSession = async (session: SessionType) => {
     try {
-      await updateCourse(course).unwrap();
-      await addCourseToLevel({
-        course_ids: [course.id as number],
-        level_id: +(level_id || 0) as number,
-        type: course.type,
-      }).unwrap();
+      await updateSession(session).unwrap();
     } catch (error) {
       console.log(error);
     }
     handleCloseModal("edit");
-    handleOpenModal(course, "success");
+    handleOpenModal(session, "success");
   };
 
   return (
     <TableContainer>
       {/* ADD */}
       <FormModal open={openModal.edit} close={() => handleCloseModal("edit")}>
-        <CourseForm
+        <SessionForm
           actions={{
-            submit: handleEditCourse as FormAction<CourseCombinedType>,
+            submit: handleEditSession as FormAction<SessionCombinedType>,
             cancel: () => handleCloseModal("edit"),
           }}
-          course={selectedCourse}
+          session={selectedSession}
         />
       </FormModal>
 
@@ -112,7 +98,7 @@ const CourseList = () => {
       <DeleteConfirmationModal
         actions={{
           proceed: () => {
-            if (selectedCourse) handleDelete(selectedCourse.id as number);
+            if (selectedSession) handleDelete(selectedSession.id as number);
             console.log("proceed");
           },
           undo: () => {
@@ -120,10 +106,10 @@ const CourseList = () => {
           },
         }}
         close={() => handleCloseModal("delete")}
-        infoText="The students enrolled in this Course will get notified."
+        infoText=""
         open={openModal.delete}
-        subTitle={`Are you sure you want to delete Course ${selectedCourse?.name}” ? You can’t undo this action.`}
-        title="Delete Course?"
+        subTitle={`Are you sure you want to delete Session ${selectedSession?.name}” ? You can’t undo this action.`}
+        title="Delete Session?"
       />
 
       {/* Success */}
@@ -138,31 +124,43 @@ const CourseList = () => {
         }}
         close={() => {
           handleCloseModal("success");
-          setSelectedCourse(undefined);
+          setSelectedSession(undefined);
         }}
         infoText=""
         open={openModal.success}
-        subTitle={`You have successfully added a new Course “${selectedCourse?.name}”.`}
+        subTitle={`You have successfully added a new Session “${selectedSession?.name}”.`}
         title="Updates Successful"
       />
 
       {isError ? (
         <EmptyState
-          title="Could not fetch Courses"
+          title="Could not fetch Sessions"
           subTitle="Check your internet connection"
         />
       ) : null}
-      {!courses?.length ? (
+      {!sessions?.length ? (
         <EmptyState
-          title="No Courses found"
-          subTitle="Courses will appear here after you add them in your school."
+          title="No Sessions found"
+          subTitle="Sessions will appear here after you add them in your school."
         />
       ) : null}
       <Table sx={{ minWidth: 650 }}>
         <TableBody>
-          {courses?.map((course) => (
+          {isError ? (
+            <EmptyState
+              title="Could not fetch Sessions"
+              subTitle="Check your internet connection"
+            />
+          ) : null}
+          {!sessions?.length ? (
+            <EmptyState
+              title="No Sessions found"
+              subTitle="Sessions will appear here after you add them in your school."
+            />
+          ) : null}
+          {sessions?.map((session) => (
             <TableRow
-              key={course.id}
+              key={session.id}
               sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
             >
               <TableCell
@@ -174,14 +172,14 @@ const CourseList = () => {
                 <Typography
                   sx={{ fontWeight: 500, textTransform: "capitalize" }}
                 >
-                  {course.name}
+                  {session.name}
                 </Typography>
               </TableCell>
               <TableCell align="right">
-                <IconButton onClick={() => handleOpenModal(course, "edit")}>
+                <IconButton onClick={() => handleOpenModal(session, "edit")}>
                   <Edit />
                 </IconButton>
-                <IconButton onClick={() => handleOpenModal(course, "delete")}>
+                <IconButton onClick={() => handleOpenModal(session, "delete")}>
                   <Delete />
                 </IconButton>
               </TableCell>
@@ -193,4 +191,4 @@ const CourseList = () => {
   );
 };
 
-export default CourseList;
+export default SessionList;
