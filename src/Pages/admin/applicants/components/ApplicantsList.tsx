@@ -5,7 +5,6 @@ import TableContainer from "@mui/material/TableContainer";
 import TableRow from "@mui/material/TableRow";
 import { ApplicantType } from "../../../../types/applicants";
 import {
-  Box,
   Chip,
   IconButton,
   Menu,
@@ -17,14 +16,14 @@ import {
 import { useEffect, useState } from "react";
 import DeleteConfirmationModal from "../../../../components/DeleteConfirmationModal";
 import { Check, Delete } from "@mui/icons-material";
-import LoadingScreen from "../../../../components/LoadingScreen";
 import {
   useDeleteApplicantMutation,
   useGetApplicantsQuery,
   useUpdateApplicantStatusMutation,
 } from "../../../../store/api/applicants.api";
-import { useAppSelector } from "../../../../store/hooks";
-import { selectKeyword } from "../../../../store/app.slice";
+import { useAppDispatch, useAppSelector } from "../../../../store/hooks";
+import { selectKeyword, setPageLoading } from "../../../../store/app.slice";
+import EmptyState from "../../../../components/EmptyState";
 
 const ApplicantList = () => {
   const [openModal, setOpenModal] = useState({
@@ -35,12 +34,13 @@ const ApplicantList = () => {
   const [selectedApplicant, setSelectedApplicant] = useState<ApplicantType>();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
-  const { data: apcts, isLoading } = useGetApplicantsQuery(null);
+  const { data: apcts, isFetching, isError } = useGetApplicantsQuery(null);
   const [applicants, setApplicants] = useState(apcts?.data);
   const [deleteApplicant, deleteState] = useDeleteApplicantMutation();
   const [updateApplicantStatus, updateState] =
     useUpdateApplicantStatusMutation();
   const keyword = useAppSelector(selectKeyword);
+  const dispatch = useAppDispatch();
 
   useEffect(() => {
     if (keyword && apcts?.data)
@@ -53,7 +53,14 @@ const ApplicantList = () => {
         )
       );
     else setApplicants(apcts?.data);
-  }, [keyword]);
+  }, [keyword, apcts]);
+
+  useEffect(() => {
+    if (isFetching || updateState.isLoading || deleteState.isLoading)
+      dispatch(setPageLoading(true));
+    else if (isError) dispatch(setPageLoading(false));
+    else dispatch(setPageLoading(false));
+  }, [isFetching, isError, apcts, updateState, deleteState]);
 
   const menuList = [
     {
@@ -115,14 +122,6 @@ const ApplicantList = () => {
 
   return (
     <TableContainer>
-      {[isLoading, deleteState.isLoading, updateState.isLoading].some(
-        (item) => item
-      ) ? (
-        <Box sx={{ position: "relative", zIndex: 2000 }}>
-          <LoadingScreen />
-        </Box>
-      ) : null}
-
       <DeleteConfirmationModal
         actions={{
           proceed: () => {
@@ -166,6 +165,16 @@ const ApplicantList = () => {
           </MenuItem>
         ))}
       </Menu>
+
+      {isError ? (
+        <EmptyState
+          title="Could not fetch Applicants"
+          subTitle="Check your internet connection"
+        />
+      ) : null}
+      {!applicants?.length ? (
+        <EmptyState title="No Applicants found" subTitle="" />
+      ) : null}
 
       <Table
         sx={{

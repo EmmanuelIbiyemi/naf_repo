@@ -5,10 +5,7 @@ import QuizList from "./CBTsList";
 import { useAppDispatch } from "../../../store/hooks";
 import { setPageName } from "../../../store/app.slice";
 import SuccessModal from "../../../components/SuccessModal";
-import LoadingScreen from "../../../components/LoadingScreen";
 import FormModal from "../../../components/FormModal";
-import EmptyState from "../../../components/EmptyState";
-import { useGetQuizzesQuery } from "../../../store/api/quizzes.api";
 import PageHeader from "../../../components/PageHeader";
 
 const CBTsPage = () => {
@@ -18,7 +15,6 @@ const CBTsPage = () => {
     success: false,
     delete: true,
   });
-  const { data: Quizzes, isLoading } = useGetQuizzesQuery(null);
 
   // set page name
   const dispatch = useAppDispatch();
@@ -36,11 +32,6 @@ const CBTsPage = () => {
 
   return (
     <Box className="content-container">
-      {[isLoading].some((item) => item) ? (
-        <Box sx={{ position: "relative", zIndex: 2000 }}>
-          <LoadingScreen />
-        </Box>
-      ) : null}
       <FormModal
         open={openModal.add || openModal.edit}
         close={() => {
@@ -84,14 +75,7 @@ const CBTsPage = () => {
           padding: "var(--padding)",
         }}
       >
-        {Quizzes?.data.length ? (
-          <QuizList />
-        ) : (
-          <EmptyState
-            title="No Exams at this time"
-            subTitle="Exams will appear here after you add them in your school."
-          />
-        )}
+        <QuizList />
       </Box>
     </Box>
   );
