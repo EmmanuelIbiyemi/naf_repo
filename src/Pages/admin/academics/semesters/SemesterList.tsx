@@ -7,7 +7,7 @@ import {
   SemesterCombinedType,
   SemesterType,
 } from "../../../../types/semesters";
-import { Checkbox, IconButton } from "@mui/material";
+import { Checkbox, IconButton, Typography } from "@mui/material";
 import { Delete, Edit } from "@mui/icons-material";
 import DeleteConfirmationModal from "../../../../components/DeleteConfirmationModal";
 import { useEffect, useState } from "react";
@@ -23,7 +23,6 @@ import { FormAction } from "../../../../types/forms";
 import { useAppDispatch, useAppSelector } from "../../../../store/hooks";
 import { selectKeyword, setPageLoading } from "../../../../store/app.slice";
 import EmptyState from "../../../../components/EmptyState";
-import { Link } from "react-router-dom";
 
 const SemesterList = () => {
   const [openModal, setOpenModal] = useState({
@@ -173,12 +172,11 @@ const SemesterList = () => {
                 sx={{ alignItems: "center", display: "flex", gap: "1rem" }}
               >
                 <Checkbox />
-                <Link
-                  to={`/semesters/${semester.id}`}
-                  style={{ fontWeight: 500, textTransform: "capitalize" }}
+                <Typography
+                  sx={{ fontWeight: 500, textTransform: "capitalize" }}
                 >
                   {semester.name}
-                </Link>
+                </Typography>
               </TableCell>
               <TableCell align="right">
                 <IconButton onClick={() => handleOpenModal(semester, "edit")}>
