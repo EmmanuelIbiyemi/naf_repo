@@ -3,7 +3,6 @@ import { Box, Button, Typography } from "@mui/material";
 
 type LiveClassProps = {
   title: string;
-  batchNo: string;
   date: string;
   time: string;
   status: string;
@@ -12,7 +11,6 @@ type LiveClassProps = {
 
 const LiveClassCard = ({
   title,
-  batchNo,
   date,
   time,
   status,
@@ -34,21 +32,6 @@ const LiveClassCard = ({
           sx={{ fontSize: "1.5rem", lineHeight: "30.24px" }}
         >
           {title}
-        </Typography>
-        <Typography
-          variant="body2"
-          sx={{
-            color: "#989898",
-            fontSize: ".9rem",
-            padding: ".6em ",
-            border: "1px solid #D3D3D3",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            borderRadius: "5px",
-          }}
-        >
-          Batch {batchNo}
         </Typography>
         <Box
           sx={{

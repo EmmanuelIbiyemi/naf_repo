@@ -197,7 +197,6 @@ const LiveClasses = () => {
                         >
                           <LiveClassCard
                             title={item.topic}
-                            batchNo={`Course ID: ${item.course_id}`}
                             date={dayjs(item.start_time).format("DD MMM YYYY")}
                             time={dayjs(item.start_time).format("hh:mm A")}
                             status={status}

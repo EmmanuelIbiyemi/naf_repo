@@ -1,3 +1,4 @@
+import { AnnouncementResponse } from "../../Pages/student/announcements/SingleAnnouncement";
 import { PostsResponseAnnouncement } from "../../types/announcements";
 import { PostCreateType, PostResponse, PostsResponse } from "../../types/posts";
 import { appApi } from "./app.api";
@@ -25,6 +26,10 @@ const postsApi = appApi.injectEndpoints({
     }),
     getPostByCategory: builder.query<PostsResponse, string>({
       query: (tag) => `post/category/${tag}`,
+      providesTags: ["Posts"],
+    }),
+    getSingleAnnouncement: builder.query<AnnouncementResponse, number>({
+      query: (post_id) => `/post/${post_id}`,
       providesTags: ["Posts"],
     }),
     getAnnouncements: builder.query<PostsResponseAnnouncement, string>({
@@ -81,5 +86,6 @@ export const {
   useGetPostCategoriesByTagQuery,
   useGetPostBySlugQuery,
   useGetPostByCategoryQuery,
+  useGetSingleAnnouncementQuery,
   useGetAnnouncementsQuery
 } = postsApi;
