@@ -13,7 +13,10 @@ import {
   TableHead,
 } from "@mui/material";
 import { useEffect, useState } from "react";
-import { useGetResultsMMutation } from "../../../../store/api/results.api";
+import {
+  useGenerateResultMutation,
+  useGetResultsMMutation,
+} from "../../../../store/api/results.api";
 import { useGetFacultiesQuery } from "../../../../store/api/faculties.api";
 import { useGetDepartmentsMMutation } from "../../../../store/api/departments.api";
 import { useGetProgrammesMMutation } from "../../../../store/api/programmes.api";
@@ -22,6 +25,7 @@ import { useGetSessionsQuery } from "../../../../store/api/sessions.api";
 import { useGetSemestersQuery } from "../../../../store/api/semesters.api";
 import { selectKeyword } from "../../../../store/app.slice";
 import { useAppSelector } from "../../../../store/hooks";
+import SuccessModal from "../../../../components/SuccessModal";
 
 const ResultsList = () => {
   const { data: faculties } = useGetFacultiesQuery(null);
@@ -35,12 +39,14 @@ const ResultsList = () => {
     department_id: 0,
     program_id: 0,
     level_id: 0,
-    session: "",
-    semester: "",
+    session: "default",
+    semester: "default",
   });
   const [getResults, resultState] = useGetResultsMMutation();
+  const [generateResults] = useGenerateResultMutation();
   const [results, setResults] = useState(resultState.data?.data);
   const keyword = useAppSelector(selectKeyword);
+  const [openModal, setOpenModal] = useState(false);
 
   useEffect(() => {
     if (keyword && resultState.data?.data)
@@ -91,13 +97,43 @@ const ResultsList = () => {
     }
   };
 
+  const generateResult = async () => {
+    if (filters.program_id) {
+      try {
+        await generateResults(filters).unwrap();
+      } catch (error) {
+        console.log(error);
+      }
+    }
+    setOpenModal(true);
+  };
+
   return (
     <TableContainer>
+      {/* Success */}
+      <SuccessModal
+        actions={{
+          proceed: () => {
+            console.log("proceed");
+          },
+          undo: () => {
+            console.log("undo");
+          },
+        }}
+        close={() => {
+          setOpenModal(false);
+        }}
+        infoText="Please check back later"
+        open={openModal}
+        subTitle={`Results are being generated in the background.`}
+        title="Updates Successful"
+      />
+
       <Box
         sx={{
-          ".MuiSelect-select,.MuiInputBase-input,.MuiButton-root": {
+          ".MuiSelect-select": {
             padding: ".5rem",
-            maxWidth: "100px",
+            maxWidth: "75px",
           },
           "td.MuiTableCell-body": {
             "&:last-child td, &:last-child th": { border: 0 },
@@ -105,94 +141,116 @@ const ResultsList = () => {
           },
         }}
       >
-        <Box sx={{ display: "flex", gap: ".5em", marginBottom: "2rem" }}>
-          <FormControl>
-            <Select
-              value={filters.faculty_id}
-              onChange={handleChange}
-              name="faculty_id"
-            >
-              <MenuItem value={0}>faculty</MenuItem>
-              {faculties?.data.map((fac) => (
-                <MenuItem key={fac.name} value={fac.id}>
-                  {fac.name}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-          <FormControl>
-            <Select
-              value={filters.department_id}
-              onChange={handleChange}
-              name="department_id"
-            >
-              <MenuItem value={0}>department</MenuItem>
-              {departmentsState.data?.data.map((dep) => (
-                <MenuItem key={dep.name} value={dep.id}>
-                  {dep.name}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-          <FormControl>
-            <Select
-              value={filters.program_id}
-              onChange={handleChange}
-              name="program_id"
-            >
-              <MenuItem value={0}>program</MenuItem>
-              {programsState.data?.data.map((dep) => (
-                <MenuItem key={dep.name} value={dep.id}>
-                  {dep.name}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-          <FormControl>
-            <Select
-              value={filters.level_id}
-              onChange={handleChange}
-              name="level_id"
-            >
-              <MenuItem value={0}>level</MenuItem>
-              {levelsState.data?.data.map((lvl) => (
-                <MenuItem key={lvl.name} value={lvl.id}>
-                  {lvl.name}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-          <FormControl>
-            <Select
-              value={filters.session}
-              onChange={handleChange}
-              name="session"
-            >
-              <MenuItem value={""}>session</MenuItem>
-              {sessions?.data.map((session) => (
-                <MenuItem key={session.name} value={session.name}>
-                  {session.name}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-          <FormControl>
-            <Select
-              value={filters.semester}
-              onChange={handleChange}
-              name="semester"
-            >
-              <MenuItem value={""}>semester</MenuItem>
-              {semesters?.data.map((semester) => (
-                <MenuItem key={semester.name} value={semester.name}>
-                  {semester.name}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-          <Button onClick={fetchResults} variant="contained">
-            Get
-          </Button>
+        <Box
+          sx={{
+            display: "flex",
+            marginBottom: "2rem",
+            justifyContent: "space-between",
+          }}
+        >
+          <Box sx={{ display: "flex", gap: ".5em" }}>
+            <FormControl>
+              <Select
+                value={filters.faculty_id}
+                onChange={handleChange}
+                name="faculty_id"
+              >
+                <MenuItem value={0}>faculty</MenuItem>
+                {faculties?.data.map((fac) => (
+                  <MenuItem key={fac.name} value={fac.id}>
+                    {fac.name}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+            <FormControl>
+              <Select
+                value={filters.department_id}
+                onChange={handleChange}
+                name="department_id"
+              >
+                <MenuItem value={0}>department</MenuItem>
+                {departmentsState.data?.data.map((dep) => (
+                  <MenuItem key={dep.name} value={dep.id}>
+                    {dep.name}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+            <FormControl>
+              <Select
+                value={filters.program_id}
+                onChange={handleChange}
+                name="program_id"
+              >
+                <MenuItem value={0}>program</MenuItem>
+                {programsState.data?.data.map((dep) => (
+                  <MenuItem key={dep.name} value={dep.id}>
+                    {dep.name}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+            <FormControl>
+              <Select
+                value={filters.level_id}
+                onChange={handleChange}
+                name="level_id"
+              >
+                <MenuItem value={0}>level</MenuItem>
+                {levelsState.data?.data.map((lvl) => (
+                  <MenuItem key={lvl.name} value={lvl.id}>
+                    {lvl.name}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+            <FormControl>
+              <Select
+                value={filters.session}
+                onChange={handleChange}
+                name="session"
+              >
+                <MenuItem value="default">session</MenuItem>
+                {sessions?.data.map((session) => (
+                  <MenuItem key={session.name} value={session.name}>
+                    {session.name}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+            <FormControl>
+              <Select
+                value={filters.semester}
+                onChange={handleChange}
+                name="semester"
+              >
+                <MenuItem value="default">semester</MenuItem>
+                {semesters?.data.map((semester) => (
+                  <MenuItem key={semester.name} value={semester.name}>
+                    {semester.name}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Box>
+          <Box
+            sx={{
+              display: "flex",
+              gap: ".5em",
+
+              button: {
+                flexShrink: 0,
+              },
+            }}
+          >
+            <Button onClick={fetchResults} variant="contained">
+              Fetch
+            </Button>
+            <Button onClick={generateResult} variant="contained">
+              Generate
+            </Button>
+          </Box>
         </Box>
       </Box>
       <Table sx={{ minWidth: 650 }}>

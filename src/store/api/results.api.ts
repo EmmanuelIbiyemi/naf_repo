@@ -20,9 +20,21 @@ const scoreApi = appApi.injectEndpoints({
       query: (score_id) => `/scoring/${score_id}`,
       providesTags: ["Results"],
     }),
+    generateResult: builder.mutation<ResultResponse, ResultsGetInput>({
+      query: (result) => ({
+        url: `/result`,
+        method: "POST",
+        body: result,
+      }),
+      invalidatesTags: ["Results"],
+    }),
   }),
   overrideExisting: false,
 });
 
-export const { useGetResultsQuery, useGetResultsMMutation, useGetResultQuery } =
-  scoreApi;
+export const {
+  useGetResultsQuery,
+  useGetResultsMMutation,
+  useGetResultQuery,
+  useGenerateResultMutation,
+} = scoreApi;
