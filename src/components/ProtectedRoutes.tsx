@@ -75,6 +75,7 @@ const allowedRoutes = {
     "/student/reports",
     "/student/live-class",
     "/student/settings",
+    "/student/announcements/:id",
   ],
 };
 
