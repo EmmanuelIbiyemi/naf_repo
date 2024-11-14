@@ -129,6 +129,7 @@ const QuizList = () => {
           <TableHead>
             <TableRow>
               <TableCell>Name</TableCell>
+              <TableCell>Code</TableCell>
               <TableCell>Start Date</TableCell>
               <TableCell>Expiry Date</TableCell>
               <TableCell>Actions</TableCell>
@@ -150,6 +151,9 @@ const QuizList = () => {
                       {quiz.name}
                     </Link>
                   </Box>
+                </TableCell>
+                <TableCell component="th" scope="row">
+                  {quiz.code}
                 </TableCell>
                 <TableCell component="th" scope="row">
                   {dayjs(quiz.start_date).format("DD-MM-YYYY")}

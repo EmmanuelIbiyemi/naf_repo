@@ -8,6 +8,8 @@ export type EligibleCreateType = {
 export type EligibleType = {
   id: number;
   created_at: string;
+  level: string;
+  program: string;
   reg_number: string;
   session: string;
   updated_at: string;

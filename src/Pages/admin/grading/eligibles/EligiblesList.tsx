@@ -6,8 +6,8 @@ import {
   TableRow,
   TableHead,
   Button,
+  Typography,
 } from "@mui/material";
-import { Link } from "react-router-dom";
 import {
   useDeleteEligiblesMutation,
   useGetEligiblesQuery,
@@ -106,6 +106,8 @@ const EligiblesList: React.FC = () => {
               Reg number
             </TableCell>
             <TableCell align="center">Session</TableCell>
+            <TableCell align="center">Program</TableCell>
+            <TableCell align="center">Level</TableCell>
             <TableCell align="center">Date</TableCell>
             <TableCell align="center">Actions</TableCell>
           </TableRow>
@@ -140,14 +142,13 @@ const EligiblesList: React.FC = () => {
                 scope="row"
                 sx={{ alignItems: "center", display: "flex", gap: "1rem" }}
               >
-                <Link
-                  to={`/eligibles/${eligible.id}`}
-                  style={{ textTransform: "capitalize" }}
-                >
+                <Typography style={{ textTransform: "capitalize" }}>
                   {eligible.reg_number}
-                </Link>
+                </Typography>
               </TableCell>
               <TableCell align="center">{eligible.session}</TableCell>
+              <TableCell align="center">{eligible.program}</TableCell>
+              <TableCell align="center">{eligible.level}</TableCell>
               <TableCell align="center">
                 {dayjs(eligible.created_at).format("DD-MM-YYYY")}
               </TableCell>
