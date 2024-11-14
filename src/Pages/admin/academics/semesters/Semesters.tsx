@@ -2,36 +2,34 @@ import { Box } from "@mui/material";
 import PageHeader from "../../../../components/PageHeader";
 import FormModal from "../../../../components/FormModal";
 import { useEffect, useRef, useState } from "react";
-import SessionForm from "./SessionForm";
-import SessionList from "./SessionList";
+import SemesterForm from "./SemesterForm";
+import SemesterList from "./SemesterList";
 import {
-  SessionCombinedType,
-  SessionCreateType,
-  SessionType,
-} from "../../../../types/sessions";
+  SemesterCombinedType,
+  SemesterCreateType,
+  SemesterType,
+} from "../../../../types/semesters";
 import { useAppDispatch } from "../../../../store/hooks";
 import { setPageName } from "../../../../store/app.slice";
 import SuccessModal from "../../../../components/SuccessModal";
-import { useAddSessionMutation } from "../../../../store/api/sessions.api";
+import { useAddSemesterMutation } from "../../../../store/api/semesters.api";
 import { FormAction } from "../../../../types/forms";
-import { usePromoteAllMutation } from "../../../../store/api/students.api";
 
-const SessionsPage = () => {
+const SemestersPage = () => {
   const [openModal, setOpenModal] = useState({
     add: false,
     success: false,
     successPromote: false,
   });
-  const [sessionName, setSessionName] = useState("");
-  const [selectedSession, setSelectedSession] = useState<SessionType>();
+  const [semesterName, setSemesterName] = useState("");
+  const [selectedSemester, setSelectedSemester] = useState<SemesterType>();
   const containerRef = useRef<HTMLDivElement>(null);
-  const [addSession] = useAddSessionMutation();
-  const [promoteStudents] = usePromoteAllMutation();
+  const [addSemester] = useAddSemesterMutation();
 
   // set page name
   const dispatch = useAppDispatch();
   useEffect(() => {
-    dispatch(setPageName("Sessions"));
+    dispatch(setPageName("Semesters"));
   }, [dispatch]);
 
   const handleOpenModal = (type: string) => {
@@ -39,25 +37,16 @@ const SessionsPage = () => {
   };
 
   const handleCloseModal = (type: string) => {
-    setSelectedSession(undefined);
+    setSelectedSemester(undefined);
     setOpenModal((prev) => ({ ...prev, [type]: false }));
   };
 
-  const handleAddSession = async (session: SessionCreateType) => {
+  const handleAddSemester = async (semester: SemesterCreateType) => {
     try {
-      await addSession(session).unwrap();
+      await addSemester(semester).unwrap();
       handleCloseModal("add");
       handleOpenModal("success");
-      setSessionName(session.name);
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  const handlePromoteAll = async () => {
-    try {
-      await promoteStudents(null).unwrap();
-      handleOpenModal("successPromote");
+      setSemesterName(semester.name);
     } catch (error) {
       console.log(error);
     }
@@ -66,12 +55,12 @@ const SessionsPage = () => {
   return (
     <Box ref={containerRef} className="content-container">
       <FormModal open={openModal.add} close={() => handleCloseModal("add")}>
-        <SessionForm
+        <SemesterForm
           actions={{
-            submit: handleAddSession as FormAction<SessionCombinedType>,
+            submit: handleAddSemester as FormAction<SemesterCombinedType>,
             cancel: () => handleCloseModal("add"),
           }}
-          session={selectedSession}
+          semester={selectedSemester}
         />
       </FormModal>
 
@@ -86,41 +75,18 @@ const SessionsPage = () => {
         }}
         close={() => {
           handleCloseModal("success");
-          setSelectedSession(undefined);
+          setSelectedSemester(undefined);
         }}
         infoText=""
         open={openModal.success}
-        subTitle={`You have successfully added a new session “${sessionName}”.`}
-        title="Updates Successful"
-      />
-
-      <SuccessModal
-        actions={{
-          proceed: () => {
-            console.log("proceed");
-          },
-          undo: () => {
-            console.log("undo");
-          },
-        }}
-        close={() => {
-          handleCloseModal("successPromote");
-          setSelectedSession(undefined);
-        }}
-        infoText=""
-        open={openModal.successPromote}
-        subTitle={`You have successfully promoted all students.`}
+        subTitle={`You have successfully added a new semester “${semesterName}”.`}
         title="Updates Successful"
       />
 
       <PageHeader
         button={{
           action: () => setOpenModal((prev) => ({ ...prev, add: true })),
-          text: "Add Sessions",
-        }}
-        secondaryButton={{
-          action: handlePromoteAll,
-          text: "Promote all Students",
+          text: "Add Semesters",
         }}
       />
       <Box
@@ -131,10 +97,10 @@ const SessionsPage = () => {
           padding: "var(--padding)",
         }}
       >
-        <SessionList />
+        <SemesterList />
       </Box>
     </Box>
   );
 };
 
-export default SessionsPage;
+export default SemestersPage;

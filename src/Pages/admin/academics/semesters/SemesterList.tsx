@@ -3,18 +3,21 @@ import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
 import TableRow from "@mui/material/TableRow";
-import { SessionCombinedType, SessionType } from "../../../../types/sessions";
+import {
+  SemesterCombinedType,
+  SemesterType,
+} from "../../../../types/semesters";
 import { Checkbox, IconButton } from "@mui/material";
 import { Delete, Edit } from "@mui/icons-material";
 import DeleteConfirmationModal from "../../../../components/DeleteConfirmationModal";
 import { useEffect, useState } from "react";
 import {
-  useDeleteSessionMutation,
-  useGetSessionsQuery,
-  useUpdateSessionMutation,
-} from "../../../../store/api/sessions.api";
+  useDeleteSemesterMutation,
+  useGetSemestersQuery,
+  useUpdateSemesterMutation,
+} from "../../../../store/api/semesters.api";
 import FormModal from "../../../../components/FormModal";
-import SessionForm from "./SessionForm";
+import SemesterForm from "./SemesterForm";
 import SuccessModal from "../../../../components/SuccessModal";
 import { FormAction } from "../../../../types/forms";
 import { useAppDispatch, useAppSelector } from "../../../../store/hooks";
@@ -22,76 +25,76 @@ import { selectKeyword, setPageLoading } from "../../../../store/app.slice";
 import EmptyState from "../../../../components/EmptyState";
 import { Link } from "react-router-dom";
 
-const SessionList = () => {
+const SemesterList = () => {
   const [openModal, setOpenModal] = useState({
     edit: false,
     success: false,
     delete: false,
   });
-  const { data: sessionss, isFetching, isError } = useGetSessionsQuery(null);
-  const [selectedSession, setSelectedSession] = useState<SessionType>();
-  const [sessions, setSessions] = useState<SessionType[] | undefined>(
-    sessionss?.data
+  const { data: semesterss, isFetching, isError } = useGetSemestersQuery(null);
+  const [selectedSemester, setSelectedSemester] = useState<SemesterType>();
+  const [semesters, setSemesters] = useState<SemesterType[] | undefined>(
+    semesterss?.data
   );
-  const [deleteSession] = useDeleteSessionMutation();
-  const [updateSession] = useUpdateSessionMutation();
+  const [deleteSemester] = useDeleteSemesterMutation();
+  const [updateSemester] = useUpdateSemesterMutation();
   const keyword = useAppSelector(selectKeyword);
   const dispatch = useAppDispatch();
 
   useEffect(() => {
-    if (keyword && sessionss?.data)
-      setSessions(
-        sessionss.data.filter((f) =>
+    if (keyword && semesterss?.data)
+      setSemesters(
+        semesterss.data.filter((f) =>
           f.name.toLowerCase().includes(keyword.toLowerCase())
         )
       );
-    else setSessions(sessionss?.data);
-  }, [keyword, sessionss]);
+    else setSemesters(semesterss?.data);
+  }, [keyword, semesterss]);
 
   useEffect(() => {
     if (isFetching) dispatch(setPageLoading(true));
     else if (isError) dispatch(setPageLoading(false));
     else dispatch(setPageLoading(false));
-  }, [isFetching, isError, sessionss]);
+  }, [isFetching, isError, semesterss]);
 
-  const handleOpenModal = (session: SessionType, type: string) => {
-    setSelectedSession(session);
+  const handleOpenModal = (semester: SemesterType, type: string) => {
+    setSelectedSemester(semester);
     setOpenModal((prev) => ({ ...prev, [type]: true }));
   };
 
   const handleCloseModal = (type: string) => {
-    setSelectedSession(undefined);
+    setSelectedSemester(undefined);
     setOpenModal((prev) => ({ ...prev, [type]: false }));
   };
 
-  const handleDelete = async (session_id: number) => {
+  const handleDelete = async (semester_id: number) => {
     try {
-      await deleteSession(session_id).unwrap();
+      await deleteSemester(semester_id).unwrap();
     } catch (error) {
       console.log(error);
     }
   };
 
-  const handleEditSession = async (session: SessionType) => {
+  const handleEditSemester = async (semester: SemesterType) => {
     try {
-      await updateSession(session).unwrap();
+      await updateSemester(semester).unwrap();
     } catch (error) {
       console.log(error);
     }
     handleCloseModal("edit");
-    handleOpenModal(session, "success");
+    handleOpenModal(semester, "success");
   };
 
   return (
     <TableContainer>
       {/* ADD */}
       <FormModal open={openModal.edit} close={() => handleCloseModal("edit")}>
-        <SessionForm
+        <SemesterForm
           actions={{
-            submit: handleEditSession as FormAction<SessionCombinedType>,
+            submit: handleEditSemester as FormAction<SemesterCombinedType>,
             cancel: () => handleCloseModal("edit"),
           }}
-          session={selectedSession}
+          semester={selectedSemester}
         />
       </FormModal>
 
@@ -99,7 +102,7 @@ const SessionList = () => {
       <DeleteConfirmationModal
         actions={{
           proceed: () => {
-            if (selectedSession) handleDelete(selectedSession.id as number);
+            if (selectedSemester) handleDelete(selectedSemester.id as number);
             console.log("proceed");
           },
           undo: () => {
@@ -109,8 +112,8 @@ const SessionList = () => {
         close={() => handleCloseModal("delete")}
         infoText="You can’t undo this action."
         open={openModal.delete}
-        subTitle={`Are you sure you want to delete Session ${selectedSession?.name}” ?`}
-        title="Delete Session?"
+        subTitle={`Are you sure you want to delete Semester ”${selectedSemester?.name}” ?`}
+        title="Delete Semester?"
       />
 
       {/* Success */}
@@ -125,43 +128,43 @@ const SessionList = () => {
         }}
         close={() => {
           handleCloseModal("success");
-          setSelectedSession(undefined);
+          setSelectedSemester(undefined);
         }}
         infoText=""
         open={openModal.success}
-        subTitle={`You have successfully added a new Session “${selectedSession?.name}”.`}
+        subTitle={`You have successfully added a new Semester “${selectedSemester?.name}”.`}
         title="Updates Successful"
       />
 
       {isError ? (
         <EmptyState
-          title="Could not fetch Sessions"
+          title="Could not fetch Semesters"
           subTitle="Check your internet connection"
         />
       ) : null}
-      {!sessions?.length ? (
+      {!semesters?.length ? (
         <EmptyState
-          title="No Sessions found"
-          subTitle="Sessions will appear here after you add them in your school."
+          title="No Semesters found"
+          subTitle="Semesters will appear here after you add them in your school."
         />
       ) : null}
       <Table sx={{ minWidth: 650 }}>
         <TableBody>
           {isError ? (
             <EmptyState
-              title="Could not fetch Sessions"
+              title="Could not fetch Semesters"
               subTitle="Check your internet connection"
             />
           ) : null}
-          {!sessions?.length ? (
+          {!semesters?.length ? (
             <EmptyState
-              title="No Sessions found"
-              subTitle="Sessions will appear here after you add them in your school."
+              title="No Semesters found"
+              subTitle="Semesters will appear here after you add them in your school."
             />
           ) : null}
-          {sessions?.map((session) => (
+          {semesters?.map((semester) => (
             <TableRow
-              key={session.id}
+              key={semester.id}
               sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
             >
               <TableCell
@@ -171,17 +174,17 @@ const SessionList = () => {
               >
                 <Checkbox />
                 <Link
-                  to={`/sessions/${session.id}`}
+                  to={`/semesters/${semester.id}`}
                   style={{ fontWeight: 500, textTransform: "capitalize" }}
                 >
-                  {session.name}
+                  {semester.name}
                 </Link>
               </TableCell>
               <TableCell align="right">
-                <IconButton onClick={() => handleOpenModal(session, "edit")}>
+                <IconButton onClick={() => handleOpenModal(semester, "edit")}>
                   <Edit />
                 </IconButton>
-                <IconButton onClick={() => handleOpenModal(session, "delete")}>
+                <IconButton onClick={() => handleOpenModal(semester, "delete")}>
                   <Delete />
                 </IconButton>
               </TableCell>
@@ -193,4 +196,4 @@ const SessionList = () => {
   );
 };
 
-export default SessionList;
+export default SemesterList;

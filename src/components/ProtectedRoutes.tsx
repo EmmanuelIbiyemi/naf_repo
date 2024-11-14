@@ -10,6 +10,7 @@ const allowedRoutes = {
   admin: [
     "/",
     "/sessions",
+    "/sessions/:session_id",
     "/applications",
     "/eligibles",
     "/form/:form_id",

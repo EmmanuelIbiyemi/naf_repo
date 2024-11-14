@@ -67,6 +67,9 @@ const Eligibles = lazy(
 const SessionsPage = lazy(
   () => import("./Pages/admin/academics/sessions/Sessions")
 );
+const SemestersPage = lazy(
+  () => import("./Pages/admin/academics/semesters/Semesters")
+);
 const QuestionsPage = lazy(
   () => import("./Pages/admin/cbt/questions/Questions")
 );
@@ -162,6 +165,7 @@ export const router = createBrowserRouter([
       { path: "/cbt/:quiz_id", element: <AssessmentsPage /> },
       { path: "/cbt/:quiz_id/:assessment_id", element: <QuestionsPage /> },
       { path: "/sessions", element: <SessionsPage /> },
+      { path: "/sessions/:session_id", element: <SemestersPage /> },
       {
         path: "/academics",
         element: <AdminAcademicsPage />,

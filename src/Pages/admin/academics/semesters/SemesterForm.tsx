@@ -4,27 +4,30 @@ import { Box, Button, Typography } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
 import formStyles from "../../../../components/form/form.module.scss";
 import {
-  SessionCombinedType,
-  SessionCreateType,
-  SessionType,
-} from "../../../../types/sessions";
+  SemesterCombinedType,
+  SemesterCreateType,
+  SemesterType,
+} from "../../../../types/semesters";
 import dayjs from "dayjs";
+import { useParams } from "react-router-dom";
 
 type Props = {
-  session?: SessionCombinedType;
+  semester?: SemesterCombinedType;
   actions: {
-    submit: (session: SessionCombinedType) => Promise<void>;
+    submit: (semester: SemesterCombinedType) => Promise<void>;
     cancel: () => void;
   };
 };
 
-const SessionForm = ({ actions, session }: Props) => {
-  const initialValues: SessionCreateType | SessionType = {
-    id: (session as SessionType)?.id || 0,
-    name: session?.name || "",
-    end_date: dayjs(session?.end_date).format("YYYY-MM-DD") || "",
-    start_date: dayjs(session?.start_date).format("YYYY-MM-DD") || "",
-    semesters: session?.semesters || [],
+const SemesterForm = ({ actions, semester }: Props) => {
+  const { session_id } = useParams();
+
+  const initialValues: SemesterCreateType | SemesterType = {
+    id: (semester as SemesterType)?.id || 0,
+    name: semester?.name || "",
+    session_id: +(session_id || 0),
+    end_date: dayjs(semester?.end_date).format("YYYY-MM-DD") || "",
+    start_date: dayjs(semester?.start_date).format("YYYY-MM-DD") || "",
   };
 
   const validationSchema = Yup.object({
@@ -33,7 +36,7 @@ const SessionForm = ({ actions, session }: Props) => {
     end_date: Yup.string().required("Required"),
   });
 
-  const handleSubmit = async (values: SessionCombinedType) => {
+  const handleSubmit = async (values: SemesterCombinedType) => {
     await actions.submit(values);
   };
 
@@ -51,11 +54,11 @@ const SessionForm = ({ actions, session }: Props) => {
             component="h2"
             sx={{ marginTop: "1rem", textAlign: "center" }}
           >
-            {session ? "Update Session" : "Add Session"}
+            {semester ? "Update Semester" : "Add Semester"}
           </Typography>
 
           <Box>
-            <label htmlFor="name">Session Name</label>
+            <label htmlFor="name">Semester Name</label>
             <Field id="name" name="name" />
           </Box>
           <Box
@@ -89,7 +92,7 @@ const SessionForm = ({ actions, session }: Props) => {
               variant="contained"
               disabled={!(isValid && dirty)}
             >
-              {session ? "Update Session" : "Add Session"}
+              {semester ? "Update Semester" : "Add Semester"}
             </LoadingButton>
           </Box>
         </Form>
@@ -98,4 +101,4 @@ const SessionForm = ({ actions, session }: Props) => {
   );
 };
 
-export default SessionForm;
+export default SemesterForm;
