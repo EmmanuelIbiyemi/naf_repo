@@ -62,7 +62,7 @@ const allowedRoutes = {
     "/instructor/announcements",
     "/instructor/scores",
   ],
-  student: [
+  participant: [
     "/student/dashboard",
     "/student/overview",
     "/student/courses",
