@@ -39,10 +39,8 @@ const Header = () => {
   };
 
   const handleNotificationClick = (event: MouseEvent<HTMLButtonElement>) => {
-    if (user?.role === "admin") {
-      navigate("/settings/posttype/announcement");
-    }
-    setNotificationAnchorEl(event.currentTarget);
+    if (user?.role === "admin") navigate("/settings/posttype/announcement");
+    else setNotificationAnchorEl(event.currentTarget);
   };
 
   const handleNotificationClose = () => {
@@ -82,9 +80,13 @@ const Header = () => {
       <Box sx={actionsStyles}>
         <Box>
           <IconButton onClick={handleNotificationClick}>
-            <Badge color="error" variant="dot">
+            {user?.role !== "admin" ? (
+              <Badge color="error" variant="dot">
+                <Notifications />
+              </Badge>
+            ) : (
               <Notifications />
-            </Badge>
+            )}
           </IconButton>
         </Box>
         <Box sx={flexStyles}>
