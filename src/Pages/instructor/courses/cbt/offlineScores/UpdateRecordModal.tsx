@@ -173,7 +173,7 @@ UpdateRecordModalProps) => {
         close={handleCloseSuccessModal}
         infoText=""
         open={openSuccessModal}
-        subTitle={`Record has been successfully updated!`}
+        subTitle={`Record is being updated... Please check back in the next 2-3 minutes!`}
         title="Successful"
       />
     </Dialog>

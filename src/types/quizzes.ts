@@ -134,7 +134,7 @@ export interface CreateQuiz {
   time_allowed: number;
   start_date: string;
   expiry_date: string;
-  obtainable_score: number;
+  obtainable_score?: number;
   type: string;
   show_result: boolean;
 }

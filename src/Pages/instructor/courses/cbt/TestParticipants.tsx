@@ -1,6 +1,17 @@
 import { useEffect, useRef, useState } from "react";
-import { Box, Button, LinearProgress, Typography } from "@mui/material";
-import { AccessTime, CalendarToday } from "@mui/icons-material";
+import {
+  Box,
+  Button,
+  LinearProgress,
+  Tooltip,
+  Typography,
+} from "@mui/material";
+import {
+  AccessTime,
+  CalendarToday,
+  CheckCircle,
+  ContentCopy,
+} from "@mui/icons-material";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { InstructorQuizzesResponse } from "../../../../types/quizzes";
 import TestParticipantsList from "./TestParticipantsList";
@@ -10,6 +21,7 @@ const Students = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { id } = useParams();
+  const [copiedCode, setCopiedCode] = useState(false);
   const [quizData, setQuizData] = useState<InstructorQuizzesResponse | null>(
     null
   );
@@ -47,7 +59,11 @@ const Students = () => {
     );
   }
 
-  console.log(quizData);
+  const handleCodeCopy = () => {
+    navigator.clipboard.writeText(quizData.code);
+    setCopiedCode(true);
+    setTimeout(() => setCopiedCode(false), 2000);
+  };
 
   return (
     <Box ref={containerRef} className="content-container">
@@ -91,6 +107,36 @@ const Students = () => {
               List of students that are participating in the test "
               {quizData.name}"
             </Typography>
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                gap: 1,
+                marginTop: "1em",
+                cursor: "pointer",
+                "&:hover": {
+                  color: "#7c7c7c",
+                },
+              }}
+              onClick={handleCodeCopy}
+            >
+              <Typography variant="body2" sx={{ color: "#9A9A9A" }}>
+                Code to access CBT: "{quizData.code}"
+              </Typography>
+              <Tooltip
+                title={copiedCode ? "Copied!" : "Click to copy"}
+                placement="right"
+                arrow
+              >
+                <Box>
+                  {copiedCode ? (
+                    <CheckCircle sx={{ color: "green" }} />
+                  ) : (
+                    <ContentCopy sx={{ color: "#9A9A9A" }} />
+                  )}
+                </Box>
+              </Tooltip>
+            </Box>
             <Box
               sx={{
                 display: "flex",

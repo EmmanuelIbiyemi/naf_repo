@@ -82,7 +82,7 @@ const AnnouncementsPage = () => {
                   <>
                     <Divider sx={{ my: 2 }} />
                     <Typography variant="body2">
-                      {announcement.blocks[0].text}
+                      {announcement.blocks[0].content}
                     </Typography>
                   </>
                 )}

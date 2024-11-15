@@ -144,7 +144,7 @@ const NotificationMenu = ({
                         WebkitBoxOrient: "vertical",
                       }}
                     >
-                      {announcement.blocks[0].text}
+                      {announcement.blocks[0].content}
                     </Typography>
                   )}
                 </Box>

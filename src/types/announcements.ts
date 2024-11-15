@@ -1,3 +1,5 @@
+import { media } from "./media";
+
 export interface Post {
   id: number;
   title: string;
@@ -12,7 +14,14 @@ export interface Post {
 }
 
 export interface Block {
-  text: string;
+  caption: string;
+  content: string;
+  id: number;
+  link: string | null;
+  media: media;
+  position: number;
+  title: string | null;
+  type: string;
 }
 
 export interface Category {

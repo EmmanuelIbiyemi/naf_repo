@@ -49,7 +49,7 @@ const handleChange = (
 const isFormValid = (formData: TestFormData) => {
   return (
     formData.totalQuestions > 0 &&
-    formData.passingPercentage > 0 &&
+    // formData.passingPercentage > 0 &&
     formData.scheduleDate !== "" &&
     formData.expirationDate !== "" &&
     formData.type !== ""
@@ -92,7 +92,7 @@ const Step2Content: React.FC<ModalProps> = ({
       time_allowed: 60,
       start_date: formData.scheduleDate,
       expiry_date: formData.expirationDate,
-      obtainable_score: formData.passingPercentage,
+      // obtainable_score: formData.passingPercentage,
       type: formData.type,
       show_result: checked,
       course_id: parseInt(courseId),
@@ -167,7 +167,7 @@ const Step2Content: React.FC<ModalProps> = ({
             htmlFor="passingPercentage"
             style={{
               color: "#1D2026",
-              display: "flex",
+              display: "none",
               justifyContent: "space-between",
             }}
           >
@@ -182,6 +182,7 @@ const Step2Content: React.FC<ModalProps> = ({
               onChange({ passingPercentage: value as number })
             }
             disabled={disabledInput}
+            sx={{ display: "none" }}
           />
 
           <label htmlFor="scheduleDate" style={{ color: "#1D2026" }}>

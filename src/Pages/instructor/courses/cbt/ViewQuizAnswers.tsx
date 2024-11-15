@@ -22,9 +22,6 @@ const ViewQuizAnswers = () => {
   const quizId = locationData[locationData.length - 4];
   const userId = locationData[locationData.length - 2];
   const studentId = locationData[locationData.length - 1];
-  console.log(quizId);
-  console.log(userId);
-  console.log(studentId);
 
   const { data: studentData, isLoading: isGettingStudent } = useGetStudentQuery(
     parseInt(studentId)
@@ -40,7 +37,6 @@ const ViewQuizAnswers = () => {
   const indexOfLastQuestion = currentPage * questionsPerPage;
   const indexOfFirstQuestion = indexOfLastQuestion - questionsPerPage;
 
-  console.log(resultData);
   const questions =
     resultData?.data?.quiz?.assessments?.flatMap((assessment) =>
       assessment.questions.map((question) => {
@@ -113,7 +109,9 @@ const ViewQuizAnswers = () => {
       >
         <Typography variant="h4" gutterBottom>
           Quiz Performance:{" "}
-          {`${studentData?.data.first_name} ${studentData?.data.last_name}`}
+          {studentData
+            ? `${studentData?.data.first_name} ${studentData?.data.last_name}`
+            : ""}
         </Typography>
         <Box
           sx={{
