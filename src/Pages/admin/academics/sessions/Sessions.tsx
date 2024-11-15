@@ -15,12 +15,14 @@ import SuccessModal from "../../../../components/SuccessModal";
 import { useAddSessionMutation } from "../../../../store/api/sessions.api";
 import { FormAction } from "../../../../types/forms";
 import { usePromoteAllMutation } from "../../../../store/api/students.api";
+import DeleteConfirmationModal from "../../../../components/DeleteConfirmationModal";
 
 const SessionsPage = () => {
   const [openModal, setOpenModal] = useState({
     add: false,
     success: false,
     successPromote: false,
+    warningPromote: false,
   });
   const [sessionName, setSessionName] = useState("");
   const [selectedSession, setSelectedSession] = useState<SessionType>();
@@ -105,12 +107,31 @@ const SessionsPage = () => {
         }}
         close={() => {
           handleCloseModal("successPromote");
-          setSelectedSession(undefined);
         }}
         infoText=""
         open={openModal.successPromote}
         subTitle={`You have successfully promoted all students.`}
         title="Updates Successful"
+      />
+
+      <DeleteConfirmationModal
+        actions={{
+          proceed: () => {
+            console.log("proceed");
+          },
+          undo: () => {
+            console.log("undo");
+          },
+        }}
+        close={() => {
+          handlePromoteAll();
+          handleCloseModal("warningPromote");
+        }}
+        infoText="You can't undo this action"
+        open={openModal.warningPromote}
+        subTitle={`Are you sure you want to promote all students ?`}
+        title="Promote all students"
+        buttonText="Proceed"
       />
 
       <PageHeader
@@ -119,7 +140,7 @@ const SessionsPage = () => {
           text: "Add Sessions",
         }}
         secondaryButton={{
-          action: handlePromoteAll,
+          action: () => handleOpenModal("warningPromote"),
           text: "Promote all Students",
         }}
       />

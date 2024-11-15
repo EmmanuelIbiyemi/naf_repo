@@ -15,6 +15,7 @@ type Props = {
     undo: () => void;
     proceed: () => void;
   };
+  buttonText?: string;
 };
 
 const DeleteConfirmationModal = ({
@@ -24,6 +25,7 @@ const DeleteConfirmationModal = ({
   open,
   subTitle,
   title,
+  buttonText,
 }: Props) => {
   return (
     <CustomModal close={close} open={open}>
@@ -66,7 +68,7 @@ const DeleteConfirmationModal = ({
           type="submit"
           variant="contained"
         >
-          Yes, delete it
+          {buttonText ? buttonText : "Yes, delete it"}
         </LoadingButton>
       </Box>
     </CustomModal>
