@@ -142,20 +142,20 @@ const DepartmentList = () => {
         title="Updates Successful"
       />
 
+      {isError ? (
+        <EmptyState
+          title="Could not fetch Departments"
+          subTitle="Check your internet connection"
+        />
+      ) : null}
+      {!departments?.length ? (
+        <EmptyState
+          title="No Departments found"
+          subTitle="Departments will appear here after you add them in your school."
+        />
+      ) : null}
       <Table sx={{ minWidth: 650 }}>
         <TableBody>
-          {isError ? (
-            <EmptyState
-              title="Could not fetch Departments"
-              subTitle="Check your internet connection"
-            />
-          ) : null}
-          {!departments?.length ? (
-            <EmptyState
-              title="No Departments found"
-              subTitle="Departments will appear here after you add them in your school."
-            />
-          ) : null}
           {departments?.map((department: Department) => (
             <TableRow
               key={department.id}

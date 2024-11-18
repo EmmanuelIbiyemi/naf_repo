@@ -137,20 +137,20 @@ const LevelList = () => {
         title="Updates Successful"
       />
 
+      {isError ? (
+        <EmptyState
+          title="Could not fetch Levels"
+          subTitle="Check your internet connection"
+        />
+      ) : null}
+      {!levels?.length ? (
+        <EmptyState
+          title="No Levels found"
+          subTitle="Levels will appear here after you add them in your school."
+        />
+      ) : null}
       <Table sx={{ minWidth: 650 }}>
         <TableBody>
-          {isError ? (
-            <EmptyState
-              title="Could not fetch Levels"
-              subTitle="Check your internet connection"
-            />
-          ) : null}
-          {!levels?.length ? (
-            <EmptyState
-              title="No Levels found"
-              subTitle="Levels will appear here after you add them in your school."
-            />
-          ) : null}
           {levels?.map((level: LevelType) => (
             <TableRow
               key={level.id}

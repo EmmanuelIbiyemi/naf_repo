@@ -100,7 +100,7 @@ const NotificationMenu = ({
           <Typography color="error">Error loading notifications</Typography>
         </MenuItem>
       ) : (
-        <>
+        <Box>
           {data.post.length === 0 ? (
             <MenuItem disabled>
               <Typography>No notifications</Typography>
@@ -171,7 +171,7 @@ const NotificationMenu = ({
               />
             </Box>
           )}
-        </>
+        </Box>
       )}
     </Menu>
   );

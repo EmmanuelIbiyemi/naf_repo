@@ -147,8 +147,8 @@ const EligiblesList: React.FC = () => {
                 </Typography>
               </TableCell>
               <TableCell align="center">{eligible.session}</TableCell>
-              <TableCell align="center">{eligible.program}</TableCell>
-              <TableCell align="center">{eligible.level}</TableCell>
+              <TableCell align="center">{eligible.program.name}</TableCell>
+              <TableCell align="center">{eligible.level.name}</TableCell>
               <TableCell align="center">
                 {dayjs(eligible.created_at).format("DD-MM-YYYY")}
               </TableCell>
