@@ -10,15 +10,15 @@ const semestersApi = appApi.injectEndpoints({
   endpoints: (builder) => ({
     getSemesters: builder.query<SemestersResponse, null>({
       query: () => "/semester",
-      providesTags: ["Semesters"],
+      providesTags: ["Semesters", "Sessions"],
     }),
     getSemester: builder.query<SemesterResponse, number>({
       query: (semester_id) => `/semester/${semester_id}`,
-      providesTags: ["Semesters"],
+      providesTags: ["Semesters", "Sessions"],
     }),
     getCurrentSemester: builder.query<SemesterResponse, null>({
       query: () => `/semester/current`,
-      providesTags: ["Semesters"],
+      providesTags: ["Semesters", "Sessions"],
     }),
     addSemester: builder.mutation<SemesterResponse, SemesterCreateType>({
       query: (semester) => ({
@@ -26,7 +26,7 @@ const semestersApi = appApi.injectEndpoints({
         method: "POST",
         body: semester,
       }),
-      invalidatesTags: ["Semesters"],
+      invalidatesTags: ["Semesters", "Sessions"],
     }),
     updateSemester: builder.mutation<SemesterResponse, SemesterType>({
       query: (semester) => ({
@@ -34,14 +34,14 @@ const semestersApi = appApi.injectEndpoints({
         method: "PUT",
         body: semester,
       }),
-      invalidatesTags: ["Semesters"],
+      invalidatesTags: ["Semesters", "Sessions"],
     }),
     deleteSemester: builder.mutation<SemesterResponse, number>({
       query: (semester_id) => ({
         url: `/semester/${semester_id}`,
         method: "DELETE",
       }),
-      invalidatesTags: ["Semesters"],
+      invalidatesTags: ["Semesters", "Sessions"],
     }),
   }),
   overrideExisting: false,

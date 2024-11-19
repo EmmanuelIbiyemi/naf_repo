@@ -147,18 +147,6 @@ const SessionList = () => {
       ) : null}
       <Table sx={{ minWidth: 650 }}>
         <TableBody>
-          {isError ? (
-            <EmptyState
-              title="Could not fetch Sessions"
-              subTitle="Check your internet connection"
-            />
-          ) : null}
-          {!sessions?.length ? (
-            <EmptyState
-              title="No Sessions found"
-              subTitle="Sessions will appear here after you add them in your school."
-            />
-          ) : null}
           {sessions?.map((session) => (
             <TableRow
               key={session.id}

@@ -13,7 +13,6 @@ import DeleteConfirmationModal from "../../../../components/DeleteConfirmationMo
 import { useEffect, useState } from "react";
 import {
   useDeleteSemesterMutation,
-  useGetSemestersQuery,
   useUpdateSemesterMutation,
 } from "../../../../store/api/semesters.api";
 import FormModal from "../../../../components/FormModal";
@@ -23,6 +22,8 @@ import { FormAction } from "../../../../types/forms";
 import { useAppDispatch, useAppSelector } from "../../../../store/hooks";
 import { selectKeyword, setPageLoading } from "../../../../store/app.slice";
 import EmptyState from "../../../../components/EmptyState";
+import { useGetSessionQuery } from "../../../../store/api/sessions.api";
+import { useParams } from "react-router-dom";
 
 const SemesterList = () => {
   const [openModal, setOpenModal] = useState({
@@ -30,10 +31,17 @@ const SemesterList = () => {
     success: false,
     delete: false,
   });
-  const { data: semesterss, isFetching, isError } = useGetSemestersQuery(null);
+  //
+  const { session_id } = useParams();
+  const {
+    data: session,
+    isFetching,
+    isError,
+  } = useGetSessionQuery(+(session_id || 1));
+  //
   const [selectedSemester, setSelectedSemester] = useState<SemesterType>();
   const [semesters, setSemesters] = useState<SemesterType[] | undefined>(
-    semesterss?.data
+    session?.data.semesters
   );
   const [deleteSemester] = useDeleteSemesterMutation();
   const [updateSemester] = useUpdateSemesterMutation();
@@ -41,20 +49,22 @@ const SemesterList = () => {
   const dispatch = useAppDispatch();
 
   useEffect(() => {
-    if (keyword && semesterss?.data)
+    console.log(session?.data.semesters);
+    console.log(session_id);
+    if (keyword && session?.data)
       setSemesters(
-        semesterss.data.filter((f) =>
+        session.data.semesters.filter((f) =>
           f.name.toLowerCase().includes(keyword.toLowerCase())
         )
       );
-    else setSemesters(semesterss?.data);
-  }, [keyword, semesterss]);
+    else setSemesters(session?.data.semesters);
+  }, [keyword, session]);
 
   useEffect(() => {
     if (isFetching) dispatch(setPageLoading(true));
     else if (isError) dispatch(setPageLoading(false));
     else dispatch(setPageLoading(false));
-  }, [isFetching, isError, semesterss]);
+  }, [isFetching, isError, session]);
 
   const handleOpenModal = (semester: SemesterType, type: string) => {
     setSelectedSemester(semester);
@@ -149,18 +159,6 @@ const SemesterList = () => {
       ) : null}
       <Table sx={{ minWidth: 650 }}>
         <TableBody>
-          {isError ? (
-            <EmptyState
-              title="Could not fetch Semesters"
-              subTitle="Check your internet connection"
-            />
-          ) : null}
-          {!semesters?.length ? (
-            <EmptyState
-              title="No Semesters found"
-              subTitle="Semesters will appear here after you add them in your school."
-            />
-          ) : null}
           {semesters?.map((semester) => (
             <TableRow
               key={semester.id}
