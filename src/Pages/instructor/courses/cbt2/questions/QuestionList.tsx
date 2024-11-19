@@ -15,14 +15,14 @@ import { Delete } from "@mui/icons-material";
 import { useParams } from "react-router-dom";
 import {
   useDeleteQuestionMutation,
-  useGetSingleQuizQuery,
+  useGetSingleAssessmentQuery,
 } from "../../../../../store/api/quizzes.api";
-import { Questions } from "../../../../../types/questions";
 import { useAppDispatch, useAppSelector } from "../../../../../store/hooks";
 import { selectKeyword, setPageLoading } from "../../../../../store/app.slice";
 import DeleteConfirmationModal from "../../../../../components/DeleteConfirmationModal";
 import SuccessModal from "../../../../../components/SuccessModal";
 import EmptyState from "../../../../../components/EmptyState";
+import { Question, Questions } from "../../../../../types/questions";
 
 const QuestionList = () => {
   const [openModal, setOpenModal] = useState({
@@ -30,102 +30,100 @@ const QuestionList = () => {
     delete: false,
     success: false,
   });
-  const { quiz_id } = useParams();
+  const { assessment_id } = useParams();
   const {
     data: quiz,
     isFetching,
     isError,
-  } = useGetSingleQuizQuery(+(quiz_id || 0));
-  const [questions, setQuestions] = useState(
-    quiz?.data.assessments?.[0]?.questions
+  } = useGetSingleAssessmentQuery(+(assessment_id || 0));
+  const [questions, setQuestions] = useState<Questions>([]);
+  const [selectedQuestion, setSelectedQuestion] = useState<Question | null>(
+    null
   );
-  const [selectedQuestion, setSelectedQuestion] = useState<Questions[0]>();
   const [deleteQuestion, deleteState] = useDeleteQuestionMutation();
   const keyword = useAppSelector(selectKeyword);
   const dispatch = useAppDispatch();
 
+  // Handle keyword search and initialize questions
   useEffect(() => {
-    if (keyword && quiz?.data)
-      setQuestions(
-        quiz?.data.assessments?.[0]?.questions.filter((f) =>
-          f.body.toLowerCase().includes(keyword.toLowerCase())
-        )
-      );
-    else setQuestions(quiz?.data.assessments?.[0]?.questions);
+    if (quiz?.data?.questions?.length) {
+      const filteredQuestions = keyword
+        ? quiz.data.questions.filter((q) =>
+            q.body.toLowerCase().includes(keyword.toLowerCase())
+          )
+        : quiz.data.questions;
+      setQuestions(filteredQuestions);
+    } else {
+      setQuestions([]);
+    }
   }, [keyword, quiz]);
 
+  // Handle loading state
   useEffect(() => {
-    if (isFetching || deleteState.isLoading) dispatch(setPageLoading(true));
-    else if (isError) dispatch(setPageLoading(false));
-    else dispatch(setPageLoading(false));
-  }, [isFetching, isError, quiz, deleteState]);
+    const isLoading = isFetching || deleteState.isLoading;
+    dispatch(setPageLoading(isLoading));
+  }, [isFetching, deleteState.isLoading, dispatch]);
 
-  const handleOpenModal = (question: Questions[0], type: string) => {
+  const handleOpenModal = (question: Question, type: string) => {
     setSelectedQuestion(question);
     setOpenModal((prev) => ({ ...prev, [type]: true }));
   };
 
   const handleCloseModal = (type: string) => {
     setOpenModal((prev) => ({ ...prev, [type]: false }));
-    if (type == "success") setSelectedQuestion(undefined);
+    if (type === "success") setSelectedQuestion(null);
   };
 
   const handleDeleteQuiz = async (id: number) => {
     try {
       await deleteQuestion(id).unwrap();
+      setQuestions((prev) => prev.filter((q) => q.id !== id));
     } catch (error) {
-      console.log(error);
+      console.error(error);
+    } finally {
+      handleCloseModal("delete");
     }
-    handleCloseModal("delete");
   };
 
   return (
     <TableContainer>
+      {/* Delete Confirmation Modal */}
       <DeleteConfirmationModal
         actions={{
           proceed: () => {
-            if (selectedQuestion)
-              handleDeleteQuiz(selectedQuestion.id as number);
-            console.log("proceed");
+            if (selectedQuestion) handleDeleteQuiz(selectedQuestion.id);
           },
-          undo: () => {
-            console.log("cancel");
-          },
+          undo: () => console.log("cancel"),
         }}
         close={() => handleCloseModal("delete")}
         infoText="You can’t undo this action."
         open={openModal.delete}
-        subTitle={`Are you sure you want to delete “${selectedQuestion?.body}” ?`}
+        subTitle={`Are you sure you want to delete “${selectedQuestion?.body}”?`}
         title="Delete Quiz?"
       />
 
+      {/* Success Modal */}
       <SuccessModal
         actions={{
-          proceed: () => {
-            console.log("proceed");
-          },
-          undo: () => {
-            console.log("undo");
-          },
+          proceed: () => console.log("proceed"),
+          undo: () => console.log("undo"),
         }}
         close={() => handleCloseModal("success")}
         infoText=""
         open={openModal.success}
-        subTitle={``}
+        subTitle=""
         title="Updates Successful"
       />
 
+      {/* Display Empty State or Table */}
       {isError ? (
         <EmptyState
           title="Could not fetch Questions"
           subTitle="Check your internet connection"
         />
-      ) : null}
-      {!questions?.length ? (
+      ) : !questions.length ? (
         <EmptyState title="No Questions found" subTitle="" />
-      ) : null}
-
-      {questions?.length ? (
+      ) : (
         <Table
           sx={{
             minWidth: 650,
@@ -146,8 +144,10 @@ const QuestionList = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {questions?.map((question) => {
-              let answer = "";
+            {questions.map((question) => {
+              const answer = question.options.find(
+                (opt) => opt.is_answer
+              )?.body;
               return (
                 <TableRow
                   key={question.id}
@@ -162,12 +162,7 @@ const QuestionList = () => {
                     </Box>
                     <Box sx={{ paddingLeft: "2.7rem" }}>
                       Options:{" "}
-                      {question.options
-                        .map((opt) => {
-                          if (opt.is_answer) answer = opt.body;
-                          return opt.body;
-                        })
-                        .join(" * ")}
+                      {question.options.map((opt) => opt.body).join(" * ")}
                     </Box>
                     <Box sx={{ paddingLeft: "2.7rem" }}>Answer: {answer}</Box>
                   </TableCell>
@@ -183,7 +178,7 @@ const QuestionList = () => {
             })}
           </TableBody>
         </Table>
-      ) : null}
+      )}
     </TableContainer>
   );
 };
