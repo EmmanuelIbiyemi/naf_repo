@@ -1,0 +1,191 @@
+import Table from "@mui/material/Table";
+import TableBody from "@mui/material/TableBody";
+import TableCell from "@mui/material/TableCell";
+import TableContainer from "@mui/material/TableContainer";
+import TableRow from "@mui/material/TableRow";
+import {
+  Box,
+  Checkbox,
+  IconButton,
+  TableHead,
+  Typography,
+} from "@mui/material";
+import { useEffect, useState } from "react";
+import { Delete } from "@mui/icons-material";
+import { useParams } from "react-router-dom";
+import {
+  useDeleteQuestionMutation,
+  useGetSingleQuizQuery,
+} from "../../../../../store/api/quizzes.api";
+import { Questions } from "../../../../../types/questions";
+import { useAppDispatch, useAppSelector } from "../../../../../store/hooks";
+import { selectKeyword, setPageLoading } from "../../../../../store/app.slice";
+import DeleteConfirmationModal from "../../../../../components/DeleteConfirmationModal";
+import SuccessModal from "../../../../../components/SuccessModal";
+import EmptyState from "../../../../../components/EmptyState";
+
+const QuestionList = () => {
+  const [openModal, setOpenModal] = useState({
+    edit: false,
+    delete: false,
+    success: false,
+  });
+  const { quiz_id } = useParams();
+  const {
+    data: quiz,
+    isFetching,
+    isError,
+  } = useGetSingleQuizQuery(+(quiz_id || 0));
+  const [questions, setQuestions] = useState(
+    quiz?.data.assessments?.[0]?.questions
+  );
+  const [selectedQuestion, setSelectedQuestion] = useState<Questions[0]>();
+  const [deleteQuestion, deleteState] = useDeleteQuestionMutation();
+  const keyword = useAppSelector(selectKeyword);
+  const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    if (keyword && quiz?.data)
+      setQuestions(
+        quiz?.data.assessments?.[0]?.questions.filter((f) =>
+          f.body.toLowerCase().includes(keyword.toLowerCase())
+        )
+      );
+    else setQuestions(quiz?.data.assessments?.[0]?.questions);
+  }, [keyword, quiz]);
+
+  useEffect(() => {
+    if (isFetching || deleteState.isLoading) dispatch(setPageLoading(true));
+    else if (isError) dispatch(setPageLoading(false));
+    else dispatch(setPageLoading(false));
+  }, [isFetching, isError, quiz, deleteState]);
+
+  const handleOpenModal = (question: Questions[0], type: string) => {
+    setSelectedQuestion(question);
+    setOpenModal((prev) => ({ ...prev, [type]: true }));
+  };
+
+  const handleCloseModal = (type: string) => {
+    setOpenModal((prev) => ({ ...prev, [type]: false }));
+    if (type == "success") setSelectedQuestion(undefined);
+  };
+
+  const handleDeleteQuiz = async (id: number) => {
+    try {
+      await deleteQuestion(id).unwrap();
+    } catch (error) {
+      console.log(error);
+    }
+    handleCloseModal("delete");
+  };
+
+  return (
+    <TableContainer>
+      <DeleteConfirmationModal
+        actions={{
+          proceed: () => {
+            if (selectedQuestion)
+              handleDeleteQuiz(selectedQuestion.id as number);
+            console.log("proceed");
+          },
+          undo: () => {
+            console.log("cancel");
+          },
+        }}
+        close={() => handleCloseModal("delete")}
+        infoText="You can’t undo this action."
+        open={openModal.delete}
+        subTitle={`Are you sure you want to delete “${selectedQuestion?.body}” ?`}
+        title="Delete Quiz?"
+      />
+
+      <SuccessModal
+        actions={{
+          proceed: () => {
+            console.log("proceed");
+          },
+          undo: () => {
+            console.log("undo");
+          },
+        }}
+        close={() => handleCloseModal("success")}
+        infoText=""
+        open={openModal.success}
+        subTitle={``}
+        title="Updates Successful"
+      />
+
+      {isError ? (
+        <EmptyState
+          title="Could not fetch Questions"
+          subTitle="Check your internet connection"
+        />
+      ) : null}
+      {!questions?.length ? (
+        <EmptyState title="No Questions found" subTitle="" />
+      ) : null}
+
+      {questions?.length ? (
+        <Table
+          sx={{
+            minWidth: 650,
+            ".MuiTableCell-root": {
+              maxWidth: 200,
+              a: {
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
+              },
+            },
+          }}
+        >
+          <TableHead>
+            <TableRow>
+              <TableCell>Questions</TableCell>
+              <TableCell align="right">Actions</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {questions?.map((question) => {
+              let answer = "";
+              return (
+                <TableRow
+                  key={question.id}
+                  sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+                >
+                  <TableCell component="th" scope="row">
+                    <Box sx={{ alignItems: "center", display: "flex" }}>
+                      <Checkbox />
+                      <Typography style={{ textTransform: "capitalize" }}>
+                        {question.body}
+                      </Typography>
+                    </Box>
+                    <Box sx={{ paddingLeft: "2.7rem" }}>
+                      Options:{" "}
+                      {question.options
+                        .map((opt) => {
+                          if (opt.is_answer) answer = opt.body;
+                          return opt.body;
+                        })
+                        .join(" * ")}
+                    </Box>
+                    <Box sx={{ paddingLeft: "2.7rem" }}>Answer: {answer}</Box>
+                  </TableCell>
+                  <TableCell align="right">
+                    <IconButton
+                      onClick={() => handleOpenModal(question, "delete")}
+                    >
+                      <Delete />
+                    </IconButton>
+                  </TableCell>
+                </TableRow>
+              );
+            })}
+          </TableBody>
+        </Table>
+      ) : null}
+    </TableContainer>
+  );
+};
+
+export default QuestionList;

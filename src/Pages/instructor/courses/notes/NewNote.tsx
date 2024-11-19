@@ -112,12 +112,12 @@ const NewNote = () => {
             <Button
               variant="contained"
               sx={{
-                backgroundColor: "#CCCCCC",
+                // backgroundColor: "#CCCCCC",
                 borderRadius: "6px",
                 width: "11em",
                 alignSelf: "end",
               }}
-              onClick={() => navigate(-1)}
+              onClick={() => navigate(-2)}
             >
               Back
             </Button>

@@ -46,7 +46,7 @@ const QuizList = () => {
     if (isFetching || deleteState.isLoading) dispatch(setPageLoading(true));
     else if (isError) dispatch(setPageLoading(false));
     else dispatch(setPageLoading(false));
-  }, [isFetching, isError, qzs, deleteState]);
+  }, [isFetching, isError, qzs, deleteState, dispatch]);
 
   const handleOpenModal = (quiz: InstructorQuizzesResponse, type: string) => {
     setSelectedQuiz(quiz);

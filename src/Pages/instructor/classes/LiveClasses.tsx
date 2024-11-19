@@ -26,10 +26,10 @@ const LiveClasses = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [openModal, setOpenModal] = useState(false);
   const [selectedCourseId, setSelectedCourseId] = useState("");
-  const [currentPage, setCurrentPage] = useState(1); //
+  const [currentPage, setCurrentPage] = useState(1);
 
   const { data: instructorCourses, isLoading: isLoadingCourses } =
-    useGetInstructorCoursesQuery(null);
+    useGetInstructorCoursesQuery({ page: 1, per_page: 1000 });
   const handleOpenCreateModal = () => setOpenModal(true);
   const handleCloseCreateModal = () => setOpenModal(false);
 
@@ -50,7 +50,7 @@ const LiveClasses = () => {
       courseId: parseInt(selectedCourseId),
       semester: currentSemesterString,
       session: currentSessionString,
-      page: currentPage, //
+      page: currentPage,
     },
     { skip: !selectedCourseId }
   );

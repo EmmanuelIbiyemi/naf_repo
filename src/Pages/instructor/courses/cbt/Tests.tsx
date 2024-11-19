@@ -46,7 +46,7 @@ const Tests = () => {
     useGetCourseParticipantsQuery({ course_id: parseInt(courseId) });
 
   const { data: quizzes, isLoading } = useGetInstructorCourseQuizzesQuery(
-    { course_id: parseInt(courseId) },
+    { course_id: parseInt(courseId), page: 1 },
     { skip: !courseId }
   );
   // const { data: courses, isLoading: isGettingCourses } =
@@ -157,7 +157,9 @@ const Tests = () => {
       >
         <InstructorPageHeader
           heading="CBT"
-          subHeading={`List of tests that have been created in the course "${course?.data.name}"`}
+          subHeading={`List of tests that have been created in the course "${
+            course?.data ? course?.data.name : ""
+          }"`}
           // button={{
           //   action: handleOpenGenerateReportModal,
           //   text: "Generate Report",

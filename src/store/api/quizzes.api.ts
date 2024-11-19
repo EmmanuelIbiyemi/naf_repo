@@ -78,10 +78,25 @@ interface QuizSubmissionRequest {
   time_left: number; // float value for remaining time
 }
 
+type PaginationType = {
+  page: number;
+  pages: number;
+  per_page: number;
+  total: number;
+};
+
 const quizzesApi = appApi.injectEndpoints({
   endpoints: (builder) => ({
     getQuizzes: builder.query<{ data: InstructorQuizzesResponse[] }, null>({
       query: () => `/quiz`,
+      providesTags: ["Quiz"],
+    }),
+
+    getSingleInstructorQuiz: builder.query<
+      { data: InstructorQuizzesResponse },
+      { quiz_id: number }
+    >({
+      query: ({ quiz_id }) => `/quiz/${quiz_id}`,
       providesTags: ["Quiz"],
     }),
 
@@ -93,11 +108,14 @@ const quizzesApi = appApi.injectEndpoints({
     }),
 
     getInstructorCourseQuizzes: builder.query<
-      { data: InstructorQuizzesResponse[] },
-      { course_id: number }
+      { data: InstructorQuizzesResponse[]; pagination: PaginationType },
+      {
+        course_id: number | null;
+        page: number;
+      }
     >({
-      query: ({ course_id }) => ({
-        url: `/quiz?course_id=${course_id}`,
+      query: ({ course_id, page }) => ({
+        url: `/quiz?course_id=${course_id}&page=${page}`,
       }),
       providesTags: ["Quiz"],
     }),
@@ -243,6 +261,7 @@ export const {
   useGetQuizzesQuery,
   useGetCourseQuizzesQuery,
   useGetInstructorCourseQuizzesQuery,
+  useGetSingleInstructorQuizQuery,
   useGetSingleQuizQuery,
   useGetQuizResultQuery,
   useGetUserQuizResultQuery,

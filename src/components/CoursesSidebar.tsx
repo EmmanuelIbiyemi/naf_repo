@@ -16,7 +16,7 @@ const navLinks: NavLink[] = [
   // { content: "Course Details", link: "details" },
   { content: "Students", link: "students" },
   { content: "Notes", link: "notes" },
-  { content: "CBT ", link: "tests" },
+  { content: "CBT ", link: "cbt" },
 ];
 
 const CoursesSidebar = ({ course }: courseProps) => {

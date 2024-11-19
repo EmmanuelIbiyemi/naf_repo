@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import {
   Box,
   Button,
@@ -12,55 +12,30 @@ import {
   CheckCircle,
   ContentCopy,
 } from "@mui/icons-material";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
-import { InstructorQuizzesResponse } from "../../../../types/quizzes";
+import { useNavigate, useParams } from "react-router-dom";
 import TestParticipantsList from "./TestParticipantsList";
+import { useGetSingleInstructorQuizQuery } from "../../../../../store/api/quizzes.api";
+import EmptyState from "../../../../../components/EmptyState";
 
 const Students = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
-  const location = useLocation();
-  const { id } = useParams();
+  const { quiz_id } = useParams();
   const [copiedCode, setCopiedCode] = useState(false);
-  const [quizData, setQuizData] = useState<InstructorQuizzesResponse | null>(
-    null
-  );
 
-  useEffect(() => {
-    const stateData = location.state?.selectedTest as InstructorQuizzesResponse;
+  const { data: quizData, isLoading } = useGetSingleInstructorQuizQuery({
+    quiz_id: +(quiz_id || 0),
+  });
 
-    if (stateData) {
-      setQuizData(stateData);
-      sessionStorage.setItem(`quiz-${stateData.id}`, JSON.stringify(stateData));
-    } else {
-      const storedData = sessionStorage.getItem(`quiz-${id}`);
-      if (storedData) {
-        setQuizData(JSON.parse(storedData));
-      }
-      // else {
-      //   console.log("No quiz data available");
-      // }
-    }
-  }, [location.state, id]);
-
-  useEffect(() => {
-    return () => {
-      if (quizData) {
-        sessionStorage.removeItem(`quiz-${quizData.id}`);
-      }
-    };
-  }, [quizData]);
-
-  if (!quizData) {
-    return (
-      <Box sx={{ p: 3 }}>
-        <LinearProgress />
-      </Box>
-    );
+  if (isLoading) {
+    return <LinearProgress />;
   }
 
-  const handleCodeCopy = () => {
-    navigator.clipboard.writeText(quizData.code);
+  if (!quizData) {
+    return <EmptyState title={"Quiz data does not exist"} subTitle={""} />;
+  }
+  const handleCodeCopy = (code: string) => {
+    navigator.clipboard.writeText(code);
     setCopiedCode(true);
     setTimeout(() => setCopiedCode(false), 2000);
   };
@@ -105,7 +80,7 @@ const Students = () => {
               }}
             >
               List of students that are participating in the test "
-              {quizData.name} ({quizData.code})"
+              {quizData?.data.name}"
             </Typography>
             <Box
               sx={{
@@ -118,10 +93,10 @@ const Students = () => {
                   color: "#7c7c7c",
                 },
               }}
-              onClick={handleCodeCopy}
+              onClick={() => handleCodeCopy(quizData.data.code)}
             >
               <Typography variant="body2" sx={{ color: "#9A9A9A" }}>
-                Code to access CBT: "{quizData.code}"
+                Code to access CBT: "{quizData?.data.code}"
               </Typography>
               <Tooltip
                 title={copiedCode ? "Copied!" : "Click to copy"}
@@ -159,7 +134,7 @@ const Students = () => {
                   variant="body2"
                   sx={{ color: "#989898", fontSize: ".9rem" }}
                 >
-                  {quizData.start_date.split("T")[0]}
+                  {quizData?.data.start_date.split("T")[0]}
                 </Typography>
               </Box>
               <Box
@@ -176,7 +151,7 @@ const Students = () => {
                   variant="body2"
                   sx={{ color: "#989898", fontSize: ".9rem" }}
                 >
-                  {quizData.expiry_date.split("T")[0]}
+                  {quizData?.data.expiry_date.split("T")[0]}
                 </Typography>
               </Box>
             </Box>
@@ -191,7 +166,9 @@ const Students = () => {
           </Box>
         </Box>
         <Box sx={{ margin: "2em 0" }}>
-          <TestParticipantsList participants={quizData.participants || []} />
+          <TestParticipantsList
+            participants={quizData.data.participants || []}
+          />
         </Box>
       </Box>
     </Box>

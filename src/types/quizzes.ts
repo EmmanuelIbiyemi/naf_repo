@@ -137,6 +137,7 @@ export interface CreateQuiz {
   obtainable_score?: number;
   type: string;
   show_result: boolean;
+  course_id?: number;
 }
 
 export interface CreateQuiz2 {
