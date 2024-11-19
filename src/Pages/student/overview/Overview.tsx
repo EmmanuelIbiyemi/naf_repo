@@ -27,7 +27,7 @@ import { useAppSelector } from "../../../store/hooks";
 import { selectCurrentUser } from "../../../store/auth.slice";
 import { CourseBaseType } from "../../../types/courses";
 import { useGetCurrentSemesterQuery } from "../../../store/api/semesters.api";
-import { useGetTranscriptQuery } from "../../../store/api/result.api";
+import { useGetStudentTranscriptQuery } from "../../../store/api/result.api";
 
 interface OverviewCardProps {
   icon: React.ReactNode;
@@ -128,11 +128,9 @@ const Overview = () => {
     error,
   } = useGetParticipantQuery(participantId);
 
-    const {
-      data: currentSemester,
-    } = useGetCurrentSemesterQuery(null);
+  const { data: currentSemester } = useGetCurrentSemesterQuery(null);
 
-        const { data: transcript } = useGetTranscriptQuery(participantId);
+  const { data: transcript } = useGetStudentTranscriptQuery(participantId);
 
   if (isLoading) {
     return (
@@ -181,7 +179,11 @@ const Overview = () => {
         <OverviewCard
           icon={<Grade />}
           label="CGPA"
-          value={transcript?.data.cumulative_grade_point_average || "N/A"}
+          value={
+            transcript?.data?.[0]?.summary?.cumulative_grade_point_average?.toFixed(
+              2
+            ) ?? "N/A"
+          }
         />
       </Box>
 
