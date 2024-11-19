@@ -1,52 +1,39 @@
 import {
-  FormatAlignCenter,
-  FormatAlignLeft,
-  FormatAlignRight,
-  FormatBold,
-  FormatColorFill,
-  FormatItalic,
-  FormatUnderlined,
-} from "@mui/icons-material";
-import {
   Box,
   Button,
-  ButtonProps,
   FormControl,
-  MenuItem,
-  Select,
-  SelectChangeEvent,
   SxProps,
+  TextField,
   Typography,
 } from "@mui/material";
-import { PropsWithChildren, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import {
+  useGetFormQuery,
+  useUpdateFormMutation,
+} from "../../../../store/api/form.api";
+import { useAppDispatch } from "../../../../store/hooks";
+import { setPageLoading } from "../../../../store/app.slice";
 
-type Properties = {
-  fontFamily: number;
-  fontSize: number;
-  bold: boolean;
-  italic: boolean;
-  underline: boolean;
-  alignLeft: boolean;
-  alignRight: boolean;
-  alignCenter: boolean;
+type FormProps = {
+  name: string;
+  button: string;
+  fee: number;
 };
 
 const PropertiesSideBar = () => {
   const navigate = useNavigate();
   const { form_id } = useParams();
-  const [props, setProps] = useState<Properties>({
-    fontFamily: 1,
-    fontSize: 11,
-    bold: false,
-    italic: false,
-    underline: false,
-    alignCenter: false,
-    alignLeft: false,
-    alignRight: false,
+  const { data: frm } = useGetFormQuery(+(form_id || 0));
+  const [props, setProps] = useState<FormProps>({
+    name: frm?.data.name.split("::")[0] || "",
+    button: frm?.data.name.split("::")[0] || "",
+    fee: frm?.data.fee || 0,
   });
+  const [updateForm] = useUpdateFormMutation();
+  const dispatch = useAppDispatch();
 
-  const handleChange = (event: SelectChangeEvent<number>) => {
+  const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
     const {
       target: { name, value },
     } = event;
@@ -59,122 +46,90 @@ const PropertiesSideBar = () => {
     });
   };
 
-  const handleBtnClick = (action: string) => {
-    setProps((prev) => {
-      return {
-        ...prev,
-        [action]: !prev[action as keyof Properties],
-      };
-    });
-  };
-
   const handlePreviewForm = () => {
     navigate(`/form/${form_id}/preview`);
   };
 
+  const handleSaveForm = async () => {
+    dispatch(setPageLoading(true));
+    try {
+      if (frm?.data)
+        await updateForm({
+          ...frm?.data,
+          name: `${props.name}::${props.button}`,
+          fee: props.fee,
+        }).unwrap();
+    } catch (error) {
+      console.log(error);
+    }
+    dispatch(setPageLoading(false));
+  };
+
+  useEffect(() => {
+    setProps({
+      name: frm?.data.name.split("::")[0] || "",
+      button: frm?.data.name.split("::")[0] || "",
+      fee: frm?.data.fee || 0,
+    });
+  }, [frm]);
+
   return (
     <Box sx={propertiesSidebarStyles}>
       <Box>
-        <Typography variant="h5">Design</Typography>
+        <Typography variant="h5">Properties</Typography>
         <Box>
-          <Typography sx={{ marginBlock: "1rem" }}>Text</Typography>
+          <Typography sx={{ marginBlock: "1.5rem .5rem" }}>
+            Form Name
+          </Typography>
           <Box sx={{ ...groupStyles, gap: "1rem" }}>
-            <FormControl fullWidth sx={{ width: "70%" }}>
-              <Select
-                value={props.fontFamily}
-                name="fontFamily"
+            <FormControl fullWidth>
+              <TextField
+                placeholder={"enter name..."}
+                value={props?.name.split("::")[0] || ""}
+                name="name"
                 onChange={handleChange}
-              >
-                <MenuItem value={1}>Inter</MenuItem>
-                <MenuItem value={2}>Roboto</MenuItem>
-                <MenuItem value={3}>Helvatica</MenuItem>
-              </Select>
-            </FormControl>
-            <FormControl fullWidth sx={{ width: "30%" }}>
-              <Select
-                value={props.fontSize}
-                name="fontSize"
-                onChange={handleChange}
-              >
-                <MenuItem value={11}>11</MenuItem>
-                <MenuItem value={12}>12</MenuItem>
-                <MenuItem value={13}>13</MenuItem>
-              </Select>
-            </FormControl>
-          </Box>
-          <Box sx={{ ...groupStyles, gap: "1rem", marginTop: "1rem" }}>
-            <Box sx={groupStyles}>
-              <CustomButton toggle={() => handleBtnClick("bold")}>
-                <FormatBold />
-              </CustomButton>
-              <CustomButton toggle={() => handleBtnClick("italic")}>
-                <FormatItalic />
-              </CustomButton>
-              <CustomButton toggle={() => handleBtnClick("underline")}>
-                <FormatUnderlined />
-              </CustomButton>
-            </Box>
-
-            <Button
-              sx={{
-                display: "flex",
-                gap: ".5rem",
-                justifyContent: "center",
-                width: "80px !important",
-              }}
-            >
-              <FormatColorFill />
-              <span
-                style={{
-                  backgroundColor: "rgba(72, 156, 33, 1)",
-                  borderRadius: "5px",
-                  display: "inline-block",
-                  height: "25px",
-                  width: "25px",
-                }}
               />
-            </Button>
+            </FormControl>
           </Box>
-          <Box sx={{ ...groupStyles, marginTop: "1rem" }}>
-            <CustomButton toggle={() => handleBtnClick("alignLeft")}>
-              <FormatAlignLeft />
-            </CustomButton>
-            <CustomButton toggle={() => handleBtnClick("alignCenter")}>
-              <FormatAlignCenter />
-            </CustomButton>
-            <CustomButton toggle={() => handleBtnClick("alignRight")}>
-              <FormatAlignRight />
-            </CustomButton>
+        </Box>
+        <Box>
+          <Typography sx={{ marginBlock: "1.5rem .5rem" }}>
+            Submit button
+          </Typography>
+          <Box sx={{ ...groupStyles, gap: "1rem" }}>
+            <FormControl fullWidth>
+              <TextField
+                placeholder={"enter button text..."}
+                value={props?.button.split("::")[1] || ""}
+                name="button"
+                onChange={handleChange}
+              />
+            </FormControl>
+          </Box>
+        </Box>
+        <Box>
+          <Typography sx={{ marginBlock: "1.5rem .5rem" }}>Fee</Typography>
+          <Box sx={{ ...groupStyles, gap: "1rem" }}>
+            <FormControl fullWidth>
+              <TextField
+                type="number"
+                value={props?.fee?.toLocaleString() || 0}
+                name="fee"
+                onChange={handleChange}
+              />
+            </FormControl>
           </Box>
         </Box>
       </Box>
-      <Button variant="contained" onClick={() => handlePreviewForm()}>
-        Preview & Share
-      </Button>
+      <Box sx={{ display: "grid", gap: "1rem" }}>
+        <Button variant="contained" onClick={() => handlePreviewForm()}>
+          Preview
+        </Button>
+        <Button variant="contained" onClick={() => handleSaveForm()}>
+          Save
+        </Button>
+      </Box>
     </Box>
-  );
-};
-
-type BtnProps = {
-  toggle: () => void;
-} & PropsWithChildren &
-  ButtonProps;
-
-const CustomButton = ({ children, toggle, ...rest }: BtnProps) => {
-  const [isActive, setIsActive] = useState(false);
-  const handleChange = () => {
-    setIsActive((prev) => !prev);
-    toggle();
-  };
-
-  return (
-    <Button
-      {...rest}
-      onClick={handleChange}
-      sx={{ bgcolor: (isActive ? "#ddd" : "#fff") + "!important" }}
-    >
-      {children}
-    </Button>
   );
 };
 
@@ -197,8 +152,6 @@ const propertiesSidebarStyles: SxProps = {
 };
 
 const groupStyles: SxProps = {
-  display: "flex",
-
   button: {
     bgcolor: "#fff",
     color: "inherit",
@@ -207,7 +160,7 @@ const groupStyles: SxProps = {
     padding: 0,
     width: "45px",
   },
-  ".MuiSelect-select": {
+  ".MuiOutlinedInput-root input": {
     bgcolor: "#fff",
     paddingBlock: "8px",
   },

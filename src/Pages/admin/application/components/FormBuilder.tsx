@@ -178,14 +178,17 @@ const FormBuilder = ({
     switch (element.type) {
       case "heading":
         el = isPreview ? (
-          <Typography
-            variant="h5">{element.placeholder}</Typography>
+          <Typography variant="h5">{element.placeholder}</Typography>
         ) : (
           <Typography
             variant="h5"
             id={elId}
             contentEditable={allowEdit}
-            onBlur={handleInput}>{element.placeholder}</Typography>
+            suppressContentEditableWarning
+            onBlur={handleInput}
+          >
+            {element.placeholder}
+          </Typography>
         );
         break;
       case "paragraph":
@@ -195,7 +198,11 @@ const FormBuilder = ({
           <Typography
             id={elId}
             contentEditable={allowEdit}
-            onBlur={handleInput}>{element.placeholder}</Typography>
+            suppressContentEditableWarning
+            onBlur={handleInput}
+          >
+            {element.placeholder}
+          </Typography>
         );
         break;
       case "images":
@@ -207,7 +214,11 @@ const FormBuilder = ({
               <label
                 id={elId}
                 contentEditable={allowEdit}
-                onBlur={handleLabelInput}>{element.name}</label>
+                suppressContentEditableWarning
+                onBlur={handleLabelInput}
+              >
+                {element.name}
+              </label>
             )}
             <Box id={elId} className="image_el dashed_border">
               <CloudUploadOutlined /> Drag and drop your images here or browse
@@ -224,7 +235,11 @@ const FormBuilder = ({
               <label
                 id={elId}
                 contentEditable={allowEdit}
-                onBlur={handleLabelInput}>{element.name}</label>
+                suppressContentEditableWarning
+                onBlur={handleLabelInput}
+              >
+                {element.name}
+              </label>
             )}
             <Box id={elId} className="image_el dashed_border">
               <CloudUploadOutlined /> Drag and drop your files here or browse
@@ -241,7 +256,11 @@ const FormBuilder = ({
               <label
                 id={elId}
                 contentEditable={allowEdit}
-                onBlur={handleLabelInput}>{element.name}</label>
+                suppressContentEditableWarning
+                onBlur={handleLabelInput}
+              >
+                {element.name}
+              </label>
             )}
             <input />
           </Box>
@@ -256,7 +275,11 @@ const FormBuilder = ({
               <label
                 id={elId}
                 contentEditable={allowEdit}
-                onBlur={handleLabelInput}>{element.name}</label>
+                suppressContentEditableWarning
+                onBlur={handleLabelInput}
+              >
+                {element.name}
+              </label>
             )}
             <textarea />
           </Box>
@@ -292,7 +315,11 @@ const FormBuilder = ({
                 <label
                   id={elId}
                   contentEditable={allowEdit}
-                  onBlur={handleLabelInput}>{element.name}</label>
+                  suppressContentEditableWarning
+                  onBlur={handleLabelInput}
+                >
+                  {element.name}
+                </label>
               )}
               <DatePicker />
             </LocalizationProvider>
@@ -315,8 +342,11 @@ const FormBuilder = ({
                 <label
                   id={elId}
                   contentEditable={allowEdit}
+                  suppressContentEditableWarning
                   onBlur={handleLabelInput}
-                >{name}</label>
+                >
+                  {name}
+                </label>
                 <IconButton
                   sx={{ padding: "5px" }}
                   onClick={() => handleAddRemoveChange(elId, "add")}
@@ -334,9 +364,12 @@ const FormBuilder = ({
                   >
                     <span
                       contentEditable={allowEdit}
+                      suppressContentEditableWarning
                       onBlur={(e) => handleOptionChange(e, elId, i + 1)}
                       onClick={(e) => e.stopPropagation()}
-                    >{opt.toLowerCase()}</span>
+                    >
+                      {opt.toLowerCase()}
+                    </span>
                     <IconButton
                       onClick={(e) => {
                         e.stopPropagation();
@@ -406,7 +439,11 @@ const FormBuilder = ({
                   <label
                     id={elId}
                     contentEditable={allowEdit}
-                    onBlur={handleLabelInput}>{name}</label>
+                    suppressContentEditableWarning
+                    onBlur={handleLabelInput}
+                  >
+                    {name}
+                  </label>
                   <IconButton
                     sx={{ padding: "5px" }}
                     onClick={() => handleAddRemoveChange(elId, "add")}
@@ -423,9 +460,12 @@ const FormBuilder = ({
                     >
                       <span
                         contentEditable={allowEdit}
+                        suppressContentEditableWarning
                         onBlur={(e) => handleOptionChange(e, elId, i + 1)}
                         onClick={(e) => e.stopPropagation()}
-                      >{opt.toLowerCase()}</span>
+                      >
+                        {opt.toLowerCase()}
+                      </span>
                       <IconButton
                         onClick={(e) => {
                           e.stopPropagation();

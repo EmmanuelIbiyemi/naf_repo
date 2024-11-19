@@ -2,13 +2,11 @@ import { Box } from "@mui/material";
 import { setPageName } from "../../../store/app.slice";
 import { useAppDispatch } from "../../../store/hooks";
 import PageHeader from "../../../components/PageHeader";
-import EmptyState from "../../../components/EmptyState";
 import { useNavigate } from "react-router-dom";
 import FormList from "./components/FormList";
 import {
   useAddFormMutation,
   useAddFormSectionMutation,
-  useGetFormsQuery,
 } from "../../../store/api/form.api";
 import { useEffect, useState } from "react";
 import FormModal from "../../../components/FormModal";
@@ -31,7 +29,6 @@ const ApplicationPage = () => {
   }, [dispatch]);
 
   const navigate = useNavigate();
-  const { data: forms } = useGetFormsQuery(null);
   const [addForm] = useAddFormMutation();
   const [addSection] = useAddFormSectionMutation();
   const [openModal, setOpenModal] = useState(false);
@@ -72,7 +69,7 @@ const ApplicationPage = () => {
       <PageHeader
         button={{
           action: () => setOpenModal(true),
-          text: "Create",
+          text: "Add Form",
         }}
       />
       <Box
@@ -83,14 +80,7 @@ const ApplicationPage = () => {
           padding: "var(--padding)",
         }}
       >
-        {forms?.data.length ? (
-          <FormList />
-        ) : (
-          <EmptyState
-            title="Oops! There’s nothing here!"
-            subTitle="Forms will appear here after you add them in your school."
-          />
-        )}
+        <FormList />
       </Box>
     </Box>
   );
