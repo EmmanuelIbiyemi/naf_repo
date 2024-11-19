@@ -16,13 +16,15 @@ const LiveClassCard = ({
   status,
   btnAction,
 }: LiveClassProps) => {
+  const showJoinButton = status !== "Completed";
+
   return (
     <Box>
       <Box
         sx={{
           display: "flex",
           flexDirection: "column",
-          justifyContentL: "center",
+          justifyContent: "center",
           alignItems: "start",
           gap: 1.5,
         }}
@@ -82,10 +84,10 @@ const LiveClassCard = ({
               status === "Ongoing"
                 ? "#F12222"
                 : status === "Not Started"
-                ? "#9E9E9Et"
+                ? "#9E9E9E"
                 : "#0CC740",
             fontSize: ".9rem",
-            padding: ".6em ",
+            padding: ".6em",
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
@@ -98,21 +100,30 @@ const LiveClassCard = ({
                 : "#DDFFE7",
           }}
         >
-          Status {status}
+          Status: {status}
         </Typography>
       </Box>
-      <Button
-        variant="contained"
-        disabled={status === "Not Started"}
-        sx={{
-          width: "100%",
-          backgroundColor: "#141414",
-          marginTop: "1em",
-        }}
-        onClick={btnAction}
-      >
-        Join now
-      </Button>
+      {showJoinButton && (
+        <Button
+          variant="contained"
+          disabled={status === "Not Started"}
+          sx={{
+            width: "100%",
+            backgroundColor: "#141414",
+            marginTop: "1em",
+            "&:disabled": {
+              backgroundColor: "#E0E0E0",
+              color: "#9E9E9E",
+            },
+            "&:hover": {
+              backgroundColor: "#2C2C2C",
+            },
+          }}
+          onClick={btnAction}
+        >
+          Join now
+        </Button>
+      )}
     </Box>
   );
 };
