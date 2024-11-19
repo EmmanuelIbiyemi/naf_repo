@@ -88,7 +88,7 @@ const SingleAnnouncementPage = () => {
   const announcement = response?.post;
 
   const handleBack = () => {
-    navigate(-1);
+    navigate(-2);
   };
 
   if (isLoading) {

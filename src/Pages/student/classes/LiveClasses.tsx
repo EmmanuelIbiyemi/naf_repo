@@ -71,17 +71,22 @@ const LiveClasses = () => {
     }
   );
 
-  // Process live classes data
-  const processClassStatus = (liveClass: { start_time: string }) => {
-    const startTime = dayjs(liveClass.start_time);
-    const now = dayjs();
-    const diffMinutes = startTime.diff(now, "minute");
+const processClassStatus = (liveClass: {
+  start_time: string;
+  duration: number;
+}) => {
+  const startTime = dayjs(liveClass.start_time);
+  const endTime = startTime.add(liveClass.duration, "minute");
+  const now = dayjs();
 
-    if (diffMinutes < -120) return "Completed";
-    if (diffMinutes === 0) return "Ongoing";
-    if (diffMinutes <= 60) return `Starting in ${diffMinutes} Minutes`;
+  if (now.isAfter(endTime)) {
+    return "Completed";
+  } else if (now.isAfter(startTime)) {
+    return "Ongoing";
+  } else {
     return "Not Started";
-  };
+  }
+};
 
   // Handle page change
   const handlePageChange = (

@@ -5,6 +5,7 @@ import {
   ResultTaskResponse,
   TranscriptResponse,
 } from "../../types/results.ts";
+import { StudentTranscriptResponse } from "../../types/transcript.ts";
 import { appApi } from "./app.api.ts";
 
 const resultApi = appApi.injectEndpoints({
@@ -73,6 +74,14 @@ const resultApi = appApi.injectEndpoints({
       providesTags: ["Transcripts"],
     }),
 
+    getStudentTranscript: builder.query<StudentTranscriptResponse, number>({
+      query: (participant_id) => ({
+        url: `/result/transcript`,
+        params: { participant_id },
+      }),
+      providesTags: ["Transcripts"],
+    }),
+
     // Delete Single Result
     deleteResult: builder.mutation<ResultResponse, number>({
       query: (result_id: number) => ({
@@ -92,5 +101,6 @@ export const {
   useGetResultQuery,
   useStudentResultQuery,
   useGetTranscriptQuery,
+  useGetStudentTranscriptQuery,
   useDeleteResultMutation,
 } = resultApi;
