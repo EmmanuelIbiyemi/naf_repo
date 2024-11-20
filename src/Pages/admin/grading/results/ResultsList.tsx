@@ -63,7 +63,7 @@ const ResultsList = () => {
         )
       );
     else setResults(resultState.data?.data);
-  }, [keyword]);
+  }, [keyword, resultState]);
 
   const handleChange = async (e: SelectChangeEvent<number | string>) => {
     const { target } = e;

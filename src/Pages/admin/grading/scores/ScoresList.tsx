@@ -6,6 +6,7 @@ import TableRow from "@mui/material/TableRow";
 import { ScoreFormAction, Score } from "../../../../types/scores";
 import {
   Box,
+  Checkbox,
   FormControl,
   IconButton,
   MenuItem,
@@ -60,7 +61,7 @@ const ScoresList = () => {
         )
       );
     else setScores(scrs?.data);
-  }, [keyword]);
+  }, [keyword, scrs]);
 
   const handleOpenModal = (score: Score, type: string) => {
     setSelectedScore(score);
@@ -252,6 +253,7 @@ const ScoresList = () => {
                 scope="row"
                 sx={{ alignItems: "center", display: "flex", gap: "1rem" }}
               >
+                <Checkbox />
                 <Link to={`/scores/${score.id}`}>{score.name}</Link>
               </TableCell>
               <TableCell>{score.min_score}</TableCell>

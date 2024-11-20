@@ -62,7 +62,7 @@ const GradesList: React.FC = () => {
         )
       );
     else setGrades(grds?.data);
-  }, [keyword]);
+  }, [keyword, grds]);
 
   const handleOpenModal = (grade: Grade, type: string) => {
     setSelectedGrade(grade);
