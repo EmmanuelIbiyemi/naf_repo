@@ -1,13 +1,9 @@
-import { useLocation, useNavigate } from "react-router-dom";
+import { Navigate, useLocation } from "react-router-dom";
 import "./App.scss";
 import AdminLayout from "./components/layout/AdminLayout";
 import InstructorLayout from "./components/layout/InstructorLayout";
 import StudentLayout from "./components/layout/StudentLayout";
-import {
-  selectCurrentUser,
-  selectLastVisitedPage,
-  setLastVisitedPage,
-} from "./store/auth.slice";
+import { selectCurrentUser, setLastVisitedPage } from "./store/auth.slice";
 import { useAppDispatch, useAppSelector } from "./store/hooks";
 import { useEffect } from "react";
 import { Box, LinearProgress } from "@mui/material";
@@ -16,37 +12,10 @@ import LoadingScreen from "./components/LoadingScreen";
 
 function App() {
   const user = useAppSelector(selectCurrentUser);
-  const navigate = useNavigate();
   const dispatch = useAppDispatch();
-  const lastVisitedPage = useAppSelector(selectLastVisitedPage);
   const isBuilderLoading = useAppSelector(selectBuilderLoading);
   const isPageLoading = useAppSelector(selectPageLoading);
   const location = useLocation();
-
-  // Handle routing based on user role
-  useEffect(() => {
-    if (user) {
-      if (lastVisitedPage) {
-        navigate(lastVisitedPage);
-      } else {
-        // Default routes based on user role
-        const roleRoutes = {
-          participant: "/student/dashboard",
-          admin: "/",
-          instructor: "/instructor/",
-        };
-
-        const defaultRoute = roleRoutes[user.role as keyof typeof roleRoutes];
-        if (defaultRoute) {
-          navigate(defaultRoute);
-        } else {
-          // Invalid role, log out user
-          console.error("Invalid user role detected:", user.role);
-          navigate("/login");
-        }
-      }
-    }
-  }, [user, navigate]);
 
   // Update last visited page
   useEffect(() => {
@@ -63,7 +32,7 @@ function App() {
       case "participant":
         return <StudentLayout />;
       default:
-        return null;
+        return <Navigate to="/login" replace />;
     }
   };
 

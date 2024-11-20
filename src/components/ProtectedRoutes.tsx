@@ -53,9 +53,6 @@ const allowedRoutes = {
     "/instructor/courses/:id/notes",
     "/instructor/courses/:id/notes/new",
     "/instructor/courses/:id/cbt",
-    // "/instructor/courses/:id/cbt/:testId",
-    // "/instructor/courses/:id/cbt/:testId/detail/:user_id/:id",
-    // "/instructor/courses:id/cbt",
     "/instructor/courses/:id/cbt/:quiz_id",
     "/instructor/courses/:id/cbt/:quiz_id/:assessment_id",
     "/instructor/courses/:id/cbt/:quiz_id/:assessment_id/participants",
@@ -98,12 +95,12 @@ const PrivateRoute = () => {
   const dispatch = useAppDispatch();
 
   if (!user) {
-    dispatch(setUserFromLocalStorage());
-    if (!user) return <Navigate to="/login" replace />;
+    if (localStorage.getItem("user")) dispatch(setUserFromLocalStorage());
+    else return <Navigate to="/login" replace />;
   }
 
   const userAllowedRoutes =
-    allowedRoutes[user.role as keyof typeof allowedRoutes] || [];
+    allowedRoutes[(user?.role || "admin") as keyof typeof allowedRoutes] || [];
 
   // Check if the current path matches any allowed route, accounting for parameters
   const isAllowed = userAllowedRoutes.some((allowedRoute) =>
