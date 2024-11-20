@@ -1,9 +1,10 @@
-import { Search } from "@mui/icons-material";
+import { ArrowBack, Search } from "@mui/icons-material";
 import { Box, Button, SxProps } from "@mui/material";
 import { Field, Form, Formik } from "formik";
 import * as Yup from "yup";
 import { useAppDispatch } from "../store/hooks";
 import { setKeyword } from "../store/app.slice";
+import { useNavigate } from "react-router-dom";
 
 type Props = {
   button?: {
@@ -18,6 +19,7 @@ type Props = {
 
 const PageHeader = ({ button, secondaryButton }: Props) => {
   const dispatch = useAppDispatch();
+  const navigate = useNavigate();
 
   const initialValues = {
     keyword: "",
@@ -38,20 +40,29 @@ const PageHeader = ({ button, secondaryButton }: Props) => {
         padding: "var(--padding)",
       }}
     >
-      <Formik
-        initialValues={initialValues}
-        validationSchema={validationSchema}
-        onSubmit={handleSubmit}
-      >
-        <Form>
-          <Box sx={formGroupStyles}>
-            <Box sx={searchFieldStyles}>
-              <Search />
-              <Field name="keyword" placeholder="Search..." />
+      <Box sx={{ display: "flex", gap: "1rem" }}>
+        <Button
+          onClick={() => navigate(-1)}
+          variant="outlined"
+          sx={{ paddingLeft: ".5rem" }}
+        >
+          <ArrowBack sx={{ marginRight: ".4rem" }} /> Back
+        </Button>
+        <Formik
+          initialValues={initialValues}
+          validationSchema={validationSchema}
+          onSubmit={handleSubmit}
+        >
+          <Form>
+            <Box sx={formGroupStyles}>
+              <Box sx={searchFieldStyles}>
+                <Search />
+                <Field name="keyword" placeholder="Search..." />
+              </Box>
             </Box>
-          </Box>
-        </Form>
-      </Formik>
+          </Form>
+        </Formik>
+      </Box>
       {button ? (
         <Box sx={formGroupStyles}>
           {
