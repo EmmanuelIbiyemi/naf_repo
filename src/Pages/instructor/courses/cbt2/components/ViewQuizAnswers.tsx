@@ -19,7 +19,7 @@ const ViewQuizAnswers = () => {
   const [currentPage, setCurrentPage] = useState(1);
 
   const locationData = location.pathname.split("/");
-  const quizId = locationData[locationData.length - 6];
+  const quizId = locationData[locationData.length - 5];
   const userId = locationData[locationData.length - 2];
   const studentId = locationData[locationData.length - 1];
 

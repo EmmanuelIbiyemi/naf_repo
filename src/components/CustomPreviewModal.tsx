@@ -15,6 +15,73 @@ const CustomPreviewModal = ({
   handleCloseModal,
   note,
 }: NoteModalsProps) => {
+  const components = {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    a: ({ href, children, ...props }: any) => {
+      const isVideo = href?.match(/\.(mp4|webm|ogg)$/i);
+      const isFile = href?.match(/\.(docx|pdf|txt|xlsx|csv)$/i);
+
+      if (isVideo) {
+        return (
+          <video
+            controls
+            style={{
+              maxWidth: "100%",
+              height: "auto",
+              display: "block",
+              margin: "1rem 0",
+            }}
+          >
+            <source src={href} type="video/mp4" />
+            Your browser does not support the video tag.
+          </video>
+        );
+      }
+
+      if (isFile) {
+        return (
+          <a
+            {...props}
+            href={href}
+            style={{
+              color: "#0066cc",
+              textDecoration: "none",
+              display: "inline-block",
+              margin: "1rem 0",
+            }}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            🗂️ Open File: {children || href}
+          </a>
+        );
+      }
+
+      return (
+        <a
+          {...props}
+          href={href}
+          style={{ color: "#0066cc", textDecoration: "none" }}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          {children}
+        </a>
+      );
+    },
+    img: ({ ...props }) => (
+      <img
+        {...props}
+        style={{
+          maxWidth: "100%",
+          height: "auto",
+          display: "block",
+          margin: "1rem 0",
+        }}
+      />
+    ),
+  };
+
   return (
     <Box>
       <Modal open={openModal} onClose={handleCloseModal}>
@@ -80,7 +147,10 @@ const CustomPreviewModal = ({
                 flex: 1,
               }}
             >
-              <ReactMarkdown remarkPlugins={[remarkGfm]}>
+              <ReactMarkdown
+                remarkPlugins={[remarkGfm]}
+                components={components}
+              >
                 {note.content}
               </ReactMarkdown>
             </Box>

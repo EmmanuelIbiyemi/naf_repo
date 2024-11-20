@@ -1,4 +1,4 @@
-import { Box, Button } from "@mui/material";
+import { Box } from "@mui/material";
 import { useEffect, useState } from "react";
 import QuestionList from "./QuestionList";
 import QuestionsForm from "./components/QuestionsForm";
@@ -7,7 +7,6 @@ import { setPageName } from "../../../../../store/app.slice";
 import FormModal from "../../../../../components/FormModal";
 import SuccessModal from "../../../../../components/SuccessModal";
 import PageHeader from "../../../../../components/PageHeader";
-import { useNavigate } from "react-router-dom";
 
 const QuestionsPage = () => {
   const [openModal, setOpenModal] = useState({
@@ -17,7 +16,6 @@ const QuestionsPage = () => {
     delete: true,
   });
 
-  const navigate = useNavigate();
   // set page name
 
   const dispatch = useAppDispatch();
@@ -65,13 +63,9 @@ const QuestionsPage = () => {
       />
 
       <PageHeader
-        secondaryButton={{
+        button={{
           action: () => handleOpenModal("add"),
           text: "Upload Questions",
-        }}
-        button={{
-          action: () => navigate(-1),
-          text: "Back",
         }}
       />
       <Box
@@ -81,11 +75,7 @@ const QuestionsPage = () => {
           justifyContent: "end",
           padding: "var(--padding)",
         }}
-      >
-        <Button variant="contained" onClick={() => navigate("participants")}>
-          View Students
-        </Button>
-      </Box>
+      ></Box>
       <Box
         sx={{
           bgcolor: "#fff",

@@ -18,6 +18,7 @@ const AssessmentsPage = () => {
   });
 
   const navigate = useNavigate();
+
   // set page name
   const dispatch = useAppDispatch();
   useEffect(() => {
@@ -65,12 +66,12 @@ const AssessmentsPage = () => {
 
       <PageHeader
         button={{
-          action: () => navigate(-1),
-          text: "Back",
-        }}
-        secondaryButton={{
           action: () => handleOpenModal("add"),
           text: "Add Assessment",
+        }}
+        secondaryButton={{
+          action: () => navigate("participants"),
+          text: "View Participants",
         }}
       />
       <Box

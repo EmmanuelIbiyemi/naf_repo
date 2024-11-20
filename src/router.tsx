@@ -292,11 +292,11 @@ export const router = createBrowserRouter([
             element: <InstructorQuestionsPage />,
           },
           {
-            path: "cbt/:quiz_id/:assessment_id/participants",
+            path: "cbt/:quiz_id/participants",
             element: <CoursesTestParticipantsPage />,
           },
           {
-            path: "cbt/:quiz_id/:assessment_id/participants/detail/:user_id/:id",
+            path: "cbt/:quiz_id/participants/detail/:user_id/:id",
             element: <CoursesViewParticipantDetailsPage />,
           },
           {
