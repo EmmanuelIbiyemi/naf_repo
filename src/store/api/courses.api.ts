@@ -50,8 +50,12 @@ const coursesApi = appApi.injectEndpoints({
       }),
       providesTags: ["Courses"],
     }),
-    getInstructorCourses: builder.query<CoursesResponse, null>({
-      query: () => `/course/instructor`,
+    getInstructorCourses: builder.query<
+      CoursesResponse,
+      { page: number; per_page: number }
+    >({
+      query: ({ page, per_page }) =>
+        `/course/instructor?page=${page}&per_page=${per_page}`,
       providesTags: ["Courses"],
     }),
     getCourse: builder.query<CourseResponse, number>({

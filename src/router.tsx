@@ -92,21 +92,40 @@ const CoursesNotesPage = lazy(
 const CreateNotePage = lazy(
   () => import("./Pages/instructor/courses/notes/NewNote")
 );
-const CoursesTestsPage = lazy(
-  () => import("./Pages/instructor/courses/cbt/Tests")
-);
+// const CoursesTestsPage = lazy(
+//   () => import("./Pages/instructor/courses/cbt/Tests")
+// );
 
 const InputQuestionsManually = lazy(
-  () => import("./Pages/instructor/courses/cbt/stepmodals/ManualInputQuestions")
+  () =>
+    import(
+      "./Pages/instructor/courses/cbt2/questions/components/ManuallyInputQuestions"
+    )
 );
 
+// const CoursesTestParticipantsPage = lazy(
+//   () => import("./Pages/instructor/courses/cbt/TestParticipants")
+// );
+// const CoursesViewParticipantDetailsPage = lazy(
+//   () => import("./Pages/instructor/courses/cbt/ViewQuizAnswers")
+// );
+// const ReportsPage = lazy(() => import("./Pages/instructor/reports/Reports"));
+const InstructorCBTsPage = lazy(
+  () => import("./Pages/instructor/courses/cbt2/CBT")
+);
+
+const InstructorQuestionsPage = lazy(
+  () => import("./Pages/instructor/courses/cbt2/questions/Questions")
+);
+const InstructorAssessmentPage = lazy(
+  () => import("./Pages/instructor/courses/cbt2/assessments/Assessments")
+);
 const CoursesTestParticipantsPage = lazy(
-  () => import("./Pages/instructor/courses/cbt/TestParticipants")
+  () => import("./Pages/instructor/courses/cbt2/components/TestParticipants")
 );
 const CoursesViewParticipantDetailsPage = lazy(
-  () => import("./Pages/instructor/courses/cbt/ViewQuizAnswers")
+  () => import("./Pages/instructor/courses/cbt2/components/ViewQuizAnswers")
 );
-// const ReportsPage = lazy(() => import("./Pages/instructor/reports/Reports"));
 const LiveClassesPage = lazy(
   () => import("./Pages/instructor/classes/LiveClasses")
 );
@@ -255,17 +274,34 @@ export const router = createBrowserRouter([
             element: <CoursesNotesPage />,
           },
           { path: "notes/new", element: <CreateNotePage /> },
-          { path: "tests", element: <CoursesTestsPage /> },
+          // { path: "tests", element: <CoursesTestsPage /> },
+          // {
+          //   path: "tests/:testId",
+          //   element: <CoursesTestParticipantsPage />,
+          // },
+          // {
+          //   path: "tests/:testId/detail/:user_id/:id",
+          //   element: <CoursesViewParticipantDetailsPage />,
+          // },
+          // // { path: "classes", element: <LiveClassesPage /> },
+          { path: "cbt", element: <InstructorCBTsPage /> },
+          { path: "cbt/:quiz_id", element: <InstructorAssessmentPage /> },
           {
-            path: "tests/:testId",
+            path: "cbt/:quiz_id/:assessment_id",
+            element: <InstructorQuestionsPage />,
+          },
+          {
+            path: "cbt/:quiz_id/:assessment_id/participants",
             element: <CoursesTestParticipantsPage />,
           },
           {
-            path: "tests/:testId/detail/:user_id/:id",
+            path: "cbt/:quiz_id/:assessment_id/participants/detail/:user_id/:id",
             element: <CoursesViewParticipantDetailsPage />,
           },
-          { path: "classes", element: <LiveClassesPage /> },
-          { path: "tests/manual-input", element: <InputQuestionsManually /> },
+          {
+            path: "cbt/:quiz_id/:assessment_id/manual-input",
+            element: <InputQuestionsManually />,
+          },
         ],
       },
       { path: "classes", element: <LiveClassesPage /> },
@@ -274,7 +310,7 @@ export const router = createBrowserRouter([
         element: <InstructorOfflineScoresPage />,
       },
       {
-        path: "/instructor/announcements",
+        path: "/instructor/announcements/:id",
         element: <InstructorAnnouncementPage />,
       },
     ],

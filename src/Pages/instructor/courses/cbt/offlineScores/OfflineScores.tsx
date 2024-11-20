@@ -25,7 +25,10 @@ const OfflineScores = () => {
   const [openAddModal, setOpenAddModal] = React.useState(false);
   const [openRecordModal, setOpenRecordModal] = React.useState(false);
   const [openScoresModal, setOpenScoresModal] = React.useState(false);
-  const { data: courses, isLoading } = useGetInstructorCoursesQuery(null);
+  const { data: courses, isLoading } = useGetInstructorCoursesQuery({
+    page: 1,
+    per_page: 1000,
+  });
 
   const handleClose = () => setOpenAddModal(false);
   const handleOpen = () => setOpenAddModal(true);
