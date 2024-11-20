@@ -38,8 +38,6 @@ const PropertiesSideBar = () => {
       target: { name, value },
     } = event;
 
-    console.log(name);
-
     setProps((prev) => {
       return {
         ...prev,
@@ -57,9 +55,10 @@ const PropertiesSideBar = () => {
     try {
       if (frm?.data)
         await updateForm({
-          ...frm?.data,
+          id: frm?.data.id,
           name: `${props.name}::${props.button}`,
           fee: props.fee,
+          sections: [],
         }).unwrap();
     } catch (error) {
       console.log(error);

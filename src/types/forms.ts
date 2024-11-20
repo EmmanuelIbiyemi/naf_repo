@@ -30,6 +30,13 @@ type FormBaseType2 = {
   sections: FormSection[];
 };
 
+export type FormUpdateType = {
+  id: number;
+  fee: number;
+  name: string;
+  sections: FormSection[];
+};
+
 export type FormCreateType2 = FormBaseType2 & {};
 
 export type FormType2 = FormBaseType2 & {

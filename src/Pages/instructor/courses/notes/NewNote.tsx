@@ -117,7 +117,7 @@ const NewNote = () => {
                 width: "11em",
                 alignSelf: "end",
               }}
-              onClick={() => navigate(-2)}
+              onClick={() => navigate(-1)}
             >
               Back
             </Button>

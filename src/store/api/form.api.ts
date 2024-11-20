@@ -3,7 +3,7 @@ import {
   FormField,
   FormResponse,
   FormsResponse,
-  FormType2,
+  FormUpdateType,
 } from "../../types/forms";
 import { appApi } from "./app.api";
 
@@ -78,7 +78,7 @@ const formsApi = appApi.injectEndpoints({
       }),
       invalidatesTags: ["Forms"],
     }),
-    updateForm: builder.mutation<FormResponse, FormType2>({
+    updateForm: builder.mutation<FormResponse, FormUpdateType>({
       query: (form) => ({
         url: `/form/${form.id}`,
         method: "PUT",
