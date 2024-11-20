@@ -27,7 +27,7 @@ const PropertiesSideBar = () => {
   const { data: frm } = useGetFormQuery(+(form_id || 0));
   const [props, setProps] = useState<FormProps>({
     name: frm?.data.name.split("::")[0] || "",
-    button: frm?.data.name.split("::")[0] || "",
+    button: frm?.data.name.split("::")[1] || "",
     fee: frm?.data.fee || 0,
   });
   const [updateForm] = useUpdateFormMutation();
@@ -37,6 +37,8 @@ const PropertiesSideBar = () => {
     const {
       target: { name, value },
     } = event;
+
+    console.log(name);
 
     setProps((prev) => {
       return {
@@ -85,7 +87,7 @@ const PropertiesSideBar = () => {
             <FormControl fullWidth>
               <TextField
                 placeholder={"enter name..."}
-                value={props?.name.split("::")[0] || ""}
+                value={props?.name.split("::")[0]}
                 name="name"
                 onChange={handleChange}
               />
@@ -100,7 +102,7 @@ const PropertiesSideBar = () => {
             <FormControl fullWidth>
               <TextField
                 placeholder={"enter button text..."}
-                value={props?.button.split("::")[1] || ""}
+                value={props?.button.split("::")[1]}
                 name="button"
                 onChange={handleChange}
               />
@@ -113,7 +115,7 @@ const PropertiesSideBar = () => {
             <FormControl fullWidth>
               <TextField
                 type="number"
-                value={props?.fee?.toLocaleString() || 0}
+                value={props?.fee?.toLocaleString()}
                 name="fee"
                 onChange={handleChange}
               />

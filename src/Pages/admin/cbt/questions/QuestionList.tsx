@@ -14,7 +14,7 @@ import DeleteConfirmationModal from "../../../../components/DeleteConfirmationMo
 import { useEffect, useState } from "react";
 import {
   useDeleteQuestionMutation,
-  useGetSingleQuizQuery,
+  useGetSingleAssessmentQuery,
 } from "../../../../store/api/quizzes.api";
 import SuccessModal from "../../../../components/SuccessModal";
 import { Delete } from "@mui/icons-material";
@@ -30,35 +30,34 @@ const QuestionList = () => {
     delete: false,
     success: false,
   });
-  const { quiz_id } = useParams();
+  const { assessment_id } = useParams();
   const {
-    data: quiz,
+    data: assessment,
     isFetching,
     isError,
-  } = useGetSingleQuizQuery(+(quiz_id || 0));
-  const [questions, setQuestions] = useState(
-    quiz?.data.assessments?.[0]?.questions
-  );
+  } = useGetSingleAssessmentQuery(+(assessment_id || 0));
+  const [questions, setQuestions] = useState(assessment?.data.questions);
+
   const [selectedQuestion, setSelectedQuestion] = useState<Questions[0]>();
   const [deleteQuestion, deleteState] = useDeleteQuestionMutation();
   const keyword = useAppSelector(selectKeyword);
   const dispatch = useAppDispatch();
 
   useEffect(() => {
-    if (keyword && quiz?.data)
+    if (keyword && assessment?.data)
       setQuestions(
-        quiz?.data.assessments?.[0]?.questions.filter((f) =>
+        assessment?.data?.questions.filter((f) =>
           f.body.toLowerCase().includes(keyword.toLowerCase())
         )
       );
-    else setQuestions(quiz?.data.assessments?.[0]?.questions);
-  }, [keyword, quiz]);
+    else setQuestions(assessment?.data?.questions);
+  }, [keyword, assessment]);
 
   useEffect(() => {
     if (isFetching || deleteState.isLoading) dispatch(setPageLoading(true));
     else if (isError) dispatch(setPageLoading(false));
     else dispatch(setPageLoading(false));
-  }, [isFetching, isError, quiz, deleteState]);
+  }, [isFetching, isError, assessment, deleteState]);
 
   const handleOpenModal = (question: Questions[0], type: string) => {
     setSelectedQuestion(question);

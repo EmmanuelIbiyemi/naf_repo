@@ -1,6 +1,6 @@
 import { AnswersResponses } from "./answers";
 import { AssessmentResponses } from "./assessments";
-import { options } from "./options";
+import { option, options } from "./options";
 import { ParticipantsMultipleData } from "./participants";
 import { Questions } from "./questions";
 import { QuizResults } from "./results";
@@ -22,7 +22,8 @@ interface Option extends TimeStamps {
 interface Question extends TimeStamps {
   id: number;
   body: string;
-  options: Option[];
+  // options: Option[];
+  options: option[];
 }
 
 // Assessment interface
