@@ -40,7 +40,7 @@ const CreateClassModal = ({ open, handleClose, refetch }: createClassModal) => {
   const { data: currentSemester, isLoading: isGettingSemester } =
     useGetCurrentSemesterQuery(null);
   const { data: courses, isLoading: isFetchingCourses } =
-    useGetInstructorCoursesQuery(null);
+    useGetInstructorCoursesQuery({ page: 1, per_page: 1000 });
   const currentSemesterString = currentSemester?.data.name;
   const currentSessionString = currentSession?.data.name;
   const [createClass, { isLoading }] = useAddLiveClassMutation();

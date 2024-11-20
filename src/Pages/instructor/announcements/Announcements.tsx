@@ -1,173 +1,285 @@
-import { useEffect, useState } from "react";
-import { useGetAnnouncementsQuery } from "../../../store/api/posts.api";
-import { Box, Grid2, Pagination, Typography } from "@mui/material";
-// import { Post } from "../../../types/announcements";
-import { useAppDispatch } from "../../../store/hooks";
-import { setPageName } from "../../../store/app.slice";
-import BlockBuilder from "../../../components/BlockBuilder";
+// Types
+interface Media {
+  created_at: string;
+  id: number;
+  name: string;
+  type: string;
+  updated_at: string;
+  url: string;
+}
 
-// const formatDateTime = (dateTimeString: string) => {
-//   try {
-//     const date = new Date(dateTimeString);
+interface Block {
+  caption?: string;
+  content: string;
+  id: number;
+  link: string | null;
+  media?: Media[];
+  position: number;
+  title: string | null;
+  type: string;
+}
 
-//     const month = (date.getMonth() + 1).toString().padStart(2, "0");
-//     const day = date.getDate().toString().padStart(2, "0");
-//     const year = date.getFullYear();
-//     const formattedDate = `${month}/${day}/${year}`;
+interface Category {
+  created_at: string;
+  id: number;
+  name: string;
+  updated_at: string;
+}
 
-//     let hours = date.getHours();
-//     const minutes = date.getMinutes();
-//     const ampm = hours >= 12 ? "PM" : "AM";
-//     hours = hours % 12;
-//     hours = hours ? hours : 12;
-//     const formattedTime = `${hours}:${minutes
-//       .toString()
-//       .padStart(2, "0")} ${ampm}`;
+interface Tag {
+  created_at: string;
+  id: number;
+  name: string;
+  updated_at: string;
+}
 
-//     return {
-//       date: formattedDate,
-//       time: formattedTime,
-//       fullDateTime: `${formattedDate} ${formattedTime}`,
-//     };
-//   } catch (error) {
-//     console.error("Error formatting datetime:", error);
-//     return {
-//       date: "",
-//       time: "",
-//       fullDateTime: "",
-//     };
-//   }
-// };
+interface Post {
+  blocks: Block[];
+  categories: Category[];
+  created_at: string;
+  date: string;
+  featured_image: string;
+  id: number;
+  slug: string;
+  tags: Tag[];
+  title: string;
+  updated_at: string;
+}
 
-const AnnouncementsPage = () => {
-  const [page, setPage] = useState(1);
-  const dispatch = useAppDispatch();
-  useEffect(() => {
-    dispatch(setPageName("Announcements"));
-  }, [dispatch]);
-  const { data, isLoading, isError } = useGetAnnouncementsQuery(
-    "announcement",
-    {
-      skip: false,
-      refetchOnMountOrArgChange: true,
-      pollingInterval: 60000, // Refetch every minute
-    }
-  );
+export interface AnnouncementResponse {
+  message: string;
+  post: Post;
+}
 
-  const handlePageChange = (
-    _event: React.ChangeEvent<unknown>,
-    value: number
-  ) => {
-    setPage(value);
+import { useParams, useNavigate } from "react-router-dom";
+import { useGetSingleAnnouncementQuery } from "../../../store/api/posts.api";
+import {
+  Box,
+  Paper,
+  Typography,
+  Skeleton,
+  Alert,
+  Chip,
+  useTheme,
+  Divider,
+  Avatar,
+  Button,
+} from "@mui/material";
+import {
+  CalendarToday,
+  Person,
+  ArrowBack,
+  AccessTime,
+} from "@mui/icons-material";
+import { format } from "date-fns";
+
+const SingleAnnouncementPage = () => {
+  const { id } = useParams<{ id: string }>();
+  const theme = useTheme();
+  const navigate = useNavigate();
+
+  const {
+    data: response,
+    isLoading,
+    isError,
+    error,
+  } = useGetSingleAnnouncementQuery(Number(id));
+
+  const announcement = response?.post;
+
+  const handleBack = () => {
+    navigate(-1);
   };
 
   if (isLoading) {
     return (
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          minHeight: "60vh",
-        }}
-      >
-        <Typography variant="h5">Loading announcements...</Typography>
+      <Box sx={{ p: { xs: 2, md: 4 } }}>
+        <Skeleton variant="text" width={200} height={40} />
+        <Box sx={{ mt: 3 }}>
+          <Skeleton variant="rectangular" height={200} />
+          <Box sx={{ mt: 2 }}>
+            <Skeleton variant="text" />
+          </Box>
+        </Box>
       </Box>
     );
   }
 
-  if (isError || !data) {
+  if (isError) {
     return (
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          minHeight: "60vh",
-        }}
-      >
-        <Typography variant="h5">
-          Error loading announcements. Please try again later.
-        </Typography>
+      <Box sx={{ p: { xs: 2, md: 4 } }}>
+        <Button startIcon={<ArrowBack />} onClick={handleBack} sx={{ mb: 3 }}>
+          Back
+        </Button>
+        <Alert severity="error">
+          Error loading announcement. Please try again later.
+          {error && "status" in error && (
+            <Typography variant="caption" display="block">
+              Error {error.status}: {JSON.stringify(error.data)}
+            </Typography>
+          )}
+        </Alert>
       </Box>
     );
   }
 
-  // Now TypeScript knows data is defined and has the correct type
-  const { post, pagination } = data;
+  if (!announcement) {
+    return (
+      <Box sx={{ p: { xs: 2, md: 4 } }}>
+        <Button startIcon={<ArrowBack />} onClick={handleBack} sx={{ mb: 3 }}>
+          Back
+        </Button>
+        <Alert severity="info">Announcement not found.</Alert>
+      </Box>
+    );
+  }
 
   return (
-    <Box sx={{ p: 4 }}>
-      <Typography variant="h5" gutterBottom>
-        Announcements
-      </Typography>
+    <Box sx={{ p: { xs: 2, md: 4 } }}>
+      <Button startIcon={<ArrowBack />} onClick={handleBack} sx={{ mb: 3 }}>
+        Back
+      </Button>
 
-      <Grid2 container spacing={3}>
-        {/* {post.map((announcement: Post) => (
-          <Grid2
-            size={12}
-            key={announcement.id}
+      <Paper
+        elevation={2}
+        sx={{
+          p: { xs: 2, md: 4 },
+          maxWidth: "1000px",
+          margin: "0 auto",
+        }}
+      >
+        {/* Header Section */}
+        <Box sx={{ mb: 4 }}>
+          <Typography variant="h4" gutterBottom>
+            {announcement.title}
+          </Typography>
+
+          <Box
             sx={{
-              backgroundColor: "#fff",
-              padding: "2em",
-              borderRadius: "8px",
+              display: "flex",
+              alignItems: "center",
+              gap: 3,
+              flexWrap: "wrap",
+              mb: 2,
             }}
           >
-            <Box>
-              <Box
-                sx={{ display: "flex", flexDirection: "column", width: "100%" }}
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+              <Avatar sx={{ bgcolor: theme.palette.primary.main }}>
+                <Person />
+              </Avatar>
+              <Typography variant="body2">Admin</Typography>
+            </Box>
+
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+              <CalendarToday fontSize="small" color="action" />
+              <Typography variant="body2" color="text.secondary">
+                {format(new Date(announcement.date), "MMMM dd, yyyy")}
+              </Typography>
+            </Box>
+
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+              <AccessTime fontSize="small" color="action" />
+              <Typography variant="body2" color="text.secondary">
+                {format(new Date(announcement.date), "hh:mm a")}
+              </Typography>
+            </Box>
+          </Box>
+
+          {/* Tags */}
+          {announcement.tags && announcement.tags.length > 0 && (
+            <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
+              {announcement.tags.map((tag) => (
+                <Chip
+                  key={tag.id}
+                  label={tag.name}
+                  size="small"
+                  sx={{
+                    bgcolor: theme.palette.primary.light,
+                    color: theme.palette.primary.contrastText,
+                  }}
+                />
+              ))}
+            </Box>
+          )}
+        </Box>
+
+        <Divider sx={{ my: 3 }} />
+
+        {/* Content Section */}
+        <Box
+          sx={{
+            "& > *:not(:last-child)": {
+              mb: 2,
+            },
+          }}
+        >
+          {announcement.blocks.map((block) => (
+            <Box key={block.id}>
+              <Typography
+                variant="body1"
+                sx={{
+                  lineHeight: 1.7,
+                  whiteSpace: "pre-wrap",
+                }}
               >
-                <Typography variant="body2" sx={{ alignSelf: "end" }}>
-                  {formatDateTime(announcement.date).fullDateTime}
-                </Typography>
-                <Typography variant="h4" sx={{ alignSelf: "center" }}>
-                  {announcement.title}
-                </Typography>
-              </Box>
-              <Box>
-                <Box>
-                  {announcement.blocks.map((item) => (
-                    <Box>
-                      <Typography variant="body2" sx={{ fontSize: "1rem" }}>
-                        {item.content}
-                      </Typography>
-                      {item.media.map((mediaItem) => (
-                        <img
-                          src={mediaItem.url}
-                          alt={mediaItem.name}
-                          style={{ margin: "1em 0" }}
-                        />
-                      ))}
-                      {item.link && item.link !== null && (
-                        <Typography variant="body2">
-                          Link:{" "}
-                          <a href={item.link} target="_blank">
-                            {item.link}
-                          </a>
+                {block.content}
+              </Typography>
+              {block.media && block.media.length > 0 && (
+                <Box sx={{ mt: 2 }}>
+                  {block.media.map((media) => (
+                    <Box key={media.id} sx={{ mt: 2 }}>
+                      <img
+                        src={media.url}
+                        alt={media.name}
+                        style={{ maxWidth: "100%", height: "auto" }}
+                      />
+                      {block.caption && (
+                        <Typography
+                          variant="caption"
+                          color="text.secondary"
+                          sx={{ mt: 1, display: "block" }}
+                        >
+                          {block.caption}
                         </Typography>
                       )}
                     </Box>
                   ))}
                 </Box>
-              </Box>
+              )}
             </Box>
-          </Grid2>
-        ))} */}
-        {post.map((announcement) => (
-          <BlockBuilder blocks={announcement.blocks} />
-        ))}
-      </Grid2>
+          ))}
+        </Box>
 
-      <Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
-        <Pagination
-          count={pagination.pages}
-          page={page}
-          onChange={handlePageChange}
-          color="primary"
-        />
-      </Box>
+        {/* Footer Section */}
+        <Box sx={{ mt: 4 }}>
+          <Divider sx={{ mb: 2 }} />
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              flexWrap: "wrap",
+              gap: 2,
+            }}
+          >
+            <Typography variant="caption" color="text.secondary">
+              Last updated:{" "}
+              {format(new Date(announcement.updated_at), "MMMM dd, yyyy")}
+            </Typography>
+
+            {announcement.categories && announcement.categories.length > 0 && (
+              <Chip
+                label={announcement.categories[0].name}
+                size="small"
+                color="primary"
+                variant="outlined"
+              />
+            )}
+          </Box>
+        </Box>
+      </Paper>
     </Box>
   );
 };
 
-export default AnnouncementsPage;
+export default SingleAnnouncementPage;

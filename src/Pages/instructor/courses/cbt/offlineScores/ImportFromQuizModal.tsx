@@ -69,7 +69,7 @@ ImportFromQuizProps) => {
 
   const { data: quizzes, isLoading: isGettingQuizzes } =
     useGetInstructorCourseQuizzesQuery(
-      { course_id: courseId as number },
+      { course_id: courseId as number, page: 1 },
       { skip: !courseId }
     );
 

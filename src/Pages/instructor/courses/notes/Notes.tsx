@@ -177,7 +177,9 @@ const Notes = () => {
       >
         <InstructorPageHeader
           heading="Notes"
-          subHeading={`List of notes that have been created in the course "${course?.data.name}"`}
+          subHeading={`List of notes that have been created in the course "${
+            course?.data ? `${course?.data.name} (${course.data.code})` : ""
+          }"`}
           // button={{
           //   action: () => console.log("Hi"),
           //   text: "Generate Report",

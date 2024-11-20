@@ -43,7 +43,8 @@ const Students = () => {
               fontWeight: 300,
             }}
           >
-            List of students enrolled in the course “{course?.data.name}”
+            List of students enrolled in the course “{course?.data.name} (
+            {course?.data.code})”
           </Typography>
         </Box>
         <Box sx={{ margin: "2em 0" }}>

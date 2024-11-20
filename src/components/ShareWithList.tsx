@@ -226,7 +226,7 @@ const ShareWithList = ({
 
           <Box sx={{ display: "flex", justifyContent: "space-between" }}>
             <Button variant="text" onClick={handleClose}>
-              Undo
+              Close
             </Button>
             <Button
               variant="contained"
