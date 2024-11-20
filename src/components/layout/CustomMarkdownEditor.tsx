@@ -6,11 +6,6 @@ import {
   Tooltip,
   Tabs,
   Tab,
-  // Dialog,
-  // DialogTitle,
-  // DialogActions,
-  // DialogContent,
-  // TextField,
 } from "@mui/material";
 import { useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
@@ -19,9 +14,6 @@ import {
   FormatBold,
   FormatItalic,
   Code,
-  // Link,
-  // FormatListBulleted,
-  // FormatListNumbered,
   Undo,
   Redo,
 } from "@mui/icons-material";
@@ -47,14 +39,59 @@ const CustomMarkdownEditor = ({
   isLoading,
 }: Props) => {
   const components = {
-    a: ({ ...props }) => (
-      <a
-        {...props}
-        style={{ color: "#0066cc", textDecoration: "none" }}
-        target="_blank"
-        rel="noopener noreferrer"
-      />
-    ),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    a: ({ href, children, ...props }: any) => {
+      const isVideo = href?.match(/\.(mp4|webm|ogg)$/i);
+      const isFile = href?.match(/\.(docx|pdf|txt|xlsx|csv)$/i);
+
+      if (isVideo) {
+        return (
+          <video
+            controls
+            style={{
+              maxWidth: "100%",
+              height: "auto",
+              display: "block",
+              margin: "1rem 0",
+            }}
+          >
+            <source src={href} type="video/mp4" />
+            Your browser does not support the video tag.
+          </video>
+        );
+      }
+
+      if (isFile) {
+        return (
+          <a
+            {...props}
+            href={href}
+            style={{
+              color: "#0066cc",
+              textDecoration: "none",
+              display: "inline-block",
+              margin: "1rem 0",
+            }}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            🗂️ Click to download file: {children || href}
+          </a>
+        );
+      }
+
+      return (
+        <a
+          {...props}
+          href={href}
+          style={{ color: "#0066cc", textDecoration: "none" }}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          {children}
+        </a>
+      );
+    },
     img: ({ ...props }) => (
       <img
         {...props}
@@ -143,26 +180,40 @@ const CustomMarkdownEditor = ({
     try {
       const imageData = await handleImageUpload(file);
 
-      const imageMarkdown = `![${imageData[0]}](${imageData[1]})`;
+      const fileName = imageData[0]; // File name
+      const fileURL = imageData[1]; // File URL
+
+      const isImage = fileURL.match(/\.(jpg|jpeg|png|gif|svg)$/i);
+      const isVideo = fileURL.match(/\.(mp4|webm|ogg)$/i);
+
+      let markdownSyntax;
+
+      if (isImage) {
+        markdownSyntax = `![${fileName}](${fileURL})`;
+      } else if (isVideo) {
+        markdownSyntax = `[${fileName}](${fileURL})`;
+      } else {
+        markdownSyntax = `[${fileName}](${fileURL})`;
+      }
 
       const updatedText = `${markdownText.slice(
         0,
         lastCursorPosition
-      )}${imageMarkdown}${markdownText.slice(lastCursorPosition)}`;
+      )}${markdownSyntax}${markdownText.slice(lastCursorPosition)}`;
 
       setMarkdownText(updatedText);
       onChange(updatedText);
 
       setTimeout(() => {
         if (textAreaRef.current) {
-          const newCursorPos = lastCursorPosition + imageMarkdown.length;
+          const newCursorPos = lastCursorPosition + markdownSyntax.length;
           textAreaRef.current.selectionStart = newCursorPos;
           textAreaRef.current.selectionEnd = newCursorPos;
           textAreaRef.current.focus();
         }
       }, 0);
     } catch (error) {
-      console.error("Error uploading image:", error);
+      console.error("Error uploading file:", error);
     }
   };
 
@@ -217,7 +268,7 @@ const CustomMarkdownEditor = ({
               }}
               disabled={isLoading}
             >
-              {isLoading ? "Uploading..." : "Upload image"}
+              {isLoading ? "Uploading..." : "Upload file"}
               <input
                 type="file"
                 hidden
