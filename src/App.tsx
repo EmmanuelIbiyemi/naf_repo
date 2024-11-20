@@ -46,7 +46,7 @@ function App() {
         }
       }
     }
-  }, [user, lastVisitedPage, navigate]);
+  }, [user, navigate]);
 
   // Update last visited page
   useEffect(() => {
