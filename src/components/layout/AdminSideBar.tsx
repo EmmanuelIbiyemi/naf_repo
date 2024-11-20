@@ -26,14 +26,18 @@ const navLinks: NavLink[] = [
     icon: BankIcon,
     link: "/applications",
     children: [
-      { content: "Application Form", icon: ChevronLeft, link: "/applications" },
+      {
+        content: "Application Forms",
+        icon: ChevronLeft,
+        link: "/applications",
+      },
       {
         content: "All Applicants",
         icon: ChevronLeft,
         link: "/applicants",
       },
-      { content: "Student Exam", icon: ChevronLeft, link: "/cbt" },
       { content: "Upload Eligibles", icon: ChevronLeft, link: "/eligibles" },
+      { content: "Student Exam", icon: ChevronLeft, link: "/cbt" },
     ],
   },
   { content: "Grading System", icon: GraduationScroll, link: "/grading" },

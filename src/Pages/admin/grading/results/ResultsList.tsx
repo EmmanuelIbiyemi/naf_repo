@@ -315,7 +315,7 @@ const ResultsList = () => {
               <TableCell>
                 {result.summary.cumulative_grade_point_average}
               </TableCell>
-              <TableCell>{result.details[0].score_remark}</TableCell>
+              <TableCell>{result.details?.[0].score_remark}</TableCell>
             </TableRow>
           ))}
         </TableBody>

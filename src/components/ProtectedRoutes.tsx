@@ -16,6 +16,7 @@ const allowedRoutes = {
     "/form/:form_id",
     "/form/:form_id/preview",
     "/applicants",
+    "/applicants/:program_id",
     "/cbt",
     "/cbt/:quiz_id",
     "/cbt/:quiz_id/:assessment_id",

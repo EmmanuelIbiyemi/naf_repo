@@ -5,7 +5,7 @@ import TableContainer from "@mui/material/TableContainer";
 import TableRow from "@mui/material/TableRow";
 import { Box, Checkbox, IconButton, Typography } from "@mui/material";
 import { Delete, Edit } from "@mui/icons-material";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import DeleteConfirmationModal from "../../../../components/DeleteConfirmationModal";
 import { useEffect, useState } from "react";
 import { useAppDispatch, useAppSelector } from "../../../../store/hooks";
@@ -112,14 +112,15 @@ const FormList = () => {
               >
                 <Checkbox />
                 <Box>
-                  <Typography
-                    sx={{
+                  <Link
+                    to={`/applicants/${form.program_id}`}
+                    style={{
                       textTransform: "capitalize",
                       fontWeight: "500 !important",
                     }}
                   >
                     {form.name.split("::")[0]}
-                  </Typography>
+                  </Link>
                   <Typography>
                     Last Edited on {dayjs(form.updated_at).format("DD-MM-YYYY")}
                   </Typography>
