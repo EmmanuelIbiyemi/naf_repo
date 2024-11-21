@@ -12,7 +12,7 @@ import {
   CircularProgress,
   Alert,
 } from "@mui/material";
-import { Download, Print } from "@mui/icons-material";
+import { Print } from "@mui/icons-material";
 import { Link } from "react-router-dom";
 import { useGetParticipantQuery } from "../../../../store/api/participants.api";
 import Breadcrumb from "../components/BreadCrumb";
@@ -57,7 +57,13 @@ const ExamCard = () => {
 
   return (
     <Box sx={{ maxWidth: 800, mx: "auto" }}>
-      <Breadcrumb />
+      <Box
+        sx={{
+          "@media print": { display: "none" },
+        }}
+      >
+        <Breadcrumb />
+      </Box>
 
       <Paper sx={{ p: 4, my: 3, bgcolor: "#ffffff" }}>
         {/* Header Section */}
@@ -173,7 +179,7 @@ const ExamCard = () => {
         }}
       >
         {/* Download Card */}
-        <Paper
+        {/* <Paper
           sx={{
             p: 4,
             textAlign: "center",
@@ -195,7 +201,7 @@ const ExamCard = () => {
           >
             Click here to Download (PDF)
           </Button>
-        </Paper>
+        </Paper> */}
 
         {/* Print Card */}
         <Paper
