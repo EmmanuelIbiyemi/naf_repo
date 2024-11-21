@@ -30,6 +30,10 @@ const ExamCard = () => {
     isLoading,
     error,
   } = useGetParticipantQuery(participantId);
+      const { data: currentSemester } = useGetCurrentSemesterQuery(null);
+      const { data: currentSession } = useGetCurrentSessionQuery(null);
+
+
 
   if (isLoading) {
     return (
@@ -48,11 +52,6 @@ const ExamCard = () => {
   }
 
   const participant = response?.data;
-
-    const { data: currentSemester, isLoading: isSemesterLoading } =
-      useGetCurrentSemesterQuery(null);
-    const { data: currentSession, isLoading: isSessionLoading } =
-      useGetCurrentSessionQuery(null);
 
 
   // Sample exam data - you would typically get this from another endpoint
