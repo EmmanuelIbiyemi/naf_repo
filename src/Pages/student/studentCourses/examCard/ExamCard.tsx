@@ -19,6 +19,8 @@ import Breadcrumb from "../components/BreadCrumb";
 import { useAppSelector } from "../../../../store/hooks";
 import { selectCurrentUser } from "../../../../store/auth.slice";
 import logo from "../../../../assets/logo.png";
+import { useGetCurrentSemesterQuery } from "../../../../store/api/semesters.api";
+import { useGetCurrentSessionQuery } from "../../../../store/api/sessions.api";
 const ExamCard = () => {
   // Assuming we get the participant ID from URL params or props
   const user = useAppSelector(selectCurrentUser);
@@ -47,13 +49,14 @@ const ExamCard = () => {
 
   const participant = response?.data;
 
+    const { data: currentSemester, isLoading: isSemesterLoading } =
+      useGetCurrentSemesterQuery(null);
+    const { data: currentSession, isLoading: isSessionLoading } =
+      useGetCurrentSessionQuery(null);
+
+
   // Sample exam data - you would typically get this from another endpoint
   const examRows = participant?.courses;
-
-  const getMatricNumber = () => {
-    const year = new Date().getFullYear().toString().slice(2);
-    return `U${year}/RJ/${participant?.id?.toString().padStart(3, "0")}`;
-  };
 
   return (
     <Box sx={{ maxWidth: 800, mx: "auto" }}>
@@ -102,7 +105,7 @@ const ExamCard = () => {
         <Box sx={{ mb: 4 }}>
           <Box sx={{ display: "flex", gap: 4, mb: 2 }}>
             <Typography variant="body2">
-              <strong>MATRIC NO:</strong> {getMatricNumber()}
+              <strong>MATRIC NO:</strong> {participant?.matric_number}
             </Typography>
           </Box>
           <Box sx={{ display: "flex", gap: 4, flexWrap: "wrap" }}>
@@ -111,13 +114,13 @@ const ExamCard = () => {
               {`${participant?.first_name} ${participant?.last_name}`}
             </Typography>
             <Typography variant="body2">
-              <strong>SEMESTER:</strong> {"2nd"}
+              <strong>SEMESTER:</strong> {currentSemester?.data.name || 'N/A'}
             </Typography>
             <Typography variant="body2">
               <strong>LEVEL:</strong> {participant?.level.name || "100"}
             </Typography>
             <Typography variant="body2">
-              <strong>SESSION:</strong> 2023/2024
+              <strong>SESSION:</strong> {currentSession?.data.name || 'N/A'}
             </Typography>
           </Box>
         </Box>
