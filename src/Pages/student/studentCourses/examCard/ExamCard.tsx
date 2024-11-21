@@ -21,6 +21,7 @@ import { selectCurrentUser } from "../../../../store/auth.slice";
 import logo from "../../../../assets/logo.png";
 import { useGetCurrentSemesterQuery } from "../../../../store/api/semesters.api";
 import { useGetCurrentSessionQuery } from "../../../../store/api/sessions.api";
+
 const ExamCard = () => {
   // Assuming we get the participant ID from URL params or props
   const user = useAppSelector(selectCurrentUser);
@@ -30,10 +31,8 @@ const ExamCard = () => {
     isLoading,
     error,
   } = useGetParticipantQuery(participantId);
-      const { data: currentSemester } = useGetCurrentSemesterQuery(null);
-      const { data: currentSession } = useGetCurrentSessionQuery(null);
-
-
+  const { data: currentSemester } = useGetCurrentSemesterQuery(null);
+  const { data: currentSession } = useGetCurrentSessionQuery(null);
 
   if (isLoading) {
     return (
@@ -52,7 +51,6 @@ const ExamCard = () => {
   }
 
   const participant = response?.data;
-
 
   // Sample exam data - you would typically get this from another endpoint
   const examRows = participant?.courses;
@@ -113,13 +111,13 @@ const ExamCard = () => {
               {`${participant?.first_name} ${participant?.last_name}`}
             </Typography>
             <Typography variant="body2">
-              <strong>SEMESTER:</strong> {currentSemester?.data.name || 'N/A'}
+              <strong>SEMESTER:</strong> {currentSemester?.data.name || "N/A"}
             </Typography>
             <Typography variant="body2">
               <strong>LEVEL:</strong> {participant?.level.name || "100"}
             </Typography>
             <Typography variant="body2">
-              <strong>SESSION:</strong> {currentSession?.data.name || 'N/A'}
+              <strong>SESSION:</strong> {currentSession?.data.name || "N/A"}
             </Typography>
           </Box>
         </Box>
