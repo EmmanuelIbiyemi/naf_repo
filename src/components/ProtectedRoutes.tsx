@@ -5,6 +5,8 @@ import {
   setUserFromLocalStorage,
 } from "../store/auth.slice";
 import App from "../App";
+import { useEffect, useState } from "react";
+import LoadingScreen from "./LoadingScreen";
 
 const allowedRoutes = {
   admin: [
@@ -90,14 +92,26 @@ const pathMatches = (pathPattern: string, currentPath: string): boolean => {
   return regexPattern.test(currentPath);
 };
 
-const PrivateRoute = () => {
+const PrivateRoute: React.FC = () => {
+  const [isUserLoaded, setIsUserLoaded] = useState(false);
   const user = useAppSelector(selectCurrentUser);
   const location = useLocation();
   const dispatch = useAppDispatch();
 
-  if (!user) {
-    if (localStorage.getItem("user")) dispatch(setUserFromLocalStorage());
-    else return <Navigate to="/login" replace />;
+  useEffect(() => {
+    const loadUser = async () => {
+      if (!user && localStorage.getItem("user")) {
+        dispatch(setUserFromLocalStorage());
+      }
+      setIsUserLoaded(true);
+    };
+
+    loadUser();
+  }, [dispatch, user]);
+
+  // If user loading is not complete, show a loading state or null
+  if (!isUserLoaded) {
+    return <LoadingScreen />;
   }
 
   const userAllowedRoutes =

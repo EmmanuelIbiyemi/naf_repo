@@ -1,14 +1,17 @@
 import { Navigate, useLocation } from "react-router-dom";
 import "./App.scss";
-import AdminLayout from "./components/layout/AdminLayout";
-import InstructorLayout from "./components/layout/InstructorLayout";
-import StudentLayout from "./components/layout/StudentLayout";
 import { selectCurrentUser, setLastVisitedPage } from "./store/auth.slice";
 import { useAppDispatch, useAppSelector } from "./store/hooks";
-import { useEffect } from "react";
+import { lazy, useEffect } from "react";
 import { Box, LinearProgress } from "@mui/material";
 import { selectBuilderLoading, selectPageLoading } from "./store/app.slice";
 import LoadingScreen from "./components/LoadingScreen";
+
+const AdminLayout = lazy(() => import("./components/layout/AdminLayout"));
+const InstructorLayout = lazy(
+  () => import("./components/layout/InstructorLayout")
+);
+const StudentLayout = lazy(() => import("./components/layout/StudentLayout"));
 
 function App() {
   const user = useAppSelector(selectCurrentUser);
