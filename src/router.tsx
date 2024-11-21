@@ -4,7 +4,6 @@ import PrivateRoute from "./components/ProtectedRoutes";
 import AssessmentsPage from "./Pages/admin/cbt/assessments/Assessments";
 
 // Admin
-const App = lazy(() => import("./App"));
 const Login = lazy(() => import("./Pages/login/Login"));
 const Dashboard = lazy(() => import("./Pages/admin/dashboard/Dashboard"));
 const AdminAcademicsPage = lazy(
@@ -319,7 +318,7 @@ export const router = createBrowserRouter([
 
   {
     path: "/student",
-    element: <App />,
+    element: <PrivateRoute />,
     children: [
       { path: "announcements/:id", element: <StudentAnnouncement /> },
       { path: "dashboard", element: <StudentDashboard /> },

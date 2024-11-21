@@ -115,7 +115,7 @@ const PrivateRoute: React.FC = () => {
   }
 
   const userAllowedRoutes =
-    allowedRoutes[(user?.role || "admin") as keyof typeof allowedRoutes] || [];
+    allowedRoutes[(user?.role || "") as keyof typeof allowedRoutes] || [];
 
   // Check if the current path matches any allowed route, accounting for parameters
   const isAllowed = userAllowedRoutes.some((allowedRoute) =>
