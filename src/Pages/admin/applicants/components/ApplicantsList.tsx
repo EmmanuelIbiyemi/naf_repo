@@ -3,7 +3,7 @@ import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
 import TableRow from "@mui/material/TableRow";
-import { ApplicantType } from "../../../../types/applicants";
+import { ApplicantType2 } from "../../../../types/applicants";
 import {
   Chip,
   IconButton,
@@ -25,6 +25,7 @@ import { useAppDispatch, useAppSelector } from "../../../../store/hooks";
 import { selectKeyword, setPageLoading } from "../../../../store/app.slice";
 import EmptyState from "../../../../components/EmptyState";
 import { useParams } from "react-router-dom";
+import ApplicantSidebar from "./ApplicantsSidebar";
 
 const ApplicantList = () => {
   const { program_id } = useParams();
@@ -34,7 +35,7 @@ const ApplicantList = () => {
     delete: false,
     success: false,
   });
-  const [selectedApplicant, setSelectedApplicant] = useState<ApplicantType>();
+  const [selectedApplicant, setSelectedApplicant] = useState<ApplicantType2>();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
   const {
@@ -63,9 +64,11 @@ const ApplicantList = () => {
   }, [keyword, apcts]);
 
   useEffect(() => {
-    if (isFetching || updateState.isLoading || deleteState.isLoading)
+    if (
+      (isFetching || updateState.isLoading || deleteState.isLoading) &&
+      !isError
+    )
       dispatch(setPageLoading(true));
-    else if (isError) dispatch(setPageLoading(false));
     else dispatch(setPageLoading(false));
   }, [isFetching, isError, apcts, updateState, deleteState]);
 
@@ -87,7 +90,7 @@ const ApplicantList = () => {
     },
   ];
 
-  const handleOpenModal = (applicant: ApplicantType, type: string) => {
+  const handleOpenModal = (applicant: ApplicantType2, type: string) => {
     setSelectedApplicant(applicant);
     setOpenModal((prev) => ({ ...prev, [type]: true }));
   };
@@ -108,7 +111,7 @@ const ApplicantList = () => {
 
   const handleOpenMenu = (
     event: React.MouseEvent<HTMLDivElement>,
-    applicant: ApplicantType
+    applicant: ApplicantType2
   ) => {
     setAnchorEl(event.currentTarget);
     setSelectedApplicant(applicant);
@@ -129,6 +132,11 @@ const ApplicantList = () => {
 
   return (
     <TableContainer>
+      <ApplicantSidebar
+        applicant={selectedApplicant}
+        toggleDrawer={() => setSelectedApplicant(undefined)}
+      />
+
       <DeleteConfirmationModal
         actions={{
           proceed: () => {
@@ -225,7 +233,12 @@ const ApplicantList = () => {
               >
                 <TableCell component="th" scope="row">
                   <Typography
-                    style={{ textTransform: "capitalize", fontWeight: 500 }}
+                    style={{
+                      textTransform: "capitalize",
+                      fontWeight: 500,
+                      cursor: "pointer",
+                    }}
+                    onClick={() => setSelectedApplicant(applicant)}
                   >
                     {applicant.data.first_name + " " + applicant.data.last_name}
                   </Typography>

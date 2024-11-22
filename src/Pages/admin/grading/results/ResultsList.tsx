@@ -133,7 +133,7 @@ const ResultsList = () => {
         sx={{
           ".MuiSelect-select": {
             padding: ".5rem",
-            maxWidth: "75px",
+            maxWidth: "70px",
           },
           "td.MuiTableCell-body": {
             "&:last-child td, &:last-child th": { border: 0 },
