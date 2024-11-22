@@ -195,13 +195,6 @@ const QuizResult = () => {
 
           {/* Action Buttons */}
           <Stack direction="row" spacing={2}>
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={() => window.location.reload()}
-            >
-              Take Quiz Again
-            </Button>
             <Button variant="outlined" onClick={() => window.history.back()}>
               Back to Quizzes
             </Button>
