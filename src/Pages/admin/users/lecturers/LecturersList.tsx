@@ -19,12 +19,14 @@ import SuccessModal from "../../../../components/SuccessModal";
 import { selectKeyword, setPageLoading } from "../../../../store/app.slice";
 import { useAppDispatch, useAppSelector } from "../../../../store/hooks";
 import EmptyState from "../../../../components/EmptyState";
+import LecturerSidebar from "./LecturerSidebar";
 
 const LecturersList = () => {
   const [openModal, setOpenModal] = useState({
     edit: false,
     success: false,
     delete: false,
+    sidebar: false,
   });
   const [selectedLecturer, setSelectedLecturer] = useState<Lecturer>();
   const { data: ltcs, isFetching, isError } = useGetLecturersQuery(null);
@@ -83,6 +85,10 @@ const LecturersList = () => {
 
   return (
     <TableContainer>
+      <LecturerSidebar
+        lecturer={selectedLecturer}
+        toggleDrawer={() => handleCloseModal("sidebar")}
+      />
       {/* ADD */}
       <FormModal open={openModal.edit} close={() => handleCloseModal("edit")}>
         <LecturerForm
@@ -160,7 +166,12 @@ const LecturersList = () => {
               >
                 <Checkbox />
                 <Typography
-                  style={{ textTransform: "capitalize", fontWeight: 500 }}
+                  style={{
+                    cursor: "pointer",
+                    textTransform: "capitalize",
+                    fontWeight: 500,
+                  }}
+                  onClick={() => setSelectedLecturer(lecturer)}
                 >
                   {lecturer.first_name} {lecturer.last_name}
                 </Typography>

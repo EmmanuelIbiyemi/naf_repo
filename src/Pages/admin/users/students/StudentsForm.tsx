@@ -36,6 +36,8 @@ const StudentForm = ({ actions, student }: Props) => {
     email: student?.email || "",
     phone: student?.phone || "",
     courses: student?.courses || [],
+    address: student?.address || "",
+    photo: student?.photo || "",
     faculty_id: 0,
     department_id: 0,
     program_id: 0,

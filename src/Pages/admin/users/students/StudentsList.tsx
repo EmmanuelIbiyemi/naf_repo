@@ -19,12 +19,14 @@ import SuccessModal from "../../../../components/SuccessModal";
 import { useAppDispatch, useAppSelector } from "../../../../store/hooks";
 import { selectKeyword, setPageLoading } from "../../../../store/app.slice";
 import EmptyState from "../../../../components/EmptyState";
+import StudentSidebar from "./StudentSidebar";
 
 const StudentsList = () => {
   const [openModal, setOpenModal] = useState({
     edit: false,
     success: false,
     delete: false,
+    sidebar: false,
   });
   const [selectedStudent, setSelectedStudent] = useState<StudentType>();
   const { data: stds, isFetching, isError } = useGetStudentsQuery(null);
@@ -83,6 +85,10 @@ const StudentsList = () => {
 
   return (
     <TableContainer>
+      <StudentSidebar
+        student={selectedStudent}
+        toggleDrawer={() => handleCloseModal("sidebar")}
+      />
       {/* ADD */}
       <FormModal open={openModal.edit} close={() => handleCloseModal("edit")}>
         <StudentForm
@@ -163,9 +169,11 @@ const StudentsList = () => {
                   sx={{
                     fontWeight: "500 !important",
                     textTransform: "capitalize",
+                    cursor: "pointer",
                   }}
+                  onClick={() => setSelectedStudent(student)}
                 >
-                  {student.first_name}
+                  {student.first_name} {student.last_name}
                 </Typography>
               </TableCell>
               <TableCell align="right">

@@ -1,13 +1,17 @@
 import { CourseType } from "./courses";
+import { LevelType } from "./levels";
 
 export type StudentType = {
   id?: number;
   first_name: string;
   last_name: string;
   email: string;
+  address: string;
   phone: string;
+  photo: string;
   courses: CourseType[];
   level_id?: number;
+  level?: LevelType;
 };
 
 export type StudentCreateType = StudentType & {};

@@ -19,12 +19,14 @@ import SuccessModal from "../../../../components/SuccessModal";
 import { useAppDispatch, useAppSelector } from "../../../../store/hooks";
 import { selectKeyword, setPageLoading } from "../../../../store/app.slice";
 import EmptyState from "../../../../components/EmptyState";
+import AdminSidebar from "./AdminSidebar";
 
 const AdminsList = () => {
   const [openModal, setOpenModal] = useState({
     edit: false,
     success: false,
     delete: false,
+    sidebar: false,
   });
   const [selectedAdmin, setSelectedAdmin] = useState<Admin>();
   const { data: adminsData, isFetching, isError } = useGetAdminsQuery(null);
@@ -83,6 +85,10 @@ const AdminsList = () => {
 
   return (
     <TableContainer>
+      <AdminSidebar
+        admin={selectedAdmin}
+        toggleDrawer={() => handleCloseModal("sidebar")}
+      />
       {/* ADD */}
       <FormModal open={openModal.edit} close={() => handleCloseModal("edit")}>
         <AdminForm
@@ -160,7 +166,12 @@ const AdminsList = () => {
               >
                 <Checkbox />
                 <Typography
-                  style={{ textTransform: "capitalize", fontWeight: 500 }}
+                  style={{
+                    cursor: "pointer",
+                    textTransform: "capitalize",
+                    fontWeight: 500,
+                  }}
+                  onClick={() => setSelectedAdmin(admin)}
                 >
                   {admin.first_name} {admin.last_name}
                 </Typography>
