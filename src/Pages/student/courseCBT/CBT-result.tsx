@@ -19,7 +19,7 @@ import {
   EmojiEvents,
   Assignment,
 } from "@mui/icons-material";
-import { ReactNode } from "react";
+import { ReactNode, useState } from "react";
 
 type ScoreCircleProps = {
   score: number;
@@ -67,12 +67,14 @@ const ScoreCircle = ({ score, total }: ScoreCircleProps) => {
     </Box>
   );
 };
+
 type StatCardProps = {
   icon: ReactNode;
   title: string;
   value: string;
   color: string;
 };
+
 const StatCard = ({ icon, title, value, color }: StatCardProps) => (
   <Paper
     elevation={2}
@@ -95,6 +97,19 @@ const StatCard = ({ icon, title, value, color }: StatCardProps) => (
   </Paper>
 );
 
+const LoadingDisplay = () => (
+  <Box
+    sx={{
+      display: "flex",
+      justifyContent: "center",
+      alignItems: "center",
+      minHeight: "60vh",
+    }}
+  >
+    <CircularProgress />
+  </Box>
+);
+
 const QuizResult = () => {
   const { quizId } = useParams();
   const {
@@ -102,20 +117,15 @@ const QuizResult = () => {
     isLoading,
     error,
   } = useGetQuizResultQuery(Number(quizId));
+  const [isNavigating, setIsNavigating] = useState(false);
 
-  if (isLoading) {
-    return (
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          minHeight: "60vh",
-        }}
-      >
-        <CircularProgress />
-      </Box>
-    );
+  const handleNavigation = () => {
+    setIsNavigating(true);
+    window.history.back();
+  };
+
+  if (isLoading || isNavigating) {
+    return <LoadingDisplay />;
   }
 
   if (error) {
@@ -129,8 +139,28 @@ const QuizResult = () => {
     );
   }
 
-  const score = resultData?.data.result[0].right || 0;
-  const wrong = resultData?.data.result[0].wrong || 0;
+  // Handle empty result case
+  if (!resultData?.data?.result?.[0]) {
+    return (
+      <Box sx={{ p: 3, maxWidth: 1200, mx: "auto" }}>
+        <Card sx={{ p: 4 }}>
+          <Stack spacing={3} alignItems="center">
+            <Alert severity="info" sx={{ width: "100%" }}>
+              <AlertTitle>No Results Found</AlertTitle>
+              You were absent for this quiz. Please contact your instructor for
+              more information.
+            </Alert>
+            <Button variant="contained" onClick={handleNavigation}>
+              Back to Quizzes
+            </Button>
+          </Stack>
+        </Card>
+      </Box>
+    );
+  }
+
+  const score = resultData.data.result[0].right || 0;
+  const wrong = resultData.data.result[0].wrong || 0;
   const total = score + wrong;
   const percentage = (score / total) * 100;
   const passStatus = percentage >= 70;
@@ -195,7 +225,7 @@ const QuizResult = () => {
 
           {/* Action Buttons */}
           <Stack direction="row" spacing={2}>
-            <Button variant="outlined" onClick={() => window.history.back()}>
+            <Button variant="contained" onClick={handleNavigation}>
               Back to Quizzes
             </Button>
           </Stack>
