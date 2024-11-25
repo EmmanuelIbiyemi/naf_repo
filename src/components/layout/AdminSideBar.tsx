@@ -39,7 +39,7 @@ const navLinks: NavLink[] = [
       { content: "Student Exam", icon: ChevronLeft, link: "/cbt" },
     ],
   },
-  { content: "Grading System", icon: GraduationScroll, link: "/grading" },
+  { content: "Results", icon: GraduationScroll, link: "/grading" },
   { content: "Settings", icon: SettingsIcon, link: "/settings" },
 ];
 
