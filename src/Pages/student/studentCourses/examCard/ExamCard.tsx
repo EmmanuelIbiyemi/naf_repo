@@ -53,7 +53,9 @@ const ExamCard = () => {
   const participant = response?.data;
 
   // Sample exam data - you would typically get this from another endpoint
-  const examRows = participant?.courses;
+  const examRows = participant?.courses.filter(
+    (course) => course.semester === currentSemester?.data.name
+  );
 
   return (
     <Box sx={{ maxWidth: 800, mx: "auto" }}>
@@ -143,6 +145,9 @@ const ExamCard = () => {
                   COURSE TITLE
                 </TableCell>
                 <TableCell sx={{ color: "white", fontWeight: 600 }}>
+                  COURSE SEMESTER
+                </TableCell>
+                <TableCell sx={{ color: "white", fontWeight: 600 }}>
                   CREDIT UNIT
                 </TableCell>
                 <TableCell sx={{ color: "white", fontWeight: 600 }}>
@@ -159,6 +164,7 @@ const ExamCard = () => {
                   <TableCell>{index + 1}</TableCell>
                   <TableCell>{row.code}</TableCell>
                   <TableCell>{row.name}</TableCell>
+                  <TableCell>{row.semester}</TableCell>
                   <TableCell>{row.credit_units}</TableCell>
                   <TableCell>{row.invigilatorSign}</TableCell>
                 </TableRow>

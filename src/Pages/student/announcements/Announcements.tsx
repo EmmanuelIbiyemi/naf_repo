@@ -19,7 +19,6 @@ const AnnouncementsPage = () => {
     {
       skip: false,
       refetchOnMountOrArgChange: true,
-      pollingInterval: 60000, // Refetch every minute
     }
   );
 
