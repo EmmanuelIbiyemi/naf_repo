@@ -54,14 +54,6 @@ const Pages = () => {
   return (
     <Box sx={contentStyles}>
       <SuccessModal
-        actions={{
-          proceed: () => {
-            console.log("proceed");
-          },
-          undo: () => {
-            console.log("undo");
-          },
-        }}
         close={() => {
           handleCloseModal("success");
         }}
@@ -76,9 +68,6 @@ const Pages = () => {
           proceed: () => {
             if (selectedPost) handleDeletePost(selectedPost.id as number);
             console.log("proceed");
-          },
-          undo: () => {
-            console.log("cancel");
           },
         }}
         close={() => handleCloseModal("delete")}

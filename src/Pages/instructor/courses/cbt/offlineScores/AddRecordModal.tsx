@@ -208,14 +208,6 @@ AddRecordModalProps) => {
         </form>
       </DialogContent>
       <SuccessModal
-        actions={{
-          proceed: () => {
-            console.log("proceed");
-          },
-          undo: () => {
-            console.log("undo");
-          },
-        }}
         close={handleCloseSuccessModal}
         infoText=""
         open={openSuccessModal}

@@ -23,7 +23,7 @@ const modalContentStyles: SxProps = {
   gap: "2rem",
   left: "50%",
   position: "fixed",
-  padding: "1.5rem",
+  padding: "2.5rem 1.5rem",
   top: "50%",
   transform: "translate(-50%,-50%)",
   width: "30vw",

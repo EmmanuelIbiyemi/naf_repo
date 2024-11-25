@@ -102,20 +102,15 @@ const RecordsItemsList = ({ lists, handleButtonClick, refetch }: ListProps) => {
       <DeleteConfirmationModal
         actions={{
           proceed: handleConfirmDelete,
-          undo: () => setDeleteModalState((prev) => ({ ...prev, open: false })),
         }}
         close={() => setDeleteModalState((prev) => ({ ...prev, open: false }))}
-        infoText="This action cannot be undone. All associated scores will also be deleted."
+        infoText="You can’t undo this action."
         open={deleteModalState.open}
-        subTitle={`Are you sure you want to delete record "${deleteModalState.recordName}"?`}
+        subTitle={`Are you sure you want to delete record "${deleteModalState.recordName}" ?`}
         title="Delete Record?"
       />
 
       <SuccessModal
-        actions={{
-          proceed: () => setDeleteSuccessModal(false),
-          undo: () => setDeleteSuccessModal(false),
-        }}
         close={() => setDeleteSuccessModal(false)}
         infoText=""
         open={deleteSuccessModal}

@@ -62,19 +62,11 @@ const DepartmentsPage = () => {
       </FormModal>
 
       <SuccessModal
-        actions={{
-          proceed: () => {
-            console.log("proceed");
-          },
-          undo: () => {
-            console.log("undo");
-          },
-        }}
         close={() => {
           handleCloseModal("success");
           setSelectedDepartment(undefined);
         }}
-        infoText="The instructors added in this department will get notified."
+        infoText=""
         open={openModal.success}
         subTitle={`You have successfully added a new department “${departmentName}”.`}
         title="Updates Successful"

@@ -100,34 +100,23 @@ const FacultyList = () => {
             if (selectedFaculty) handleDelete(selectedFaculty.id as number);
             console.log("proceed");
           },
-          undo: () => {
-            console.log("cancel");
-          },
         }}
         close={() => handleCloseModal("delete")}
-        infoText="The instructors enrolled in this Faculty will get notified."
+        infoText="You can’t undo this action."
         open={openModal.delete}
-        subTitle={`Are you sure you want to delete Faculty ${selectedFaculty?.name}”</strong>? You can’t undo this action.`}
+        subTitle={`Are you sure you want to delete Faculty "${selectedFaculty?.name}" ?`}
         title="Delete Faculty?"
       />
 
       {/* Success */}
       <SuccessModal
-        actions={{
-          proceed: () => {
-            console.log("proceed");
-          },
-          undo: () => {
-            console.log("undo");
-          },
-        }}
+        open={openModal.success}
         close={() => {
           handleCloseModal("success");
           setSelectedFaculty(undefined);
         }}
         infoText=""
-        open={openModal.success}
-        subTitle={`You have successfully added a new Faculty ${selectedFaculty?.name}”</strong>.`}
+        subTitle={`You have successfully added a new Faculty "${selectedFaculty?.name}".`}
         title="Updates Successful"
       />
 

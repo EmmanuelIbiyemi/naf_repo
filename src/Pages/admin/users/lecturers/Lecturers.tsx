@@ -65,21 +65,13 @@ const LecturersPage = () => {
       </FormModal>
 
       <SuccessModal
-        actions={{
-          proceed: () => {
-            console.log("proceed");
-          },
-          undo: () => {
-            console.log("undo");
-          },
-        }}
         close={() => {
           handleCloseModal("success");
           setSelectedLecturer(undefined);
         }}
-        infoText="The instructors added in this lecturer will get notified."
+        infoText=""
         open={openModal.success}
-        subTitle={`You have successfully added a new lecturer <strong>"${lecturerName}.`}
+        subTitle={`You have successfully added a new lecturer "${lecturerName}".`}
         title="Updates Successful"
       />
 

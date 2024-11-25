@@ -1,9 +1,8 @@
 import CustomModal from "./CustomModal";
-import { Alert, Box, Button, IconButton, Typography } from "@mui/material";
-import { LoadingButton } from "@mui/lab";
+import { Alert, Box, IconButton, Typography } from "@mui/material";
 import happyEmoji from "../assets/happy-emoji.svg";
-import formStyles from "./form/form.module.scss";
 import { Close, Info } from "@mui/icons-material";
+import { LoadingButton } from "@mui/lab";
 
 type Props = {
   open: boolean;
@@ -11,20 +10,9 @@ type Props = {
   title: string;
   subTitle: string;
   infoText: string;
-  actions: {
-    undo: () => void;
-    proceed: () => void;
-  };
 };
 
-const SuccessModal = ({
-  actions,
-  close,
-  infoText,
-  open,
-  subTitle,
-  title,
-}: Props) => {
+const SuccessModal = ({ close, infoText, open, subTitle, title }: Props) => {
   return (
     <CustomModal close={close} open={open}>
       <Box
@@ -35,34 +23,23 @@ const SuccessModal = ({
         }}
       >
         <img src={happyEmoji} alt="" />
-        <IconButton>
+        <IconButton onClick={close}>
           <Close />
         </IconButton>
       </Box>
-      <Typography variant="h4">{title}</Typography>
-      <Typography>{subTitle}</Typography>
-      {infoText ? (
-        <Alert severity="info" icon={<Info />}>
-          {infoText}
-        </Alert>
-      ) : null}
-      <Box className={formStyles.btn_group}>
-        <Button
-          onClick={() => {
-            actions.undo();
-            close();
-          }}
-          className={formStyles.cancel_btn}
-          variant="contained"
-        >
-          Close
-        </Button>
+      <Box sx={{ display: "grid", gap: ".8rem" }}>
+        <Typography variant="h4">{title}</Typography>
+        <Typography>{subTitle}</Typography>
+        {infoText ? (
+          <Alert severity="info" icon={<Info />}>
+            {infoText}
+          </Alert>
+        ) : null}
+      </Box>
+      <Box>
         <LoadingButton
-          onClick={() => {
-            actions.proceed();
-            close();
-          }}
-          className={formStyles.submit_btn}
+          sx={{ width: "100%" }}
+          onClick={close}
           type="submit"
           variant="contained"
         >

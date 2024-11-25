@@ -23,8 +23,8 @@ import { useGetProgrammesMMutation } from "../../../../store/api/programmes.api"
 import { useGetLevelsMMutation } from "../../../../store/api/levels.api";
 import { useGetSessionsQuery } from "../../../../store/api/sessions.api";
 import { useGetSemestersQuery } from "../../../../store/api/semesters.api";
-import { selectKeyword } from "../../../../store/app.slice";
-import { useAppSelector } from "../../../../store/hooks";
+import { selectKeyword, setPageLoading } from "../../../../store/app.slice";
+import { useAppDispatch, useAppSelector } from "../../../../store/hooks";
 import SuccessModal from "../../../../components/SuccessModal";
 
 const ResultsList = () => {
@@ -32,8 +32,10 @@ const ResultsList = () => {
   const [getDepartments, departmentsState] = useGetDepartmentsMMutation();
   const [getPrograms, programsState] = useGetProgrammesMMutation();
   const [getLevels, levelsState] = useGetLevelsMMutation();
-  const { data: sessions } = useGetSessionsQuery(null);
-  const { data: semesters } = useGetSemestersQuery(null);
+  const { data: sessions, isFetching: sessionsIsLoading } =
+    useGetSessionsQuery(null);
+  const { data: semesters, isFetching: semesterIsLoading } =
+    useGetSemestersQuery(null);
   const [filters, setFilters] = useState({
     faculty_id: 0,
     department_id: 0,
@@ -43,10 +45,11 @@ const ResultsList = () => {
     semester: "default",
   });
   const [getResults, resultState] = useGetResultsMMutation();
-  const [generateResults] = useGenerateResultMutation();
+  const [generateResults, generateState] = useGenerateResultMutation();
   const [results, setResults] = useState(resultState.data?.data);
   const keyword = useAppSelector(selectKeyword);
   const [openModal, setOpenModal] = useState(false);
+  const dispatch = useAppDispatch();
 
   useEffect(() => {
     if (keyword && resultState.data?.data)
@@ -64,6 +67,28 @@ const ResultsList = () => {
       );
     else setResults(resultState.data?.data);
   }, [keyword, resultState]);
+
+  useEffect(() => {
+    if (
+      (resultState.isLoading && !resultState.isError) ||
+      generateState.isLoading ||
+      departmentsState.isLoading ||
+      programsState.isLoading ||
+      levelsState.isLoading ||
+      sessionsIsLoading ||
+      semesterIsLoading
+    )
+      dispatch(setPageLoading(true));
+    else dispatch(setPageLoading(false));
+  }, [
+    resultState,
+    generateState,
+    departmentsState,
+    programsState,
+    levelsState,
+    sessions,
+    semesters,
+  ]);
 
   const handleChange = async (e: SelectChangeEvent<number | string>) => {
     const { target } = e;
@@ -112,14 +137,6 @@ const ResultsList = () => {
     <TableContainer>
       {/* Success */}
       <SuccessModal
-        actions={{
-          proceed: () => {
-            console.log("proceed");
-          },
-          undo: () => {
-            console.log("undo");
-          },
-        }}
         close={() => {
           setOpenModal(false);
         }}
@@ -146,9 +163,11 @@ const ResultsList = () => {
             display: "flex",
             marginBottom: "2rem",
             justifyContent: "space-between",
+            flexWrap: "wrap",
+            rowGap: ".5rem",
           }}
         >
-          <Box sx={{ display: "flex", gap: ".5em" }}>
+          <Box sx={{ display: "flex", gap: ".5em", flexWrap: "wrap" }}>
             <FormControl>
               <Select
                 value={filters.faculty_id}

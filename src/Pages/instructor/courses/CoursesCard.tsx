@@ -47,7 +47,7 @@ const CoursesCard = ({ course }: Props) => {
           fontWeight: 300,
         }}
       >
-        Course: {course.code}
+        Course code: {course.code}
       </Typography>
       <Typography
         variant="body2"

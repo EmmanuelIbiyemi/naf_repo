@@ -212,14 +212,11 @@ const Notes = () => {
               if (selectedNotes) handleDelete(selectedNotes.id);
               console.log("proceed");
             },
-            undo: () => {
-              console.log("cancel");
-            },
           }}
           close={() => handleCloseActionsModal("delete")}
-          infoText="The students enrolled in this Course will get notified."
+          infoText="You can’t undo this action."
           open={openActionsModal.delete}
-          subTitle={`Are you sure you want to delete the note "${selectedNotes?.title}"? You can't undo this action.`}
+          subTitle={`Are you sure you want to delete the note "${selectedNotes?.title}" ?`}
           title="Delete Note?"
         />
         <Backdrop open={isDeleting}>
@@ -227,21 +224,13 @@ const Notes = () => {
         </Backdrop>
 
         <SuccessModal
-          actions={{
-            proceed: () => {
-              console.log("proceed");
-            },
-            undo: () => {
-              console.log("undo");
-            },
-          }}
           close={() => {
             handleCloseActionsModal("success");
             setSelectedNotes(undefined);
           }}
           infoText=""
           open={openActionsModal.success}
-          subTitle={`You have successfully added a new Course <strong>"${selectedNotes?.title}.`}
+          subTitle={`You have successfully added a new Course "${selectedNotes?.title}".`}
           title="Updates Successful"
         />
         <CustomPagination

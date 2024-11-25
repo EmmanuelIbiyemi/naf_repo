@@ -1,22 +1,15 @@
 import {
   Box,
   Button,
-
   Typography,
   Modal,
   Stack,
   IconButton,
-
   Alert,
   AlertTitle,
-
 } from "@mui/material";
 import { AccessTime, Assignment, Close } from "@mui/icons-material";
-import {
-  
-  QuizzesResponse,
-} from "../../../../types/quizzes";
-
+import { QuizzesResponse } from "../../../../types/quizzes";
 
 interface QuizInfoModalProps {
   quiz?: QuizzesResponse["data"][0];
@@ -78,13 +71,8 @@ const QuizInfoModal = ({
           </Stack>
 
           <Alert severity="warning">
-            <AlertTitle>Important Notice</AlertTitle>
-            - The timer will start immediately after clicking "Start Quiz"
-            <br />
-            - You cannot pause or restart the quiz once started
-            <br />
-            - Ensure you have a stable internet connection
-            <br />- Do not refresh or close the browser window
+            <AlertTitle>Instructions</AlertTitle>
+            {quiz.instructions}
           </Alert>
 
           <Button variant="contained" size="large" fullWidth onClick={onStart}>

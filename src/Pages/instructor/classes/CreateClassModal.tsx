@@ -282,14 +282,6 @@ const CreateClassModal = ({ open, handleClose, refetch }: createClassModal) => {
         </Box>
       </Modal>
       <SuccessModal
-        actions={{
-          proceed: () => {
-            console.log("proceed");
-          },
-          undo: () => {
-            console.log("undo");
-          },
-        }}
         close={handleCloseSuccessModal}
         infoText=""
         open={openSuccessModal}

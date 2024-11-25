@@ -162,18 +162,10 @@ UpdateRecordModalProps) => {
         </form>
       </DialogContent>
       <SuccessModal
-        actions={{
-          proceed: () => {
-            console.log("proceed");
-          },
-          undo: () => {
-            console.log("undo");
-          },
-        }}
         close={handleCloseSuccessModal}
-        infoText=""
+        infoText="Please check back later"
         open={openSuccessModal}
-        subTitle={`Record is being updated... Please check back in the next 2-3 minutes!`}
+        subTitle={`Record is being updated`}
         title="Successful"
       />
     </Dialog>

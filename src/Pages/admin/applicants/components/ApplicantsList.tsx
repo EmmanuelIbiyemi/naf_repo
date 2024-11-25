@@ -143,9 +143,6 @@ const ApplicantList = () => {
             if (selectedApplicant) handleDeleteApplicant(selectedApplicant.id);
             console.log("proceed");
           },
-          undo: () => {
-            console.log("cancel");
-          },
         }}
         close={() => handleCloseModal("delete")}
         infoText=""

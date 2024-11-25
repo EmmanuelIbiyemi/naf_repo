@@ -9,7 +9,6 @@ import {
   CircularProgress,
 } from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
-import logo from "../../assets/logo.png";
 import loginBG from "../../assets/login-bg.svg";
 import { Link, useNavigate } from "react-router-dom";
 import { Form, Formik, FormikHelpers } from "formik";
@@ -125,12 +124,12 @@ const Login = () => {
               textDecoration: "none",
             }}
           >
-            <img src={logo} alt="logo" height={80} />
-            <Typography>
-              Nigerian Air Force
-              <br />
-              College of Nursing Sciences
-            </Typography>
+            <img src={import.meta.env.VITE_LOGO} alt="logo" height={80} />
+            <Typography
+              dangerouslySetInnerHTML={{
+                __html: import.meta.env.VITE_SCHOOL_NAME_IN_HEADER,
+              }}
+            />
           </Link>
         </Container>
       </Box>
@@ -151,7 +150,11 @@ const Login = () => {
           {({ isSubmitting }) => (
             <Form>
               <Box sx={formStyles}>
-                <img src={logo} alt="College logo" width={50} />
+                <img
+                  src={import.meta.env.VITE_LOGO}
+                  alt="College logo"
+                  width={50}
+                />
                 <Typography variant="h5" sx={{ fontWeight: 500, mb: 3 }}>
                   LOGIN
                 </Typography>
@@ -200,8 +203,8 @@ const Login = () => {
 
                   <Typography sx={helpTextStyles}>
                     Don't have an account?{" "}
-                    <Link
-                      to="/contact"
+                    <a
+                      href={`mailto:${import.meta.env.VITE_EMAIL}`}
                       style={{
                         color: "rgba(21, 46, 136, 1)",
                         fontWeight: 600,
@@ -209,7 +212,7 @@ const Login = () => {
                       }}
                     >
                       Contact Admin
-                    </Link>
+                    </a>
                   </Typography>
                 </Box>
               </Box>

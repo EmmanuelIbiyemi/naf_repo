@@ -330,23 +330,17 @@ const AddScoresModal = ({
         <DeleteConfirmationModal
           actions={{
             proceed: handleConfirmDelete,
-            undo: () =>
-              setDeleteModalState((prev) => ({ ...prev, open: false })),
           }}
           close={() =>
             setDeleteModalState((prev) => ({ ...prev, open: false }))
           }
-          infoText="This action cannot be undone."
+          infoText="You can’t undo this action."
           open={deleteModalState.open}
-          subTitle={`Are you sure you want to delete the score for student "${deleteModalState.participantName}"?`}
+          subTitle={`Are you sure you want to delete the score for student "${deleteModalState.participantName}" ?`}
           title="Delete Score?"
         />
 
         <SuccessModal
-          actions={{
-            proceed: () => handleClose(),
-            undo: () => handleClose(),
-          }}
           close={() => {
             setOpenSuccessModal(false);
             handleClose();
@@ -358,10 +352,6 @@ const AddScoresModal = ({
         />
 
         <SuccessModal
-          actions={{
-            proceed: () => {},
-            undo: () => {},
-          }}
           close={() => setOpenDeletedSuccessModal(false)}
           infoText=""
           open={openDeletedSuccessModal}

@@ -244,12 +244,6 @@ const ShareWithList = ({
         </Box>
       </Modal>
       <SuccessModal
-        actions={{
-          proceed: handleCloseSuccessModal,
-          undo: () => {
-            console.log("undo");
-          },
-        }}
         close={handleCloseSuccessModal}
         infoText=""
         open={openSuccessModal}

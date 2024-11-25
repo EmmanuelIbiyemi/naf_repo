@@ -47,18 +47,10 @@ const QuestionsPage = () => {
       </FormModal>
 
       <SuccessModal
-        actions={{
-          proceed: () => {
-            console.log("proceed");
-          },
-          undo: () => {
-            console.log("undo");
-          },
-        }}
         close={() => handleCloseModal("success")}
-        infoText="The Quiz added will get notified via mail."
+        infoText=""
         open={openModal.success}
-        subTitle={`You have successfully added a new questions your school.`}
+        subTitle={`You have successfully added new questions.`}
         title="Updates Successful"
       />
 

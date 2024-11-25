@@ -115,27 +115,16 @@ const CourseList = () => {
             if (selectedCourse) handleDelete(selectedCourse.id as number);
             console.log("proceed");
           },
-          undo: () => {
-            console.log("cancel");
-          },
         }}
         close={() => handleCloseModal("delete")}
-        infoText="The students enrolled in this Course will get notified."
+        infoText="You can’t undo this action."
         open={openModal.delete}
-        subTitle={`Are you sure you want to delete Course ${selectedCourse?.name}” ? You can’t undo this action.`}
+        subTitle={`Are you sure you want to delete Course ${selectedCourse?.name}” ?`}
         title="Delete Course?"
       />
 
       {/* Success */}
       <SuccessModal
-        actions={{
-          proceed: () => {
-            console.log("proceed");
-          },
-          undo: () => {
-            console.log("undo");
-          },
-        }}
         close={() => {
           handleCloseModal("success");
           setSelectedCourse(undefined);

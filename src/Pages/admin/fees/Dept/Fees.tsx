@@ -72,21 +72,13 @@ const FeesPage = () => {
       </FormModal>
 
       <SuccessModal
-        actions={{
-          proceed: () => {
-            console.log("proceed");
-          },
-          undo: () => {
-            console.log("undo");
-          },
-        }}
         close={() => {
           handleCloseModal("success");
           setSelectedFee(undefined);
         }}
-        infoText="The instructors added in this fee will get notified."
+        infoText=""
         open={openModal.success}
-        subTitle={`You have successfully added a new fee <strong>"${feeName}.`}
+        subTitle={`You have successfully added a new fee "${feeName}".`}
         title="Updates Successful"
       />
 

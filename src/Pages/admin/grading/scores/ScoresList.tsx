@@ -126,27 +126,16 @@ const ScoresList = () => {
             if (selectedScore) handleDelete(selectedScore.id as number);
             console.log("proceed");
           },
-          undo: () => {
-            console.log("cancel");
-          },
         }}
         close={() => handleCloseModal("delete")}
-        infoText="This action cannot be undone."
+        infoText="You can’t undo this action"
         open={openModal.delete}
-        subTitle={`Are you sure you want to delete the score with name "${selectedScore?.name}"?`}
+        subTitle={`Are you sure you want to delete the score with name "${selectedScore?.name}" ?`}
         title="Delete Score?"
       />
 
       {/* Success */}
       <SuccessModal
-        actions={{
-          proceed: () => {
-            console.log("proceed");
-          },
-          undo: () => {
-            console.log("undo");
-          },
-        }}
         close={() => {
           handleCloseModal("success");
           setSelectedScore(undefined);
