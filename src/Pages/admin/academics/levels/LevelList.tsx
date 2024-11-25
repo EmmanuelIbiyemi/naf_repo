@@ -106,34 +106,23 @@ const LevelList = () => {
             if (selectedLevel) handleDelete(selectedLevel.id as number);
             console.log("proceed");
           },
-          undo: () => {
-            console.log("cancel");
-          },
         }}
         close={() => handleCloseModal("delete")}
-        infoText="The instructors enrolled in this Level will get notified."
+        infoText="You can’t undo this action."
         open={openModal.delete}
-        subTitle={`Are you sure you want to delete Level ${selectedLevel?.name}”</strong>? You can’t undo this action.`}
+        subTitle={`Are you sure you want to delete Level "${selectedLevel?.name}" ?`}
         title="Delete Level?"
       />
 
       {/* Success */}
       <SuccessModal
-        actions={{
-          proceed: () => {
-            console.log("proceed");
-          },
-          undo: () => {
-            console.log("undo");
-          },
-        }}
         close={() => {
           handleCloseModal("success");
           setSelectedLevel(undefined);
         }}
         infoText=""
         open={openModal.success}
-        subTitle={`You have successfully added a new Level ${selectedLevel?.name}”</strong>.`}
+        subTitle={`You have successfully added a new Level "${selectedLevel?.name}".`}
         title="Updates Successful"
       />
 

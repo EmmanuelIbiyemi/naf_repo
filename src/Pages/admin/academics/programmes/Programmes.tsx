@@ -66,21 +66,13 @@ const ProgrammesPage = () => {
       </FormModal>
 
       <SuccessModal
-        actions={{
-          proceed: () => {
-            console.log("proceed");
-          },
-          undo: () => {
-            console.log("undo");
-          },
-        }}
         close={() => {
           handleCloseModal("success");
           setSelectedProgramme(undefined);
         }}
-        infoText="The instructors added in this programme will get notified."
+        infoText=""
         open={openModal.success}
-        subTitle={`You have successfully added a new programme ${programmeName}”</strong>.`}
+        subTitle={`You have successfully added a new programme "${programmeName}".`}
         title="Updates Successful"
       />
 

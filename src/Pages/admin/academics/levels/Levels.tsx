@@ -60,21 +60,13 @@ const LevelsPage = () => {
       </FormModal>
 
       <SuccessModal
-        actions={{
-          proceed: () => {
-            console.log("proceed");
-          },
-          undo: () => {
-            console.log("undo");
-          },
-        }}
         close={() => {
           handleCloseModal("success");
           setSelectedLevel(undefined);
         }}
-        infoText="The instructors added in this level will get notified."
+        infoText=""
         open={openModal.success}
-        subTitle={`You have successfully added a new level ${levelName}”</strong>.`}
+        subTitle={`You have successfully added a new level "${levelName}".`}
         title="Updates Successful"
       />
 

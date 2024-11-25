@@ -105,51 +105,40 @@ const ProgrammeList = () => {
             if (selectedProgramme) handleDelete(selectedProgramme.id as number);
             console.log("proceed");
           },
-          undo: () => {
-            console.log("cancel");
-          },
         }}
         close={() => handleCloseModal("delete")}
-        infoText="The instructors enrolled in this Programme will get notified."
+        infoText="You can’t undo this action."
         open={openModal.delete}
-        subTitle={`Are you sure you want to delete Programme ${selectedProgramme?.name}”</strong>? You can’t undo this action.`}
+        subTitle={`Are you sure you want to delete Programme ${selectedProgramme?.name}” ?`}
         title="Delete Programme?"
       />
 
       {/* Success */}
       <SuccessModal
-        actions={{
-          proceed: () => {
-            console.log("proceed");
-          },
-          undo: () => {
-            console.log("undo");
-          },
-        }}
         close={() => {
           handleCloseModal("success");
           setSelectedProgramme(undefined);
         }}
         infoText=""
         open={openModal.success}
-        subTitle={`You have successfully added a new Programme ${selectedProgramme?.name}”</strong>.`}
+        subTitle={`You have successfully added a new Programme "${selectedProgramme?.name}".`}
         title="Updates Successful"
       />
 
+      {isError ? (
+        <EmptyState
+          title="Could not fetch Programs"
+          subTitle="Check your internet connection"
+        />
+      ) : null}
+      {!programmes?.length ? (
+        <EmptyState
+          title="No Programs found"
+          subTitle="Programs will appear here after you add them in your school."
+        />
+      ) : null}
       <Table sx={{ minWidth: 650 }}>
         <TableBody>
-          {isError ? (
-            <EmptyState
-              title="Could not fetch Programs"
-              subTitle="Check your internet connection"
-            />
-          ) : null}
-          {!programmes?.length ? (
-            <EmptyState
-              title="No Programs found"
-              subTitle="Programs will appear here after you add them in your school."
-            />
-          ) : null}
           {programmes?.map((programme: Programme) => (
             <TableRow
               key={programme.id}

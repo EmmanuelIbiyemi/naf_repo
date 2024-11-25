@@ -74,9 +74,6 @@ const FormList = () => {
             if (selectedForm?.id) handleDelete(selectedForm?.id);
             console.log("proceed");
           },
-          undo: () => {
-            console.log("cancel");
-          },
         }}
         close={() => setOpenModal(false)}
         infoText=""

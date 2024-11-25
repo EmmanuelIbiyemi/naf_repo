@@ -49,18 +49,10 @@ const AssessmentsPage = () => {
       </FormModal>
 
       <SuccessModal
-        actions={{
-          proceed: () => {
-            console.log("proceed");
-          },
-          undo: () => {
-            console.log("undo");
-          },
-        }}
         close={() => handleCloseModal("success")}
         infoText=""
         open={openModal.success}
-        subTitle={`You have successfully added a new questions your school.`}
+        subTitle={`You have successfully added new questions.`}
         title="Updates Successful"
       />
 

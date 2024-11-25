@@ -114,34 +114,23 @@ const SemesterList = () => {
             if (selectedSemester) handleDelete(selectedSemester.id as number);
             console.log("proceed");
           },
-          undo: () => {
-            console.log("cancel");
-          },
         }}
         close={() => handleCloseModal("delete")}
         infoText="You can’t undo this action."
         open={openModal.delete}
-        subTitle={`Are you sure you want to delete Semester ”${selectedSemester?.name}” ?`}
+        subTitle={`Are you sure you want to delete Semester "${selectedSemester?.name}" ?`}
         title="Delete Semester?"
       />
 
       {/* Success */}
       <SuccessModal
-        actions={{
-          proceed: () => {
-            console.log("proceed");
-          },
-          undo: () => {
-            console.log("undo");
-          },
-        }}
         close={() => {
           handleCloseModal("success");
           setSelectedSemester(undefined);
         }}
         infoText=""
         open={openModal.success}
-        subTitle={`You have successfully added a new Semester “${selectedSemester?.name}”.`}
+        subTitle={`You have successfully added a new Semester "${selectedSemester?.name}".`}
         title="Updates Successful"
       />
 

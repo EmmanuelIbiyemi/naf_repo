@@ -59,21 +59,13 @@ const AdminsPage = () => {
       </FormModal>
 
       <SuccessModal
-        actions={{
-          proceed: () => {
-            console.log("proceed");
-          },
-          undo: () => {
-            console.log("undo");
-          },
-        }}
         close={() => {
           handleCloseModal("success");
           setSelectedAdmin(undefined);
         }}
-        infoText="The instructors added in this admin will get notified."
+        infoText=""
         open={openModal.success}
-        subTitle={`You have successfully added a new admin <strong>"${adminName}.`}
+        subTitle={`You have successfully added a new admin "${adminName}".`}
         title="Updates Successful"
       />
 

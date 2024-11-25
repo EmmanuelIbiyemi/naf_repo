@@ -77,27 +77,16 @@ const DiscountsList = () => {
             if (selectedDiscount) handleDelete(selectedDiscount.id as number);
             console.log("proceed");
           },
-          undo: () => {
-            console.log("cancel");
-          },
         }}
         close={() => handleCloseModal("delete")}
-        infoText="This action cannot be undone."
+        infoText="You can’t undo this action."
         open={openModal.delete}
-        subTitle={`Are you sure you want to delete the discount with condition "${selectedDiscount?.condition}"?`}
+        subTitle={`Are you sure you want to delete the discount with condition "${selectedDiscount?.condition}" ?`}
         title="Delete Discount?"
       />
 
       {/* Success */}
       <SuccessModal
-        actions={{
-          proceed: () => {
-            console.log("proceed");
-          },
-          undo: () => {
-            console.log("undo");
-          },
-        }}
         close={() => {
           handleCloseModal("success");
           setSelectedDiscount(undefined);

@@ -61,21 +61,13 @@ const GradesPage = () => {
       </FormModal>
 
       <SuccessModal
-        actions={{
-          proceed: () => {
-            console.log("proceed");
-          },
-          undo: () => {
-            console.log("undo");
-          },
-        }}
         close={() => {
           handleCloseModal("success");
           setSelectedGrade(undefined);
         }}
-        infoText="The instructors added in this grade will get notified."
+        infoText=""
         open={openModal.success}
-        subTitle={`You have successfully added a new grade <strong>"${gradeName}.`}
+        subTitle={`You have successfully added a new grade "${gradeName}".`}
         title="Updates Successful"
       />
 

@@ -133,14 +133,6 @@ const MediaLibrary = () => {
   return (
     <Box sx={contentStyles}>
       <SuccessModal
-        actions={{
-          proceed: () => {
-            console.log("proceed");
-          },
-          undo: () => {
-            console.log("undo");
-          },
-        }}
         close={() => {
           handleCloseModal("success");
         }}
@@ -155,10 +147,7 @@ const MediaLibrary = () => {
           proceed: () => {
             if (selectedMedia) handleDeleteMedia(selectedMedia.id);
             console.log("proceed");
-          },
-          undo: () => {
-            console.log("cancel");
-          },
+          }
         }}
         close={() => handleCloseModal("delete")}
         infoText=""

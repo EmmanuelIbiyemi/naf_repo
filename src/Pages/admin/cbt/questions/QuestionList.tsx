@@ -87,9 +87,6 @@ const QuestionList = () => {
               handleDeleteQuiz(selectedQuestion.id as number);
             console.log("proceed");
           },
-          undo: () => {
-            console.log("cancel");
-          },
         }}
         close={() => handleCloseModal("delete")}
         infoText="You can’t undo this action."
@@ -99,14 +96,6 @@ const QuestionList = () => {
       />
 
       <SuccessModal
-        actions={{
-          proceed: () => {
-            console.log("proceed");
-          },
-          undo: () => {
-            console.log("undo");
-          },
-        }}
         close={() => handleCloseModal("success")}
         infoText=""
         open={openModal.success}

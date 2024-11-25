@@ -188,14 +188,11 @@ const Tests = () => {
               if (selectedTests) handleDelete(selectedTests.id);
               console.log("proceed");
             },
-            undo: () => {
-              console.log("cancel");
-            },
           }}
           close={() => handleCloseActionsModal("delete")}
-          infoText="The students enrolled in this test will get notified."
+          infoText="You can’t undo this action."
           open={openActionsModal.delete}
-          subTitle={`Are you sure you want to delete Test "${selectedTests?.name}"? You can't undo this action.`}
+          subTitle={`Are you sure you want to delete Test "${selectedTests?.name}" ?`}
           title="Delete Test?"
         />
         <Backdrop open={isDeleting}>
@@ -203,21 +200,13 @@ const Tests = () => {
         </Backdrop>
 
         <SuccessModal
-          actions={{
-            proceed: () => {
-              console.log("proceed");
-            },
-            undo: () => {
-              console.log("undo");
-            },
-          }}
           close={() => {
             handleCloseActionsModal("success");
             setSelectedTests(undefined);
           }}
           infoText=""
           open={openActionsModal.success}
-          subTitle={`You have successfully added a new Course <strong>"${selectedTests?.name}.`}
+          subTitle={`You have successfully added a new Course "${selectedTests?.name}".`}
           title="Updates Successful"
         />
       </Box>

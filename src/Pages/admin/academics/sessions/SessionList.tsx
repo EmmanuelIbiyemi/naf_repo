@@ -102,34 +102,23 @@ const SessionList = () => {
             if (selectedSession) handleDelete(selectedSession.id as number);
             console.log("proceed");
           },
-          undo: () => {
-            console.log("cancel");
-          },
         }}
         close={() => handleCloseModal("delete")}
         infoText="You can’t undo this action."
         open={openModal.delete}
-        subTitle={`Are you sure you want to delete Session ${selectedSession?.name}” ?`}
+        subTitle={`Are you sure you want to delete Session "${selectedSession?.name}" ?`}
         title="Delete Session?"
       />
 
       {/* Success */}
       <SuccessModal
-        actions={{
-          proceed: () => {
-            console.log("proceed");
-          },
-          undo: () => {
-            console.log("undo");
-          },
-        }}
         close={() => {
           handleCloseModal("success");
           setSelectedSession(undefined);
         }}
         infoText=""
         open={openModal.success}
-        subTitle={`You have successfully added a new Session “${selectedSession?.name}”.`}
+        subTitle={`You have successfully added a new Session "${selectedSession?.name}".`}
         title="Updates Successful"
       />
 

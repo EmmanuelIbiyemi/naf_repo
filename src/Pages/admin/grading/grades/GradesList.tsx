@@ -128,33 +128,22 @@ const GradesList: React.FC = () => {
             if (selectedGrade?.id) handleDelete(selectedGrade.id);
             console.log("proceed");
           },
-          undo: () => {
-            console.log("cancel");
-          },
         }}
         close={() => handleCloseModal("delete")}
-        infoText="The students enrolled in this Grade will get notified."
+        infoText="You can't undo this action."
         open={openModal.delete}
-        subTitle={`Are you sure you want to delete Grade <strong>"${selectedGrade?.name}? You can't undo this action.`}
+        subTitle={`Are you sure you want to delete Grade "${selectedGrade?.name}" ?`}
         title="Delete Grade?"
       />
 
       <SuccessModal
-        actions={{
-          proceed: () => {
-            console.log("proceed");
-          },
-          undo: () => {
-            console.log("undo");
-          },
-        }}
         close={() => {
           handleCloseModal("success");
           setSelectedGrade(undefined);
         }}
         infoText=""
         open={openModal.success}
-        subTitle={`You have successfully updated the Grade <strong>"${selectedGrade?.name}.`}
+        subTitle={`You have successfully updated the Grade "${selectedGrade?.name}".`}
         title="Updates Successful"
       />
 

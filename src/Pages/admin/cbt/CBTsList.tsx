@@ -75,26 +75,15 @@ const QuizList = () => {
             if (selectedQuiz) handleDeleteQuiz(selectedQuiz.id as number);
             console.log("proceed");
           },
-          undo: () => {
-            console.log("cancel");
-          },
         }}
         close={() => handleCloseModal("delete")}
-        infoText=""
+        infoText="You can’t undo this action."
         open={openModal.delete}
-        subTitle={`Are you sure you want to delete “${selectedQuiz?.name}” ? You can’t undo this action.`}
+        subTitle={`Are you sure you want to delete "${selectedQuiz?.name}" ?`}
         title="Delete Quiz?"
       />
 
       <SuccessModal
-        actions={{
-          proceed: () => {
-            console.log("proceed");
-          },
-          undo: () => {
-            console.log("undo");
-          },
-        }}
         close={() => handleCloseModal("success")}
         infoText=""
         open={openModal.success}

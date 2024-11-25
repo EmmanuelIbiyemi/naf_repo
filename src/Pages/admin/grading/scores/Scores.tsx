@@ -61,21 +61,13 @@ const ScoresPage = () => {
       </FormModal>
 
       <SuccessModal
-        actions={{
-          proceed: () => {
-            console.log("proceed");
-          },
-          undo: () => {
-            console.log("undo");
-          },
-        }}
         close={() => {
           handleCloseModal("success");
           setSelectedScore(undefined);
         }}
-        infoText="The instructors added in this score will get notified."
+        infoText=""
         open={openModal.success}
-        subTitle={`You have successfully added a new score <strong>"${scoreName}.`}
+        subTitle={`You have successfully added a new score "${scoreName}".`}
         title="Updates Successful"
       />
 

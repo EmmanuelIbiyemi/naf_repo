@@ -75,19 +75,11 @@ const CoursesPage = () => {
       </FormModal>
 
       <SuccessModal
-        actions={{
-          proceed: () => {
-            console.log("proceed");
-          },
-          undo: () => {
-            console.log("undo");
-          },
-        }}
         close={() => {
           handleCloseModal("success");
           setSelectedCourse(undefined);
         }}
-        infoText="The instructors added in this course will get notified."
+        infoText=""
         open={openModal.success}
         subTitle={`You have successfully added a new course “${courseName}”.`}
         title="Updates Successful"

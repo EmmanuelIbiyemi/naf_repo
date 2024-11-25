@@ -112,14 +112,6 @@ const ResultsList = () => {
     <TableContainer>
       {/* Success */}
       <SuccessModal
-        actions={{
-          proceed: () => {
-            console.log("proceed");
-          },
-          undo: () => {
-            console.log("undo");
-          },
-        }}
         close={() => {
           setOpenModal(false);
         }}

@@ -64,21 +64,13 @@ const DiscountsPage = () => {
       </FormModal>
 
       <SuccessModal
-        actions={{
-          proceed: () => {
-            console.log("proceed");
-          },
-          undo: () => {
-            console.log("undo");
-          },
-        }}
         close={() => {
           handleCloseModal("success");
           setSelectedDiscount(undefined);
         }}
-        infoText="The instructors added in this discount will get notified."
+        infoText=""
         open={openModal.success}
-        subTitle={`You have successfully added a new discount <strong>"${discountName}.`}
+        subTitle={`You have successfully added a new discount "${discountName}".`}
         title="Updates Successful"
       />
 

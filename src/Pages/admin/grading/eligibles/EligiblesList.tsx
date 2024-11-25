@@ -71,9 +71,6 @@ const EligiblesList: React.FC = () => {
             if (selectedEligible) handleDelete(selectedEligible.id as number);
             console.log("proceed");
           },
-          undo: () => {
-            console.log("cancel");
-          },
         }}
         close={() => handleCloseDeleteModal()}
         infoText="You can’t undo this action !"

@@ -78,33 +78,17 @@ const SessionsPage = () => {
       </FormModal>
 
       <SuccessModal
-        actions={{
-          proceed: () => {
-            console.log("proceed");
-          },
-          undo: () => {
-            console.log("undo");
-          },
-        }}
         close={() => {
           handleCloseModal("success");
           setSelectedSession(undefined);
         }}
         infoText=""
         open={openModal.success}
-        subTitle={`You have successfully added a new session “${sessionName}”.`}
+        subTitle={`You have successfully added a new session "${sessionName}".`}
         title="Updates Successful"
       />
 
       <SuccessModal
-        actions={{
-          proceed: () => {
-            console.log("proceed");
-          },
-          undo: () => {
-            console.log("undo");
-          },
-        }}
         close={() => {
           handleCloseModal("successPromote");
         }}
@@ -118,9 +102,6 @@ const SessionsPage = () => {
         actions={{
           proceed: () => {
             console.log("proceed");
-          },
-          undo: () => {
-            console.log("undo");
           },
         }}
         close={() => {

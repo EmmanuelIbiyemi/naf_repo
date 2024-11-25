@@ -101,36 +101,23 @@ const StudentsList = () => {
             if (selectedStudent) handleDelete(selectedStudent.id as number);
             console.log("proceed");
           },
-          undo: () => {
-            console.log("cancel");
-          },
         }}
         close={() => handleCloseModal("delete")}
-        infoText="The students enrolled in this Student will get notified."
+        infoText="You can’t undo this action."
         open={openModal.delete}
-        subTitle={`Are you sure you want to delete Student ${
-          selectedStudent?.first_name + " " + selectedStudent?.last_name
-        }”</strong>? You can’t undo this action.`}
+        subTitle={`Are you sure you want to delete Student ${selectedStudent?.first_name} ${selectedStudent?.last_name}" ?`}
         title="Delete Student?"
       />
 
       {/* Success */}
       <SuccessModal
-        actions={{
-          proceed: () => {
-            console.log("proceed");
-          },
-          undo: () => {
-            console.log("undo");
-          },
-        }}
         close={() => {
           handleCloseModal("success");
           setSelectedStudent(undefined);
         }}
         infoText=""
         open={openModal.success}
-        subTitle={`You have successfully added a new Student ${selectedStudent?.first_name}”</strong>.`}
+        subTitle={`You have successfully added a new Student "${selectedStudent?.first_name}".`}
         title="Updates Successful"
       />
 

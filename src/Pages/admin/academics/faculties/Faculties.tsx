@@ -59,21 +59,13 @@ const FacultiesPage = () => {
       </FormModal>
 
       <SuccessModal
-        actions={{
-          proceed: () => {
-            console.log("proceed");
-          },
-          undo: () => {
-            console.log("undo");
-          },
-        }}
         close={() => {
           handleCloseModal("success");
           setSelectedFaculty(undefined);
         }}
-        infoText="The instructors added in this faculty will get notified."
+        infoText=""
         open={openModal.success}
-        subTitle={`You have successfully added a new faculty ${facultyName}”</strong>.`}
+        subTitle={`You have successfully added a new faculty "${facultyName}".`}
         title="Updates Successful"
       />
 

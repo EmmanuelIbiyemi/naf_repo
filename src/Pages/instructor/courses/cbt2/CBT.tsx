@@ -49,14 +49,6 @@ const CBTsPage = () => {
       </FormModal>
 
       <SuccessModal
-        actions={{
-          proceed: () => {
-            console.log("proceed");
-          },
-          undo: () => {
-            console.log("undo");
-          },
-        }}
         close={() => handleCloseModal("success")}
         infoText=""
         open={openModal.success}

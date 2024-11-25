@@ -278,14 +278,6 @@ const CreateTestModal: React.FC<CreateTestModalProps> = ({
       />
 
       <SuccessModal
-        actions={{
-          proceed: () => {
-            console.log("proceed");
-          },
-          undo: () => {
-            console.log("undo");
-          },
-        }}
         close={() => {
           setOpenSuccessModal(false);
           setOpenCSVModal(false);

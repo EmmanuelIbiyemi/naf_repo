@@ -65,21 +65,13 @@ const SemestersPage = () => {
       </FormModal>
 
       <SuccessModal
-        actions={{
-          proceed: () => {
-            console.log("proceed");
-          },
-          undo: () => {
-            console.log("undo");
-          },
-        }}
         close={() => {
           handleCloseModal("success");
           setSelectedSemester(undefined);
         }}
         infoText=""
         open={openModal.success}
-        subTitle={`You have successfully added a new semester “${semesterName}”.`}
+        subTitle={`You have successfully added a new semester "${semesterName}".`}
         title="Updates Successful"
       />
 

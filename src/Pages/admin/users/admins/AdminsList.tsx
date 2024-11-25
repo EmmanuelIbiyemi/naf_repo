@@ -101,29 +101,16 @@ const AdminsList = () => {
             if (selectedAdmin) handleDelete(selectedAdmin.id as number);
             console.log("proceed");
           },
-          undo: () => {
-            console.log("cancel");
-          },
         }}
         close={() => handleCloseModal("delete")}
-        infoText="The students enrolled in this Admin will get notified."
+        infoText="You can’t undo this action."
         open={openModal.delete}
-        subTitle={`Are you sure you want to delete Admin ${
-          selectedAdmin?.first_name + " " + selectedAdmin?.last_name
-        }”</strong>? You can’t undo this action.`}
+        subTitle={`Are you sure you want to delete Admin "${selectedAdmin?.first_name} ${selectedAdmin?.last_name}" ?`}
         title="Delete Admin?"
       />
 
       {/* Success */}
       <SuccessModal
-        actions={{
-          proceed: () => {
-            console.log("proceed");
-          },
-          undo: () => {
-            console.log("undo");
-          },
-        }}
         close={() => {
           handleCloseModal("success");
           setSelectedAdmin(undefined);

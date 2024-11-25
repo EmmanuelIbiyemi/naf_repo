@@ -4,7 +4,6 @@ import { useNavigate, useParams } from "react-router-dom";
 import SuccessModal from "../../../components/SuccessModal";
 import FormBuilder from "./components/FormBuilder";
 import { useAppDispatch } from "../../../store/hooks";
-import { addForm } from "../../../store/forms.slice";
 import { useGetFormQuery } from "../../../store/api/form.api";
 import { setPageName } from "../../../store/app.slice";
 import "./components/elements.scss";
@@ -31,15 +30,6 @@ const PreviewFormPage = () => {
     <Box sx={formContentContainerStyles}>
       <Box ref={elRef}>
         <SuccessModal
-          actions={{
-            proceed: () => {
-              if (form?.data) dispatch(addForm(form?.data));
-              navigate("/applications");
-            },
-            undo: () => {
-              console.log("undo");
-            },
-          }}
           close={() => setOpenModal(false)}
           infoText="This form will be displayed publicly."
           open={openModal}

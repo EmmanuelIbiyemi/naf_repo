@@ -89,33 +89,22 @@ const FeesList: React.FC<FeesListProps> = ({ level }) => {
             if (selectedFee) handleDelete(selectedFee.id as number);
             console.log("proceed");
           },
-          undo: () => {
-            console.log("cancel");
-          },
         }}
         close={() => handleCloseModal("delete")}
-        infoText="The students enrolled in this Fee will get notified."
+        infoText="You can’t undo this action"
         open={openModal.delete}
-        subTitle={`Are you sure you want to delete Fee <strong>"${selectedFee?.name}? You can't undo this action.`}
+        subTitle={`Are you sure you want to delete Fee "${selectedFee?.name}"?`}
         title="Delete Fee?"
       />
 
       <SuccessModal
-        actions={{
-          proceed: () => {
-            console.log("proceed");
-          },
-          undo: () => {
-            console.log("undo");
-          },
-        }}
         close={() => {
           handleCloseModal("success");
           setSelectedFee(undefined);
         }}
         infoText=""
         open={openModal.success}
-        subTitle={`You have successfully updated the Fee <strong>"${selectedFee?.name}.`}
+        subTitle={`You have successfully updated the Fee "${selectedFee?.name}".`}
         title="Updates Successful"
       />
 
