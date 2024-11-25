@@ -76,12 +76,13 @@ const processClassStatus = (liveClass: {
   duration: number;
 }) => {
   const startTime = dayjs(liveClass.start_time);
+  const earlyStartTime = startTime.subtract(5, "minute");
   const endTime = startTime.add(liveClass.duration, "minute");
   const now = dayjs();
 
   if (now.isAfter(endTime)) {
     return "Completed";
-  } else if (now.isAfter(startTime)) {
+  } else if (now.isAfter(earlyStartTime)) {
     return "Ongoing";
   } else {
     return "Not Started";

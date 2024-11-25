@@ -77,7 +77,7 @@ const allowedRoutes = {
     "/student/courses/course-form",
     "/student/courses/add-course",
     "/student/courses/details",
-    "/student/courses/details/notes",
+    "/student/courses/:courseId/notes",
     "/student/courses/details/schedule",
     "/student/cbt",
     "/student/cbt/:quizCode",

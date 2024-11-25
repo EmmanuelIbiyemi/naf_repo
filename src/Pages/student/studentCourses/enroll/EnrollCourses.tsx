@@ -330,7 +330,7 @@ const EnrollCoursesPage = () => {
       </Box>
 
       {(courses?.pagination.total || 1) > 1 && (
-        <Box sx={{ display: "flex", justifyContent: "center", mt: 2 }}>
+        <Box sx={{ display: "flex", justifyContent: "center", my: 3 }}>
           <Pagination
             count={Math.ceil((courses?.pagination.total || 1) / 10)}
             page={searchParams.page}
