@@ -1,6 +1,6 @@
 import {
   AssessmentResponse,
-  CreateQuiz,
+  CreateQuiz2,
   FileUploadQuestionResponse,
   ManualUploadQuestion,
   ManualUploadQuestionResponse,
@@ -168,14 +168,16 @@ const quizzesApi = appApi.injectEndpoints({
       }
     ),
 
-    addQuiz: builder.mutation<{ data: InstructorQuizzesResponse }, CreateQuiz>({
-      query: (values) => ({
-        url: `/quiz`,
-        method: "POST",
-        body: values,
-      }),
-      invalidatesTags: ["Quiz"],
-    }),
+    addQuiz: builder.mutation<{ data: InstructorQuizzesResponse }, CreateQuiz2>(
+      {
+        query: (values) => ({
+          url: `/quiz`,
+          method: "POST",
+          body: values,
+        }),
+        invalidatesTags: ["Quiz"],
+      }
+    ),
 
     createAssessment: builder.mutation<
       { data: AssessmentResponse },

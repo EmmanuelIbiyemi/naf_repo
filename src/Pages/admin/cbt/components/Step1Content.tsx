@@ -1,4 +1,4 @@
-import { Box, TextField, Select, MenuItem, Checkbox } from "@mui/material";
+import { Box, TextField, Checkbox } from "@mui/material";
 import { Field, FieldProps } from "formik";
 
 const Step1Content = () => {
@@ -9,34 +9,18 @@ const Step1Content = () => {
         label: { display: "inline-block", marginBottom: ".5rem" },
       }}
     >
-      <Box
-        sx={{ display: "grid", gap: "1rem", gridTemplateColumns: "1fr 1fr" }}
-      >
-        <Box>
-          <label htmlFor="">Name</label>
-          <Field name="name">
-            {({ field, meta }: FieldProps) => (
-              <TextField
-                {...field}
-                fullWidth
-                error={!!meta.error && meta.touched}
-                helperText={meta.touched && meta.error}
-              />
-            )}
-          </Field>
-        </Box>
-
-        <Box>
-          <label htmlFor="">Type</label>
-          <Field name="type">
-            {({ field }: FieldProps) => (
-              <Select {...field} fullWidth>
-                <MenuItem value="graded">Graded</MenuItem>
-                <MenuItem value="ungraded">Ungraded</MenuItem>
-              </Select>
-            )}
-          </Field>
-        </Box>
+      <Box>
+        <label htmlFor="">Name</label>
+        <Field name="name">
+          {({ field, meta }: FieldProps) => (
+            <TextField
+              {...field}
+              fullWidth
+              error={!!meta.error && meta.touched}
+              helperText={meta.touched && meta.error}
+            />
+          )}
+        </Field>
       </Box>
 
       <Box>
@@ -55,37 +39,19 @@ const Step1Content = () => {
         </Field>
       </Box>
 
-      <Box
-        sx={{ display: "grid", gap: "1rem", gridTemplateColumns: "1fr 1fr" }}
-      >
-        <Box>
-          <label htmlFor="">Time Allowed</label>
-          <Field name="time_allowed">
-            {({ field, meta }: FieldProps) => (
-              <TextField
-                {...field}
-                fullWidth
-                type="number"
-                error={!!meta.error && meta.touched}
-                helperText={meta.touched && meta.error}
-              />
-            )}
-          </Field>
-        </Box>
-        <Box>
-          <label htmlFor="">Obtainable Score</label>
-          <Field name="obtainable_score">
-            {({ field, meta }: FieldProps) => (
-              <TextField
-                {...field}
-                fullWidth
-                type="number"
-                error={!!meta.error && meta.touched}
-                helperText={meta.touched && meta.error}
-              />
-            )}
-          </Field>
-        </Box>
+      <Box>
+        <label htmlFor="">Time Allowed</label>
+        <Field name="time_allowed">
+          {({ field, meta }: FieldProps) => (
+            <TextField
+              {...field}
+              fullWidth
+              type="number"
+              error={!!meta.error && meta.touched}
+              helperText={meta.touched && meta.error}
+            />
+          )}
+        </Field>
       </Box>
 
       <Box
