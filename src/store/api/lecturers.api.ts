@@ -3,12 +3,14 @@ import {
   LecturerCreateType,
   LecturerResponse,
 } from "../../types/lecturers";
+import { Pagination } from "../../types/pagination";
 import { appApi } from "./app.api";
 
 const lecturersApi = appApi.injectEndpoints({
   endpoints: (builder) => ({
-    getLecturers: builder.query<LecturerResponse, null>({
-      query: () => "/instructor",
+    getLecturers: builder.query<LecturerResponse, Pagination>({
+      query: ({ page, per_page }) =>
+        `/instructor?page=${page}&per_page=${per_page}`,
       providesTags: ["Lecturers"],
     }),
     getLecturer: builder.query<LecturerResponse, number>({

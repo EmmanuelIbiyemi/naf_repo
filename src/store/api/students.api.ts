@@ -1,3 +1,4 @@
+import { Pagination } from "../../types/pagination";
 import {
   SingleStudentResponse,
   StudentCreateType,
@@ -8,8 +9,9 @@ import { appApi } from "./app.api";
 
 const studentsApi = appApi.injectEndpoints({
   endpoints: (builder) => ({
-    getStudents: builder.query<StudentsResponse, null>({
-      query: () => "/participant",
+    getStudents: builder.query<StudentsResponse, Pagination>({
+      query: ({ page, per_page }) =>
+        `/participant?page=${page}&per_page=${per_page}`,
       providesTags: ["Students"],
     }),
     getStudent: builder.query<SingleStudentResponse, number>({
