@@ -1,10 +1,11 @@
 import { Admin, AdminCreateType, AdminResponse } from "../../types/admins";
+import { Pagination } from "../../types/pagination";
 import { appApi } from "./app.api";
 
 const adminsApi = appApi.injectEndpoints({
   endpoints: (builder) => ({
-    getAdmins: builder.query<AdminResponse, null>({
-      query: () => "/admin",
+    getAdmins: builder.query<AdminResponse, Pagination>({
+      query: ({ page, per_page }) => `/admin?page=${page}&per_page=${per_page}`,
       providesTags: ["Admins"],
     }),
     getAdmin: builder.query<{ data: Admin }, number>({

@@ -19,6 +19,8 @@ import SuccessModal from "../../../../components/SuccessModal";
 import { useAppDispatch, useAppSelector } from "../../../../store/hooks";
 import { selectKeyword, setPageLoading } from "../../../../store/app.slice";
 import EmptyState from "../../../../components/EmptyState";
+import CustomPagination from "../../../../components/CustomPagination";
+import { Pagination } from "../../../../types/pagination";
 
 const StudentsList = () => {
   const [openModal, setOpenModal] = useState({
@@ -27,7 +29,15 @@ const StudentsList = () => {
     delete: false,
   });
   const [selectedStudent, setSelectedStudent] = useState<StudentType>();
-  const { data: stds, isFetching, isError } = useGetStudentsQuery(null);
+  const [pagination, setPagination] = useState<Pagination>({
+    page: 1,
+    per_page: 10,
+  });
+  const {
+    data: stds,
+    isFetching,
+    isError,
+  } = useGetStudentsQuery({ ...pagination });
   const [students, setStudents] = useState(stds?.data);
   const [deleteStudent] = useDeleteStudentMutation();
   const [updateStudent] = useUpdateStudentMutation();
@@ -121,52 +131,75 @@ const StudentsList = () => {
         title="Updates Successful"
       />
 
-      <Table sx={{ minWidth: 650 }}>
-        <TableBody>
-          {isError ? (
-            <EmptyState
-              title="Could not fetch Students"
-              subTitle="Check your internet connection"
-            />
-          ) : null}
-          {!students?.length ? (
-            <EmptyState
-              title="No Students found"
-              subTitle="Students will appear here after you add them in your school."
-            />
-          ) : null}
-          {students?.map((student: StudentType) => (
-            <TableRow
-              key={student.id}
-              sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-            >
-              <TableCell
-                component="th"
-                scope="row"
-                sx={{ alignItems: "center", display: "flex", gap: "1rem" }}
-              >
-                <Checkbox />
-                <Typography
-                  sx={{
-                    fontWeight: "500 !important",
-                    textTransform: "capitalize",
-                  }}
+      {stds?.data.length ? (
+        <>
+          <Table sx={{ minWidth: 650 }}>
+            <TableBody>
+              {isError ? (
+                <EmptyState
+                  title="Could not fetch Students"
+                  subTitle="Check your internet connection"
+                />
+              ) : null}
+              {!students?.length ? (
+                <EmptyState
+                  title="No Students found"
+                  subTitle="Students will appear here after you add them in your school."
+                />
+              ) : null}
+              {students?.map((student: StudentType) => (
+                <TableRow
+                  key={student.id}
+                  sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
                 >
-                  {student.first_name}
-                </Typography>
-              </TableCell>
-              <TableCell align="right">
-                <IconButton onClick={() => handleOpenModal(student, "edit")}>
-                  <Edit />
-                </IconButton>
-                <IconButton onClick={() => handleOpenModal(student, "delete")}>
-                  <Delete />
-                </IconButton>
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+                  <TableCell
+                    component="th"
+                    scope="row"
+                    sx={{ alignItems: "center", display: "flex", gap: "1rem" }}
+                  >
+                    <Checkbox />
+                    <Typography
+                      sx={{
+                        fontWeight: "500 !important",
+                        textTransform: "capitalize",
+                      }}
+                    >
+                      {student.first_name}
+                    </Typography>
+                  </TableCell>
+                  <TableCell align="right">
+                    <IconButton
+                      onClick={() => handleOpenModal(student, "edit")}
+                    >
+                      <Edit />
+                    </IconButton>
+                    <IconButton
+                      onClick={() => handleOpenModal(student, "delete")}
+                    >
+                      <Delete />
+                    </IconButton>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+
+          <CustomPagination
+            count={Math.ceil(
+              stds?.pagination.total / stds?.pagination.per_page
+            )}
+            page={stds?.pagination.page}
+            handleChangePage={(_, page) => {
+              setPagination({ per_page: 10, page });
+            }}
+            startIndex={
+              stds?.pagination.per_page * (stds?.pagination.page - 1) + 1
+            }
+            endIndex={stds?.pagination.per_page * stds?.pagination.page}
+            totalNumber={stds?.pagination.total}
+          />
+        </>
+      ) : null}
     </TableContainer>
   );
 };

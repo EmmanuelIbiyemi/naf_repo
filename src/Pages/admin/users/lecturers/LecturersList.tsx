@@ -19,6 +19,8 @@ import SuccessModal from "../../../../components/SuccessModal";
 import { selectKeyword, setPageLoading } from "../../../../store/app.slice";
 import { useAppDispatch, useAppSelector } from "../../../../store/hooks";
 import EmptyState from "../../../../components/EmptyState";
+import { Pagination } from "../../../../types/pagination";
+import CustomPagination from "../../../../components/CustomPagination";
 
 const LecturersList = () => {
   const [openModal, setOpenModal] = useState({
@@ -27,7 +29,15 @@ const LecturersList = () => {
     delete: false,
   });
   const [selectedLecturer, setSelectedLecturer] = useState<Lecturer>();
-  const { data: ltcs, isFetching, isError } = useGetLecturersQuery(null);
+  const [pagination, setPagination] = useState<Pagination>({
+    page: 1,
+    per_page: 10,
+  });
+  const {
+    data: ltcs,
+    isFetching,
+    isError,
+  } = useGetLecturersQuery({ ...pagination });
   const [lecturers, setLecturers] = useState(ltcs?.data);
   const [deleteLecturer] = useDeleteLecturerMutation();
   const [updateLecturer] = useUpdateLecturerMutation();
@@ -121,49 +131,72 @@ const LecturersList = () => {
         title="Updates Successful"
       />
 
-      <Table sx={{ minWidth: 650 }}>
-        <TableBody>
-          {isError ? (
-            <EmptyState
-              title="Could not fetch Lecturers"
-              subTitle="Check your internet connection"
-            />
-          ) : null}
-          {!lecturers?.length ? (
-            <EmptyState
-              title="No Lecturers found"
-              subTitle="Lecturers will appear here after you add them in your school."
-            />
-          ) : null}
-          {lecturers?.map((lecturer: Lecturer) => (
-            <TableRow
-              key={lecturer.id}
-              sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-            >
-              <TableCell
-                component="th"
-                scope="row"
-                sx={{ alignItems: "center", display: "flex", gap: "1rem" }}
-              >
-                <Checkbox />
-                <Typography
-                  style={{ textTransform: "capitalize", fontWeight: 500 }}
+      {ltcs?.data.length ? (
+        <>
+          <Table sx={{ minWidth: 650 }}>
+            <TableBody>
+              {isError ? (
+                <EmptyState
+                  title="Could not fetch Lecturers"
+                  subTitle="Check your internet connection"
+                />
+              ) : null}
+              {!lecturers?.length ? (
+                <EmptyState
+                  title="No Lecturers found"
+                  subTitle="Lecturers will appear here after you add them in your school."
+                />
+              ) : null}
+              {lecturers?.map((lecturer: Lecturer) => (
+                <TableRow
+                  key={lecturer.id}
+                  sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
                 >
-                  {lecturer.first_name} {lecturer.last_name}
-                </Typography>
-              </TableCell>
-              <TableCell align="right">
-                <IconButton onClick={() => handleOpenModal(lecturer, "edit")}>
-                  <Edit />
-                </IconButton>
-                <IconButton onClick={() => handleOpenModal(lecturer, "delete")}>
-                  <Delete />
-                </IconButton>
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+                  <TableCell
+                    component="th"
+                    scope="row"
+                    sx={{ alignItems: "center", display: "flex", gap: "1rem" }}
+                  >
+                    <Checkbox />
+                    <Typography
+                      style={{ textTransform: "capitalize", fontWeight: 500 }}
+                    >
+                      {lecturer.first_name} {lecturer.last_name}
+                    </Typography>
+                  </TableCell>
+                  <TableCell align="right">
+                    <IconButton
+                      onClick={() => handleOpenModal(lecturer, "edit")}
+                    >
+                      <Edit />
+                    </IconButton>
+                    <IconButton
+                      onClick={() => handleOpenModal(lecturer, "delete")}
+                    >
+                      <Delete />
+                    </IconButton>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+
+          <CustomPagination
+            count={Math.ceil(
+              ltcs?.pagination.total / ltcs?.pagination.per_page
+            )}
+            page={ltcs?.pagination.page}
+            handleChangePage={(_, page) => {
+              setPagination({ per_page: 10, page });
+            }}
+            startIndex={
+              ltcs?.pagination.per_page * (ltcs?.pagination.page - 1) + 1
+            }
+            endIndex={ltcs?.pagination.per_page * ltcs?.pagination.page}
+            totalNumber={ltcs?.pagination.total}
+          />
+        </>
+      ) : null}
     </TableContainer>
   );
 };

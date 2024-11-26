@@ -1,4 +1,5 @@
 import { CourseType } from "./courses";
+import { PaginationResponse } from "./pagination";
 
 export type StudentType = {
   id?: number;
@@ -14,7 +15,10 @@ export type StudentCreateType = StudentType & {};
 
 export type StudentFormAction = (lecturer: StudentType) => Promise<void>;
 
-export type StudentsResponse = { data: StudentType[] };
+export type StudentsResponse = {
+  data: StudentType[];
+  pagination: PaginationResponse;
+};
 
 export type SingleStudentResponse = { data: StudentType };
 

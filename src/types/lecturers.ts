@@ -1,3 +1,5 @@
+import { PaginationResponse } from "./pagination";
+
 export type Lecturer = {
   id?: number;
   address: string;
@@ -16,4 +18,5 @@ export type LecturerFormAction = (lecturer: Lecturer) => Promise<void>;
 
 export type LecturerResponse = {
   data: Lecturer[];
+  pagination: PaginationResponse;
 };

@@ -1,3 +1,5 @@
+import { PaginationResponse } from "./pagination";
+
 export type Admin = {
   id?: number;
   address: string;
@@ -16,4 +18,5 @@ export type AdminFormAction = (admin: Admin) => Promise<void>;
 
 export type AdminResponse = {
   data: Admin[];
+  pagination: PaginationResponse;
 };
