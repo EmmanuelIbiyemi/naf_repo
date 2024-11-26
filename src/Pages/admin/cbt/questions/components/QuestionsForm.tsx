@@ -70,7 +70,12 @@ const QuestionsForm = ({ actions }: Props) => {
           </Typography>
           <Box sx={{ marginTop: "1em" }}>
             <Box>
-              <label htmlFor="file">Upload Questions</label>
+              <label
+                htmlFor="file"
+                style={{ marginBottom: ".5rem", display: "block" }}
+              >
+                Upload Questions
+              </label>
               <Field name="file">
                 {({ form, meta }: FieldProps) => (
                   <TextField
@@ -87,6 +92,18 @@ const QuestionsForm = ({ actions }: Props) => {
                 )}
               </Field>
             </Box>
+            <a
+              style={{
+                display: "block",
+                color: "steelblue",
+                marginTop: ".5rem",
+                textDecoration: "underline",
+              }}
+              href={import.meta.env.VITE_SAMPLE_QUESTIONS_FILE}
+              download
+            >
+              download example file
+            </a>
           </Box>
 
           <Box

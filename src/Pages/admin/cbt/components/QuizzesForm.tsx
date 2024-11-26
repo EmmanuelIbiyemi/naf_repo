@@ -16,10 +16,8 @@ const CBTForm = ({ actions }: Props) => {
 
   const initialValues: CreateQuiz2 = {
     name: "",
-    obtainable_score: 100,
     start_date: "",
     expiry_date: "",
-    type: "graded",
     show_result: false,
     instructions: "",
     time_allowed: 30,
@@ -27,7 +25,6 @@ const CBTForm = ({ actions }: Props) => {
 
   const validationSchema = Yup.object().shape({
     name: Yup.string().required("Name is required"),
-    type: Yup.string().required("Type date is required"),
     instructions: Yup.string().required("Instructions date is required"),
     start_date: Yup.string().required("Start date is required"),
     expiry_date: Yup.string().required("Expiry date is required"),
@@ -35,10 +32,6 @@ const CBTForm = ({ actions }: Props) => {
       .min(1)
       .max(100)
       .required("Time allowed date is required"),
-    obtainable_score: Yup.number()
-      .min(1)
-      .max(100)
-      .required("Passing Percentage is required"),
   });
 
   const handleSubmit = async (quiz: CreateQuiz2) => {

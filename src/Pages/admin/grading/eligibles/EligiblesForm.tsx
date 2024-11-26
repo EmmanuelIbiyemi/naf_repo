@@ -265,6 +265,18 @@ const EligibleForm = ({ actions }: Props) => {
             <Typography>
               {uploadState.isLoading ? "Uploading" : null}
             </Typography>
+            <a
+              style={{
+                display: "block",
+                color: "steelblue",
+                marginTop: ".5rem",
+                textDecoration: "underline",
+              }}
+              href={import.meta.env.VITE_SAMPLE_ELIGIBLES_FILE}
+              download
+            >
+              download example file
+            </a>
           </Box>
           <Box className={formStyles.btn_group}>
             <Button
