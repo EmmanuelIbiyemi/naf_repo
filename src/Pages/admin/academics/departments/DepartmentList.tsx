@@ -4,9 +4,9 @@ import TableCell from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
 import TableRow from "@mui/material/TableRow";
 import {
-  Department,
+  DepartmentType,
   DepartmentFormAction,
-} from "../../../../types/departments";
+} from "../../../../types/department";
 import { Button, Checkbox, IconButton } from "@mui/material";
 import { Delete, Edit } from "@mui/icons-material";
 import { useNavigate, useParams } from "react-router-dom";
@@ -23,6 +23,8 @@ import SuccessModal from "../../../../components/SuccessModal";
 import { selectKeyword, setPageLoading } from "../../../../store/app.slice";
 import { useAppDispatch, useAppSelector } from "../../../../store/hooks";
 import EmptyState from "../../../../components/EmptyState";
+import CustomPagination from "../../../../components/CustomPagination";
+import { Pagination } from "../../../../types/pagination";
 
 const DepartmentList = () => {
   const { faculty_id } = useParams();
@@ -32,13 +34,21 @@ const DepartmentList = () => {
     success: false,
     delete: false,
   });
-  const [selectedDepartment, setSelectedDepartment] = useState<Department>();
+  const [selectedDepartment, setSelectedDepartment] =
+    useState<DepartmentType>();
+  const [pagination, setPagination] = useState<Pagination>({
+    page: 1,
+    per_page: 10,
+  });
   const {
     data: deps,
     isFetching,
     isError,
-  } = useGetDepartmentsQuery(+(faculty_id || 0));
-  const [departments, setDepartments] = useState<Department[] | undefined>(
+  } = useGetDepartmentsQuery({
+    faculty_id: +(faculty_id || 0),
+    ...pagination,
+  });
+  const [departments, setDepartments] = useState<DepartmentType[] | undefined>(
     deps?.data
   );
   const [deleteDepartment] = useDeleteDepartmentMutation();
@@ -62,7 +72,7 @@ const DepartmentList = () => {
     else dispatch(setPageLoading(false));
   }, [isFetching, isError, deps]);
 
-  const handleOpenModal = (department: Department, type: string) => {
+  const handleOpenModal = (department: DepartmentType, type: string) => {
     setSelectedDepartment(department);
     setOpenModal((prev) => ({ ...prev, [type]: true }));
   };
@@ -80,7 +90,7 @@ const DepartmentList = () => {
     }
   };
 
-  const handleEditDepartment = async (department: Department) => {
+  const handleEditDepartment = async (department: DepartmentType) => {
     try {
       await updateDepartment(department).unwrap();
     } catch (error) {
@@ -137,57 +147,79 @@ const DepartmentList = () => {
           subTitle="Check your internet connection"
         />
       ) : null}
-      {!departments?.length ? (
+      {!departments?.length && !isError ? (
         <EmptyState
           title="No Departments found"
           subTitle="Departments will appear here after you add them in your school."
         />
       ) : null}
-      <Table sx={{ minWidth: 650 }}>
-        <TableBody>
-          {departments?.map((department: Department) => (
-            <TableRow
-              key={department.id}
-              sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-            >
-              <TableCell
-                component="th"
-                scope="row"
-                sx={{ alignItems: "center", display: "flex", gap: "1rem" }}
-              >
-                <Checkbox />
-                <Button
-                  onClick={() =>
-                    navigate(`/academics/${faculty_id}/${department.id}`)
-                  }
-                  sx={{
-                    "&.MuiButton-root": {
-                      border: "none",
-                      color: "inherit",
-                      padding: 0,
-                      textTransform: "capitalize",
-                      justifyContent: "start",
-                      textAlign: "left",
-                    },
-                  }}
+
+      {deps?.data.length ? (
+        <>
+          <Table sx={{ minWidth: 650 }}>
+            <TableBody>
+              {departments?.map((department: DepartmentType) => (
+                <TableRow
+                  key={department.id}
+                  sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
                 >
-                  {department.name}
-                </Button>
-              </TableCell>
-              <TableCell align="right">
-                <IconButton onClick={() => handleOpenModal(department, "edit")}>
-                  <Edit />
-                </IconButton>
-                <IconButton
-                  onClick={() => handleOpenModal(department, "delete")}
-                >
-                  <Delete />
-                </IconButton>
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+                  <TableCell
+                    component="th"
+                    scope="row"
+                    sx={{ alignItems: "center", display: "flex", gap: "1rem" }}
+                  >
+                    <Checkbox />
+                    <Button
+                      onClick={() =>
+                        navigate(`/academics/${faculty_id}/${department.id}`)
+                      }
+                      sx={{
+                        "&.MuiButton-root": {
+                          border: "none",
+                          color: "inherit",
+                          padding: 0,
+                          textTransform: "capitalize",
+                          justifyContent: "start",
+                          textAlign: "left",
+                        },
+                      }}
+                    >
+                      {department.name}
+                    </Button>
+                  </TableCell>
+                  <TableCell align="right">
+                    <IconButton
+                      onClick={() => handleOpenModal(department, "edit")}
+                    >
+                      <Edit />
+                    </IconButton>
+                    <IconButton
+                      onClick={() => handleOpenModal(department, "delete")}
+                    >
+                      <Delete />
+                    </IconButton>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+
+          <CustomPagination
+            count={Math.ceil(
+              deps?.pagination.total / deps?.pagination.per_page
+            )}
+            page={deps?.pagination.page}
+            handleChangePage={(_, page) => {
+              setPagination({ per_page: 10, page });
+            }}
+            startIndex={
+              deps?.pagination.per_page * (deps?.pagination.page - 1) + 1
+            }
+            endIndex={deps?.pagination.per_page * deps?.pagination.page}
+            totalNumber={deps?.pagination.total}
+          />
+        </>
+      ) : null}
     </TableContainer>
   );
 };

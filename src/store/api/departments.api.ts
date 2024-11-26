@@ -3,16 +3,25 @@ import {
   DepartmentsResponse,
   DepartmentType,
 } from "../../types/department";
+import { Pagination } from "../../types/pagination";
 import { appApi } from "./app.api";
 
 const departmentsApi = appApi.injectEndpoints({
   endpoints: (builder) => ({
-    getDepartments: builder.query<DepartmentsResponse, number>({
-      query: (faculty_id) => `/department/faculty/${faculty_id}`,
+    getDepartments: builder.query<
+      DepartmentsResponse,
+      { faculty_id: number } & Pagination
+    >({
+      query: ({ faculty_id, page, per_page }) =>
+        `/department/faculty/${faculty_id}?page=${page}&per_page=${per_page}`,
       providesTags: ["Departments"],
     }),
-    getDepartmentsM: builder.mutation<DepartmentsResponse, number>({
-      query: (faculty_id) => `/department/faculty/${faculty_id}`,
+    getDepartmentsM: builder.mutation<
+      DepartmentsResponse,
+      { faculty_id: number } & Pagination
+    >({
+      query: ({ faculty_id, page, per_page }) =>
+        `/department/faculty/${faculty_id}?page=${page}&per_page=${per_page}`,
       invalidatesTags: ["Departments"],
     }),
     getDepartment: builder.query<DepartmentsResponse, number>({

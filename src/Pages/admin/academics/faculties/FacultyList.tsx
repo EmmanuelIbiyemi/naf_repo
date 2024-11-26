@@ -20,6 +20,8 @@ import SuccessModal from "../../../../components/SuccessModal";
 import { useAppDispatch, useAppSelector } from "../../../../store/hooks";
 import { selectKeyword, setPageLoading } from "../../../../store/app.slice";
 import EmptyState from "../../../../components/EmptyState";
+import CustomPagination from "../../../../components/CustomPagination";
+import { Pagination } from "../../../../types/pagination";
 
 const FacultyList = () => {
   const navigate = useNavigate();
@@ -29,7 +31,11 @@ const FacultyList = () => {
     delete: false,
   });
   const [selectedFaculty, setSelectedFaculty] = useState<Faculty>();
-  const { data: facs, isFetching, isError } = useGetFacultiesQuery(null);
+  const [pagination, setPagination] = useState<Pagination>({
+    page: 1,
+    per_page: 10,
+  });
+  const { data: facs, isFetching, isError } = useGetFacultiesQuery(pagination);
   const [deleteFaculty] = useDeleteFacultyMutation();
   const [updateFaculty] = useUpdateFacultyMutation();
   const [faculties, setFaculties] = useState<Faculty[] | undefined>(facs?.data);
@@ -126,53 +132,76 @@ const FacultyList = () => {
           subTitle="Check your internet connection"
         />
       ) : null}
-      {!faculties?.length ? (
+      {!faculties?.length && !isError ? (
         <EmptyState
           title="No Faculties found"
           subTitle="Faculties will appear here after you add them in your school."
         />
       ) : null}
-      <Table sx={{ minWidth: 650 }}>
-        <TableBody>
-          {faculties?.map((faculty: Faculty) => (
-            <TableRow
-              key={faculty.id}
-              sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-            >
-              <TableCell
-                component="th"
-                scope="row"
-                sx={{ alignItems: "center", display: "flex", gap: "1rem" }}
-              >
-                <Checkbox />
-                <Button
-                  onClick={() => navigate(`/academics/${faculty.id}`)}
-                  sx={{
-                    "&.MuiButton-root": {
-                      border: "none",
-                      color: "inherit",
-                      padding: 0,
-                      textTransform: "capitalize",
-                      justifyContent: "start",
-                      textAlign: "left",
-                    },
-                  }}
+
+      {facs?.data.length ? (
+        <>
+          <Table sx={{ minWidth: 650 }}>
+            <TableBody>
+              {faculties?.map((faculty: Faculty) => (
+                <TableRow
+                  key={faculty.id}
+                  sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
                 >
-                  {faculty.name}
-                </Button>
-              </TableCell>
-              <TableCell align="right">
-                <IconButton onClick={() => handleOpenModal(faculty, "edit")}>
-                  <Edit />
-                </IconButton>
-                <IconButton onClick={() => handleOpenModal(faculty, "delete")}>
-                  <Delete />
-                </IconButton>
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+                  <TableCell
+                    component="th"
+                    scope="row"
+                    sx={{ alignItems: "center", display: "flex", gap: "1rem" }}
+                  >
+                    <Checkbox />
+                    <Button
+                      onClick={() => navigate(`/academics/${faculty.id}`)}
+                      sx={{
+                        "&.MuiButton-root": {
+                          border: "none",
+                          color: "inherit",
+                          padding: 0,
+                          textTransform: "capitalize",
+                          justifyContent: "start",
+                          textAlign: "left",
+                        },
+                      }}
+                    >
+                      {faculty.name}
+                    </Button>
+                  </TableCell>
+                  <TableCell align="right">
+                    <IconButton
+                      onClick={() => handleOpenModal(faculty, "edit")}
+                    >
+                      <Edit />
+                    </IconButton>
+                    <IconButton
+                      onClick={() => handleOpenModal(faculty, "delete")}
+                    >
+                      <Delete />
+                    </IconButton>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+          <CustomPagination
+            count={Math.ceil(
+              facs?.pagination.total / facs?.pagination.per_page
+            )}
+            page={facs?.pagination.page}
+            handleChangePage={(_, page) => {
+              setPagination({ per_page: 10, page });
+            }}
+            startIndex={
+              facs?.pagination.per_page * (facs?.pagination.page - 1) + 1
+            }
+            endIndex={facs?.pagination.per_page * facs?.pagination.page}
+            totalNumber={facs?.pagination.total}
+          />
+        </>
+      ) : null}
     </TableContainer>
   );
 };

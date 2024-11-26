@@ -1,29 +1,22 @@
 import { Box } from "@mui/material";
 import PageHeader from "../../../../components/PageHeader";
-import EmptyState from "../../../../components/EmptyState";
 import FormModal from "../../../../components/FormModal";
 import { useEffect, useRef, useState } from "react";
 import { useAppDispatch } from "../../../../store/hooks";
 import { setPageName } from "../../../../store/app.slice";
 import SuccessModal from "../../../../components/SuccessModal";
-import {
-  useAddProgrammeMutation,
-  useGetProgrammesQuery,
-} from "../../../../store/api/programmes.api";
+import { useAddProgrammeMutation } from "../../../../store/api/programmes.api";
 import { Programme, ProgrammeFormAction } from "../../../../types/programmes";
 import ProgrammeForm from "./ProgrammeForm";
 import ProgrammeList from "./ProgrammeList";
-import { useParams } from "react-router-dom";
 
 const ProgrammesPage = () => {
-  const { department_id } = useParams();
   const [openModal, setOpenModal] = useState({
     add: false,
     success: false,
   });
   const [programmeName, setProgrammeName] = useState("");
   const [selectedProgramme, setSelectedProgramme] = useState<Programme>();
-  const { data: Programmes } = useGetProgrammesQuery(+(department_id || 0));
   const containerRef = useRef<HTMLDivElement>(null);
   const [addProgramme] = useAddProgrammeMutation();
 
@@ -90,14 +83,7 @@ const ProgrammesPage = () => {
           padding: "var(--padding)",
         }}
       >
-        {Programmes?.data.length ? (
-          <ProgrammeList />
-        ) : (
-          <EmptyState
-            title="No Programmes at this time"
-            subTitle="Programmes will appear here after you add them in your school."
-          />
-        )}
+        <ProgrammeList />
       </Box>
     </Box>
   );

@@ -22,6 +22,8 @@ import { FormAction } from "../../../../types/forms";
 import { useAppDispatch, useAppSelector } from "../../../../store/hooks";
 import { selectKeyword, setPageLoading } from "../../../../store/app.slice";
 import EmptyState from "../../../../components/EmptyState";
+import { Pagination } from "../../../../types/pagination";
+import CustomPagination from "../../../../components/CustomPagination";
 
 const CourseList = () => {
   const { level_id } = useParams();
@@ -31,13 +33,17 @@ const CourseList = () => {
     delete: false,
   });
   const [selectedCourse, setSelectedCourse] = useState<CourseType>();
+  const [pagination, setPagination] = useState<Pagination>({
+    page: 1,
+    per_page: 10,
+  });
   const {
     data: crs,
     isError,
     isFetching,
   } = useGetCoursesByLevelQuery({
     level_id: +(level_id || 0),
-    per_page: 1000,
+    ...pagination,
   });
   const [courses, setCourses] = useState<CourseType[] | undefined>(crs?.data);
   const [deleteCourse] = useDeleteCourseMutation();
@@ -147,37 +153,55 @@ const CourseList = () => {
           subTitle="Courses will appear here after you add them in your school."
         />
       ) : null}
-      <Table sx={{ minWidth: 650 }}>
-        <TableBody>
-          {courses?.map((course) => (
-            <TableRow
-              key={course.id}
-              sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-            >
-              <TableCell
-                component="th"
-                scope="row"
-                sx={{ alignItems: "center", display: "flex", gap: "1rem" }}
-              >
-                <Checkbox />
-                <Typography
-                  sx={{ fontWeight: 500, textTransform: "capitalize" }}
+      {crs?.data.length ? (
+        <>
+          <Table sx={{ minWidth: 650 }}>
+            <TableBody>
+              {courses?.map((course) => (
+                <TableRow
+                  key={course.id}
+                  sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
                 >
-                  {course.name}
-                </Typography>
-              </TableCell>
-              <TableCell align="right">
-                <IconButton onClick={() => handleOpenModal(course, "edit")}>
-                  <Edit />
-                </IconButton>
-                <IconButton onClick={() => handleOpenModal(course, "delete")}>
-                  <Delete />
-                </IconButton>
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+                  <TableCell
+                    component="th"
+                    scope="row"
+                    sx={{ alignItems: "center", display: "flex", gap: "1rem" }}
+                  >
+                    <Checkbox />
+                    <Typography
+                      sx={{ fontWeight: 500, textTransform: "capitalize" }}
+                    >
+                      {course.name}
+                    </Typography>
+                  </TableCell>
+                  <TableCell align="right">
+                    <IconButton onClick={() => handleOpenModal(course, "edit")}>
+                      <Edit />
+                    </IconButton>
+                    <IconButton
+                      onClick={() => handleOpenModal(course, "delete")}
+                    >
+                      <Delete />
+                    </IconButton>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+          <CustomPagination
+            count={Math.ceil(crs?.pagination.total / crs?.pagination.per_page)}
+            page={crs?.pagination.page}
+            handleChangePage={(_, page) => {
+              setPagination({ per_page: 10, page });
+            }}
+            startIndex={
+              crs?.pagination.per_page * (crs?.pagination.page - 1) + 1
+            }
+            endIndex={crs?.pagination.per_page * crs?.pagination.page}
+            totalNumber={crs?.pagination.total}
+          />
+        </>
+      ) : null}
     </TableContainer>
   );
 };

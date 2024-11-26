@@ -3,12 +3,14 @@ import { appApi } from "./app.api";
 
 const levelsApi = appApi.injectEndpoints({
   endpoints: (builder) => ({
-    getLevels: builder.query<LevelsResponse, number>({
-      query: (program_id) => `/level/program/${program_id}`,
+    getLevels: builder.query<LevelsResponse, { program_id: number }>({
+      query: ({ program_id }) =>
+        `/level/program/${program_id}?page=${1}&per_page=${100}`,
       providesTags: ["Levels"],
     }),
-    getLevelsM: builder.mutation<LevelsResponse, number>({
-      query: (program_id) => `/level/program/${program_id}`,
+    getLevelsM: builder.mutation<LevelsResponse, { program_id: number }>({
+      query: ({ program_id }) =>
+        `/level/program/${program_id}?page=${1}&per_page=${100}`,
     }),
     getLevel: builder.query<LevelsResponse, number>({
       query: (level_id) => `/level/1/${level_id}`,

@@ -42,7 +42,10 @@ const GradesList: React.FC = () => {
   const [selectedGrade, setSelectedGrade] = useState<Grade>();
   const [deleteGrade] = useDeleteGradeMutation();
   const [updateGrade] = useUpdateGradeMutation();
-  const { data: faculties } = useGetFacultiesQuery(null);
+  const { data: faculties } = useGetFacultiesQuery({
+    page: 1,
+    per_page: 1000,
+  });
   const [getDepartments, departmentsState] = useGetDepartmentsMMutation();
   const [getPrograms, programsState] = useGetProgrammesMMutation();
   const [filters, setFilters] = useState({
@@ -102,9 +105,17 @@ const GradesList: React.FC = () => {
     setFilters((prev) => ({ ...prev, [target.name]: +target.value }));
     try {
       if (target.name === "faculty_id") {
-        await getDepartments(+target.value).unwrap();
+        await getDepartments({
+          faculty_id: +target.value,
+          page: 1,
+          per_page: 1000,
+        }).unwrap();
       } else if (target.name === "department_id") {
-        await getPrograms(+target.value).unwrap();
+        await getPrograms({
+          department_id: +target.value,
+          page: 1,
+          per_page: 1000,
+        }).unwrap();
       }
     } catch (error) {
       console.log(error);
