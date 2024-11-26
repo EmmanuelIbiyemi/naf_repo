@@ -1,11 +1,13 @@
 import { Faculty, FacultyResponse } from "../../types/faculties";
 import { FacultyType } from "../../types/faculty";
+import { Pagination } from "../../types/pagination";
 import { appApi } from "./app.api";
 
 const facultiesApi = appApi.injectEndpoints({
   endpoints: (builder) => ({
-    getFaculties: builder.query<FacultyResponse, null>({
-      query: () => "/faculty",
+    getFaculties: builder.query<FacultyResponse, Pagination>({
+      query: ({ page, per_page }) =>
+        `/faculty?page=${page}&per_page=${per_page}`,
       providesTags: ["Faculties"],
     }),
     getFaculty: builder.query<{ data: FacultyType }, number>({

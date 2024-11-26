@@ -34,7 +34,10 @@ type Props = {
 };
 
 const AddForm = ({ actions }: Props) => {
-  const { data: faculties } = useGetFacultiesQuery(null);
+  const { data: faculties } = useGetFacultiesQuery({
+    page: 1,
+    per_page: 1000,
+  });
   const [getDepartments, departmentsState] = useGetDepartmentsMMutation();
   const [getPrograms, programsState] = useGetProgrammesMMutation();
   const [getLevels, levelsState] = useGetLevelsMMutation();
@@ -70,7 +73,11 @@ const AddForm = ({ actions }: Props) => {
 
     setValue("faculty_id", +value);
     try {
-      await getDepartments(+value);
+      await getDepartments({
+        faculty_id: +value,
+        page: 1,
+        per_page: 1000,
+      });
     } catch (error) {
       console.log(error);
     }
@@ -86,7 +93,11 @@ const AddForm = ({ actions }: Props) => {
 
     setValue("department_id", +value);
     try {
-      await getPrograms(+value);
+      await getPrograms({
+        department_id: +value,
+        page: 1,
+        per_page: 1000,
+      });
     } catch (error) {
       console.log(error);
     }
@@ -102,7 +113,7 @@ const AddForm = ({ actions }: Props) => {
 
     setValue("program_id", +value);
     try {
-      await getLevels(+value);
+      await getLevels({ program_id: +value });
     } catch (error) {
       console.log(error);
     }

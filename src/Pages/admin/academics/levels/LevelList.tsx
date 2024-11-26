@@ -35,7 +35,7 @@ const LevelList = () => {
     data: lvls,
     isFetching,
     isError,
-  } = useGetLevelsQuery(+(program_id || 0));
+  } = useGetLevelsQuery({ program_id: +(program_id || 0) });
   const [levels, setLevels] = useState(lvls?.data);
   const [deleteLevel] = useDeleteLevelMutation();
   const [updateLevel] = useUpdateLevelMutation();
@@ -138,51 +138,54 @@ const LevelList = () => {
           subTitle="Levels will appear here after you add them in your school."
         />
       ) : null}
-      <Table sx={{ minWidth: 650 }}>
-        <TableBody>
-          {levels?.map((level: LevelType) => (
-            <TableRow
-              key={level.id}
-              sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-            >
-              <TableCell
-                component="th"
-                scope="row"
-                sx={{ alignItems: "center", display: "flex", gap: "1rem" }}
+
+      {lvls?.data.length ? (
+        <Table sx={{ minWidth: 650 }}>
+          <TableBody>
+            {levels?.map((level: LevelType) => (
+              <TableRow
+                key={level.id}
+                sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
               >
-                <Checkbox />
-                <Button
-                  onClick={() =>
-                    navigate(
-                      `/academics/${faculty_id}/${department_id}/${program_id}/${level.id}`
-                    )
-                  }
-                  sx={{
-                    "&.MuiButton-root": {
-                      border: "none",
-                      color: "inherit",
-                      padding: 0,
-                      textTransform: "capitalize",
-                      justifyContent: "start",
-                      textAlign: "left",
-                    },
-                  }}
+                <TableCell
+                  component="th"
+                  scope="row"
+                  sx={{ alignItems: "center", display: "flex", gap: "1rem" }}
                 >
-                  {level.name}
-                </Button>
-              </TableCell>
-              <TableCell align="right">
-                <IconButton onClick={() => handleOpenModal(level, "edit")}>
-                  <Edit />
-                </IconButton>
-                <IconButton onClick={() => handleOpenModal(level, "delete")}>
-                  <Delete />
-                </IconButton>
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+                  <Checkbox />
+                  <Button
+                    onClick={() =>
+                      navigate(
+                        `/academics/${faculty_id}/${department_id}/${program_id}/${level.id}`
+                      )
+                    }
+                    sx={{
+                      "&.MuiButton-root": {
+                        border: "none",
+                        color: "inherit",
+                        padding: 0,
+                        textTransform: "capitalize",
+                        justifyContent: "start",
+                        textAlign: "left",
+                      },
+                    }}
+                  >
+                    {level.name}
+                  </Button>
+                </TableCell>
+                <TableCell align="right">
+                  <IconButton onClick={() => handleOpenModal(level, "edit")}>
+                    <Edit />
+                  </IconButton>
+                  <IconButton onClick={() => handleOpenModal(level, "delete")}>
+                    <Delete />
+                  </IconButton>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      ) : null}
     </TableContainer>
   );
 };

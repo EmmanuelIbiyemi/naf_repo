@@ -28,7 +28,10 @@ import { useAppDispatch, useAppSelector } from "../../../../store/hooks";
 import SuccessModal from "../../../../components/SuccessModal";
 
 const ResultsList = () => {
-  const { data: faculties } = useGetFacultiesQuery(null);
+  const { data: faculties } = useGetFacultiesQuery({
+    page: 1,
+    per_page: 1000,
+  });
   const [getDepartments, departmentsState] = useGetDepartmentsMMutation();
   const [getPrograms, programsState] = useGetProgrammesMMutation();
   const [getLevels, levelsState] = useGetLevelsMMutation();
@@ -101,11 +104,21 @@ const ResultsList = () => {
     }));
     try {
       if (target.name === "faculty_id") {
-        await getDepartments(+target.value).unwrap();
+        await getDepartments({
+          faculty_id: +target.value,
+          page: 1,
+          per_page: 1000,
+        }).unwrap();
       } else if (target.name === "department_id") {
-        await getPrograms(+target.value).unwrap();
+        await getPrograms({
+          department_id: +target.value,
+          page: 1,
+          per_page: 1000,
+        }).unwrap();
       } else if (target.name === "program_id") {
-        await getLevels(+target.value).unwrap();
+        await getLevels({
+          program_id: +target.value,
+        }).unwrap();
       }
     } catch (error) {
       console.log(error);

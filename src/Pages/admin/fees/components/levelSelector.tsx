@@ -1,7 +1,7 @@
-import React from 'react';
-import { Autocomplete, TextField, Box } from '@mui/material';
-import { LevelType } from '../../../../types/levels';
-import { useGetLevelsQuery } from '../../../../store/api/levels.api';
+import React from "react";
+import { Autocomplete, TextField, Box } from "@mui/material";
+import { LevelType } from "../../../../types/levels";
+import { useGetLevelsQuery } from "../../../../store/api/levels.api";
 
 interface LevelSelectorProps {
   value: string | null;
@@ -9,12 +9,19 @@ interface LevelSelectorProps {
 }
 
 const LevelSelector: React.FC<LevelSelectorProps> = ({ value, onChange }) => {
-  const { data: levelsData, isLoading, error } = useGetLevelsQuery(0);
+  const {
+    data: levelsData,
+    isLoading,
+    error,
+  } = useGetLevelsQuery({ program_id: 0 });
 
   if (isLoading) return <div>Loading levels...</div>;
   if (error) return <div>Error loading levels</div>;
 
-  const handleLevelChange = (_event: React.SyntheticEvent, newValue: LevelType | null) => {
+  const handleLevelChange = (
+    _event: React.SyntheticEvent,
+    newValue: LevelType | null
+  ) => {
     onChange(newValue?.id ? newValue.id.toString() : null);
   };
 
@@ -22,15 +29,14 @@ const LevelSelector: React.FC<LevelSelectorProps> = ({ value, onChange }) => {
     <Box>
       <Autocomplete
         options={levelsData?.data ?? []}
-        value={levelsData?.data.find(level => level.id?.toString() === value) ?? null}
+        value={
+          levelsData?.data.find((level) => level.id?.toString() === value) ??
+          null
+        }
         onChange={handleLevelChange}
         getOptionLabel={(option: LevelType) => option.name}
         renderInput={(params) => (
-          <TextField
-            {...params}
-            variant="outlined"
-            label="Level"
-          />
+          <TextField {...params} variant="outlined" label="Level" />
         )}
       />
     </Box>

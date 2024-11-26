@@ -1,15 +1,23 @@
+import { Pagination } from "../../types/pagination";
 import { Programme, ProgrammeResponse } from "../../types/programmes";
 import { appApi } from "./app.api";
 
 const programmesApi = appApi.injectEndpoints({
   endpoints: (builder) => ({
-    getProgrammes: builder.query<ProgrammeResponse, number>({
-      query: (department_id) => `/program/department/${department_id}`,
+    getProgrammes: builder.query<
+      ProgrammeResponse,
+      { department_id: number } & Pagination
+    >({
+      query: ({ department_id, page, per_page }) =>
+        `/program/department/${department_id}?page=${page}&per_page=${per_page}`,
       providesTags: ["Programmes"],
     }),
-    getProgrammesM: builder.mutation<ProgrammeResponse, number>({
-      query: (department_id) => ({
-        url: `/program/department/${department_id}`,
+    getProgrammesM: builder.mutation<
+      ProgrammeResponse,
+      { department_id: number } & Pagination
+    >({
+      query: ({ department_id, page, per_page }) => ({
+        url: `/program/department/${department_id}?page=${page}&per_page=${per_page}`,
       }),
     }),
     addProgramme: builder.mutation<ProgrammeResponse, Programme>({

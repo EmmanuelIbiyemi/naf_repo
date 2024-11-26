@@ -1,3 +1,5 @@
+import { PaginationResponse } from "./pagination";
+
 export type Programme = {
   id?: number;
   name: string;
@@ -6,6 +8,7 @@ export type Programme = {
 
 export type ProgrammeResponse = {
   data: Programme[];
+  pagination: PaginationResponse;
 };
 
 export type ProgrammeFormAction = (programme: Programme) => Promise<void>;

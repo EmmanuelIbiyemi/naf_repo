@@ -1,3 +1,5 @@
+import { PaginationResponse } from "./pagination";
+
 export type LevelType = {
   id?: number;
   name: string;
@@ -16,6 +18,7 @@ export type LevelResponse = {
 };
 export type LevelsResponse = {
   data: LevelType[];
+  pagination: PaginationResponse;
 };
 
 export type LevelFormAction = (level: LevelType) => Promise<void>;

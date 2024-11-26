@@ -1,3 +1,5 @@
+import { PaginationResponse } from "./pagination";
+
 export type Faculty = {
   id?: number;
   name: string;
@@ -5,7 +7,8 @@ export type Faculty = {
 };
 
 export type FacultyResponse = {
-  data: Faculty[]
+  data: Faculty[];
+  pagination: PaginationResponse;
 };
 
 export type FacultyFormAction = (faculty: Faculty) => Promise<void>;

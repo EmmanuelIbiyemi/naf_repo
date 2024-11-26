@@ -20,6 +20,8 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../../../../store/hooks";
 import { selectKeyword, setPageLoading } from "../../../../store/app.slice";
 import EmptyState from "../../../../components/EmptyState";
+import { Pagination } from "../../../../types/pagination";
+import CustomPagination from "../../../../components/CustomPagination";
 
 const ProgrammeList = () => {
   const { department_id, faculty_id } = useParams();
@@ -30,11 +32,18 @@ const ProgrammeList = () => {
     delete: false,
   });
   const [selectedProgramme, setSelectedProgramme] = useState<Programme>();
+  const [pagination, setPagination] = useState<Pagination>({
+    page: 1,
+    per_page: 10,
+  });
   const {
     data: prgms,
     isFetching,
     isError,
-  } = useGetProgrammesQuery(+(department_id || 0));
+  } = useGetProgrammesQuery({
+    department_id: +(department_id || 0),
+    ...pagination,
+  });
   const [programmes, setProgrammes] = useState(prgms?.data);
   const [deleteProgramme] = useDeleteProgrammeMutation();
   const [updateProgramme] = useUpdateProgrammeMutation();
@@ -137,53 +146,74 @@ const ProgrammeList = () => {
           subTitle="Programs will appear here after you add them in your school."
         />
       ) : null}
-      <Table sx={{ minWidth: 650 }}>
-        <TableBody>
-          {programmes?.map((programme: Programme) => (
-            <TableRow
-              key={programme.id}
-              sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-            >
-              <TableCell
-                component="th"
-                scope="row"
-                sx={{ alignItems: "center", display: "flex", gap: "1rem" }}
-              >
-                <Checkbox />
-                <Button
-                  onClick={() =>
-                    navigate(
-                      `/academics/${faculty_id}/${department_id}/${programme.id}`
-                    )
-                  }
-                  sx={{
-                    "&.MuiButton-root": {
-                      border: "none",
-                      color: "inherit",
-                      padding: 0,
-                      textTransform: "capitalize",
-                      justifyContent: "start",
-                      textAlign: "left",
-                    },
-                  }}
+
+      {prgms?.data.length ? (
+        <>
+          <Table sx={{ minWidth: 650 }}>
+            <TableBody>
+              {programmes?.map((programme: Programme) => (
+                <TableRow
+                  key={programme.id}
+                  sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
                 >
-                  {programme.name}
-                </Button>
-              </TableCell>
-              <TableCell align="right">
-                <IconButton onClick={() => handleOpenModal(programme, "edit")}>
-                  <Edit />
-                </IconButton>
-                <IconButton
-                  onClick={() => handleOpenModal(programme, "delete")}
-                >
-                  <Delete />
-                </IconButton>
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+                  <TableCell
+                    component="th"
+                    scope="row"
+                    sx={{ alignItems: "center", display: "flex", gap: "1rem" }}
+                  >
+                    <Checkbox />
+                    <Button
+                      onClick={() =>
+                        navigate(
+                          `/academics/${faculty_id}/${department_id}/${programme.id}`
+                        )
+                      }
+                      sx={{
+                        "&.MuiButton-root": {
+                          border: "none",
+                          color: "inherit",
+                          padding: 0,
+                          textTransform: "capitalize",
+                          justifyContent: "start",
+                          textAlign: "left",
+                        },
+                      }}
+                    >
+                      {programme.name}
+                    </Button>
+                  </TableCell>
+                  <TableCell align="right">
+                    <IconButton
+                      onClick={() => handleOpenModal(programme, "edit")}
+                    >
+                      <Edit />
+                    </IconButton>
+                    <IconButton
+                      onClick={() => handleOpenModal(programme, "delete")}
+                    >
+                      <Delete />
+                    </IconButton>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+          <CustomPagination
+            count={Math.ceil(
+              prgms?.pagination.total / prgms?.pagination.per_page
+            )}
+            page={prgms?.pagination.page}
+            handleChangePage={(_, page) => {
+              setPagination({ per_page: 10, page });
+            }}
+            startIndex={
+              prgms?.pagination.per_page * (prgms?.pagination.page - 1) + 1
+            }
+            endIndex={prgms?.pagination.per_page * prgms?.pagination.page}
+            totalNumber={prgms?.pagination.total}
+          />
+        </>
+      ) : null}
     </TableContainer>
   );
 };
