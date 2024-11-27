@@ -1,14 +1,9 @@
-import { Box, TextField, Checkbox } from "@mui/material";
+import { Box, TextField, Checkbox, SxProps } from "@mui/material";
 import { Field, FieldProps } from "formik";
 
 const Step1Content = () => {
   return (
-    <Box
-      sx={{
-        ">div": { marginBottom: ".5rem" },
-        label: { display: "inline-block", marginBottom: ".5rem" },
-      }}
-    >
+    <Box sx={containerStyles}>
       <Box>
         <label htmlFor="">Name</label>
         <Field name="name">
@@ -31,7 +26,7 @@ const Step1Content = () => {
               {...field}
               fullWidth
               multiline
-              rows={3}
+              rows={2}
               error={!!meta.error && meta.touched}
               helperText={meta.touched && meta.error}
             />
@@ -110,3 +105,11 @@ const Step1Content = () => {
 };
 
 export default Step1Content;
+
+const containerStyles: SxProps = {
+  display: "grid",
+  gap: "1rem",
+  ">div": { marginBottom: ".5rem" },
+  label: { display: "inline-block", marginBottom: ".5rem" },
+  input: { padding: "0.5rem 1rem" },
+};
