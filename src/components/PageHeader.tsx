@@ -65,31 +65,19 @@ const PageHeader = ({ button, secondaryButton }: Props) => {
       </Box>
       {button ? (
         <Box sx={formGroupStyles}>
-          {
-            secondaryButton ? (
-              <Button
-                onClick={secondaryButton.action}
-                variant="contained"
-                sx={{
-                  bgcolor: "#fff",
-                  color: "primary.main",
-                  textTransform: "capitalize",
-                }}
-              >
-                {secondaryButton.text}
-              </Button>
-            ) : null
-            // <Button
-            //   variant="contained"
-            //   sx={{
-            //     bgcolor: "#fff",
-            //     color: "primary.main",
-            //     textTransform: "capitalize",
-            //   }}
-            // >
-            //   Export CSV
-            // </Button>
-          }
+          {secondaryButton ? (
+            <Button
+              onClick={secondaryButton.action}
+              variant="contained"
+              sx={{
+                bgcolor: "#fff",
+                color: "primary.main",
+                textTransform: "capitalize",
+              }}
+            >
+              {secondaryButton.text}
+            </Button>
+          ) : null}
           <Button
             onClick={button.action}
             variant="contained"

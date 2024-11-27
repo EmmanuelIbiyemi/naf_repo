@@ -1,4 +1,3 @@
-import { TabContext, TabList, TabPanel } from "@mui/lab";
 import {
   Box,
   Button,
@@ -7,54 +6,52 @@ import {
   Divider,
   IconButton,
   SxProps,
-  Tab,
   Typography,
 } from "@mui/material";
-import { CSSProperties, useCallback, useEffect, useState } from "react";
+import {
+  CSSProperties,
+  KeyboardEvent,
+  useCallback,
+  useEffect,
+  useState,
+} from "react";
 import { useDropzone } from "react-dropzone";
 import MediaItem from "./components/MediaItem";
-import { Close } from "@mui/icons-material";
+import { Close, Search } from "@mui/icons-material";
 import uploadIcon from "../../../assets/upload-file.svg";
 import SuccessModal from "../../../components/SuccessModal";
 import DeleteConfirmationModal from "../../../components/DeleteConfirmationModal";
 import {
   useAddMediaMutation,
   useDeleteMediaMutation,
-  useGetAllByTypeMediaQuery,
-  useGetAllMediaQuery,
+  useNewGetMediaQuery,
 } from "../../../store/api/media.api";
 import { useAppDispatch } from "../../../store/hooks";
 import { setPageLoading } from "../../../store/app.slice";
 import { MediaType } from "../../../types/media";
 import EmptyState from "../../../components/EmptyState";
+import { Pagination } from "../../../types/pagination";
+import CustomPagination from "../../../components/CustomPagination";
 
 const MediaLibrary = () => {
   const tabs = [
-    { id: "1", name: "All Media" },
-    { id: "2", name: "Videos" },
-    { id: "3", name: "Images" },
+    { id: "1", name: "All Media", type: "" },
+    { id: "2", name: "Videos", type: "video" },
+    { id: "3", name: "Images", type: "image" },
   ];
-  const [tab, setTab] = useState("1");
   const dispatch = useAppDispatch();
-  const {
-    data: allMedia,
-    isFetching: allLoading,
-    isError: allError,
-  } = useGetAllMediaQuery({ per_page: 100 });
-  const {
-    data: images,
-    isFetching: imagesLoading,
-    isError: imagesError,
-  } = useGetAllByTypeMediaQuery({
-    mediaType: "image",
+  const [keyword, setKeyword] = useState("");
+  const [mediaType, setMediaType] = useState<string>("");
+  const [pagination, setPagination] = useState<Pagination>({
+    page: 1,
+    per_page: 12,
   });
   const {
-    data: videos,
-    isFetching: videosLoading,
-    isError: videosError,
-  } = useGetAllByTypeMediaQuery({
-    mediaType: "video",
-  });
+    data: newAll,
+    isError,
+    isFetching,
+  } = useNewGetMediaQuery({ ...pagination, mediaType });
+
   const [deleteMedia] = useDeleteMediaMutation();
   const [addMedia] = useAddMediaMutation();
   const [openModal, setOpenModal] = useState({
@@ -101,6 +98,13 @@ const MediaLibrary = () => {
     setSelectedMedia(media);
   };
 
+  const handleSearch = async (event: KeyboardEvent) => {
+    console.log(keyword);
+
+    if (event.key == "Enter")
+      setKeyword((event.target as HTMLInputElement).value);
+  };
+
   useEffect(() => {
     if (startUpload && files.length) {
       files.forEach(async (file, i) => {
@@ -122,13 +126,9 @@ const MediaLibrary = () => {
   }, [files]);
 
   useEffect(() => {
-    dispatch(setPageLoading(true));
-  }, []);
-
-  useEffect(() => {
-    if (!allLoading && !imagesLoading && !videosLoading)
-      dispatch(setPageLoading(false));
-  }, [allLoading, imagesLoading, videosLoading]);
+    if (isFetching) dispatch(setPageLoading(true));
+    else dispatch(setPageLoading(false));
+  }, [isFetching]);
 
   return (
     <Box sx={contentStyles}>
@@ -147,7 +147,7 @@ const MediaLibrary = () => {
           proceed: () => {
             if (selectedMedia) handleDeleteMedia(selectedMedia.id);
             console.log("proceed");
-          }
+          },
         }}
         close={() => handleCloseModal("delete")}
         infoText=""
@@ -238,90 +238,79 @@ const MediaLibrary = () => {
       </Dialog>
       <Box sx={headerStyles}>
         <Typography variant="h5">Media Library</Typography>
-        <Button variant="contained" onClick={() => handleOpenModal("add")}>
-          Add Media
-        </Button>
+        <Box sx={{ alignItems: "center", display: "flex", gap: "1rem" }}>
+          <Box sx={searchFieldStyles}>
+            <Search />
+            <input
+              name="keyword"
+              placeholder="Search..."
+              onKeyDown={handleSearch}
+            />
+          </Box>
+          <Button variant="contained" onClick={() => handleOpenModal("add")}>
+            Add Media
+          </Button>
+        </Box>
       </Box>
 
       <Box sx={{ width: "100%", position: "relative" }}>
-        <TabContext value={tab}>
+        <Box>
           <Box>
-            <TabList
-              onChange={(_, newValue) => setTab(newValue)}
-              aria-label="lab API tabs example"
-            >
-              {tabs.map((tab) => (
-                <Tab key={`tab-${tab.id}`} label={tab.name} value={tab.id} />
+            <Box>
+              {tabs.map((tab, index) => (
+                <Button
+                  key={`tab-${tab.id}`}
+                  onClick={() => setMediaType(tabs[index].type)}
+                  sx={{
+                    borderRadius: 0,
+                    paddingInline: "1rem",
+                    borderBottom:
+                      tab.type == mediaType
+                        ? "3px solid rgba(2, 54, 120, 1)"
+                        : "",
+                  }}
+                >
+                  {tab.name}
+                </Button>
               ))}
-            </TabList>
+            </Box>
           </Box>
-          <TabPanel
-            value="1"
-            sx={{
-              ...TabStyles,
-              display: allMedia?.media.length ? "grid" : "block",
-            }}
-          >
-            {allMedia?.media.length ? (
-              allMedia?.media?.map((media) => (
-                <MediaItem
-                  key={`mediaitem-${media.id}`}
-                  media={media}
-                  deleteItem={() => handleDeleteAction(media)}
-                />
-              ))
-            ) : (
-              <EmptyState
-                title={allError ? "Could Not Fetch Media" : "No Media yet"}
-                subTitle="Media will appear here after you add them in your school."
+
+          {newAll?.media.length ? (
+            <>
+              <Box sx={mediaContainerStyles}>
+                {newAll?.media?.map((media) => (
+                  <MediaItem
+                    key={`mediaitem-${media.id}`}
+                    media={media}
+                    deleteItem={() => handleDeleteAction(media)}
+                  />
+                ))}
+              </Box>
+
+              <CustomPagination
+                count={Math.ceil(
+                  newAll?.pagination.total / newAll?.pagination.per_page
+                )}
+                page={newAll?.pagination.page}
+                handleChangePage={(_, page) => {
+                  setPagination({ per_page: 10, page });
+                }}
+                startIndex={
+                  newAll?.pagination.per_page * (newAll?.pagination.page - 1) +
+                  1
+                }
+                endIndex={newAll?.pagination.per_page * newAll?.pagination.page}
+                totalNumber={newAll?.pagination.total}
               />
-            )}
-          </TabPanel>
-          <TabPanel
-            value="2"
-            sx={{
-              ...TabStyles,
-              display: videos?.media.length ? "grid" : "block",
-            }}
-          >
-            {videos?.media.length ? (
-              videos?.media?.map((media) => (
-                <MediaItem
-                  key={`mediaitem-${media.id}`}
-                  media={media}
-                  deleteItem={() => handleDeleteAction(media)}
-                />
-              ))
-            ) : (
-              <EmptyState
-                title={videosError ? "Could Not Fetch Media" : "No Media yet"}
-                subTitle="Media will appear here after you add them in your school."
-              />
-            )}
-          </TabPanel>
-          <TabPanel
-            value="3"
-            sx={{
-              ...TabStyles,
-              display: images?.media.length ? "grid" : "block",
-            }}
-          >
-            {images?.media.length ? (
-              images?.media?.map((media) => (
-                <MediaItem
-                  key={`mediaitem-${media.id}`}
-                  media={media}
-                  deleteItem={() => handleDeleteAction(media)}
-                />
-              ))
-            ) : (
-              <EmptyState
-                title={imagesError ? "Could Not Fetch Media" : "No Media yet"}
-                subTitle="Media will appear here after you add them in your school."
-              />
-            )}
-          </TabPanel>
-        </TabContext>
+            </>
+          ) : (
+            <EmptyState
+              title={isError ? "Could Not Fetch Media" : "No Media yet"}
+              subTitle="Media will appear here after you add them in your school."
+            />
+          )}
+        </Box>
       </Box>
     </Box>
   );
@@ -331,6 +320,7 @@ export default MediaLibrary;
 
 const contentStyles: SxProps = {
   paddingInline: "2rem",
+  paddingBottom: "2rem",
   ".MuiTabPanel-root": {
     position: "relative !important",
 
@@ -351,12 +341,11 @@ const headerStyles: SxProps = {
   zIndex: 1,
 };
 
-const TabStyles: SxProps = {
+const mediaContainerStyles: SxProps = {
   display: "grid",
   gap: "1rem",
   gridTemplateColumns: "repeat(4,1fr)",
-  paddingInline: "0 !important",
-  position: "absolute",
+  marginTop: "2rem",
   width: "100%",
 };
 
@@ -432,5 +421,32 @@ const uploadByURLStyles: SxProps = {
     color: "inherit",
     height: "25px",
     padding: 0,
+  },
+};
+
+const fieldStyles: SxProps = {
+  bgcolor: "#fff",
+  border: "1px solid rgba(204, 204, 204, 0.6)",
+  display: "inline-flex",
+
+  "input, select": {
+    border: "none",
+    borderRadius: "var(--border-radius)",
+    padding: ".8rem",
+  },
+
+  svg: {
+    color: "rgba(138, 138, 138, 1)",
+  },
+};
+
+const searchFieldStyles: SxProps = {
+  ...fieldStyles,
+  alignItems: "center",
+  paddingInline: ".8rem",
+
+  input: {
+    outline: "none",
+    width: "300px",
   },
 };
