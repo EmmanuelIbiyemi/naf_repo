@@ -13,6 +13,8 @@ import {
 import { Close as CloseIcon } from "@mui/icons-material";
 import { Post } from "../types/announcements";
 import { useNavigate } from "react-router-dom";
+import { useAppSelector } from "../store/hooks";
+import { selectCurrentUser } from "../store/auth.slice";
 
 interface NotificationMenuProps {
   anchorEl: null | HTMLElement;
@@ -25,6 +27,7 @@ const NotificationMenu = ({
   onClose,
   userRole,
 }: NotificationMenuProps) => {
+  const user = useAppSelector(selectCurrentUser);
   const [page, setPage] = useState(1);
   const navigate = useNavigate();
   const open = Boolean(anchorEl);
@@ -32,7 +35,7 @@ const NotificationMenu = ({
   const { data, isLoading, isError } = useGetAnnouncementsQuery(
     "announcement",
     {
-      skip: false,
+      skip: user?.role === "admin",
       refetchOnMountOrArgChange: true,
       pollingInterval: 60000, // Refetch every minute
     }

@@ -41,6 +41,7 @@ export const baseQueryWithReauth: BaseQueryFn<
           method: "POST",
           headers: {
             Authorization: `Bearer ${refreshToken}`,
+            "Content-Type": "application/json",
           },
           body: { email: user.email },
         },
