@@ -1,3 +1,5 @@
+import { PaginationResponse } from "./pagination";
+
 interface medias {
   created_at: string;
   id: number;
@@ -25,4 +27,7 @@ export type MediaType = MediaBaseType & {
   updated_at: string;
 };
 
-export type MediaResponse = { media: MediaType[] };
+export type MediaResponse = {
+  media: MediaType[];
+  pagination: PaginationResponse;
+};

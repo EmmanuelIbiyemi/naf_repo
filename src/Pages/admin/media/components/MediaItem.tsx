@@ -8,33 +8,19 @@ type Props = {
   deleteItem: () => void;
 };
 const MediaItem = ({ media, deleteItem }: Props) => {
-  // const [fileSize, setFileSize] = useState<string | null>(null);
-
-  // useEffect(() => {
-  //   const getFileSize = async () => {
-  //     try {
-  //       const response = await fetch(media.url, { method: "HEAD" });
-
-  //       if (response.ok) {
-  //         const size = response.headers.get("Content-Length");
-  //         setFileSize(size);
-  //       } else {
-  //         console.error("Failed to fetch file size");
-  //       }
-  //     } catch (error) {
-  //       console.error("Error fetching file size:", error);
-  //     }
-  //   };
-
-  //   getFileSize();
-  // }, []);
-
   const extension = media.name.substring(media.name.lastIndexOf(".") + 1);
 
   return (
     <Box sx={mediaItemStyles}>
       <Box sx={mediaThumbStyles}>
-        <img src={media.url} alt="Media thumbnail" />
+        {media.type == "image" ? (
+          <img src={media.url} alt="Media thumbnail" />
+        ) : (
+          <video controls>
+            <source src={media.url} type="video/mp4" />
+            Your browser does not support the video tag.
+          </video>
+        )}
       </Box>
       <Box
         sx={{
@@ -46,8 +32,7 @@ const MediaItem = ({ media, deleteItem }: Props) => {
         <Box>
           <Typography>{media.name}</Typography>
           <Typography sx={{ fontSize: ".8rem" }}>
-            {/* {fileSize} {extension} {media.type} file */}
-            1.1mb {extension} {media.type} file
+            {extension} {media.type} file
           </Typography>
         </Box>
         <IconButton onClick={deleteItem}>
