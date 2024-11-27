@@ -102,10 +102,10 @@ const SessionsPage = () => {
         actions={{
           proceed: () => {
             console.log("proceed");
+            handlePromoteAll();
           },
         }}
         close={() => {
-          handlePromoteAll();
           handleCloseModal("warningPromote");
         }}
         infoText="You can't undo this action"
