@@ -8,9 +8,14 @@ import { appApi } from "./app.api";
 
 const lecturersApi = appApi.injectEndpoints({
   endpoints: (builder) => ({
-    getLecturers: builder.query<LecturerResponse, Pagination>({
-      query: ({ page, per_page }) =>
-        `/instructor?page=${page}&per_page=${per_page}`,
+    getLecturers: builder.query<
+      LecturerResponse,
+      Pagination & { search_term?: string }
+    >({
+      query: ({ search_term, page, per_page }) =>
+        `/instructor?page=${page}&per_page=${per_page}${
+          search_term ? "&search_term=" + search_term : ""
+        }`,
       providesTags: ["Lecturers"],
     }),
     getLecturer: builder.query<LecturerResponse, number>({

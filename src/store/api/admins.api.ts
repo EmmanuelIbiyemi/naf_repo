@@ -4,8 +4,14 @@ import { appApi } from "./app.api";
 
 const adminsApi = appApi.injectEndpoints({
   endpoints: (builder) => ({
-    getAdmins: builder.query<AdminResponse, Pagination>({
-      query: ({ page, per_page }) => `/admin?page=${page}&per_page=${per_page}`,
+    getAdmins: builder.query<
+      AdminResponse,
+      Pagination & { search_term?: string }
+    >({
+      query: ({ search_term, page, per_page }) =>
+        `/admin?page=${page}&per_page=${per_page}${
+          search_term ? "&search_term=" + search_term : ""
+        }`,
       providesTags: ["Admins"],
     }),
     getAdmin: builder.query<{ data: Admin }, number>({

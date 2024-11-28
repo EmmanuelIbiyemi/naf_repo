@@ -33,28 +33,19 @@ const LecturersList = () => {
     page: 1,
     per_page: 10,
   });
+  const dispatch = useAppDispatch();
+  const keyword = useAppSelector(selectKeyword);
   const {
     data: ltcs,
     isFetching,
     isError,
-  } = useGetLecturersQuery({ ...pagination });
+  } = useGetLecturersQuery({ ...pagination, search_term: keyword });
   const [lecturers, setLecturers] = useState(ltcs?.data);
   const [deleteLecturer] = useDeleteLecturerMutation();
   const [updateLecturer] = useUpdateLecturerMutation();
-  const dispatch = useAppDispatch();
-  const keyword = useAppSelector(selectKeyword);
 
   useEffect(() => {
-    if (keyword && ltcs?.data)
-      setLecturers(
-        ltcs.data.filter(
-          (f) =>
-            f.first_name.toLowerCase().includes(keyword.toLowerCase()) ||
-            f.last_name.toLowerCase().includes(keyword.toLowerCase()) ||
-            f.email.toLowerCase().includes(keyword.toLowerCase())
-        )
-      );
-    else setLecturers(ltcs?.data);
+    if (ltcs?.data) setLecturers(ltcs?.data);
   }, [keyword, ltcs]);
 
   const handleOpenModal = (lecturer: Lecturer, type: string) => {
@@ -86,8 +77,7 @@ const LecturersList = () => {
   };
 
   useEffect(() => {
-    if (isFetching) dispatch(setPageLoading(true));
-    else if (isError) dispatch(setPageLoading(false));
+    if (isFetching && isError) dispatch(setPageLoading(true));
     else dispatch(setPageLoading(false));
   }, [isFetching, isError, lecturers]);
 
