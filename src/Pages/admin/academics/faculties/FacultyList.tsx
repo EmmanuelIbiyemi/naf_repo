@@ -31,30 +31,27 @@ const FacultyList = () => {
     delete: false,
   });
   const [selectedFaculty, setSelectedFaculty] = useState<Faculty>();
+  const keyword = useAppSelector(selectKeyword);
+  const dispatch = useAppDispatch();
   const [pagination, setPagination] = useState<Pagination>({
     page: 1,
     per_page: 10,
   });
-  const { data: facs, isFetching, isError } = useGetFacultiesQuery(pagination);
+  const {
+    data: facs,
+    isFetching,
+    isError,
+  } = useGetFacultiesQuery({ ...pagination, search_term: keyword });
   const [deleteFaculty] = useDeleteFacultyMutation();
   const [updateFaculty] = useUpdateFacultyMutation();
   const [faculties, setFaculties] = useState<Faculty[] | undefined>(facs?.data);
-  const keyword = useAppSelector(selectKeyword);
-  const dispatch = useAppDispatch();
 
   useEffect(() => {
-    if (keyword && facs?.data)
-      setFaculties(
-        facs.data.filter((f) =>
-          f.name.toLowerCase().includes(keyword.toLowerCase())
-        )
-      );
-    else setFaculties(facs?.data);
+    if (facs?.data) setFaculties(facs?.data);
   }, [keyword, facs]);
 
   useEffect(() => {
-    if (isFetching) dispatch(setPageLoading(true));
-    else if (isError) dispatch(setPageLoading(false));
+    if (isFetching && !isError) dispatch(setPageLoading(true));
     else dispatch(setPageLoading(false));
   }, [isFetching, isError, facs]);
 

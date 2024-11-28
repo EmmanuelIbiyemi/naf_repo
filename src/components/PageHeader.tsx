@@ -4,7 +4,8 @@ import { Field, Form, Formik } from "formik";
 import * as Yup from "yup";
 import { useAppDispatch } from "../store/hooks";
 import { setKeyword } from "../store/app.slice";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
+import { useEffect } from "react";
 
 type Props = {
   button?: {
@@ -20,6 +21,7 @@ type Props = {
 const PageHeader = ({ button, secondaryButton }: Props) => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const initialValues = {
     keyword: "",
@@ -30,6 +32,10 @@ const PageHeader = ({ button, secondaryButton }: Props) => {
   const handleSubmit = async (value: typeof initialValues) => {
     dispatch(setKeyword(value.keyword));
   };
+
+  useEffect(() => {
+    dispatch(setKeyword(""));
+  }, [location]);
 
   return (
     <Box

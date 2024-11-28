@@ -40,12 +40,15 @@ const DepartmentList = () => {
     page: 1,
     per_page: 10,
   });
+  const keyword = useAppSelector(selectKeyword);
+  const dispatch = useAppDispatch();
   const {
     data: deps,
     isFetching,
     isError,
   } = useGetDepartmentsQuery({
     faculty_id: +(faculty_id || 0),
+    search_term: keyword,
     ...pagination,
   });
   const [departments, setDepartments] = useState<DepartmentType[] | undefined>(
@@ -53,22 +56,13 @@ const DepartmentList = () => {
   );
   const [deleteDepartment] = useDeleteDepartmentMutation();
   const [updateDepartment] = useUpdateDepartmentMutation();
-  const keyword = useAppSelector(selectKeyword);
-  const dispatch = useAppDispatch();
 
   useEffect(() => {
-    if (keyword && deps?.data)
-      setDepartments(
-        deps.data.filter((f) =>
-          f.name.toLowerCase().includes(keyword.toLowerCase())
-        )
-      );
-    else setDepartments(deps?.data);
+    if (deps?.data) setDepartments(deps?.data);
   }, [keyword, deps]);
 
   useEffect(() => {
-    if (isFetching) dispatch(setPageLoading(true));
-    else if (isError) dispatch(setPageLoading(false));
+    if (isFetching && !isError) dispatch(setPageLoading(true));
     else dispatch(setPageLoading(false));
   }, [isFetching, isError, deps]);
 

@@ -36,33 +36,27 @@ const ProgrammeList = () => {
     page: 1,
     per_page: 10,
   });
+  const keyword = useAppSelector(selectKeyword);
+  const dispatch = useAppDispatch();
   const {
     data: prgms,
     isFetching,
     isError,
   } = useGetProgrammesQuery({
     department_id: +(department_id || 0),
+    search_term: keyword,
     ...pagination,
   });
   const [programmes, setProgrammes] = useState(prgms?.data);
   const [deleteProgramme] = useDeleteProgrammeMutation();
   const [updateProgramme] = useUpdateProgrammeMutation();
-  const keyword = useAppSelector(selectKeyword);
-  const dispatch = useAppDispatch();
 
   useEffect(() => {
-    if (keyword && prgms?.data)
-      setProgrammes(
-        prgms.data.filter((f) =>
-          f.name.toLowerCase().includes(keyword.toLowerCase())
-        )
-      );
-    else setProgrammes(prgms?.data);
+    if (prgms?.data) setProgrammes(prgms?.data);
   }, [keyword, prgms]);
 
   useEffect(() => {
-    if (isFetching) dispatch(setPageLoading(true));
-    else if (isError) dispatch(setPageLoading(false));
+    if (isFetching && !isError) dispatch(setPageLoading(true));
     else dispatch(setPageLoading(false));
   }, [isFetching, isError, prgms]);
 

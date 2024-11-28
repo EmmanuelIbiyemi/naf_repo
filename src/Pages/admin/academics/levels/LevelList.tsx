@@ -31,30 +31,26 @@ const LevelList = () => {
     delete: false,
   });
   const [selectedLevel, setSelectedLevel] = useState<LevelType>();
+  const keyword = useAppSelector(selectKeyword);
+  const dispatch = useAppDispatch();
   const {
     data: lvls,
     isFetching,
     isError,
-  } = useGetLevelsQuery({ program_id: +(program_id || 0) });
+  } = useGetLevelsQuery({
+    program_id: +(program_id || 0),
+    search_term: keyword,
+  });
   const [levels, setLevels] = useState(lvls?.data);
   const [deleteLevel] = useDeleteLevelMutation();
   const [updateLevel] = useUpdateLevelMutation();
-  const keyword = useAppSelector(selectKeyword);
-  const dispatch = useAppDispatch();
 
   useEffect(() => {
-    if (keyword && lvls?.data)
-      setLevels(
-        lvls.data.filter((f) =>
-          f.name.toLowerCase().includes(keyword.toLowerCase())
-        )
-      );
-    else setLevels(lvls?.data);
+    if (lvls?.data) setLevels(lvls?.data);
   }, [keyword, lvls]);
 
   useEffect(() => {
-    if (isFetching) dispatch(setPageLoading(true));
-    else if (isError) dispatch(setPageLoading(false));
+    if (isFetching && !isError) dispatch(setPageLoading(true));
     else dispatch(setPageLoading(false));
   }, [isFetching, isError, lvls]);
 

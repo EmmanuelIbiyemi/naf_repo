@@ -10,18 +10,22 @@ const departmentsApi = appApi.injectEndpoints({
   endpoints: (builder) => ({
     getDepartments: builder.query<
       DepartmentsResponse,
-      { faculty_id: number } & Pagination
+      { faculty_id: number; search_term?: string } & Pagination
     >({
-      query: ({ faculty_id, page, per_page }) =>
-        `/department/faculty/${faculty_id}?page=${page}&per_page=${per_page}`,
+      query: ({ faculty_id, search_term, page, per_page }) =>
+        `/department/faculty/${faculty_id}?page=${page}&per_page=${per_page}${
+          search_term ? "&search_term=" + search_term : ""
+        }`,
       providesTags: ["Departments"],
     }),
     getDepartmentsM: builder.mutation<
       DepartmentsResponse,
-      { faculty_id: number } & Pagination
+      { faculty_id: number; search_term?: string } & Pagination
     >({
-      query: ({ faculty_id, page, per_page }) =>
-        `/department/faculty/${faculty_id}?page=${page}&per_page=${per_page}`,
+      query: ({ faculty_id, search_term, page, per_page }) =>
+        `/department/faculty/${faculty_id}?page=${page}&per_page=${per_page}${
+          search_term ? "&search_term=" + search_term : ""
+        }`,
       invalidatesTags: ["Departments"],
     }),
     getDepartment: builder.query<DepartmentsResponse, number>({

@@ -37,34 +37,28 @@ const CourseList = () => {
     page: 1,
     per_page: 10,
   });
+  const keyword = useAppSelector(selectKeyword);
+  const dispatch = useAppDispatch();
   const {
     data: crs,
     isError,
     isFetching,
   } = useGetCoursesByLevelQuery({
     level_id: +(level_id || 0),
+    search_term: keyword,
     ...pagination,
   });
   const [courses, setCourses] = useState<CourseType[] | undefined>(crs?.data);
   const [deleteCourse] = useDeleteCourseMutation();
   const [updateCourse] = useUpdateCourseMutation();
   const [addCourseToLevel] = useAddLevelCourseMutation();
-  const keyword = useAppSelector(selectKeyword);
-  const dispatch = useAppDispatch();
 
   useEffect(() => {
-    if (keyword && crs?.data)
-      setCourses(
-        crs.data.filter((f) =>
-          f.name.toLowerCase().includes(keyword.toLowerCase())
-        )
-      );
-    else setCourses(crs?.data);
+    if (crs?.data) setCourses(crs?.data);
   }, [keyword, crs]);
 
   useEffect(() => {
-    if (isFetching) dispatch(setPageLoading(true));
-    else if (isError) dispatch(setPageLoading(false));
+    if (isFetching && !isError) dispatch(setPageLoading(true));
     else dispatch(setPageLoading(false));
   }, [isFetching, isError, crs]);
 

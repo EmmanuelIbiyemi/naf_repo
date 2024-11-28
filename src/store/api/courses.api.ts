@@ -28,10 +28,12 @@ const coursesApi = appApi.injectEndpoints({
   endpoints: (builder) => ({
     getCoursesByLevel: builder.query<
       CoursesResponse,
-      { level_id: number } & Pagination
+      { level_id: number; search_term?: string } & Pagination
     >({
-      query: ({ level_id, page = 1, per_page = 10 }) =>
-        `level/${level_id}/courses?page=${page}&per_page=${per_page}`,
+      query: ({ level_id, search_term, page = 1, per_page = 10 }) =>
+        `level/${level_id}/courses?page=${page}&per_page=${per_page}${
+          search_term ? "&search_term=" + search_term : ""
+        }`,
       providesTags: ["Courses"],
     }),
     getCourses: builder.query<
