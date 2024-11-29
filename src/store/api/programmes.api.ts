@@ -6,18 +6,22 @@ const programmesApi = appApi.injectEndpoints({
   endpoints: (builder) => ({
     getProgrammes: builder.query<
       ProgrammeResponse,
-      { department_id: number } & Pagination
+      { department_id: number; search_term?: string } & Pagination
     >({
-      query: ({ department_id, page, per_page }) =>
-        `/program/department/${department_id}?page=${page}&per_page=${per_page}`,
+      query: ({ department_id, search_term, page, per_page }) =>
+        `/program/department/${department_id}?page=${page}&per_page=${per_page}${
+          search_term ? "&search_term=" + search_term : ""
+        }`,
       providesTags: ["Programmes"],
     }),
     getProgrammesM: builder.mutation<
       ProgrammeResponse,
-      { department_id: number } & Pagination
+      { department_id: number; search_term?: string } & Pagination
     >({
-      query: ({ department_id, page, per_page }) => ({
-        url: `/program/department/${department_id}?page=${page}&per_page=${per_page}`,
+      query: ({ department_id, search_term, page, per_page }) => ({
+        url: `/program/department/${department_id}?page=${page}&per_page=${per_page}${
+          search_term ? "&search_term=" + search_term : ""
+        }`,
       }),
     }),
     addProgramme: builder.mutation<ProgrammeResponse, Programme>({

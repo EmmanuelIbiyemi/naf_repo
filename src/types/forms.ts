@@ -1,3 +1,5 @@
+import { PaginationResponse } from "./pagination";
+
 export type FormField = {
   id?: number;
   key: string;
@@ -45,6 +47,9 @@ export type FormType2 = FormBaseType2 & {
 };
 
 export type FormResponse = { data: FormType2 };
-export type FormsResponse = { data: FormType2[] };
+export type FormsResponse = {
+  data: FormType2[];
+  pagination: PaginationResponse;
+};
 
 export type FormAction<T> = (object: T) => Promise<void>;

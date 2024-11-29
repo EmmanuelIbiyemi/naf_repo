@@ -5,9 +5,14 @@ import { appApi } from "./app.api";
 
 const facultiesApi = appApi.injectEndpoints({
   endpoints: (builder) => ({
-    getFaculties: builder.query<FacultyResponse, Pagination>({
-      query: ({ page, per_page }) =>
-        `/faculty?page=${page}&per_page=${per_page}`,
+    getFaculties: builder.query<
+      FacultyResponse,
+      Pagination & { search_term?: string }
+    >({
+      query: ({ page, per_page, search_term }) =>
+        `/faculty?page=${page}&per_page=${per_page}${
+          search_term ? "&search_term=" + search_term : ""
+        }`,
       providesTags: ["Faculties"],
     }),
     getFaculty: builder.query<{ data: FacultyType }, number>({

@@ -9,9 +9,14 @@ import { appApi } from "./app.api";
 
 const studentsApi = appApi.injectEndpoints({
   endpoints: (builder) => ({
-    getStudents: builder.query<StudentsResponse, Pagination>({
-      query: ({ page, per_page }) =>
-        `/participant?page=${page}&per_page=${per_page}`,
+    getStudents: builder.query<
+      StudentsResponse,
+      Pagination & { search_term?: string }
+    >({
+      query: ({ search_term, page, per_page }) =>
+        `/participant?page=${page}&per_page=${per_page}${
+          search_term ? "&search_term=" + search_term : ""
+        }`,
       providesTags: ["Students"],
     }),
     getStudent: builder.query<SingleStudentResponse, number>({

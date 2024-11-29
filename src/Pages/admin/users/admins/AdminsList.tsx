@@ -35,33 +35,23 @@ const AdminsList = () => {
     page: 1,
     per_page: 10,
   });
+  const keyword = useAppSelector(selectKeyword);
+  const dispatch = useAppDispatch();
   const {
     data: adminsData,
     isFetching,
     isError,
-  } = useGetAdminsQuery({ ...pagination });
+  } = useGetAdminsQuery({ ...pagination, search_term: keyword });
   const [admins, setAdmins] = useState<Admin[] | undefined>(adminsData?.data);
   const [deleteAdmin] = useDeleteAdminMutation();
   const [updateAdmin] = useUpdateAdminMutation();
-  const keyword = useAppSelector(selectKeyword);
-  const dispatch = useAppDispatch();
 
   useEffect(() => {
-    if (keyword && adminsData?.data)
-      setAdmins(
-        adminsData.data.filter(
-          (f) =>
-            f.first_name.toLowerCase().includes(keyword.toLowerCase()) ||
-            f.last_name.toLowerCase().includes(keyword.toLowerCase()) ||
-            f.email.toLowerCase().includes(keyword.toLowerCase())
-        )
-      );
-    else setAdmins(adminsData?.data);
+    if (adminsData?.data) setAdmins(adminsData?.data);
   }, [keyword, adminsData]);
 
   useEffect(() => {
-    if (isFetching) dispatch(setPageLoading(true));
-    else if (isError) dispatch(setPageLoading(false));
+    if (isFetching && !isError) dispatch(setPageLoading(true));
     else dispatch(setPageLoading(false));
   }, [isFetching, isError, adminsData]);
 
@@ -190,7 +180,7 @@ const AdminsList = () => {
             )}
             page={adminsData?.pagination.page}
             handleChangePage={(_, page) => {
-              setPagination({ per_page: 10, page });
+              setPagination({ per_page: adminsData?.pagination.per_page, page });
             }}
             startIndex={
               adminsData?.pagination.per_page *

@@ -24,7 +24,7 @@ import DeleteConfirmationModal from "../../../components/DeleteConfirmationModal
 import {
   useAddMediaMutation,
   useDeleteMediaMutation,
-  useNewGetMediaQuery,
+  useGetAllMediaQuery,
 } from "../../../store/api/media.api";
 import { useAppDispatch } from "../../../store/hooks";
 import { setPageLoading } from "../../../store/app.slice";
@@ -47,10 +47,10 @@ const MediaLibrary = () => {
     per_page: 12,
   });
   const {
-    data: newAll,
+    data: allMedia,
     isError,
     isFetching,
-  } = useNewGetMediaQuery({ ...pagination, mediaType });
+  } = useGetAllMediaQuery({ ...pagination, mediaType, search_term: keyword });
 
   const [deleteMedia] = useDeleteMediaMutation();
   const [addMedia] = useAddMediaMutation();
@@ -99,8 +99,6 @@ const MediaLibrary = () => {
   };
 
   const handleSearch = async (event: KeyboardEvent) => {
-    console.log(keyword);
-
     if (event.key == "Enter")
       setKeyword((event.target as HTMLInputElement).value);
   };
@@ -276,10 +274,10 @@ const MediaLibrary = () => {
             </Box>
           </Box>
 
-          {newAll?.media.length ? (
+          {allMedia?.media.length ? (
             <>
               <Box sx={mediaContainerStyles}>
-                {newAll?.media?.map((media) => (
+                {allMedia?.media?.map((media) => (
                   <MediaItem
                     key={`mediaitem-${media.id}`}
                     media={media}
@@ -290,18 +288,24 @@ const MediaLibrary = () => {
 
               <CustomPagination
                 count={Math.ceil(
-                  newAll?.pagination.total / newAll?.pagination.per_page
+                  allMedia?.pagination.total / allMedia?.pagination.per_page
                 )}
-                page={newAll?.pagination.page}
+                page={allMedia?.pagination.page}
                 handleChangePage={(_, page) => {
-                  setPagination({ per_page: 10, page });
+                  setPagination({
+                    per_page: allMedia?.pagination.per_page,
+                    page,
+                  });
                 }}
                 startIndex={
-                  newAll?.pagination.per_page * (newAll?.pagination.page - 1) +
+                  allMedia?.pagination.per_page *
+                    (allMedia?.pagination.page - 1) +
                   1
                 }
-                endIndex={newAll?.pagination.per_page * newAll?.pagination.page}
-                totalNumber={newAll?.pagination.total}
+                endIndex={
+                  allMedia?.pagination.per_page * allMedia?.pagination.page
+                }
+                totalNumber={allMedia?.pagination.total}
               />
             </>
           ) : (

@@ -35,8 +35,9 @@ const ResultsList = () => {
   const [getDepartments, departmentsState] = useGetDepartmentsMMutation();
   const [getPrograms, programsState] = useGetProgrammesMMutation();
   const [getLevels, levelsState] = useGetLevelsMMutation();
-  const { data: sessions, isFetching: sessionsIsLoading } =
-    useGetSessionsQuery(null);
+  const { data: sessions, isFetching: sessionsIsLoading } = useGetSessionsQuery(
+    { search_term: "" }
+  );
   const { data: semesters, isFetching: semesterIsLoading } =
     useGetSemestersQuery(null);
   const [filters, setFilters] = useState({

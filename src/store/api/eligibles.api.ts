@@ -1,10 +1,17 @@
 import { EligibleCreateType, EligiblesResponse } from "../../types/eligibles";
+import { Pagination } from "../../types/pagination";
 import { appApi } from "./app.api";
 
 const eligiblesApi = appApi.injectEndpoints({
   endpoints: (builder) => ({
-    getEligibles: builder.query<EligiblesResponse, null>({
-      query: () => "/applicant/eligible",
+    getEligibles: builder.query<
+      EligiblesResponse,
+      Pagination & { search_term: string }
+    >({
+      query: ({ page, per_page, search_term }) =>
+        `/applicant/eligible?page=${page}&per_page=${per_page}${
+          search_term ? "&search_term=" + search_term : ""
+        }`,
       providesTags: ["Eligibles"],
     }),
     addEligibles: builder.mutation<EligiblesResponse, EligibleCreateType>({

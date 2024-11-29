@@ -21,30 +21,37 @@ import {
 import dayjs from "dayjs";
 import { selectKeyword, setPageLoading } from "../../../../store/app.slice";
 import EmptyState from "../../../../components/EmptyState";
+import CustomPagination from "../../../../components/CustomPagination";
+import { Pagination } from "../../../../types/pagination";
 
 const FormList = () => {
-  const { data: frms, isFetching, isError } = useGetFormsQuery(null);
-  const [forms, setForms] = useState(frms?.data);
+  const keyword = useAppSelector(selectKeyword);
   const dispatch = useAppDispatch();
+  const [pagination, setPagination] = useState<Pagination>({
+    page: 1,
+    per_page: 10,
+  });
+  const {
+    data: frms,
+    isFetching,
+    isError,
+  } = useGetFormsQuery({
+    ...pagination,
+    search_term: keyword,
+  });
+  const [forms, setForms] = useState(frms?.data);
   const selectedForm = useAppSelector(selectCurrentForm);
   const [openModal, setOpenModal] = useState(false);
   const navigate = useNavigate();
   const [deleteForm, deleteState] = useDeleteFormMutation();
-  const keyword = useAppSelector(selectKeyword);
 
   useEffect(() => {
-    if (keyword && frms?.data)
-      setForms(
-        frms.data.filter((f) =>
-          f.name.toLowerCase().includes(keyword.toLowerCase())
-        )
-      );
-    else setForms(frms?.data);
+    if (frms?.data) setForms(frms?.data);
   }, [keyword, frms]);
 
   useEffect(() => {
-    if (isFetching || deleteState.isLoading) dispatch(setPageLoading(true));
-    else if (isError) dispatch(setPageLoading(false));
+    if ((isFetching || deleteState.isLoading) && !isError)
+      dispatch(setPageLoading(true));
     else dispatch(setPageLoading(false));
   }, [isFetching, isError, frms, deleteState]);
 
@@ -95,46 +102,68 @@ const FormList = () => {
         />
       ) : null}
 
-      <Table sx={{ minWidth: 650 }}>
-        <TableBody>
-          {forms?.map((form) => (
-            <TableRow
-              key={form.id}
-              sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-            >
-              <TableCell
-                component="th"
-                scope="row"
-                sx={{ alignItems: "center", display: "flex", gap: "1rem" }}
-              >
-                <Checkbox />
-                <Box>
-                  <Link
-                    to={`/applicants/${form.program_id}`}
-                    style={{
-                      textTransform: "capitalize",
-                      fontWeight: "500 !important",
-                    }}
+      {frms?.data.length ? (
+        <>
+          <Table sx={{ minWidth: 650 }}>
+            <TableBody>
+              {forms?.map((form) => (
+                <TableRow
+                  key={form.id}
+                  sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+                >
+                  <TableCell
+                    component="th"
+                    scope="row"
+                    sx={{ alignItems: "center", display: "flex", gap: "1rem" }}
                   >
-                    {form.name.split("::")[0]}
-                  </Link>
-                  <Typography>
-                    Last Edited on {dayjs(form.updated_at).format("DD-MM-YYYY")}
-                  </Typography>
-                </Box>
-              </TableCell>
-              <TableCell align="right">
-                <IconButton onClick={() => handleEditForm(form)}>
-                  <Edit />
-                </IconButton>
-                <IconButton onClick={() => handleOpenModal(form)}>
-                  <Delete />
-                </IconButton>
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+                    <Checkbox />
+                    <Box>
+                      <Link
+                        to={`/applicants/${form.program_id}`}
+                        style={{
+                          textTransform: "capitalize",
+                          fontWeight: "500 !important",
+                        }}
+                      >
+                        {form.name.split("::")[0]}
+                      </Link>
+                      <Typography>
+                        Last Edited on{" "}
+                        {dayjs(form.updated_at).format("DD-MM-YYYY")}
+                      </Typography>
+                    </Box>
+                  </TableCell>
+                  <TableCell align="right">
+                    <IconButton onClick={() => handleEditForm(form)}>
+                      <Edit />
+                    </IconButton>
+                    <IconButton onClick={() => handleOpenModal(form)}>
+                      <Delete />
+                    </IconButton>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+          <CustomPagination
+            count={Math.ceil(
+              frms?.pagination?.total || 1 / frms?.pagination?.per_page || 1
+            )}
+            page={frms?.pagination?.page || 1}
+            handleChangePage={(_, page) => {
+              setPagination({ per_page: frms?.pagination.per_page, page });
+            }}
+            startIndex={
+              frms?.pagination?.per_page ||
+              0 * (frms?.pagination?.page || 0 - 1) + 1
+            }
+            endIndex={
+              frms?.pagination?.per_page || 1 * frms?.pagination?.page || 1
+            }
+            totalNumber={frms?.pagination?.total || 0}
+          />
+        </>
+      ) : null}
     </TableContainer>
   );
 };

@@ -11,12 +11,14 @@ const applicantsApi = appApi.injectEndpoints({
   endpoints: (builder) => ({
     getApplicants: builder.query<
       ApplicantsResponse,
-      { program_id?: number } & Pagination
+      { program_id?: number; search_term?: string } & Pagination
     >({
-      query: ({ page = 1, per_page = 10, program_id }) =>
+      query: ({ search_term, page = 1, per_page = 10, program_id }) =>
         `/applicant?${
           program_id ? "program_id=" + program_id : ""
-        }&page=${page}&per_page=${per_page}`,
+        }&page=${page}&per_page=${per_page}${
+          search_term ? "&search_term=" + search_term : ""
+        }`,
       providesTags: ["Applicants"],
     }),
     getApplicant: builder.query<ApplicantsResponse, number>({

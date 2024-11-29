@@ -26,6 +26,8 @@ import { selectKeyword, setPageLoading } from "../../../../store/app.slice";
 import EmptyState from "../../../../components/EmptyState";
 import { useParams } from "react-router-dom";
 import ApplicantSidebar from "./ApplicantsSidebar";
+import { Pagination } from "../../../../types/pagination";
+import CustomPagination from "../../../../components/CustomPagination";
 
 const ApplicantList = () => {
   const { program_id } = useParams();
@@ -38,29 +40,28 @@ const ApplicantList = () => {
   const [selectedApplicant, setSelectedApplicant] = useState<ApplicantType2>();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
+  const keyword = useAppSelector(selectKeyword);
+  const dispatch = useAppDispatch();
+  const [pagination, setPagination] = useState<Pagination>({
+    page: 1,
+    per_page: 10,
+  });
   const {
     data: apcts,
     isFetching,
     isError,
-  } = useGetApplicantsQuery(program_id ? { program_id: +program_id } : {});
+  } = useGetApplicantsQuery(
+    program_id
+      ? { program_id: +program_id, ...pagination, search_term: keyword }
+      : { ...pagination, search_term: keyword }
+  );
   const [applicants, setApplicants] = useState(apcts?.data);
   const [deleteApplicant, deleteState] = useDeleteApplicantMutation();
   const [updateApplicantStatus, updateState] =
     useUpdateApplicantStatusMutation();
-  const keyword = useAppSelector(selectKeyword);
-  const dispatch = useAppDispatch();
 
   useEffect(() => {
-    if (keyword && apcts?.data)
-      setApplicants(
-        apcts.data.filter(
-          (f) =>
-            f.data.first_name.toLowerCase().includes(keyword.toLowerCase()) ||
-            f.data.last_name.toLowerCase().includes(keyword.toLowerCase()) ||
-            f.data.email.toLowerCase().includes(keyword.toLowerCase())
-        )
-      );
-    else setApplicants(apcts?.data);
+    if (apcts?.data) setApplicants(apcts?.data);
   }, [keyword, apcts]);
 
   useEffect(() => {
@@ -184,98 +185,117 @@ const ApplicantList = () => {
           subTitle="Check your internet connection"
         />
       ) : null}
-      {!applicants?.length ? (
+      {!apcts?.data.length ? (
         <EmptyState title="No Applicants found" subTitle="" />
       ) : (
-        <Table
-          sx={{
-            minWidth: 650,
-            ".MuiTableCell-root": {
-              maxWidth: 200,
-              a: {
-                overflow: "hidden",
-                textOverflow: "ellipsis",
-                whiteSpace: "nowrap",
+        <>
+          <Table
+            sx={{
+              minWidth: 650,
+              ".MuiTableCell-root": {
+                maxWidth: 200,
+                a: {
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  whiteSpace: "nowrap",
+                },
               },
-            },
-          }}
-        >
-          <TableHead>
-            <TableRow>
-              <TableCell>Name</TableCell>
-              <TableCell>Email Address</TableCell>
-              <TableCell>Phone Number</TableCell>
-              <TableCell>Status</TableCell>
-              <TableCell align="center">Actions</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {!applicants?.length ? (
-              <TableRow
-                sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-              >
-                <TableCell
-                  component="th"
-                  scope="row"
-                  sx={{ alignItems: "center", display: "flex", gap: "1rem" }}
+            }}
+          >
+            <TableHead>
+              <TableRow>
+                <TableCell>Name</TableCell>
+                <TableCell>Email Address</TableCell>
+                <TableCell>Phone Number</TableCell>
+                <TableCell>Status</TableCell>
+                <TableCell align="center">Actions</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {!applicants?.length ? (
+                <TableRow
+                  sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
                 >
-                  No items found
-                </TableCell>
-              </TableRow>
-            ) : null}
-            {applicants?.map((applicant) => (
-              <TableRow
-                key={applicant.id}
-                sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-              >
-                <TableCell component="th" scope="row">
-                  <Typography
-                    style={{
-                      textTransform: "capitalize",
-                      fontWeight: 500,
-                      cursor: "pointer",
-                    }}
-                    onClick={() => setSelectedApplicant(applicant)}
+                  <TableCell
+                    component="th"
+                    scope="row"
+                    sx={{ alignItems: "center", display: "flex", gap: "1rem" }}
                   >
-                    {applicant.data.first_name + " " + applicant.data.last_name}
-                  </Typography>
-                </TableCell>
-                <TableCell component="th" scope="row">
-                  {applicant.data.email}
-                </TableCell>
-                <TableCell component="th" scope="row">
-                  {applicant.data.phone}
-                </TableCell>
-                <TableCell component="th" scope="row">
-                  <Chip
-                    label={applicant.status || "Pending"}
-                    clickable
-                    sx={{
-                      bgcolor: menuList.find(
-                        (li) =>
-                          li.label.toLowerCase() ==
-                          applicant.status?.toLowerCase()
-                      )?.bgcolor,
-                      color: menuList.find(
-                        (li) =>
-                          li.label.toLowerCase() ==
-                          applicant.status?.toLowerCase()
-                      )?.color,
-                    }}
-                    onClick={(event) => handleOpenMenu(event, applicant)}
-                  />
-                </TableCell>
-                <TableCell align="center">
-                  <IconButton
-                    onClick={() => handleOpenModal(applicant, "delete")}
-                  >
-                    <Delete />
-                  </IconButton>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+                    No items found
+                  </TableCell>
+                </TableRow>
+              ) : null}
+              {applicants?.map((applicant) => (
+                <TableRow
+                  key={applicant.id}
+                  sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+                >
+                  <TableCell component="th" scope="row">
+                    <Typography
+                      style={{
+                        textTransform: "capitalize",
+                        fontWeight: 500,
+                        cursor: "pointer",
+                      }}
+                      onClick={() => setSelectedApplicant(applicant)}
+                    >
+                      {applicant.data.first_name +
+                        " " +
+                        applicant.data.last_name}
+                    </Typography>
+                  </TableCell>
+                  <TableCell component="th" scope="row">
+                    {applicant.data.email}
+                  </TableCell>
+                  <TableCell component="th" scope="row">
+                    {applicant.data.phone}
+                  </TableCell>
+                  <TableCell component="th" scope="row">
+                    <Chip
+                      label={applicant.status || "Pending"}
+                      clickable
+                      sx={{
+                        bgcolor: menuList.find(
+                          (li) =>
+                            li.label.toLowerCase() ==
+                            applicant.status?.toLowerCase()
+                        )?.bgcolor,
+                        color: menuList.find(
+                          (li) =>
+                            li.label.toLowerCase() ==
+                            applicant.status?.toLowerCase()
+                        )?.color,
+                      }}
+                      onClick={(event) => handleOpenMenu(event, applicant)}
+                    />
+                  </TableCell>
+                  <TableCell align="center">
+                    <IconButton
+                      onClick={() => handleOpenModal(applicant, "delete")}
+                    >
+                      <Delete />
+                    </IconButton>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+
+          <CustomPagination
+            count={Math.ceil(
+              apcts?.pagination.total / apcts?.pagination.per_page
+            )}
+            page={apcts?.pagination.page}
+            handleChangePage={(_, page) => {
+              setPagination({ per_page: apcts?.pagination.per_page, page });
+            }}
+            startIndex={
+              apcts?.pagination.per_page * (apcts?.pagination.page - 1) + 1
+            }
+            endIndex={apcts?.pagination.per_page * apcts?.pagination.page}
+            totalNumber={apcts?.pagination.total}
+          />
+        </>
       )}
     </TableContainer>
   );

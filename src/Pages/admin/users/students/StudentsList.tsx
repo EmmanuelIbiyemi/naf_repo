@@ -35,33 +35,23 @@ const StudentsList = () => {
     page: 1,
     per_page: 10,
   });
+  const keyword = useAppSelector(selectKeyword);
+  const dispatch = useAppDispatch();
   const {
     data: stds,
     isFetching,
     isError,
-  } = useGetStudentsQuery({ ...pagination });
+  } = useGetStudentsQuery({ ...pagination, search_term: keyword });
   const [students, setStudents] = useState(stds?.data);
   const [deleteStudent] = useDeleteStudentMutation();
   const [updateStudent] = useUpdateStudentMutation();
-  const keyword = useAppSelector(selectKeyword);
-  const dispatch = useAppDispatch();
 
   useEffect(() => {
-    if (keyword && stds?.data)
-      setStudents(
-        stds.data.filter(
-          (f) =>
-            f.first_name.toLowerCase().includes(keyword.toLowerCase()) ||
-            f.last_name.toLowerCase().includes(keyword.toLowerCase()) ||
-            f.email.toLowerCase().includes(keyword.toLowerCase())
-        )
-      );
-    else setStudents(stds?.data);
+    if (stds?.data) setStudents(stds?.data);
   }, [keyword, stds]);
 
   useEffect(() => {
-    if (isFetching) dispatch(setPageLoading(true));
-    else if (isError) dispatch(setPageLoading(false));
+    if (isFetching && isError) dispatch(setPageLoading(true));
     else dispatch(setPageLoading(false));
   }, [isFetching, isError, stds]);
 
@@ -196,7 +186,7 @@ const StudentsList = () => {
             )}
             page={stds?.pagination.page}
             handleChangePage={(_, page) => {
-              setPagination({ per_page: 10, page });
+              setPagination({ per_page: stds?.pagination.per_page, page });
             }}
             startIndex={
               stds?.pagination.per_page * (stds?.pagination.page - 1) + 1

@@ -19,7 +19,7 @@ import {
   Avatar,
 } from "@mui/material";
 import { useAppDispatch, useAppSelector } from "../../../store/hooks";
-import { setPageName } from "../../../store/app.slice";
+import { selectKeyword, setPageName } from "../../../store/app.slice";
 import { useStudentResultQuery } from "../../../store/api/result.api";
 import { useGetSessionsQuery } from "../../../store/api/sessions.api";
 import { selectCurrentUser } from "../../../store/auth.slice";
@@ -30,6 +30,7 @@ import html2canvas from "html2canvas";
 
 export default function Results() {
   const dispatch = useAppDispatch();
+  const keyword = useAppSelector(selectKeyword);
   const [selectedSession, setSelectedSession] = useState("");
   const [selectedSemester, setSelectedSemester] = useState("");
   const [availableSemesters, setAvailableSemesters] = useState<
@@ -47,7 +48,7 @@ export default function Results() {
     data: sessionsData,
     isLoading: isLoadingSessions,
     error: sessionsError,
-  } = useGetSessionsQuery(null);
+  } = useGetSessionsQuery({ search_term: keyword });
 
   // Set initial session and semester when data is loaded
   useEffect(() => {

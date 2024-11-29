@@ -1,4 +1,5 @@
 import { BlockType } from "./blocks";
+import { PaginationResponse } from "./pagination";
 
 export type Category = {
   created_at: string;
@@ -28,4 +29,7 @@ export type PostType = PostBaseType & {
 };
 
 export type PostResponse = { post: PostType };
-export type PostsResponse = { post: PostType[] };
+export type PostsResponse = {
+  post: PostType[];
+  pagination: PaginationResponse;
+};

@@ -19,26 +19,29 @@ import { useAppDispatch, useAppSelector } from "../../../../store/hooks";
 import { selectKeyword, setPageLoading } from "../../../../store/app.slice";
 import { useEffect, useState } from "react";
 import DeleteConfirmationModal from "../../../../components/DeleteConfirmationModal";
+import CustomPagination from "../../../../components/CustomPagination";
+import { Pagination } from "../../../../types/pagination";
 
 const EligiblesList: React.FC = () => {
-  const { data: elgbles, isFetching } = useGetEligiblesQuery(null);
+  const keyword = useAppSelector(selectKeyword);
+  const dispatch = useAppDispatch();
+  const [pagination, setPagination] = useState<Pagination>({
+    page: 1,
+    per_page: 10,
+  });
+  const { data: elgbles, isFetching } = useGetEligiblesQuery({
+    ...pagination,
+    search_term: keyword,
+  });
   const [deleteEligible, deleteState] = useDeleteEligiblesMutation();
   const [openModal, setOpenModal] = useState(false);
   const [selectedEligible, setSelectedEligible] = useState<EligibleType>();
   const [eligibles, setEligibles] = useState<EligibleType[] | undefined>(
     elgbles?.data
   );
-  const keyword = useAppSelector(selectKeyword);
-  const dispatch = useAppDispatch();
 
   useEffect(() => {
-    if (keyword && elgbles?.data)
-      setEligibles(
-        elgbles.data.filter((elg) =>
-          elg.reg_number.toLowerCase().includes(keyword.toLowerCase())
-        )
-      );
-    else setEligibles(elgbles?.data);
+    if (elgbles?.data) setEligibles(elgbles?.data);
   }, [keyword, elgbles]);
 
   const handleDelete = async (id: number) => {
@@ -124,43 +127,61 @@ const EligiblesList: React.FC = () => {
               </TableCell>
             </TableRow>
           ) : null}
-          {eligibles?.map((eligible: EligibleType) => (
-            <TableRow
-              key={eligible.id}
-              sx={{
-                "&:last-child td, &:last-child th": { border: 0 },
-                "td.MuiTableCell-body": {
-                  padding: 0,
-                },
-              }}
-            >
-              <TableCell
-                component="th"
-                scope="row"
-                sx={{ alignItems: "center", display: "flex", gap: "1rem" }}
-              >
-                <Typography style={{ textTransform: "capitalize" }}>
-                  {eligible.reg_number}
-                </Typography>
-              </TableCell>
-              <TableCell align="center">{eligible.session}</TableCell>
-              <TableCell align="center">{eligible.program.name}</TableCell>
-              <TableCell align="center">{eligible.level.name}</TableCell>
-              <TableCell align="center">
-                {dayjs(eligible.created_at).format("DD-MM-YYYY")}
-              </TableCell>
-              <TableCell align="center">
-                <Button
-                  sx={{ color: "grey" }}
-                  onClick={() => handleOpenDeleteModal(eligible)}
+          {elgbles?.data.length
+            ? eligibles?.map((eligible: EligibleType) => (
+                <TableRow
+                  key={eligible.id}
+                  sx={{
+                    "&:last-child td, &:last-child th": { border: 0 },
+                    "td.MuiTableCell-body": {
+                      padding: 0,
+                    },
+                  }}
                 >
-                  <Delete />
-                </Button>
-              </TableCell>
-            </TableRow>
-          ))}
+                  <TableCell
+                    component="th"
+                    scope="row"
+                    sx={{ alignItems: "center", display: "flex", gap: "1rem" }}
+                  >
+                    <Typography style={{ textTransform: "capitalize" }}>
+                      {eligible.reg_number}
+                    </Typography>
+                  </TableCell>
+                  <TableCell align="center">{eligible.session}</TableCell>
+                  <TableCell align="center">{eligible.program.name}</TableCell>
+                  <TableCell align="center">{eligible.level.name}</TableCell>
+                  <TableCell align="center">
+                    {dayjs(eligible.created_at).format("DD-MM-YYYY")}
+                  </TableCell>
+                  <TableCell align="center">
+                    <Button
+                      sx={{ color: "grey" }}
+                      onClick={() => handleOpenDeleteModal(eligible)}
+                    >
+                      <Delete />
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))
+            : null}
         </TableBody>
       </Table>
+      {elgbles?.data.length ? (
+        <CustomPagination
+          count={Math.ceil(
+            elgbles?.pagination.total / elgbles?.pagination.per_page
+          )}
+          page={elgbles?.pagination.page}
+          handleChangePage={(_, page) => {
+            setPagination({ per_page: elgbles?.pagination.per_page, page });
+          }}
+          startIndex={
+            elgbles?.pagination.per_page * (elgbles?.pagination.page - 1) + 1
+          }
+          endIndex={elgbles?.pagination.per_page * elgbles?.pagination.page}
+          totalNumber={elgbles?.pagination.total}
+        />
+      ) : null}
     </TableContainer>
   );
 };

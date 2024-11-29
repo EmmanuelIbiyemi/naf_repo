@@ -1,12 +1,19 @@
 import { AnnouncementResponse } from "../../Pages/student/announcements/SingleAnnouncement";
 import { PostsResponseAnnouncement } from "../../types/announcements";
+import { Pagination } from "../../types/pagination";
 import { PostCreateType, PostResponse, PostsResponse } from "../../types/posts";
 import { appApi } from "./app.api";
 
 const postsApi = appApi.injectEndpoints({
   endpoints: (builder) => ({
-    getPosts: builder.query<PostResponse, null>({
-      query: () => "/post",
+    getPosts: builder.query<
+      PostResponse,
+      Pagination & { search_term?: string }
+    >({
+      query: ({ page, per_page, search_term }) =>
+        `/post?page=${page}&per_page=${per_page}${
+          search_term ? "&search_term=" + search_term : ""
+        }`,
       providesTags: ["Posts"],
     }),
     getPost: builder.query<PostResponse, number>({
@@ -20,12 +27,24 @@ const postsApi = appApi.injectEndpoints({
       query: (slug) => `/post/${slug}`,
       providesTags: ["Posts"],
     }),
-    getPostCategories: builder.query<PostsResponse, null>({
-      query: () => `/post/categories`,
+    getPostCategories: builder.query<
+      PostsResponse,
+      Pagination & { search_term?: string }
+    >({
+      query: ({ page, per_page, search_term }) =>
+        `/post/categories?page=${page}&per_page=${per_page}${
+          search_term ? "&search_term=" + search_term : ""
+        }`,
       providesTags: ["Posts"],
     }),
-    getPostByCategory: builder.query<PostsResponse, string>({
-      query: (tag) => `post/category/${tag}`,
+    getPostByCategory: builder.query<
+      PostsResponse,
+      Pagination & { tag: string; search_term?: string }
+    >({
+      query: ({ tag, page, per_page, search_term }) =>
+        `post/category/${tag}?page=${page}&per_page=${per_page}${
+          search_term ? "&search_term=" + search_term : ""
+        }`,
       providesTags: ["Posts"],
     }),
     getSingleAnnouncement: builder.query<AnnouncementResponse, number>({
@@ -87,5 +106,5 @@ export const {
   useGetPostBySlugQuery,
   useGetPostByCategoryQuery,
   useGetSingleAnnouncementQuery,
-  useGetAnnouncementsQuery
+  useGetAnnouncementsQuery,
 } = postsApi;

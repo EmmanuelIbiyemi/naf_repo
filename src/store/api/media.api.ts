@@ -8,32 +8,19 @@ type Pagination = {
 
 const mediasApi = appApi.injectEndpoints({
   endpoints: (builder) => ({
-    getAllMedia: builder.query<MediaResponse, Pagination>({
-      query: ({ page = 1, per_page = 12 }) =>
-        `/media/all?page=${page}&per_page=${per_page}`,
-      providesTags: ["Media"],
-    }),
-
-    //
-    newGetMedia: builder.query<
+    getAllMedia: builder.query<
       MediaResponse,
-      Pagination & { mediaType?: string }
+      Pagination & { mediaType?: string; search_term: string }
     >({
-      query: ({ mediaType, page = 1, per_page = 12 }) => {
+      query: ({ search_term, mediaType, page = 1, per_page = 12 }) => {
         if (mediaType)
-          return `/media/type/${mediaType}?page=${page}&per_page=${per_page}`;
-        return `/media/all?page=${page}&per_page=${per_page}`;
+          return `/media/type/${mediaType}?page=${page}&per_page=${per_page}${
+            search_term ? "&search_term=" + search_term : ""
+          }`;
+        return `/media/all?page=${page}&per_page=${per_page}${
+          search_term ? "&search_term=" + search_term : ""
+        }`;
       },
-      providesTags: ["Media"],
-    }),
-    //
-
-    getAllByTypeMedia: builder.query<
-      MediaResponse,
-      Pagination & { mediaType: string }
-    >({
-      query: ({ page = 1, per_page = 10, mediaType }) =>
-        `/media/type/${mediaType}?page=${page}&per_page=${per_page}`,
       providesTags: ["Media"],
     }),
     getMedia: builder.query<MediaResponse, number>({
@@ -60,9 +47,7 @@ const mediasApi = appApi.injectEndpoints({
 });
 
 export const {
-  useNewGetMediaQuery,
   useGetAllMediaQuery,
-  useGetAllByTypeMediaQuery,
   useGetMediaQuery,
   useAddMediaMutation,
   useDeleteMediaMutation,
