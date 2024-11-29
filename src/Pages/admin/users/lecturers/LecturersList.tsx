@@ -177,7 +177,7 @@ const LecturersList = () => {
             )}
             page={ltcs?.pagination.page}
             handleChangePage={(_, page) => {
-              setPagination({ per_page: 10, page });
+              setPagination({ per_page: ltcs?.pagination.per_page, page });
             }}
             startIndex={
               ltcs?.pagination.per_page * (ltcs?.pagination.page - 1) + 1

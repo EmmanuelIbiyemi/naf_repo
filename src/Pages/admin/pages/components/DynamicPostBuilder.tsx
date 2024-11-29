@@ -127,7 +127,10 @@ type Props = {
 
 const PageBuilder = ({ page, setPage }: Props) => {
   const [uploadMedia] = useAddMediaMutation();
-  const { data: pages } = useGetPostByCategoryQuery("page");
+  const { data: pages } = useGetPostByCategoryQuery({
+    tag: "page",
+    per_page: 1000,
+  });
 
   const pagesElements =
     pages?.post.map((page) => (

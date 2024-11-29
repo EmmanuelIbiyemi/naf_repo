@@ -1,4 +1,5 @@
 import { LevelType } from "./levels";
+import { PaginationResponse } from "./pagination";
 import { Programme } from "./programmes";
 
 export type EligibleCreateType = {
@@ -18,4 +19,7 @@ export type EligibleType = {
   updated_at: string;
 };
 
-export type EligiblesResponse = { data: EligibleType[] };
+export type EligiblesResponse = {
+  data: EligibleType[];
+  pagination: PaginationResponse;
+};

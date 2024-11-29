@@ -198,7 +198,7 @@ const ProgrammeList = () => {
             )}
             page={prgms?.pagination.page}
             handleChangePage={(_, page) => {
-              setPagination({ per_page: 10, page });
+              setPagination({ per_page: prgms?.pagination.per_page, page });
             }}
             startIndex={
               prgms?.pagination.per_page * (prgms?.pagination.page - 1) + 1

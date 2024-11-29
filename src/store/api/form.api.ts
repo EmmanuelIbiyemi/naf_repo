@@ -5,12 +5,19 @@ import {
   FormsResponse,
   FormUpdateType,
 } from "../../types/forms";
+import { Pagination } from "../../types/pagination";
 import { appApi } from "./app.api";
 
 const formsApi = appApi.injectEndpoints({
   endpoints: (builder) => ({
-    getForms: builder.query<FormsResponse, null>({
-      query: () => "/form",
+    getForms: builder.query<
+      FormsResponse,
+      Pagination & { search_term: string }
+    >({
+      query: ({ page, per_page, search_term }) =>
+        `/form?page=${page}&per_page=${per_page}${
+          search_term ? "&search_term=" + search_term : ""
+        }`,
       providesTags: ["Forms"],
     }),
     getForm: builder.query<FormResponse, number>({

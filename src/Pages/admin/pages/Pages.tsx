@@ -1,19 +1,30 @@
 import { Box, Button, SxProps, Typography } from "@mui/material";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import PostItem from "./components/PageItem";
 import SuccessModal from "../../../components/SuccessModal";
 import DeleteConfirmationModal from "../../../components/DeleteConfirmationModal";
 import { useDeletePostMutation } from "../../../store/api/posts.api";
-import { useAppDispatch } from "../../../store/hooks";
-import { setPageLoading } from "../../../store/app.slice";
+import { useAppDispatch, useAppSelector } from "../../../store/hooks";
+import { selectKeyword, setPageLoading } from "../../../store/app.slice";
 import EmptyState from "../../../components/EmptyState";
 import { useGetPostByCategoryQuery } from "../../../store/api/posts.api";
 import { useNavigate } from "react-router-dom";
 import { PostType } from "../../../types/posts";
+import CustomPagination from "../../../components/CustomPagination";
+import { Pagination } from "../../../types/pagination";
 
 const Pages = () => {
   const dispatch = useAppDispatch();
-  const { data: pages, isError: allError } = useGetPostByCategoryQuery("page");
+  const keyword = useAppSelector(selectKeyword);
+  const [pagination, setPagination] = useState<Pagination>({
+    page: 1,
+    per_page: 10,
+  });
+  const { data: pages, isError: allError } = useGetPostByCategoryQuery({
+    ...pagination,
+    tag: "page",
+    search_term: keyword,
+  });
   const [deletePost] = useDeletePostMutation();
   const [openModal, setOpenModal] = useState({
     add: false,
@@ -46,10 +57,6 @@ const Pages = () => {
     handleOpenModal("delete");
     setSelectedPost(media);
   };
-
-  useEffect(() => {
-    console.log(pages);
-  }, [pages]);
 
   return (
     <Box sx={contentStyles}>
@@ -91,13 +98,29 @@ const Pages = () => {
         }}
       >
         {pages?.post.length ? (
-          pages?.post?.map((page) => (
-            <PostItem
-              key={`postitem-${page.id}`}
-              post={page}
-              deleteItem={() => handleDeleteAction(page)}
+          <>
+            {pages?.post?.map((page) => (
+              <PostItem
+                key={`postitem-${page.id}`}
+                post={page}
+                deleteItem={() => handleDeleteAction(page)}
+              />
+            ))}
+            <CustomPagination
+              count={Math.ceil(
+                pages?.pagination.total / pages?.pagination.per_page
+              )}
+              page={pages?.pagination.page}
+              handleChangePage={(_, page) => {
+                setPagination({ per_page: pages?.pagination.per_page, page });
+              }}
+              startIndex={
+                pages?.pagination.per_page * (pages?.pagination.page - 1) + 1
+              }
+              endIndex={pages?.pagination.per_page * pages?.pagination.page}
+              totalNumber={pages?.pagination.total}
             />
-          ))
+          </>
         ) : (
           <EmptyState
             title={allError ? "Could Not Fetch Pages" : "No Pages yet"}

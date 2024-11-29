@@ -28,29 +28,28 @@ const SessionList = () => {
     success: false,
     delete: false,
   });
-  const { data: sessionss, isFetching, isError } = useGetSessionsQuery(null);
+  const keyword = useAppSelector(selectKeyword);
+  const dispatch = useAppDispatch();
+  const {
+    data: sessionss,
+    isFetching,
+    isError,
+  } = useGetSessionsQuery({
+    search_term: keyword,
+  });
   const [selectedSession, setSelectedSession] = useState<SessionType>();
   const [sessions, setSessions] = useState<SessionType[] | undefined>(
     sessionss?.data
   );
   const [deleteSession] = useDeleteSessionMutation();
   const [updateSession] = useUpdateSessionMutation();
-  const keyword = useAppSelector(selectKeyword);
-  const dispatch = useAppDispatch();
 
   useEffect(() => {
-    if (keyword && sessionss?.data)
-      setSessions(
-        sessionss.data.filter((f) =>
-          f.name.toLowerCase().includes(keyword.toLowerCase())
-        )
-      );
-    else setSessions(sessionss?.data);
+    if (sessionss?.data) setSessions(sessionss?.data);
   }, [keyword, sessionss]);
 
   useEffect(() => {
-    if (isFetching) dispatch(setPageLoading(true));
-    else if (isError) dispatch(setPageLoading(false));
+    if (isFetching && !isError) dispatch(setPageLoading(true));
     else dispatch(setPageLoading(false));
   }, [isFetching, isError, sessionss]);
 

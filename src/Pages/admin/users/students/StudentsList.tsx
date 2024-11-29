@@ -180,7 +180,7 @@ const StudentsList = () => {
             )}
             page={stds?.pagination.page}
             handleChangePage={(_, page) => {
-              setPagination({ per_page: 10, page });
+              setPagination({ per_page: stds?.pagination.per_page, page });
             }}
             startIndex={
               stds?.pagination.per_page * (stds?.pagination.page - 1) + 1

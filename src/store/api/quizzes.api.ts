@@ -1,3 +1,4 @@
+import { Pagination, PaginationResponse } from "../../types/pagination";
 import {
   AssessmentResponse,
   CreateQuiz2,
@@ -87,8 +88,14 @@ type PaginationType = {
 
 const quizzesApi = appApi.injectEndpoints({
   endpoints: (builder) => ({
-    getQuizzes: builder.query<{ data: InstructorQuizzesResponse[] }, null>({
-      query: () => `/quiz`,
+    getQuizzes: builder.query<
+      { data: InstructorQuizzesResponse[]; pagination: PaginationResponse },
+      Pagination & { search_term: string }
+    >({
+      query: ({ page, per_page, search_term }) =>
+        `/quiz?page=${page}&per_page=${per_page}${
+          search_term ? "&search_term=" + search_term : ""
+        }`,
       providesTags: ["Quiz"],
     }),
 

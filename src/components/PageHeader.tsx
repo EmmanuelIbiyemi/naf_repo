@@ -34,7 +34,7 @@ const PageHeader = ({ button, secondaryButton }: Props) => {
   };
 
   useEffect(() => {
-    dispatch(setKeyword(""));
+    dispatch(setKeyword("")); // clear search field on page change
   }, [location]);
 
   return (

@@ -174,7 +174,7 @@ const AdminsList = () => {
             )}
             page={adminsData?.pagination.page}
             handleChangePage={(_, page) => {
-              setPagination({ per_page: 10, page });
+              setPagination({ per_page: adminsData?.pagination.per_page, page });
             }}
             startIndex={
               adminsData?.pagination.per_page *

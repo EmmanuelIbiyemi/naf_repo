@@ -204,7 +204,7 @@ const DepartmentList = () => {
             )}
             page={deps?.pagination.page}
             handleChangePage={(_, page) => {
-              setPagination({ per_page: 10, page });
+              setPagination({ per_page: deps?.pagination.per_page, page });
             }}
             startIndex={
               deps?.pagination.per_page * (deps?.pagination.page - 1) + 1

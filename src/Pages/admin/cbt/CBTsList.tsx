@@ -18,6 +18,8 @@ import { Link } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../../../store/hooks";
 import { selectKeyword, setPageLoading } from "../../../store/app.slice";
 import EmptyState from "../../../components/EmptyState";
+import CustomPagination from "../../../components/CustomPagination";
+import { Pagination } from "../../../types/pagination";
 
 const QuizList = () => {
   const [openModal, setOpenModal] = useState({
@@ -25,21 +27,26 @@ const QuizList = () => {
     delete: false,
     success: false,
   });
-  const { data: qzs, isFetching, isError } = useGetQuizzesQuery(null);
+  const keyword = useAppSelector(selectKeyword);
+  const dispatch = useAppDispatch();
+  const [pagination, setPagination] = useState<Pagination>({
+    page: 1,
+    per_page: 10,
+  });
+  const {
+    data: qzs,
+    isFetching,
+    isError,
+  } = useGetQuizzesQuery({
+    ...pagination,
+    search_term: keyword,
+  });
   const [quizzes, setQuizzes] = useState(qzs?.data);
   const [deleteQuiz, deleteState] = useDeleteQuizMutation();
   const [selectedQuiz, setSelectedQuiz] = useState<InstructorQuizzesResponse>();
-  const keyword = useAppSelector(selectKeyword);
-  const dispatch = useAppDispatch();
 
   useEffect(() => {
-    if (keyword && qzs?.data)
-      setQuizzes(
-        qzs.data.filter((f) =>
-          f.name.toLowerCase().includes(keyword.toLowerCase())
-        )
-      );
-    else setQuizzes(qzs?.data);
+    if (qzs?.data) setQuizzes(qzs?.data);
   }, [keyword, qzs]);
 
   useEffect(() => {
@@ -101,65 +108,80 @@ const QuizList = () => {
         <EmptyState title="No Quizzes found" subTitle="" />
       ) : null}
 
-      {quizzes?.length ? (
-        <Table
-          sx={{
-            minWidth: 650,
-            ".MuiTableCell-root": {
-              maxWidth: 200,
-              a: {
-                overflow: "hidden",
-                textOverflow: "ellipsis",
-                whiteSpace: "nowrap",
+      {qzs?.data.length ? (
+        <>
+          <Table
+            sx={{
+              minWidth: 650,
+              ".MuiTableCell-root": {
+                maxWidth: 200,
+                a: {
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  whiteSpace: "nowrap",
+                },
               },
-            },
-          }}
-        >
-          <TableHead>
-            <TableRow>
-              <TableCell>Name</TableCell>
-              <TableCell>Code</TableCell>
-              <TableCell>Start Date</TableCell>
-              <TableCell>Expiry Date</TableCell>
-              <TableCell>Actions</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {quizzes?.map((quiz) => (
-              <TableRow
-                key={quiz.id}
-                sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-              >
-                <TableCell component="th" scope="row">
-                  <Box sx={{ alignItems: "center", display: "flex" }}>
-                    <Checkbox />
-                    <Link
-                      to={`/cbt/${quiz.id}`}
-                      style={{ textTransform: "capitalize" }}
-                    >
-                      {quiz.name}
-                    </Link>
-                  </Box>
-                </TableCell>
-                <TableCell component="th" scope="row">
-                  {quiz.code}
-                </TableCell>
-                <TableCell component="th" scope="row">
-                  {dayjs(quiz.start_date).format("DD-MM-YYYY")}
-                </TableCell>
-                <TableCell component="th" scope="row">
-                  {dayjs(quiz.expiry_date).format("DD-MM-YYYY")}
-                </TableCell>
-
-                <TableCell>
-                  <IconButton onClick={() => handleOpenModal(quiz, "delete")}>
-                    <Delete />
-                  </IconButton>
-                </TableCell>
+            }}
+          >
+            <TableHead>
+              <TableRow>
+                <TableCell>Name</TableCell>
+                <TableCell>Code</TableCell>
+                <TableCell>Start Date</TableCell>
+                <TableCell>Expiry Date</TableCell>
+                <TableCell>Actions</TableCell>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+            </TableHead>
+            <TableBody>
+              {quizzes?.map((quiz) => (
+                <TableRow
+                  key={quiz.id}
+                  sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+                >
+                  <TableCell component="th" scope="row">
+                    <Box sx={{ alignItems: "center", display: "flex" }}>
+                      <Checkbox />
+                      <Link
+                        to={`/cbt/${quiz.id}`}
+                        style={{ textTransform: "capitalize" }}
+                      >
+                        {quiz.name}
+                      </Link>
+                    </Box>
+                  </TableCell>
+                  <TableCell component="th" scope="row">
+                    {quiz.code}
+                  </TableCell>
+                  <TableCell component="th" scope="row">
+                    {dayjs(quiz.start_date).format("DD-MM-YYYY")}
+                  </TableCell>
+                  <TableCell component="th" scope="row">
+                    {dayjs(quiz.expiry_date).format("DD-MM-YYYY")}
+                  </TableCell>
+
+                  <TableCell>
+                    <IconButton onClick={() => handleOpenModal(quiz, "delete")}>
+                      <Delete />
+                    </IconButton>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+
+          <CustomPagination
+            count={Math.ceil(qzs?.pagination.total / qzs?.pagination.per_page)}
+            page={qzs?.pagination.page}
+            handleChangePage={(_, page) => {
+              setPagination({ per_page: qzs?.pagination.per_page, page });
+            }}
+            startIndex={
+              qzs?.pagination.per_page * (qzs?.pagination.page - 1) + 1
+            }
+            endIndex={qzs?.pagination.per_page * qzs?.pagination.page}
+            totalNumber={qzs?.pagination.total}
+          />
+        </>
       ) : null}
     </TableContainer>
   );

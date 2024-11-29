@@ -189,7 +189,7 @@ const FacultyList = () => {
             )}
             page={facs?.pagination.page}
             handleChangePage={(_, page) => {
-              setPagination({ per_page: 10, page });
+              setPagination({ per_page: facs?.pagination.per_page, page });
             }}
             startIndex={
               facs?.pagination.per_page * (facs?.pagination.page - 1) + 1

@@ -186,7 +186,7 @@ const CourseList = () => {
             count={Math.ceil(crs?.pagination.total / crs?.pagination.per_page)}
             page={crs?.pagination.page}
             handleChangePage={(_, page) => {
-              setPagination({ per_page: 10, page });
+              setPagination({ per_page: crs?.pagination.per_page, page });
             }}
             startIndex={
               crs?.pagination.per_page * (crs?.pagination.page - 1) + 1

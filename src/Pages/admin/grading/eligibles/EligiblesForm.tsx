@@ -27,7 +27,7 @@ const EligibleForm = ({ actions }: Props) => {
   const [getPrograms, programsState] = useGetProgrammesMMutation();
   const [getLevels, levelsState] = useGetLevelsMMutation();
   const [uploadFile, uploadState] = useAddMediaMutation();
-  const { data: sessions } = useGetSessionsQuery(null);
+  const { data: sessions } = useGetSessionsQuery({ search_term: "" });
   const dispatch = useAppDispatch();
 
   const initialValues: EligibleCreateType & {

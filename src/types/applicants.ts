@@ -1,4 +1,5 @@
 import { LevelType } from "./levels";
+import { PaginationResponse } from "./pagination";
 import { Programme } from "./programmes";
 
 type ApplicantBaseType = {
@@ -28,7 +29,10 @@ export type ApplicantType = ApplicantBaseType & {
   updated_at: string;
 };
 
-export type ApplicantsResponse = { data: ApplicantType2[] };
+export type ApplicantsResponse = {
+  data: ApplicantType2[];
+  pagination: PaginationResponse;
+};
 
 export type ApplicantStatusChangeType = {
   applicant_id: number;
