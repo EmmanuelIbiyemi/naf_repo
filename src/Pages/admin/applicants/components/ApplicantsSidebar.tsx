@@ -88,7 +88,7 @@ const ApplicantSidebar = ({ applicant, toggleDrawer }: Props) => {
           </Typography>
           <Typography>
             <span>Status</span>
-            <span>{applicant?.session}</span>
+            <span>{applicant?.status}</span>
           </Typography>
           <Typography>
             <span>Program</span>
