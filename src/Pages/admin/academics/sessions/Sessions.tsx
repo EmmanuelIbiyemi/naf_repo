@@ -16,6 +16,9 @@ import { useAddSessionMutation } from "../../../../store/api/sessions.api";
 import { FormAction } from "../../../../types/forms";
 import { usePromoteAllMutation } from "../../../../store/api/students.api";
 import DeleteConfirmationModal from "../../../../components/DeleteConfirmationModal";
+import { useManageCourseRegMutation } from "../../../../store/api/courses.api";
+import { CourseRegType } from "../../../../types/courses";
+import CourseRegForm from "./CourseRegForm";
 
 const SessionsPage = () => {
   const [openModal, setOpenModal] = useState({
@@ -23,12 +26,14 @@ const SessionsPage = () => {
     success: false,
     successPromote: false,
     warningPromote: false,
+    courseReg: false,
   });
   const [sessionName, setSessionName] = useState("");
   const [selectedSession, setSelectedSession] = useState<SessionType>();
   const containerRef = useRef<HTMLDivElement>(null);
   const [addSession] = useAddSessionMutation();
   const [promoteStudents] = usePromoteAllMutation();
+  const [manageCourseReg] = useManageCourseRegMutation();
 
   // set page name
   const dispatch = useAppDispatch();
@@ -65,6 +70,16 @@ const SessionsPage = () => {
     }
   };
 
+  const handleManageCourseReg = async (dates: CourseRegType) => {
+    try {
+      await manageCourseReg(dates).unwrap();
+      handleCloseModal("courseReg");
+      handleOpenModal("success");
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   return (
     <Box ref={containerRef} className="content-container">
       <FormModal open={openModal.add} close={() => handleCloseModal("add")}>
@@ -74,6 +89,19 @@ const SessionsPage = () => {
             cancel: () => handleCloseModal("add"),
           }}
           session={selectedSession}
+        />
+      </FormModal>
+
+      {/* COURSE REG */}
+      <FormModal
+        open={openModal.courseReg}
+        close={() => handleCloseModal("courseReg")}
+      >
+        <CourseRegForm
+          actions={{
+            submit: handleManageCourseReg,
+            cancel: () => handleCloseModal("courseReg"),
+          }}
         />
       </FormModal>
 
@@ -123,6 +151,10 @@ const SessionsPage = () => {
         secondaryButton={{
           action: () => handleOpenModal("warningPromote"),
           text: "Promote all Students",
+        }}
+        tertiaryButton={{
+          action: () => setOpenModal((prev) => ({ ...prev, courseReg: true })),
+          text: "Manage Course Reg",
         }}
       />
       <Box

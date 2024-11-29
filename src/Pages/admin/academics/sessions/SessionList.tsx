@@ -53,8 +53,8 @@ const SessionList = () => {
     else dispatch(setPageLoading(false));
   }, [isFetching, isError, sessionss]);
 
-  const handleOpenModal = (session: SessionType, type: string) => {
-    setSelectedSession(session);
+  const handleOpenModal = (session: SessionType | null, type: string) => {
+    if (session) setSelectedSession(session);
     setOpenModal((prev) => ({ ...prev, [type]: true }));
   };
 

@@ -18,6 +18,11 @@ export type CourseType = CourseBaseType & {
   updated_at: string;
 };
 
+export type CourseRegType = {
+  start_date: string;
+  end_date: string;
+};
+
 export type CourseCreateType = CourseBaseType & {
   instructor_ids: number[];
 };
