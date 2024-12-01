@@ -193,7 +193,7 @@ const ShareWithModal = ({
               </Box>
             </Button>
 
-            <Button
+            {/* <Button
               variant={shareOption === "byCourse" ? "contained" : "outlined"}
               onClick={() => handleOptionClick("byCourse")}
               sx={{
@@ -243,7 +243,7 @@ const ShareWithModal = ({
                   }}
                 />
               </Box>
-            </Button>
+            </Button> */}
           </Box>
 
           <Box sx={{ display: "flex", justifyContent: "space-between", mt: 3 }}>

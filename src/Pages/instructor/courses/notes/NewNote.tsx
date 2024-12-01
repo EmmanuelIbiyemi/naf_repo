@@ -1,14 +1,14 @@
 import { Box, Button, LinearProgress } from "@mui/material";
 import { useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import CustomMarkdownEditor from "../../../../components/layout/CustomMarkdownEditor";
 import * as yup from "yup";
 import { useFormik } from "formik";
-import ShareWithModal from "../../../../components/ShareWithModal";
 import { useAddNoteMutation } from "../../../../store/api/notes.api";
 import { noteInput } from "../../../../types/notes";
 import { useGetCourseParticipantsQuery } from "../../../../store/api/participants.api";
 import { useAddMediaMutation } from "../../../../store/api/media.api";
+import ShareWithList from "../../../../components/ShareWithList";
 
 const NewNote = () => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -18,23 +18,24 @@ const NewNote = () => {
   const handleOpenModal = () => setOpenModal(true);
   const handleCloseModal = () => setOpenModal(false);
 
-  const locationData = location.pathname.split("/");
-  const courseId = locationData[locationData.length - 3];
+  const { courseId } = useParams();
+
+  // const courseId = locationData[locationData.length - 3];
 
   const [createNote, { isLoading: isCreatingNote }] = useAddNoteMutation();
   const [uploadFile, { isLoading: isUploadingFile }] = useAddMediaMutation();
 
   const { data: participants, isLoading: isFetchingParticipants } =
     useGetCourseParticipantsQuery(
-      { course_id: parseInt(courseId) },
-      { skip: !courseId }
+      { course_id: parseInt(courseId || "") },
+      { skip: !courseId || isNaN(parseInt(courseId)) }
     );
   const formik = useFormik<noteInput>({
     initialValues: {
       title: "Untitled Document",
       content: "",
       media: [],
-      course_id: parseInt(courseId),
+      course_id: courseId ? parseInt(courseId) : 0,
     },
     validationSchema: yup.object({
       title: yup.string().required("Required"),
@@ -145,10 +146,11 @@ const NewNote = () => {
           />
         </Box>
       </Box>
-      <ShareWithModal
+      <ShareWithList
         open={openModal}
         handleClose={handleCloseModal}
-        noteId={noteId}
+        // handleSelectedRecipients={handleSelectedRecipients}
+        noteId={noteId ?? null}
         participants={participants?.data ?? []}
       />
     </Box>

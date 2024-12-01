@@ -104,7 +104,7 @@ const participantsApi = appApi.injectEndpoints({
       { course_id: number | null }
     >({
       query: ({ course_id }) => `/participant/course/${course_id}`,
-      providesTags: ["Participants"],
+      // providesTags: ["Participants"],
     }),
 
     // POST add single course
