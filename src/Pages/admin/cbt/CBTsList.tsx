@@ -153,10 +153,10 @@ const QuizList = () => {
                     {quiz.code}
                   </TableCell>
                   <TableCell component="th" scope="row">
-                    {dayjs(quiz.start_date).format("DD-MM-YYYY")}
+                    {dayjs(quiz.start_date).format("DD-MM-YYYY HH:mm")}
                   </TableCell>
                   <TableCell component="th" scope="row">
-                    {dayjs(quiz.expiry_date).format("DD-MM-YYYY")}
+                    {dayjs(quiz.expiry_date).format("DD-MM-YYYY HH:mm")}
                   </TableCell>
 
                   <TableCell>

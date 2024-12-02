@@ -7,18 +7,18 @@ import { setKeyword } from "../store/app.slice";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 
-type Props = {
-  button?: {
-    text: string;
-    action: () => void;
-  };
-  secondaryButton?: {
-    text: string;
-    action: () => void;
-  };
+type ButtonType = {
+  text: string;
+  action: () => void;
 };
 
-const PageHeader = ({ button, secondaryButton }: Props) => {
+type Props = {
+  button?: ButtonType;
+  secondaryButton?: ButtonType;
+  tertiaryButton?: ButtonType;
+};
+
+const PageHeader = ({ button, secondaryButton, tertiaryButton }: Props) => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const location = useLocation();
@@ -71,6 +71,19 @@ const PageHeader = ({ button, secondaryButton }: Props) => {
       </Box>
       {button ? (
         <Box sx={formGroupStyles}>
+          {tertiaryButton ? (
+            <Button
+              onClick={tertiaryButton.action}
+              variant="contained"
+              sx={{
+                bgcolor: "#fff",
+                color: "primary.main",
+                textTransform: "capitalize",
+              }}
+            >
+              {tertiaryButton.text}
+            </Button>
+          ) : null}
           {secondaryButton ? (
             <Button
               onClick={secondaryButton.action}

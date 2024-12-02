@@ -71,7 +71,7 @@ const CourseForm = ({ actions, course }: Props) => {
       onSubmit={handleSubmit}
       enableReinitialize={true}
     >
-      {({ isValid, dirty, values, setFieldValue, errors }) => (
+      {({ isValid, dirty, values, setFieldValue }) => (
         <Form className={formStyles.modal_form}>
           <Typography
             variant="h5"
@@ -121,14 +121,12 @@ const CourseForm = ({ actions, course }: Props) => {
                     const {
                       target: { value },
                     } = event;
-                    console.log(errors);
-
                     setFieldValue("semester", value);
                   }}
                   input={<OutlinedInput />}
                 >
                   {semesters?.data.map((option) => (
-                    <MenuItem key={option.name} value={option.id}>
+                    <MenuItem key={option.name} value={option.name}>
                       {option.name}
                     </MenuItem>
                   ))}

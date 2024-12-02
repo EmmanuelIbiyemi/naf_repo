@@ -1,7 +1,13 @@
 import { Box, TextField, Checkbox, SxProps } from "@mui/material";
-import { Field, FieldProps } from "formik";
+import { Field, FieldProps, useFormikContext } from "formik";
+import { DateTimePicker } from "@mui/x-date-pickers";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import dayjs from "dayjs";
+import { CreateQuiz2 } from "../../../../types/quizzes";
 
 const Step1Content = () => {
+  const form = useFormikContext<CreateQuiz2>();
   return (
     <Box sx={containerStyles}>
       <Box>
@@ -52,34 +58,36 @@ const Step1Content = () => {
       <Box
         sx={{ display: "grid", gap: "1rem", gridTemplateColumns: "1fr 1fr" }}
       >
-        <Box>
-          <label htmlFor="">Start Date</label>
-          <Field name="start_date">
-            {({ field, meta }: FieldProps) => (
-              <TextField
-                {...field}
-                type="date"
-                fullWidth
-                error={!!meta.error && meta.touched}
-                helperText={meta.touched && meta.error}
-              />
-            )}
-          </Field>
-        </Box>
-        <Box>
-          <label htmlFor="">Expiration Date</label>
-          <Field name="expiry_date">
-            {({ field, meta }: FieldProps) => (
-              <TextField
-                {...field}
-                type="date"
-                fullWidth
-                error={!!meta.error && meta.touched}
-                helperText={meta.touched && meta.error}
-              />
-            )}
-          </Field>
-        </Box>
+        <LocalizationProvider dateAdapter={AdapterDayjs}>
+          <Box>
+            <label htmlFor="start_date">Start Date</label>
+            <DateTimePicker
+              sx={{ width: "100%" }}
+              value={
+                form?.values.start_date
+                  ? dayjs(form?.values.start_date)
+                  : dayjs()
+              }
+              onChange={(value) =>
+                form.setFieldValue("start_date", value?.format())
+              }
+            />
+          </Box>
+          <Box>
+            <label htmlFor="expiry_date">End Date</label>
+            <DateTimePicker
+              sx={{ width: "100%" }}
+              value={
+                form?.values.expiry_date
+                  ? dayjs(form?.values.expiry_date)
+                  : dayjs()
+              }
+              onChange={(value) =>
+                form.setFieldValue("expiry_date", value?.format())
+              }
+            />
+          </Box>
+        </LocalizationProvider>
       </Box>
       <Box sx={{ display: "flex", alignItems: "center" }}>
         <Field name="show_result">
