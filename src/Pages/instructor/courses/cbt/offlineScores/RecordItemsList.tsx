@@ -55,6 +55,17 @@ const RecordsItemsList = ({ lists, handleButtonClick, refetch }: ListProps) => {
     }
   };
 
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
+    });
+  };
+
   return (
     <Box>
       <TableContainer>
@@ -82,6 +93,7 @@ const RecordsItemsList = ({ lists, handleButtonClick, refetch }: ListProps) => {
               >
                 <TableCell>{item?.name}</TableCell>
                 <TableCell>{item?.obtainable_score}</TableCell>
+                <TableCell>{formatDate(item?.updated_at)}</TableCell>
                 <TableCell sx={{ display: "flex", gap: 2 }}>
                   <IconButton onClick={() => handleButtonClick(item)}>
                     <Edit />
@@ -124,7 +136,8 @@ const RecordsItemsList = ({ lists, handleButtonClick, refetch }: ListProps) => {
 const tableHead = [
   { id: 1, label: "Record name", minWidth: 170 },
   { id: 2, label: "Obtainable score", minWidth: 170 },
-  { id: 3, label: "Action", minWidth: 100 },
+  { id: 3, label: "Last updated", minWidth: 170 },
+  { id: 4, label: "Action", minWidth: 100 },
 ];
 
 export default RecordsItemsList;

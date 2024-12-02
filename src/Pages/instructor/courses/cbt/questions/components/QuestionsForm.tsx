@@ -1,20 +1,11 @@
-import {
-  Box,
-  Button,
-  LinearProgress,
-  TextField,
-  Typography,
-} from "@mui/material";
+import { Box, Button, TextField, Typography } from "@mui/material";
 import { Formik, Form, Field, FieldProps } from "formik";
 import * as Yup from "yup";
-import { Navigate, useNavigate, useParams } from "react-router-dom";
+import { Navigate, useParams } from "react-router-dom";
 import { useCreateQuestionFromFileMutation } from "../../../../../../store/api/quizzes.api";
 import { useAddMediaMutation } from "../../../../../../store/api/media.api";
 import { useAppDispatch } from "../../../../../../store/hooks";
 import { setPageLoading } from "../../../../../../store/app.slice";
-import ShareWithModal from "../../../../../../components/ShareWithModal";
-import { useState } from "react";
-import { useGetCourseParticipantsQuery } from "../../../../../../store/api/participants.api";
 type FileType = { file: File | null };
 
 type Props = {
@@ -28,27 +19,10 @@ const QuestionsForm = ({ actions }: Props) => {
     useCreateQuestionFromFileMutation();
   const [uploadMedia, { isLoading: isUploadingMedia }] = useAddMediaMutation();
   const { assessment_id } = useParams();
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
   const dispatch = useAppDispatch();
-  const [openShareModal, setOpenShareModal] = useState(false);
-  const handleCloseShareModal = () => {
-    setOpenShareModal(false);
-  };
-
-  const locationData = location.pathname.split("/");
-  const courseId = locationData[locationData.length - 4];
-  const quizId = locationData[locationData.length - 2];
-  const { data: participants, isLoading: isFetchingParticipants } =
-    useGetCourseParticipantsQuery(
-      { course_id: parseInt(courseId) },
-      { skip: !courseId }
-    );
 
   if (!assessment_id) <Navigate to="/cbt" />;
-
-  if (isFetchingParticipants) {
-    return <LinearProgress />;
-  }
 
   const initialValues: FileType = {
     file: null,
@@ -73,7 +47,6 @@ const QuestionsForm = ({ actions }: Props) => {
         assessment_id: +(assessment_id || 0) as number,
         file_url: mediaResponse.media[0].url,
       }).unwrap();
-      setOpenShareModal(true);
     } catch (error) {
       console.log(error);
     }
@@ -116,7 +89,7 @@ const QuestionsForm = ({ actions }: Props) => {
                   )}
                 </Field>
               </Box>
-              <Button
+              {/* <Button
                 sx={{
                   border: "1px solid #FCC21B",
                   fontSize: ".8rem",
@@ -129,7 +102,19 @@ const QuestionsForm = ({ actions }: Props) => {
                 onClick={() => navigate("manual-input")}
               >
                 Input Manually
-              </Button>
+              </Button> */}
+              <a
+                style={{
+                  display: "block",
+                  color: "steelblue",
+                  marginTop: ".5rem",
+                  textDecoration: "underline",
+                }}
+                href={import.meta.env.VITE_SAMPLE_QUESTIONS_FILE}
+                download
+              >
+                Download example file
+              </a>
             </Box>
           </Box>
 
@@ -164,12 +149,6 @@ const QuestionsForm = ({ actions }: Props) => {
               Upload
             </Button>
           </Box>
-          <ShareWithModal
-            open={openShareModal}
-            handleClose={handleCloseShareModal}
-            participants={participants?.data || []}
-            quizId={parseInt(quizId)}
-          />
         </Form>
       )}
     </Formik>

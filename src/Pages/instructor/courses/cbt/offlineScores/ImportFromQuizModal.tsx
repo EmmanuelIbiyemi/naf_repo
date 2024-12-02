@@ -38,7 +38,7 @@ ImportFromQuizProps) => {
 
   const formik = useFormik({
     initialValues: {
-      quiz_id: 0,
+      quiz_id: "",
     },
     validationSchema: yup.object({
       quiz_id: yup.number().required(),
@@ -47,7 +47,7 @@ ImportFromQuizProps) => {
       try {
         if (recordId) {
           await importScores({
-            quiz_id: values.quiz_id,
+            quiz_id: parseInt(values.quiz_id),
             record_id: recordId,
           }).unwrap();
           refetch();
@@ -152,7 +152,7 @@ ImportFromQuizProps) => {
         close={handleCloseSuccessModal}
         infoText=""
         open={openSuccessModal}
-        subTitle={`Score has been successfully imported!`}
+        subTitle={`Score is being imported! Please check back after 3 minutes`}
         title="Successful"
       />
     </Dialog>

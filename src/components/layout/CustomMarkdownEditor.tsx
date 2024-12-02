@@ -115,12 +115,72 @@ const CustomMarkdownEditor = ({
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
   const [lastCursorPosition, setLastCursorPosition] = useState<number>(0);
 
+  const handleUndo = () => {
+    if (historyIndex > 0) {
+      const newHistoryIndex = historyIndex - 1;
+      const previousText = history[newHistoryIndex];
+
+      setHistoryIndex(newHistoryIndex);
+      setMarkdownText(previousText);
+      onChange(previousText);
+
+      // Restore cursor position safely
+      if (textAreaRef.current) {
+        setTimeout(() => {
+          textAreaRef.current!.selectionStart = lastCursorPosition;
+          textAreaRef.current!.selectionEnd = lastCursorPosition;
+          textAreaRef.current!.focus();
+        }, 0);
+      }
+    }
+  };
+
+  const handleRedo = () => {
+    if (historyIndex < history.length - 1) {
+      const newHistoryIndex = historyIndex + 1;
+      const nextText = history[newHistoryIndex];
+
+      setHistoryIndex(newHistoryIndex);
+      setMarkdownText(nextText);
+      onChange(nextText);
+
+      // Restore cursor position safely
+      if (textAreaRef.current) {
+        setTimeout(() => {
+          textAreaRef.current!.selectionStart = nextText.length;
+          textAreaRef.current!.selectionEnd = nextText.length;
+          textAreaRef.current!.focus();
+        }, 0);
+      }
+    }
+  };
+
+  // const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+  //   const newText = e.target.value;
+  //   setMarkdownText(newText);
+  //   onChange(newText);
+
+  //   // Only add to history if it's a new change
+  //   if (newText !== history[historyIndex]) {
+  //     const newHistory = [...history.slice(0, historyIndex + 1), newText];
+  //     setHistory(newHistory);
+  //     setHistoryIndex(newHistory.length - 1);
+  //   }
+  //   setHistory((prev) => [...prev.slice(0, historyIndex + 1), newText]);
+  //   setHistoryIndex((prev) => prev + 1);
+  // };
+
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const newText = e.target.value;
+
+    // Truncate history if making changes after undo
+    const updatedHistory = history.slice(0, historyIndex + 1);
+
     setMarkdownText(newText);
     onChange(newText);
-    setHistory((prev) => [...prev.slice(0, historyIndex + 1), newText]);
-    setHistoryIndex((prev) => prev + 1);
+
+    setHistory([...updatedHistory, newText]);
+    setHistoryIndex(updatedHistory.length);
   };
 
   const handleCursorChange = () => {
@@ -277,24 +337,22 @@ const CustomMarkdownEditor = ({
                 }
               />
             </Button>
-            <Tooltip title="Undo">
-              <IconButton
-                onClick={() => setHistoryIndex((prev) => Math.max(prev - 1, 0))}
-              >
-                <Undo style={{ color: "#02306B" }} />
-              </IconButton>
-            </Tooltip>
-            <Tooltip title="Redo">
-              <IconButton
-                onClick={() =>
-                  setHistoryIndex((prev) =>
-                    Math.min(prev + 1, history.length - 1)
-                  )
-                }
-              >
-                <Redo style={{ color: "#02306B" }} />
-              </IconButton>
-            </Tooltip>
+            <IconButton onClick={handleUndo} disabled={historyIndex === 0}>
+              <Undo
+                style={{ color: historyIndex === 0 ? "#aaa" : "#02306B" }}
+              />
+            </IconButton>
+            <IconButton
+              onClick={handleRedo}
+              disabled={historyIndex === history.length - 1}
+            >
+              <Redo
+                style={{
+                  color:
+                    historyIndex === history.length - 1 ? "#aaa" : "#02306B",
+                }}
+              />
+            </IconButton>
           </Box>
 
           <TextareaAutosize

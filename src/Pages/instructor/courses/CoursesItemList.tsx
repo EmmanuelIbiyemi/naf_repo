@@ -12,15 +12,18 @@ import {
   MenuItem,
   Typography,
 } from "@mui/material";
-import { Delete, MoreVert, Visibility } from "@mui/icons-material";
+import { Delete, Edit, MoreVert, Visibility } from "@mui/icons-material";
 // import CustomPagination from "../../../components/CustomPagination";
 import { note } from "../../../types/notes";
+import { useNavigate } from "react-router-dom";
 
 type ListProps = {
   lists: note[];
   menu?: boolean;
   deleteIcon?: boolean;
+  view?: boolean;
   edit?: boolean;
+  courseId: number;
   handleOpenActionsModal: (list: note, type: string) => void;
   handleEditActionsModal: (list: note) => void;
 };
@@ -31,14 +34,16 @@ const CoursesItemList = ({
   lists,
   menu,
   deleteIcon,
+  view,
+  courseId,
   edit,
-
   handleOpenActionsModal,
   handleEditActionsModal,
 }: ListProps) => {
   // const [currentPage, setCurrentPage] = useState(1);
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
+  const navigate = useNavigate();
 
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
@@ -99,6 +104,17 @@ const CoursesItemList = ({
                 </TableCell>
                 <TableCell align="right">
                   {edit && (
+                    <IconButton
+                      onClick={() =>
+                        navigate(`${courseId}/${list.id}/edit`, {
+                          state: { noteData: list },
+                        })
+                      }
+                    >
+                      <Edit />
+                    </IconButton>
+                  )}
+                  {view && (
                     <IconButton onClick={() => handleEditActionsModal(list)}>
                       <Visibility />
                     </IconButton>

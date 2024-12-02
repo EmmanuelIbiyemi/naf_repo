@@ -1,4 +1,4 @@
-import { Box } from "@mui/material";
+import { Box, Button } from "@mui/material";
 import { useEffect, useState } from "react";
 import AssessmentList from "./AssessmentList";
 import AssessmentsForm from "./components/AssessmentsForm";
@@ -7,7 +7,9 @@ import SuccessModal from "../../../../../components/SuccessModal";
 import PageHeader from "../../../../../components/PageHeader";
 import { useAppDispatch } from "../../../../../store/hooks";
 import { setPageName } from "../../../../../store/app.slice";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
+import { useGetCourseParticipantsQuery } from "../../../../../store/api/participants.api";
+import ShareWithList from "../../../../../components/ShareWithList";
 
 const AssessmentsPage = () => {
   const [openModal, setOpenModal] = useState({
@@ -18,6 +20,8 @@ const AssessmentsPage = () => {
   });
 
   const navigate = useNavigate();
+
+  const { courseId, quiz_id } = useParams();
 
   // set page name
   const dispatch = useAppDispatch();
@@ -32,6 +36,16 @@ const AssessmentsPage = () => {
   const handleCloseModal = (type: string) => {
     setOpenModal((prev) => ({ ...prev, [type]: false }));
   };
+
+  const [openShareModal, setOpenShareModal] = useState(false);
+  const handleCloseShareModal = () => {
+    setOpenShareModal(false);
+  };
+  const { data: participants, isLoading: isFetchingParticipants } =
+    useGetCourseParticipantsQuery(
+      { course_id: parseInt(courseId || "") },
+      { skip: !courseId }
+    );
 
   return (
     <Box className="content-container">
@@ -72,10 +86,30 @@ const AssessmentsPage = () => {
           borderRadius: "var(--border-radius)",
           marginInline: "var(--padding)",
           padding: "var(--padding)",
+          display: "flex",
+          flexDirection: "column",
         }}
       >
+        <Button
+          onClick={() => setOpenShareModal(true)}
+          variant="contained"
+          sx={{
+            alignSelf: "end",
+            textTransform: "capitalize",
+          }}
+          disabled={isFetchingParticipants}
+        >
+          Share Quiz
+        </Button>
         <AssessmentList />
       </Box>
+      <ShareWithList
+        open={openShareModal}
+        handleClose={handleCloseShareModal}
+        // handleSelectedRecipients={handleSelectedRecipients}
+        quizId={parseInt(quiz_id || "")}
+        participants={participants?.data || []}
+      />
     </Box>
   );
 };

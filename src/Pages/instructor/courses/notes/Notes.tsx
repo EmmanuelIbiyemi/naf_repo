@@ -194,6 +194,8 @@ const Notes = () => {
                 handleEditActionsModal={handleEditActionsModal}
                 deleteIcon={true}
                 edit={true}
+                view={true}
+                courseId={parseInt(selectedCourseId)}
               />
               {note?.data.map((singleNote) => (
                 <CustomPreviewModal
