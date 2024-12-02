@@ -91,6 +91,9 @@ const CoursesNotesPage = lazy(
 const CreateNotePage = lazy(
   () => import("./Pages/instructor/courses/notes/NewNote")
 );
+const EditNotePage = lazy(
+  () => import("./Pages/instructor/courses/notes/EditNote")
+);
 // const CoursesTestsPage = lazy(
 //   () => import("./Pages/instructor/courses/cbt/Tests")
 // );
@@ -98,7 +101,7 @@ const CreateNotePage = lazy(
 const InputQuestionsManually = lazy(
   () =>
     import(
-      "./Pages/instructor/courses/cbt2/questions/components/ManuallyInputQuestions"
+      "./Pages/instructor/courses/cbt/questions/components/ManuallyInputQuestions"
     )
 );
 
@@ -110,20 +113,20 @@ const InputQuestionsManually = lazy(
 // );
 // const ReportsPage = lazy(() => import("./Pages/instructor/reports/Reports"));
 const InstructorCBTsPage = lazy(
-  () => import("./Pages/instructor/courses/cbt2/CBT")
+  () => import("./Pages/instructor/courses/cbt/CBT")
 );
 
 const InstructorQuestionsPage = lazy(
-  () => import("./Pages/instructor/courses/cbt2/questions/Questions")
+  () => import("./Pages/instructor/courses/cbt/questions/Questions")
 );
 const InstructorAssessmentPage = lazy(
-  () => import("./Pages/instructor/courses/cbt2/assessments/Assessments")
+  () => import("./Pages/instructor/courses/cbt/assessments/Assessments")
 );
 const CoursesTestParticipantsPage = lazy(
-  () => import("./Pages/instructor/courses/cbt2/components/TestParticipants")
+  () => import("./Pages/instructor/courses/cbt/components/TestParticipants")
 );
 const CoursesViewParticipantDetailsPage = lazy(
-  () => import("./Pages/instructor/courses/cbt2/components/ViewQuizAnswers")
+  () => import("./Pages/instructor/courses/cbt/components/ViewQuizAnswers")
 );
 const LiveClassesPage = lazy(
   () => import("./Pages/instructor/classes/LiveClasses")
@@ -255,8 +258,8 @@ export const router = createBrowserRouter([
     element: <PrivateRoute />,
     children: [
       { path: "/instructor", element: <InstructorDashboard /> },
-      { path: "/instructor/settings", element: <SettingsPage /> },
-      { path: "/instructor/courses", element: <InstructorCoursesPage /> },
+      { path: "settings", element: <SettingsPage /> },
+      { path: "courses", element: <InstructorCoursesPage /> },
       {
         path: "/instructor/courses/:id",
         element: <CoursesLayout />,
@@ -269,40 +272,41 @@ export const router = createBrowserRouter([
             path: "students",
             element: <CoursesParicipantsPage />,
           },
-          {
-            path: "notes",
-            element: <CoursesNotesPage />,
-          },
-          { path: "notes/new", element: <CreateNotePage /> },
-          // { path: "tests", element: <CoursesTestsPage /> },
-          // {
-          //   path: "tests/:testId",
-          //   element: <CoursesTestParticipantsPage />,
-          // },
-          // {
-          //   path: "tests/:testId/detail/:user_id/:id",
-          //   element: <CoursesViewParticipantDetailsPage />,
-          // },
-          // // { path: "classes", element: <LiveClassesPage /> },
-          { path: "cbt", element: <InstructorCBTsPage /> },
-          { path: "cbt/:quiz_id", element: <InstructorAssessmentPage /> },
-          {
-            path: "cbt/:quiz_id/:assessment_id",
-            element: <InstructorQuestionsPage />,
-          },
-          {
-            path: "cbt/:quiz_id/participants",
-            element: <CoursesTestParticipantsPage />,
-          },
-          {
-            path: "cbt/:quiz_id/participants/detail/:user_id/:id",
-            element: <CoursesViewParticipantDetailsPage />,
-          },
-          {
-            path: "cbt/:quiz_id/:assessment_id/manual-input",
-            element: <InputQuestionsManually />,
-          },
         ],
+      },
+      {
+        path: "notes",
+        element: <CoursesNotesPage />,
+      },
+      { path: "notes/:courseId/new", element: <CreateNotePage /> },
+      { path: "notes/:courseId/:noteId/edit", element: <EditNotePage /> },
+      // { path: "tests", element: <CoursesTestsPage /> },
+      // {
+      //   path: "tests/:testId",
+      //   element: <CoursesTestParticipantsPage />,
+      // },
+      // {
+      //   path: "tests/:testId/detail/:user_id/:id",
+      //   element: <CoursesViewParticipantDetailsPage />,
+      // },
+      // // { path: "classes", element: <LiveClassesPage /> },
+      { path: "cbt", element: <InstructorCBTsPage /> },
+      { path: "cbt/:courseId/:quiz_id", element: <InstructorAssessmentPage /> },
+      {
+        path: "cbt/:courseId/:quiz_id/:assessment_id",
+        element: <InstructorQuestionsPage />,
+      },
+      {
+        path: "cbt/:courseId/:quiz_id/participants",
+        element: <CoursesTestParticipantsPage />,
+      },
+      {
+        path: "cbt/:courseId/:quiz_id/participants/detail/:user_id/:id",
+        element: <CoursesViewParticipantDetailsPage />,
+      },
+      {
+        path: "cbt/:courseId/:quiz_id/:assessment_id/manual-input",
+        element: <InputQuestionsManually />,
       },
       { path: "classes", element: <LiveClassesPage /> },
       {

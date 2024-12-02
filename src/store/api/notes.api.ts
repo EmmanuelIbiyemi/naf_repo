@@ -52,7 +52,7 @@ const notesApi = appApi.injectEndpoints({
     }),
     updateNote: builder.mutation<note, { body: noteInput; id: number }>({
       query: ({ body, id }) => ({
-        url: `/body/${id}`,
+        url: `/note/${id}`,
         method: "PUT",
         body: body,
       }),

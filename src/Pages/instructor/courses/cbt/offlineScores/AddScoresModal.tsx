@@ -177,6 +177,17 @@ const AddScoresModal = ({
     },
   });
 
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
+    });
+  };
+
   return (
     <Modal open={open} onClose={handleClose}>
       <Box
@@ -216,6 +227,7 @@ const AddScoresModal = ({
                   <TableCell>Student ID</TableCell>
                   <TableCell>Name</TableCell>
                   <TableCell>Obtained Score</TableCell>
+                  <TableCell>Last Updated</TableCell>
                   <TableCell>Actions</TableCell>
                 </TableRow>
               </TableHead>
@@ -280,6 +292,17 @@ const AddScoresModal = ({
                         }}
                         sx={{ width: "120px" }}
                       />
+                    </TableCell>
+                    <TableCell>
+                      {courseParticipants.find(
+                        (p) => p.id === row.participantId
+                      )?.updated_at
+                        ? formatDate(
+                            courseParticipants.find(
+                              (p) => p.id === row.participantId
+                            )!.updated_at!
+                          )
+                        : "-"}
                     </TableCell>
                     <TableCell>
                       <IconButton
