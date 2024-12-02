@@ -1,6 +1,5 @@
 import { Box, Button, Typography } from "@mui/material";
 import { CourseBaseType, CourseType } from "../../../types/courses";
-// import { AccessTime, CalendarToday } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import { useGetCourseParticipantsQuery } from "../../../store/api/participants.api";
 
@@ -27,7 +26,7 @@ const CoursesCard = ({ course }: Props) => {
         borderRadius: "5px",
       }}
     >
-      {isFetchingParticipants}
+      {isFetchingParticipants && <Box></Box>}
       <Typography
         variant="h4"
         sx={{
@@ -60,36 +59,6 @@ const CoursesCard = ({ course }: Props) => {
       >
         Semester: {course.semester}
       </Typography>
-      {/* <Box sx={{ display: "flex", gap: 2 }}>
-        <Typography
-          variant="body2"
-          sx={{
-            fontSize: ".8rem",
-            color: "#3C3C3C",
-            lineHeight: "20.16px",
-            fontWeight: 300,
-            display: "flex",
-            alignItems: "center",
-            gap: 1,
-          }}
-        >
-          <CalendarToday /> Mon - Thur
-        </Typography>
-        <Typography
-          variant="body2"
-          sx={{
-            fontSize: ".8rem",
-            color: "#3C3C3C",
-            lineHeight: "20.16px",
-            fontWeight: 300,
-            display: "flex",
-            alignItems: "center",
-            gap: 1,
-          }}
-        >
-          <AccessTime /> 12:30 AM - 01:40 PM
-        </Typography>
-      </Box> */}
       <Typography
         variant="body2"
         sx={{

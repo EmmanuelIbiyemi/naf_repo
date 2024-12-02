@@ -9,6 +9,8 @@ import {
 import { Mail } from "@mui/icons-material";
 import formStyles from "../../../../components/form/form.module.scss";
 import { ApplicantType2 } from "../../../../types/applicants";
+import { useGetApplicantResultMutation } from "../../../../store/api/applicants.api";
+import { useEffect } from "react";
 
 type Props = {
   applicant: ApplicantType2 | undefined;
@@ -16,6 +18,25 @@ type Props = {
 };
 
 const ApplicantSidebar = ({ applicant, toggleDrawer }: Props) => {
+  const [getResult, resultsState] = useGetApplicantResultMutation();
+
+  const fetchResults = async () => {
+    try {
+      const response = await getResult(applicant?.id || 0).unwrap();
+      console.log(response);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    console.log(resultsState);
+  }, [resultsState]);
+
+  useEffect(() => {
+    if (applicant) fetchResults();
+  }, [applicant]);
+
   return (
     <Drawer open={Boolean(applicant)} onClose={toggleDrawer} anchor="right">
       <Box sx={sideBarStyles}>
@@ -99,6 +120,30 @@ const ApplicantSidebar = ({ applicant, toggleDrawer }: Props) => {
             <span>{applicant?.level.name}</span>
           </Typography>
         </Box>
+
+        <Box sx={infoSectionStyles}>
+          <Typography
+            sx={{
+              bgcolor: "primary.main",
+              color: "primary.contrastText",
+            }}
+          >
+            Result
+          </Typography>
+          {!resultsState.data?.data.result.length ? (
+            <Typography>Applicant did not take any assessment</Typography>
+          ) : null}
+          {resultsState.data?.data.result.map((rs) => (
+            <Typography>
+              <span>{rs.assessment.name}</span>
+              <span>
+                <span style={{ color: "green" }}>{rs.right}</span> |{" "}
+                <span style={{ color: "red" }}>{rs.wrong}</span>
+              </span>
+            </Typography>
+          ))}
+        </Box>
+
         <Box className={formStyles.btn_group} sx={{ marginTop: "2rem" }}>
           <Button
             onClick={toggleDrawer}

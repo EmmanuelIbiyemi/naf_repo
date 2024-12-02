@@ -15,8 +15,8 @@ type NavLink = {
 const navLinks: NavLink[] = [
   // { content: "Course Details", link: "details" },
   { content: "Students", link: "students" },
-  { content: "Notes", link: "notes" },
-  { content: "CBT ", link: "cbt" },
+  // { content: "Notes", link: "notes" },
+  // { content: "CBT ", link: "cbt" },
 ];
 
 const CoursesSidebar = ({ course }: courseProps) => {
@@ -90,7 +90,7 @@ const sideBarStyles: SxProps = {
   left: 0,
   overflow: "scroll",
   // marginLeft: "280px",
-  width: "220px",
+  // width: "220px",
 
   "&::-webkit-scrollbar": {
     display: "none",

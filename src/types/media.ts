@@ -10,7 +10,7 @@ interface medias {
 }
 
 interface mediaInputs {
-  id: string;
+  id: number;
 }
 
 export type media = medias[];

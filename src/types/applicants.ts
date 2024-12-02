@@ -1,6 +1,4 @@
-import { LevelType } from "./levels";
 import { PaginationResponse } from "./pagination";
-import { Programme } from "./programmes";
 
 type ApplicantBaseType = {
   data: {
@@ -21,14 +19,6 @@ type ApplicantBaseType = {
 
 export type ApplicantCreateType = ApplicantBaseType & {};
 
-export type ApplicantType = ApplicantBaseType & {
-  id: number;
-  program: Programme;
-  level: LevelType;
-  created_at: string;
-  updated_at: string;
-};
-
 export type ApplicantsResponse = {
   data: ApplicantType2[];
   pagination: PaginationResponse;
@@ -38,8 +28,6 @@ export type ApplicantStatusChangeType = {
   applicant_id: number;
   status: string;
 };
-
-// New Applicant Schema
 
 type Instructor = {
   address: string;
@@ -126,4 +114,74 @@ export type ApplicantType2 = {
   user_id: number;
   level: Level;
   updated_at: string;
+};
+
+// Results
+
+type Answer = {
+  assessment_id: number;
+  created_at: string;
+  id: number;
+  is_correct: boolean;
+  option_id: number;
+  question_id: number;
+  time_left: number;
+  updated_at: string;
+  user_id: number;
+};
+type Option = {
+  body: string;
+  created_at: string;
+  id: number;
+  is_answer: boolean;
+  updated_at: string;
+};
+
+type Question = {
+  body: string;
+  created_at: string;
+  id: number;
+  options: Option[];
+  updated_at: string;
+};
+
+type Assessment = {
+  created_at: string;
+  id: number;
+  name: string;
+  questions: Question[];
+  updated_at: string;
+};
+
+type Result = {
+  assessment_id: number;
+  assessment: Assessment;
+  created_at: string;
+  right: number;
+  wrong: number;
+};
+
+export type ApplicantResultResponse = {
+  data: {
+    answers: Answer[];
+    quiz: {
+      assessments: Assessment[];
+      code: string;
+      created_at: string;
+      expiry_date: string;
+      id: number;
+      instructions: string;
+      is_published: boolean;
+      name: string;
+      obtainable_score: number;
+      show_result: boolean;
+      start_date: string;
+      time_allowed: number;
+      type: string;
+      updated_at: string;
+    };
+    result: Result[];
+  };
+  message: string;
+  status: string;
 };

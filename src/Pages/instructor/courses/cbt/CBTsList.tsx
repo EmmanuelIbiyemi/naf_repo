@@ -20,14 +20,11 @@ import SuccessModal from "../../../../components/SuccessModal";
 import EmptyState from "../../../../components/EmptyState";
 import CustomPagination from "../../../../components/CustomPagination";
 
-const QuizList = () => {
-  const [openModal, setOpenModal] = useState({
-    edit: false,
-    delete: false,
-    success: false,
-  });
-  const locationData = location.pathname.split("/");
-  const courseId = locationData[locationData.length - 2];
+interface QuizListProps {
+  courseId?: string;
+}
+
+const QuizList: React.FC<QuizListProps> = ({ courseId }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const handleChangePage = (
     _event: React.ChangeEvent<unknown>,
@@ -35,22 +32,30 @@ const QuizList = () => {
   ) => {
     setCurrentPage(newPage);
   };
+
   const {
     data: qzs,
     isFetching,
     isError,
   } = useGetInstructorCourseQuizzesQuery(
     {
-      course_id: parseInt(courseId),
+      course_id: courseId ? parseInt(courseId) : null,
       page: currentPage,
     },
     { skip: !courseId }
   );
+
   const [quizzes, setQuizzes] = useState(qzs?.data);
   const [deleteQuiz, deleteState] = useDeleteQuizMutation();
   const [selectedQuiz, setSelectedQuiz] = useState<InstructorQuizzesResponse>();
   const keyword = useAppSelector(selectKeyword);
   const dispatch = useAppDispatch();
+
+  const [openModal, setOpenModal] = useState({
+    edit: false,
+    delete: false,
+    success: false,
+  });
 
   useEffect(() => {
     if (keyword && qzs?.data)
@@ -88,7 +93,6 @@ const QuizList = () => {
   };
 
   const totalItems = qzs?.pagination?.total || 0;
-  // const totalPages = scheduledClasses?.pagination?.pages || 1;
   const itemsPerPage = qzs?.pagination.per_page || 1;
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = Math.min(startIndex + itemsPerPage, totalItems);
@@ -104,7 +108,7 @@ const QuizList = () => {
             },
           }}
           close={() => handleCloseModal("delete")}
-          infoText="You can’t undo this action."
+          infoText="You can't undo this action."
           open={openModal.delete}
           subTitle={`Are you sure you want to delete '${selectedQuiz?.name}" ?`}
           title="Delete Quiz?"
@@ -118,17 +122,23 @@ const QuizList = () => {
           title="Updates Successful"
         />
 
-        {isError ? (
+        {!courseId ? (
+          <EmptyState
+            title="Select a Course"
+            subTitle="Please select a course to view quizzes"
+          />
+        ) : isError ? (
           <EmptyState
             title="Could not fetch Quizzes"
             subTitle="Check your internet connection"
           />
         ) : null}
-        {!quizzes?.length ? (
-          <EmptyState title="No Quizzes found" subTitle="" />
-        ) : null}
 
-        {quizzes?.length ? (
+        {quizzes?.length === 0 && courseId && (
+          <EmptyState title="No Quizzes found" subTitle="" />
+        )}
+
+        {quizzes?.length && courseId ? (
           <Table
             sx={{
               minWidth: 650,
@@ -161,7 +171,7 @@ const QuizList = () => {
                     <Box sx={{ alignItems: "center", display: "flex" }}>
                       <Checkbox />
                       <Link
-                        to={`${quiz.id}`}
+                        to={`${courseId}/${quiz.id}`}
                         style={{ textTransform: "capitalize" }}
                       >
                         {quiz.name}
@@ -189,14 +199,17 @@ const QuizList = () => {
           </Table>
         ) : null}
       </TableContainer>
-      <CustomPagination
-        startIndex={startIndex + 1}
-        endIndex={endIndex}
-        totalNumber={totalItems}
-        count={Math.ceil(totalItems / itemsPerPage)}
-        page={currentPage}
-        handleChangePage={handleChangePage}
-      />
+
+      {quizzes?.length && courseId ? (
+        <CustomPagination
+          startIndex={startIndex + 1}
+          endIndex={endIndex}
+          totalNumber={totalItems}
+          count={Math.ceil(totalItems / itemsPerPage)}
+          page={currentPage}
+          handleChangePage={handleChangePage}
+        />
+      ) : null}
     </>
   );
 };

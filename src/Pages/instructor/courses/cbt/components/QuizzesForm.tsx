@@ -9,12 +9,11 @@ type Props = {
   actions: {
     cancel: () => void;
   };
+  courseId: number;
 };
 
-const CBTForm = ({ actions }: Props) => {
+const CBTForm = ({ actions, courseId }: Props) => {
   const [addQuiz] = useAddQuizMutation();
-  const locationData = location.pathname.split("/");
-  const courseId = locationData[locationData.length - 2];
 
   const initialValues: CreateQuiz = {
     name: "",
@@ -25,7 +24,7 @@ const CBTForm = ({ actions }: Props) => {
     show_result: false,
     instructions: "",
     time_allowed: 30,
-    course_id: parseInt(courseId),
+    course_id: courseId,
   };
 
   const validationSchema = Yup.object().shape({

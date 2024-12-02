@@ -1,8 +1,9 @@
 import {
   ApplicantCreateType,
+  ApplicantResultResponse,
   ApplicantsResponse,
   ApplicantStatusChangeType,
-  ApplicantType,
+  ApplicantType2,
 } from "../../types/applicants";
 import { Pagination } from "../../types/pagination";
 import { appApi } from "./app.api";
@@ -25,6 +26,9 @@ const applicantsApi = appApi.injectEndpoints({
       query: (applicant_id) => `/applicant/${applicant_id}`,
       providesTags: ["Applicants"],
     }),
+    getApplicantResult: builder.mutation<ApplicantResultResponse, number>({
+      query: (applicant_id) => `/applicant/quiz/result/${applicant_id}`,
+    }),
     updateApplicantStatus: builder.mutation<
       ApplicantsResponse,
       ApplicantStatusChangeType
@@ -44,7 +48,7 @@ const applicantsApi = appApi.injectEndpoints({
       }),
       invalidatesTags: ["Applicants"],
     }),
-    updateApplicant: builder.mutation<ApplicantsResponse, ApplicantType>({
+    updateApplicant: builder.mutation<ApplicantsResponse, ApplicantType2>({
       query: (applicant) => ({
         url: `/applicant/${applicant.id}`,
         method: "PUT",
@@ -65,6 +69,7 @@ const applicantsApi = appApi.injectEndpoints({
 
 export const {
   useGetApplicantsQuery,
+  useGetApplicantResultMutation,
   useAddApplicantMutation,
   useUpdateApplicantMutation,
   useDeleteApplicantMutation,

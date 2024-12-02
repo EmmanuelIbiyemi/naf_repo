@@ -12,6 +12,7 @@ import {
 import { useGetStudentQuery } from "../../../../../store/api/students.api";
 import { useGetUserQuizResultQuery } from "../../../../../store/api/quizzes.api";
 import CustomPagination from "../../../../../components/CustomPagination";
+import { ArrowBack } from "@mui/icons-material";
 
 const ViewQuizAnswers = () => {
   const navigate = useNavigate();
@@ -22,10 +23,6 @@ const ViewQuizAnswers = () => {
   const quizId = locationData[locationData.length - 5];
   const userId = locationData[locationData.length - 2];
   const studentId = locationData[locationData.length - 1];
-
-  console.log("Quid id", quizId);
-  console.log("User id", userId);
-  console.log("Student id", studentId);
 
   const { data: studentData, isLoading: isGettingStudent } = useGetStudentQuery(
     parseInt(studentId)
@@ -125,17 +122,11 @@ const ViewQuizAnswers = () => {
           }}
         >
           <Button
-            variant="outlined"
-            sx={{
-              borderRadius: "8px",
-              textTransform: "none",
-              width: "50%",
-              backgroundColor: "#CCCCCC",
-              color: "#FFF",
-            }}
             onClick={() => navigate(-1)}
+            variant="outlined"
+            sx={{ paddingLeft: ".5rem" }}
           >
-            Back
+            <ArrowBack sx={{ marginRight: ".4rem" }} /> Back
           </Button>
         </Box>
       </Box>

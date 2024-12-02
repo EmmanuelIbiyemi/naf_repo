@@ -184,7 +184,7 @@ const CreateClassModal = ({ open, handleClose, refetch }: createClassModal) => {
                 variant="outlined"
                 id="duration"
                 name="duration"
-                placeholder="Add duration"
+                placeholder="Add duration (minutes)"
                 value={formik.values.duration}
                 type="number"
                 onChange={formik.handleChange}

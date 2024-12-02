@@ -1,28 +1,38 @@
 import { Box, Button, LinearProgress } from "@mui/material";
 import { useRef, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import CustomMarkdownEditor from "../../../../components/layout/CustomMarkdownEditor";
 import * as yup from "yup";
 import { useFormik } from "formik";
-import { useAddNoteMutation } from "../../../../store/api/notes.api";
-import { noteInput } from "../../../../types/notes";
+import { useUpdateNoteMutation } from "../../../../store/api/notes.api";
+import { note, noteInput } from "../../../../types/notes";
 import { useGetCourseParticipantsQuery } from "../../../../store/api/participants.api";
 import { useAddMediaMutation } from "../../../../store/api/media.api";
 import ShareWithList from "../../../../components/ShareWithList";
 
-const NewNote = () => {
+type noteProps = {
+  noteData: note;
+};
+
+const EditNote = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
+  const location = useLocation();
   const [openModal, setOpenModal] = useState(false);
-  const [noteId, setNoteId] = useState<number | null>(null);
   const handleOpenModal = () => setOpenModal(true);
   const handleCloseModal = () => setOpenModal(false);
 
-  const { courseId } = useParams();
+  const { noteData } = location.state as noteProps;
+
+  const mediaItems = noteData.media
+    .filter((media) => media.id)
+    .map((media) => ({ id: media.id }));
+
+  const { courseId, noteId } = useParams();
 
   // const courseId = locationData[locationData.length - 3];
 
-  const [createNote, { isLoading: isCreatingNote }] = useAddNoteMutation();
+  const [updateNote, { isLoading: isUpdatingNote }] = useUpdateNoteMutation();
   const [uploadFile, { isLoading: isUploadingFile }] = useAddMediaMutation();
 
   const { data: participants, isLoading: isFetchingParticipants } =
@@ -32,9 +42,9 @@ const NewNote = () => {
     );
   const formik = useFormik<noteInput>({
     initialValues: {
-      title: "Untitled Document",
-      content: "",
-      media: [],
+      title: noteData.title || "",
+      content: noteData.content || "",
+      media: mediaItems || [],
       course_id: courseId ? parseInt(courseId) : 0,
     },
     validationSchema: yup.object({
@@ -44,8 +54,7 @@ const NewNote = () => {
     }),
     onSubmit: async (values: noteInput) => {
       try {
-        const response = await createNote(values).unwrap();
-        setNoteId(response?.data?.id);
+        await updateNote({ body: values, id: noteData.id }).unwrap();
         handleOpenModal();
       } catch (error) {
         console.error(error);
@@ -130,9 +139,9 @@ const NewNote = () => {
                 alignSelf: "end",
               }}
               type="submit"
-              disabled={isFetchingParticipants || isCreatingNote}
+              disabled={isFetchingParticipants || isUpdatingNote}
             >
-              {isCreatingNote ? "Loading" : "Save & Share"}
+              {isUpdatingNote ? "Loading" : "Save & Share"}
             </Button>
           </Box>
         </Box>
@@ -150,11 +159,11 @@ const NewNote = () => {
         open={openModal}
         handleClose={handleCloseModal}
         // handleSelectedRecipients={handleSelectedRecipients}
-        noteId={noteId ?? null}
+        noteId={parseInt(noteId || "")}
         participants={participants?.data ?? []}
       />
     </Box>
   );
 };
 
-export default NewNote;
+export default EditNote;
