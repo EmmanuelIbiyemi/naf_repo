@@ -3,7 +3,6 @@ import {
   ResultResponse,
   StudentResultResponse,
   ResultTaskResponse,
-  TranscriptResponse,
 } from "../../types/results.ts";
 import { StudentTranscriptResponse } from "../../types/transcript.ts";
 import { appApi } from "./app.api.ts";
@@ -66,7 +65,7 @@ const resultApi = appApi.injectEndpoints({
     }),
 
     // Get Transcript
-    getTranscript: builder.query<TranscriptResponse, number>({
+    getStudentTranscript: builder.query<StudentTranscriptResponse, number>({
       query: (participant_id) => ({
         url: `/result/transcript`,
         params: { participant_id },
@@ -74,12 +73,11 @@ const resultApi = appApi.injectEndpoints({
       providesTags: ["Transcripts"],
     }),
 
-    getStudentTranscript: builder.query<StudentTranscriptResponse, number>({
+    getStudentTranscriptM: builder.mutation<StudentTranscriptResponse, number>({
       query: (participant_id) => ({
         url: `/result/transcript`,
         params: { participant_id },
       }),
-      providesTags: ["Transcripts"],
     }),
 
     // Delete Single Result
@@ -100,7 +98,7 @@ export const {
   useGetResultsQuery,
   useGetResultQuery,
   useStudentResultQuery,
-  useGetTranscriptQuery,
   useGetStudentTranscriptQuery,
+  useGetStudentTranscriptMMutation,
   useDeleteResultMutation,
 } = resultApi;

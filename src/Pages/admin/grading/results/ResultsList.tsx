@@ -6,6 +6,7 @@ import {
   Box,
   Button,
   FormControl,
+  IconButton,
   MenuItem,
   Select,
   SelectChangeEvent,
@@ -26,6 +27,8 @@ import { useGetSemestersQuery } from "../../../../store/api/semesters.api";
 import { selectKeyword, setPageLoading } from "../../../../store/app.slice";
 import { useAppDispatch, useAppSelector } from "../../../../store/hooks";
 import SuccessModal from "../../../../components/SuccessModal";
+import { Download } from "@mui/icons-material";
+import { useGetStudentTranscriptMMutation } from "../../../../store/api/result.api";
 
 const ResultsList = () => {
   const { data: faculties } = useGetFacultiesQuery({
@@ -54,6 +57,7 @@ const ResultsList = () => {
   const keyword = useAppSelector(selectKeyword);
   const [openModal, setOpenModal] = useState(false);
   const dispatch = useAppDispatch();
+  const [getTranscript] = useGetStudentTranscriptMMutation();
 
   useEffect(() => {
     if (keyword && resultState.data?.data)
@@ -145,6 +149,15 @@ const ResultsList = () => {
       }
     }
     setOpenModal(true);
+  };
+
+  // To be updated
+  const downloadTranscript = async (student_id: number) => {
+    try {
+      await getTranscript(student_id).unwrap();
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (
@@ -311,6 +324,9 @@ const ResultsList = () => {
             <TableCell component="th" scope="row">
               Remark
             </TableCell>
+            <TableCell component="th" scope="row" align="center">
+              Transcript
+            </TableCell>
           </TableRow>
         </TableHead>
 
@@ -336,11 +352,7 @@ const ResultsList = () => {
               }}
             >
               <TableCell>{result.participant.matric_number}</TableCell>
-              <TableCell
-                component="th"
-                scope="row"
-                sx={{ alignItems: "center", display: "flex", gap: "1rem" }}
-              >
+              <TableCell>
                 {result.participant.first_name} {result.participant.last_name}
               </TableCell>
               <TableCell>{result.level.name}</TableCell>
@@ -349,6 +361,14 @@ const ResultsList = () => {
                 {result.summary.cumulative_grade_point_average}
               </TableCell>
               <TableCell>{result.details?.[0].score_remark}</TableCell>
+              <TableCell align="center">
+                <IconButton
+                  color="primary"
+                  onClick={() => downloadTranscript(result.participant.id)}
+                >
+                  <Download />
+                </IconButton>
+              </TableCell>
             </TableRow>
           ))}
         </TableBody>
