@@ -3,7 +3,12 @@ import { useEffect, useRef } from "react";
 import { useAppDispatch, useAppSelector } from "../../../store/hooks";
 import { setPageName } from "../../../store/app.slice";
 import InstructorPageHeader from "../../../components/layout/InstructorPageHeader";
-import { BusinessCenter, Inventory } from "@mui/icons-material";
+import {
+  Assignment,
+  BusinessCenter,
+  Groups,
+  Inventory,
+} from "@mui/icons-material";
 import { Link } from "react-router-dom";
 import { selectCurrentUser } from "../../../store/auth.slice";
 
@@ -38,6 +43,7 @@ const Dashboard = () => {
             gap: "1.4rem",
             gridTemplateColumns: "1fr 1fr",
             marginTop: "1rem",
+            alignItems: "stretch",
           }}
         >
           {cards.map((card) => (
@@ -53,6 +59,7 @@ const Dashboard = () => {
                       fontWeight: 300,
                       marginTop: "1rem",
                       maxWidth: "60ch",
+                      flexGrow: 1,
                     }}
                   >
                     {card.description}
@@ -74,6 +81,7 @@ const cardStyles: SxProps = {
   display: "flex",
   gap: "1rem",
   padding: "1rem",
+  height: "100%",
 
   ".icon": {
     bgcolor: "rgba(239, 243, 250, 1)",
@@ -90,23 +98,22 @@ const cards = [
     icon: <Inventory />,
     title: "View Course List",
     description:
-      "Create rich course content and coaching products for your students. When you give them a pricing plan, they’ll appear on your site!",
+      "Access the list of courses assigned to you and manage them efficiently.",
   },
-  // {
-  //   id: 2,
-  //   link: "",
-  //   icon: <Assignment />,
-  //   title: "Manage CBT",
-  //   description:
-  //     "Create rich course content and coaching products for your students. When you give them a pricing plan, they’ll appear on your site!",
-  // },
+  {
+    id: 2,
+    link: "cbt",
+    icon: <Assignment />,
+    title: "Manage CBT",
+    description:
+      "Create and oversee computer-based tests for the courses assigned to you",
+  },
   {
     id: 3,
     link: "classes",
     icon: <BusinessCenter />,
     title: "Schedule Live Classes",
-    description:
-      "Create rich course content and coaching products for your students. When you give them a pricing plan, they’ll appear on your site!",
+    description: "Plan and schedule live classes for your assigned courses.",
   },
   {
     id: 4,
@@ -114,16 +121,16 @@ const cards = [
     icon: <Inventory />,
     title: "Record Scores",
     description:
-      "Create rich course content and coaching products for your students. When you give them a pricing plan, they’ll appear on your site!",
+      "Easily track and record offline scores, ensuring accurate performance monitoring even outside of online sessions.",
   },
-  // {
-  //   id: 5,
-  //   link: "",
-  //   icon: <Groups />,
-  //   title: "Notes and Resources",
-  //   description:
-  //     "Create rich course content and coaching products for your students. When you give them a pricing plan, they’ll appear on your site!",
-  // },
+  {
+    id: 5,
+    link: "notes",
+    icon: <Groups />,
+    title: "Notes and Resources",
+    description:
+      "Provide downloadable notes and resources to support your courses, giving students easy access to essential learning materials.",
+  },
 ];
 
 export default Dashboard;

@@ -1,4 +1,4 @@
-import { Box, Button, LinearProgress } from "@mui/material";
+import { Box, Button } from "@mui/material";
 import { useRef, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import CustomMarkdownEditor from "../../../../components/layout/CustomMarkdownEditor";
@@ -8,7 +8,7 @@ import { useUpdateNoteMutation } from "../../../../store/api/notes.api";
 import { note, noteInput } from "../../../../types/notes";
 import { useGetCourseParticipantsQuery } from "../../../../store/api/participants.api";
 import { useAddMediaMutation } from "../../../../store/api/media.api";
-import ShareWithList from "../../../../components/ShareWithList";
+import SuccessModal from "../../../../components/SuccessModal";
 
 type noteProps = {
   noteData: note;
@@ -20,7 +20,7 @@ const EditNote = () => {
   const location = useLocation();
   const [openModal, setOpenModal] = useState(false);
   const handleOpenModal = () => setOpenModal(true);
-  const handleCloseModal = () => setOpenModal(false);
+  // const handleCloseModal = () => setOpenModal(false);
 
   const { noteData } = location.state as noteProps;
 
@@ -28,18 +28,17 @@ const EditNote = () => {
     .filter((media) => media.id)
     .map((media) => ({ id: media.id }));
 
-  const { courseId, noteId } = useParams();
+  const { courseId } = useParams();
 
   // const courseId = locationData[locationData.length - 3];
 
   const [updateNote, { isLoading: isUpdatingNote }] = useUpdateNoteMutation();
   const [uploadFile, { isLoading: isUploadingFile }] = useAddMediaMutation();
 
-  const { data: participants, isLoading: isFetchingParticipants } =
-    useGetCourseParticipantsQuery(
-      { course_id: parseInt(courseId || "") },
-      { skip: !courseId || isNaN(parseInt(courseId)) }
-    );
+  useGetCourseParticipantsQuery(
+    { course_id: parseInt(courseId || "") },
+    { skip: !courseId || isNaN(parseInt(courseId)) }
+  );
   const formik = useFormik<noteInput>({
     initialValues: {
       title: noteData.title || "",
@@ -83,7 +82,6 @@ const EditNote = () => {
 
   return (
     <Box ref={containerRef} className="content-container">
-      {isFetchingParticipants && <LinearProgress />}
       <Box
         sx={{
           bgcolor: "#fff",
@@ -139,7 +137,7 @@ const EditNote = () => {
                 alignSelf: "end",
               }}
               type="submit"
-              disabled={isFetchingParticipants || isUpdatingNote}
+              disabled={isUpdatingNote}
             >
               {isUpdatingNote ? "Loading" : "Save & Share"}
             </Button>
@@ -155,12 +153,12 @@ const EditNote = () => {
           />
         </Box>
       </Box>
-      <ShareWithList
+      <SuccessModal
+        close={() => navigate(-1)}
+        infoText=""
         open={openModal}
-        handleClose={handleCloseModal}
-        // handleSelectedRecipients={handleSelectedRecipients}
-        noteId={parseInt(noteId || "")}
-        participants={participants?.data ?? []}
+        subTitle={`You have successfully edited your note.`}
+        title="Successful"
       />
     </Box>
   );

@@ -128,6 +128,7 @@ const CBTsPage = () => {
         button={{
           action: () => handleOpenModal("add"),
           text: "Add Quiz",
+          disabled: !selectedCourseId,
         }}
       />
 
