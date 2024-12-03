@@ -20,7 +20,7 @@ const CBTForm = ({ actions, courseId }: Props) => {
     // obtainable_score: 100,
     start_date: "",
     expiry_date: "",
-    type: "graded",
+    // type: "graded",
     show_result: false,
     instructions: "",
     time_allowed: 30,
@@ -29,7 +29,7 @@ const CBTForm = ({ actions, courseId }: Props) => {
 
   const validationSchema = Yup.object().shape({
     name: Yup.string().required("Name is required"),
-    type: Yup.string().required("Type date is required"),
+    // type: Yup.string().required("Type date is required"),
     instructions: Yup.string().required("Instructions date is required"),
     start_date: Yup.string().required("Start date is required"),
     expiry_date: Yup.string().required("Expiry date is required"),

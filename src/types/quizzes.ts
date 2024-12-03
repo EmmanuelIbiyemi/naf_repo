@@ -136,7 +136,7 @@ export interface CreateQuiz {
   start_date: string;
   expiry_date: string;
   obtainable_score?: number;
-  type: string;
+  type?: string;
   show_result: boolean;
   course_id?: number;
 }
