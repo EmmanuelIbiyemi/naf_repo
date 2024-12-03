@@ -86,6 +86,7 @@ const StudentsList = () => {
   return (
     <TableContainer>
       <StudentSidebar
+        open={openModal.sidebar}
         student={selectedStudent}
         toggleDrawer={() => handleCloseModal("sidebar")}
       />
@@ -127,22 +128,23 @@ const StudentsList = () => {
         title="Updates Successful"
       />
 
+      {isError ? (
+        <EmptyState
+          title="Could not fetch Students"
+          subTitle="Check your internet connection"
+        />
+      ) : null}
+      {!students?.length ? (
+        <EmptyState
+          title="No Students found"
+          subTitle="Students will appear here after you add them in your school."
+        />
+      ) : null}
+
       {stds?.data.length ? (
         <>
           <Table sx={{ minWidth: 650 }}>
             <TableBody>
-              {isError ? (
-                <EmptyState
-                  title="Could not fetch Students"
-                  subTitle="Check your internet connection"
-                />
-              ) : null}
-              {!students?.length ? (
-                <EmptyState
-                  title="No Students found"
-                  subTitle="Students will appear here after you add them in your school."
-                />
-              ) : null}
               {students?.map((student: StudentType) => (
                 <TableRow
                   key={student.id}
@@ -155,10 +157,12 @@ const StudentsList = () => {
                   >
                     <Checkbox />
                     <Typography
-                      sx={{
-                        fontWeight: "500 !important",
+                      style={{
+                        cursor: "pointer",
+                        fontWeight: 500,
                         textTransform: "capitalize",
                       }}
+                      onClick={() => handleOpenModal(student, "sidebar")}
                     >
                       {student.first_name}
                     </Typography>

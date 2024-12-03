@@ -86,6 +86,7 @@ const AdminsList = () => {
   return (
     <TableContainer>
       <AdminSidebar
+        open={openModal.sidebar}
         admin={selectedAdmin}
         toggleDrawer={() => handleCloseModal("sidebar")}
       />
@@ -127,22 +128,23 @@ const AdminsList = () => {
         title="Updates Successful"
       />
 
+      {isError ? (
+        <EmptyState
+          title="Could not fetch Lecturers"
+          subTitle="Check your internet connection"
+        />
+      ) : null}
+      {!admins?.length ? (
+        <EmptyState
+          title="No Lecturers found"
+          subTitle="Lecturers will appear here after you add them in your school."
+        />
+      ) : null}
+
       {adminsData?.data.length ? (
         <>
           <Table sx={{ minWidth: 650 }}>
             <TableBody>
-              {isError ? (
-                <EmptyState
-                  title="Could not fetch Lecturers"
-                  subTitle="Check your internet connection"
-                />
-              ) : null}
-              {!admins?.length ? (
-                <EmptyState
-                  title="No Lecturers found"
-                  subTitle="Lecturers will appear here after you add them in your school."
-                />
-              ) : null}
               {admins?.map((admin: Admin) => (
                 <TableRow
                   key={admin.id}
@@ -155,7 +157,12 @@ const AdminsList = () => {
                   >
                     <Checkbox />
                     <Typography
-                      style={{ textTransform: "capitalize", fontWeight: 500 }}
+                      style={{
+                        cursor: "pointer",
+                        fontWeight: 500,
+                        textTransform: "capitalize",
+                      }}
+                      onClick={() => handleOpenModal(admin, "sidebar")}
                     >
                       {admin.first_name} {admin.last_name}
                     </Typography>
@@ -180,7 +187,10 @@ const AdminsList = () => {
             )}
             page={adminsData?.pagination.page}
             handleChangePage={(_, page) => {
-              setPagination({ per_page: adminsData?.pagination.per_page, page });
+              setPagination({
+                per_page: adminsData?.pagination.per_page,
+                page,
+              });
             }}
             startIndex={
               adminsData?.pagination.per_page *

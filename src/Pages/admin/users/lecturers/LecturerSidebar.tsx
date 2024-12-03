@@ -11,13 +11,14 @@ import formStyles from "../../../../components/form/form.module.scss";
 import { Lecturer } from "../../../../types/lecturers";
 
 type Props = {
+  open: boolean;
   lecturer: Lecturer | undefined;
   toggleDrawer: () => void;
 };
 
-const LecturerSidebar = ({ lecturer, toggleDrawer }: Props) => {
+const LecturerSidebar = ({ open, lecturer, toggleDrawer }: Props) => {
   return (
-    <Drawer open={Boolean(lecturer)} onClose={toggleDrawer} anchor="right">
+    <Drawer open={open} onClose={toggleDrawer} anchor="right">
       <Box sx={sideBarStyles}>
         <Box>
           <Typography variant="h5">Preview Infomation</Typography>
@@ -117,7 +118,7 @@ const infoSectionStyles: SxProps = {
     padding: ".4rem 1rem",
     gap: "1rem",
 
-    "span:nth-child(2)": {
+    "span:nth-of-type(2)": {
       textAlign: "right",
     },
   },

@@ -11,13 +11,14 @@ import formStyles from "../../../../components/form/form.module.scss";
 import { StudentType } from "../../../../types/students";
 
 type Props = {
+  open: boolean;
   student: StudentType | undefined;
   toggleDrawer: () => void;
 };
 
-const StudentSidebar = ({ student, toggleDrawer }: Props) => {
+const StudentSidebar = ({ open, student, toggleDrawer }: Props) => {
   return (
-    <Drawer open={Boolean(student)} onClose={toggleDrawer} anchor="right">
+    <Drawer open={open} onClose={toggleDrawer} anchor="right">
       <Box sx={sideBarStyles}>
         <Box>
           <Typography variant="h5">Preview Infomation</Typography>
@@ -100,7 +101,7 @@ const StudentSidebar = ({ student, toggleDrawer }: Props) => {
               <span>No level found</span>
             )}
           </Typography>
-          <Typography>
+          <Typography sx={{ textAlign: "end" }}>
             <span>Courses</span>
             {student?.courses.length ? (
               <span>{student?.courses.map((crs) => crs.name).join(", ")}</span>
@@ -143,7 +144,7 @@ const infoSectionStyles: SxProps = {
     padding: ".4rem 1rem",
     gap: "1rem",
 
-    "span:nth-child(2)": {
+    "span:nth-of-type(2)": {
       textAlign: "right",
     },
   },

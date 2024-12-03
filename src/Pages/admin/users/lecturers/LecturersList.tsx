@@ -86,6 +86,7 @@ const LecturersList = () => {
   return (
     <TableContainer>
       <LecturerSidebar
+        open={openModal.sidebar}
         lecturer={selectedLecturer}
         toggleDrawer={() => handleCloseModal("sidebar")}
       />
@@ -127,22 +128,23 @@ const LecturersList = () => {
         title="Updates Successful"
       />
 
+      {isError ? (
+        <EmptyState
+          title="Could not fetch Lecturers"
+          subTitle="Check your internet connection"
+        />
+      ) : null}
+      {!lecturers?.length ? (
+        <EmptyState
+          title="No Lecturers found"
+          subTitle="Lecturers will appear here after you add them in your school."
+        />
+      ) : null}
+
       {ltcs?.data.length ? (
         <>
           <Table sx={{ minWidth: 650 }}>
             <TableBody>
-              {isError ? (
-                <EmptyState
-                  title="Could not fetch Lecturers"
-                  subTitle="Check your internet connection"
-                />
-              ) : null}
-              {!lecturers?.length ? (
-                <EmptyState
-                  title="No Lecturers found"
-                  subTitle="Lecturers will appear here after you add them in your school."
-                />
-              ) : null}
               {lecturers?.map((lecturer: Lecturer) => (
                 <TableRow
                   key={lecturer.id}
@@ -155,7 +157,12 @@ const LecturersList = () => {
                   >
                     <Checkbox />
                     <Typography
-                      style={{ textTransform: "capitalize", fontWeight: 500 }}
+                      style={{
+                        cursor: "pointer",
+                        fontWeight: 500,
+                        textTransform: "capitalize",
+                      }}
+                      onClick={() => handleOpenModal(lecturer, "sidebar")}
                     >
                       {lecturer.first_name} {lecturer.last_name}
                     </Typography>
