@@ -10,6 +10,7 @@ import { useEffect } from "react";
 type ButtonType = {
   text: string;
   action: () => void;
+  disabled?: boolean;
 };
 
 type Props = {
@@ -101,6 +102,7 @@ const PageHeader = ({ button, secondaryButton, tertiaryButton }: Props) => {
             onClick={button.action}
             variant="contained"
             sx={{ textTransform: "capitalize" }}
+            disabled={button.disabled}
           >
             {button.text}
           </Button>
