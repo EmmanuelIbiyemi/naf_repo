@@ -1,5 +1,13 @@
-import { Box, Button, SxProps, TextField, Typography } from "@mui/material";
-import { ChangeEvent, useCallback, useEffect, useState } from "react";
+import {
+  Box,
+  Button,
+  Dialog,
+  IconButton,
+  SxProps,
+  TextField,
+  Typography,
+} from "@mui/material";
+import { useCallback, useEffect, useState } from "react";
 import PageBuilder from "./components/DynamicPostBuilder";
 import { useNavigate, useParams } from "react-router-dom";
 import {
@@ -8,13 +16,14 @@ import {
   useUpdatePostMutation,
 } from "../../../store/api/posts.api";
 import { PostType, PostCreateType } from "../../../types/posts";
+import MediaLibraryModal from "../media/MediaLibraryModal";
 import { postElements } from "./elements/post-elements";
-import { BlockType } from "../../../types/blocks";
+import { BlockType, MediaType } from "../../../types/blocks";
 import LoadingScreen from "../../../components/LoadingScreen";
-import { useAddMediaMutation } from "../../../store/api/media.api";
 import { pageElements } from "./elements/page-elements";
 import { navElements } from "./elements/navigation-elements";
 import { footerElements } from "./elements/footer-elements";
+import { Close } from "@mui/icons-material";
 
 const PostPage = () => {
   const { resource_type, post_id } = useParams();
@@ -23,8 +32,11 @@ const PostPage = () => {
   const [addPost] = useAddPostMutation();
   const [updatePost, updateState] = useUpdatePostMutation();
   const [post, setPost] = useState<PostType | null>(null);
-  const [imageUrl, setImageUrl] = useState("");
-  const [addMedia] = useAddMediaMutation();
+  const [media, setMedia] = useState({
+    url: "",
+    type: "image",
+    modal: false,
+  });
 
   const addBlock = useCallback((type: string) => {
     setPost((prev) => {
@@ -59,7 +71,7 @@ const PostPage = () => {
     const payload: PostCreateType = {
       ...post,
       blocks: post?.blocks || [],
-      featured_image: imageUrl,
+      featured_image: media.url,
       categories: categories,
       tags: categories,
     };
@@ -82,20 +94,6 @@ const PostPage = () => {
     navigate(`/settings/posttype/${resource_type}`);
   }, [navigate]);
 
-  const handleImageChange = async (ev: ChangeEvent<HTMLInputElement>) => {
-    console.log(ev.target.files);
-    if (ev.target.files) {
-      const form = new FormData();
-      form.append("file", ev.target.files[0]);
-      try {
-        const featImage = await addMedia(form).unwrap();
-        setImageUrl(featImage.media[0].url);
-      } catch (error) {
-        console.log(error);
-      }
-    }
-  };
-
   const getSidebar = () => {
     const sidebars = {
       page: pageElements,
@@ -108,6 +106,17 @@ const PostPage = () => {
     return sidebars.posts;
   };
 
+  const handleOpenModal = (type: string) => {
+    setMedia((prev) => ({ ...prev, modal: true, mediaType: type }));
+  };
+  const handleCloseModal = () =>
+    setMedia((prev) => ({ ...prev, modal: false }));
+
+  const handleSelectFeaturedImage = (media: MediaType) => {
+    setMedia((prev) => ({ ...prev, url: media.url }));
+    handleCloseModal();
+  };
+
   useEffect(() => {
     if (post_id && !post?.id) {
       getPost(+post_id).then((res) => {
@@ -118,12 +127,37 @@ const PostPage = () => {
         if (res.data?.post) setPost(res.data.post);
       });
     }
-  }, [post_id, post?.id, imageUrl]);
+  }, [post_id, post?.id, media]);
 
   if (!resource_type) navigate(-1);
 
   return (
     <Box sx={contentStyles}>
+      <Dialog
+        open={media.modal}
+        onClose={handleCloseModal}
+        scroll="body"
+        sx={{
+          ".MuiPaper-root": { maxWidth: "100% !important" },
+        }}
+      >
+        <Box
+          sx={{
+            bgcolor: "#fff",
+            width: "min(100vw, 1000px)",
+          }}
+        >
+          <Box sx={{ padding: "1rem 1rem 0 0", textAlign: "end" }}>
+            <IconButton>
+              <Close />
+            </IconButton>
+          </Box>
+          <MediaLibraryModal
+            selectMedia={handleSelectFeaturedImage}
+            mediaType={media.type}
+          />
+        </Box>
+      </Dialog>
       {updateState.isLoading || postState.isLoading ? <LoadingScreen /> : null}
       <Box sx={{ paddingBottom: "2rem" }}>
         <Box sx={headerStyles}>
@@ -154,28 +188,43 @@ const PostPage = () => {
           />
           {post?.categories?.find((cat) => cat.name == "posts") ? (
             <>
-              <label htmlFor="">Featured Image</label>
-              <Box>
-                {post?.featured_image ? (
-                  <Box
-                    className="has_bg_image"
-                    sx={{
-                      height: "130px",
-                      borderRadius: "var(--border-radius)",
-                      overflow: "hidden",
-                    }}
-                  >
-                    <img src={post.featured_image} alt="" className="bg" />
-                  </Box>
-                ) : null}
-                <TextField
-                  id="featured_image_selector"
+              <Box
+                sx={{
+                  alignItems: "center",
+                  display: "flex",
+                  justifyContent: "space-between",
+                }}
+              >
+                <label htmlFor="">Featured Image</label>
+
+                <Button
                   variant="outlined"
-                  type="file"
-                  onChange={handleImageChange}
-                  fullWidth
-                  hidden={Boolean(!post?.featured_image)}
-                />
+                  onClick={() => handleOpenModal("featured")}
+                >
+                  Choose Featured Image
+                </Button>
+              </Box>
+              <Box
+                className="has_bg_image"
+                sx={{
+                  height: "150px",
+                  borderRadius: "var(--border-radius)",
+                  overflow: "hidden",
+                }}
+              >
+                {media.url || post.featured_image ? (
+                  <img
+                    src={media.url || post.featured_image}
+                    alt=""
+                    className="bg"
+                  />
+                ) : (
+                  <img
+                    src="https://fakeimg.pl/600x200?text=No+Featured+Image"
+                    alt=""
+                    className="bg"
+                  />
+                )}
               </Box>
             </>
           ) : null}

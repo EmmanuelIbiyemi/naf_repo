@@ -50,7 +50,6 @@ const ApplicantsPage = lazy(
 );
 const AdminSettingsPage = lazy(() => import("./Pages/admin/settings/Settings"));
 const MediaLibrary = lazy(() => import("./Pages/admin/media/MediaLibrary"));
-const Page = lazy(() => import("./Pages/admin/pages/Page"));
 const ResultsPage = lazy(() => import("./Pages/admin/grading/results/Results"));
 const PostTypeItemsPage = lazy(
   () => import("./Pages/admin/pages/components/PostItemList")
@@ -212,7 +211,6 @@ export const router = createBrowserRouter([
           { path: "", element: <AdminsPage /> },
           { path: "lecturers", element: <LecturersPage /> },
           { path: "students", element: <StudentsPage /> },
-          { path: "page/:name", element: <Page /> },
         ],
       },
       {
@@ -221,7 +219,6 @@ export const router = createBrowserRouter([
         children: [
           { path: "", element: <DeptFeesPage /> },
           { path: "discount", element: <DiscountFeesPage /> },
-          { path: "page/:name", element: <Page /> },
         ],
       },
       {
@@ -230,7 +227,6 @@ export const router = createBrowserRouter([
         children: [
           { path: "", element: <GradesPage /> },
           { path: "scores", element: <ScoresPage /> },
-          { path: "page/:name", element: <Page /> },
           { path: "results", element: <ResultsPage /> },
         ],
       },
