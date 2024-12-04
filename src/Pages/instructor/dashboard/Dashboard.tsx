@@ -98,7 +98,7 @@ const cards = [
     icon: <Inventory />,
     title: "View Course List",
     description:
-      "Access the list of courses assigned to you and manage them efficiently.",
+      " Browse and manage all available courses. Access detailed course information and edit course content as needed.",
   },
   {
     id: 2,
@@ -113,7 +113,8 @@ const cards = [
     link: "classes",
     icon: <BusinessCenter />,
     title: "Schedule Live Classes",
-    description: "Plan and schedule live classes for your assigned courses.",
+    description:
+      "Plan and schedule live interactive classes for your students. Set dates, times, and topics to enhance their learning experience.",
   },
   {
     id: 4,
@@ -121,7 +122,7 @@ const cards = [
     icon: <Inventory />,
     title: "Record Scores",
     description:
-      "Easily track and record offline scores, ensuring accurate performance monitoring even outside of online sessions.",
+      "Update and manage student performance scores efficiently. Keep track of assessments and grading records for all classes.",
   },
   {
     id: 5,
