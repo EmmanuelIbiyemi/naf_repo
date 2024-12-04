@@ -13,11 +13,21 @@ import { useGetStudentQuery } from "../../../../../store/api/students.api";
 import { useGetUserQuizResultQuery } from "../../../../../store/api/quizzes.api";
 import CustomPagination from "../../../../../components/CustomPagination";
 import { ArrowBack } from "@mui/icons-material";
+import { Question } from "../../../../../types/quizzes";
+import { option } from "../../../../../types/options";
 
-const ViewQuizAnswers = () => {
+interface QuestionDisplay {
+  id: number;
+  question: string;
+  correctAnswer: string | undefined;
+  selectedAnswer: string | undefined;
+  options: string[];
+}
+
+const ViewQuizAnswers: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const [currentPage, setCurrentPage] = useState(1);
+  const [currentPage, setCurrentPage] = useState<number>(1);
 
   const locationData = location.pathname.split("/");
   const quizId = locationData[locationData.length - 5];
@@ -38,20 +48,21 @@ const ViewQuizAnswers = () => {
   const indexOfLastQuestion = currentPage * questionsPerPage;
   const indexOfFirstQuestion = indexOfLastQuestion - questionsPerPage;
 
-  const questions =
+  const questions: QuestionDisplay[] =
     resultData?.data?.quiz?.assessments?.flatMap((assessment) =>
-      assessment.questions.map((question) => {
+      assessment.questions.map((question: Question) => {
         const answer = resultData?.data?.answers.find(
           (ans) => ans.question_id === question.id
         );
         return {
           id: question.id,
           question: question.body,
-          correctAnswer: question.options.find((opt) => opt.is_answer)?.body,
+          correctAnswer: question.options.find((opt: option) => opt.is_answer)
+            ?.body,
           selectedAnswer: question.options.find(
-            (opt) => opt.id === answer?.option_id
+            (opt: option) => opt.id === answer?.option_id
           )?.body,
-          options: question.options.map((opt) => opt.body),
+          options: question.options.map((opt: option) => opt.body),
         };
       })
     ) || [];
@@ -68,8 +79,7 @@ const ViewQuizAnswers = () => {
     setCurrentPage(page);
   };
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const getOptionStyle = (question: any, option: string) => {
+  const getOptionStyle = (question: QuestionDisplay, option: string) => {
     const isSelected = option === question.selectedAnswer;
     const isCorrect = option === question.correctAnswer;
 
@@ -165,10 +175,10 @@ const ViewQuizAnswers = () => {
                       variant="outlined"
                       value={option}
                       size="small"
-                      sx={
-                        (getOptionStyle(question, option),
-                        { borderRadius: "10px" })
-                      }
+                      sx={{
+                        ...getOptionStyle(question, option),
+                        borderRadius: "10px",
+                      }}
                     />
                   </Grid2>
                 ))}
