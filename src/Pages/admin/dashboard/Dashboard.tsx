@@ -108,7 +108,7 @@ const cards = [
     icon: <Add />,
     title: "Add other admins",
     description:
-      "Create rich course content and coaching products for your students. When you give them a pricing plan, they’ll appear on your site!",
+      "Assign and manage additional administrators to oversee and maintain system operations effectively.",
     link: "/users",
   },
   {
@@ -116,7 +116,7 @@ const cards = [
     icon: <Assignment />,
     title: "Manage Courses",
     description:
-      "Create rich course content and coaching products for your students. When you give them a pricing plan, they’ll appear on your site!",
+      "Create, update, and organize courses for seamless learning. Ensure all content is up-to-date and accessible.",
     link: "/academics",
   },
   {
@@ -124,7 +124,7 @@ const cards = [
     icon: <BusinessCenter />,
     title: "Add Instructors",
     description:
-      "Create rich course content and coaching products for your students. When you give them a pricing plan, they’ll appear on your site!",
+      "Add new instructors to the platform and assign them to specific courses or roles as needed.",
     link: "/instructors",
   },
   {
@@ -132,7 +132,7 @@ const cards = [
     icon: <Inventory />,
     title: "View Applications",
     description:
-      "Create rich course content and coaching products for your students. When you give them a pricing plan, they’ll appear on your site!",
+      "Review and process applications submitted by students or instructors. Approve or reject applications with ease.",
     link: "/applicants",
   },
   {
@@ -140,7 +140,7 @@ const cards = [
     icon: <Groups />,
     title: "Add Students",
     description:
-      "Create rich course content and coaching products for your students. When you give them a pricing plan, they’ll appear on your site!",
+      "Enroll students into the system, assign them to courses, and ensure they have access to the resources they need.",
     link: "/users/students",
   },
 ];

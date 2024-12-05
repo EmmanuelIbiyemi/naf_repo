@@ -13,6 +13,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import {
   useAddPostMutation,
   useGetPostMMutation,
+  useGetPostQuery,
   useUpdatePostMutation,
 } from "../../../store/api/posts.api";
 import { PostType, PostCreateType } from "../../../types/posts";
@@ -24,11 +25,17 @@ import { pageElements } from "./elements/page-elements";
 import { navElements } from "./elements/navigation-elements";
 import { footerElements } from "./elements/footer-elements";
 import { Close } from "@mui/icons-material";
+import { setPageLoading } from "../../../store/app.slice";
+import { useAppDispatch } from "../../../store/hooks";
 
 const PostPage = () => {
   const { resource_type, post_id } = useParams();
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
   const [getPost, postState] = useGetPostMMutation();
+  const { data: postt, isFetching } = useGetPostQuery(+(post_id || 0), {
+    skip: !post_id,
+  });
   const [addPost] = useAddPostMutation();
   const [updatePost, updateState] = useUpdatePostMutation();
   const [post, setPost] = useState<PostType | null>(null);
@@ -118,16 +125,13 @@ const PostPage = () => {
   };
 
   useEffect(() => {
-    if (post_id && !post?.id) {
-      getPost(+post_id).then((res) => {
-        if (res.data?.post) setPost(res.data?.post);
-      });
-    } else if (post?.id && !post_id) {
-      getPost(post?.id).then((res) => {
-        if (res.data?.post) setPost(res.data.post);
-      });
-    }
-  }, [post_id, post?.id, media]);
+    if (postt?.post) setPost(postt.post);
+  }, [postt]);
+
+  useEffect(() => {
+    if (isFetching) dispatch(setPageLoading(true));
+    else dispatch(setPageLoading(false));
+  }, [isFetching]);
 
   if (!resource_type) navigate(-1);
 
@@ -148,11 +152,12 @@ const PostPage = () => {
           }}
         >
           <Box sx={{ padding: "1rem 1rem 0 0", textAlign: "end" }}>
-            <IconButton>
+            <IconButton onClick={handleCloseModal}>
               <Close />
             </IconButton>
           </Box>
           <MediaLibraryModal
+            key="modal-1"
             selectMedia={handleSelectFeaturedImage}
             mediaType={media.type}
           />

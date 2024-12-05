@@ -1,5 +1,6 @@
 import {
   Box,
+  Dialog,
   FormControl,
   IconButton,
   MenuItem,
@@ -9,115 +10,27 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import { BlockType, MediaCreateType } from "../../../../types/blocks";
+import { BlockType } from "../../../../types/blocks";
+import { Close, CloudUploadOutlined } from "@mui/icons-material";
+import { ChangeEvent, useState } from "react";
+import { PostCreateType, PostType } from "../../../../types/posts";
 import {
-  ArrowDownward,
-  ArrowUpward,
-  CloudUploadOutlined,
-} from "@mui/icons-material";
-import { ChangeEvent, MouseEvent, useCallback } from "react";
-import DeleteIcon from "../../../../assets/deleteIcon";
-import { PostType } from "../../../../types/posts";
-import {
-  useDeletePostBlockMutation,
   useGetPostByCategoryQuery,
+  useUpdatePostMutation,
 } from "../../../../store/api/posts.api";
-import { useAppDispatch } from "../../../../store/hooks";
-import { setBuilderLoading } from "../../../../store/app.slice";
-import { useAddMediaMutation } from "../../../../store/api/media.api";
+import MediaLibraryModal from "../../media/MediaLibraryModal";
 import { MediaType } from "../../../../types/media";
+import { ActionButtons } from "./ActionButtons";
 
 const capitalizeText = (text: string) => {
   const allTexts = text.split(" ");
   return allTexts.map((t) => t[0].toUpperCase() + t.substring(1)).join(" ");
 };
 
-type ActionProp = {
-  block: BlockType;
-  setPage: React.Dispatch<React.SetStateAction<PostType>>;
-};
-
-const ActionButtons = ({ block, setPage }: ActionProp) => {
-  const dispatch = useAppDispatch();
-  const [deleteBlock] = useDeletePostBlockMutation();
-
-  const handleMoveUp = (currentPos: number) => {
-    if (currentPos <= 1) return; // Can't move up if already at top
-
-    setPage((prev) => {
-      const newBlocks = [...prev.blocks];
-
-      const currentIndex = currentPos - 1; // Convert position to zero-based index
-      if (newBlocks[currentIndex] && newBlocks[currentIndex - 1]) {
-        // Swap blocks
-        [newBlocks[currentIndex], newBlocks[currentIndex - 1]] = [
-          newBlocks[currentIndex - 1],
-          newBlocks[currentIndex],
-        ];
-
-        // Update positions accurately for all blocks
-        const updatedBlocks = newBlocks.map((block, index) => ({
-          ...block,
-          position: index + 1,
-        }));
-
-        return { ...prev, blocks: updatedBlocks };
-      }
-      return prev;
-    });
-  };
-
-  const handleMoveDown = (currentPos: number) => {
-    setPage((prev) => {
-      const newBlocks = [...prev.blocks];
-
-      const currentIndex = currentPos - 1;
-      if (newBlocks[currentIndex] && newBlocks[currentIndex + 1]) {
-        // Swap blocks
-        [newBlocks[currentIndex], newBlocks[currentIndex + 1]] = [
-          newBlocks[currentIndex + 1],
-          newBlocks[currentIndex],
-        ];
-
-        // Update positions accurately for all blocks
-        const updatedBlocks = newBlocks.map((block, index) => ({
-          ...block,
-          position: index + 1,
-        }));
-
-        return { ...prev, blocks: updatedBlocks };
-      }
-      return prev;
-    });
-  };
-
-  const handleDelete = async (block_id: number) => {
-    dispatch(setBuilderLoading(true));
-    try {
-      await deleteBlock(block_id).unwrap();
-    } catch (error) {
-      console.log(error);
-    }
-    setPage((prev) => ({
-      ...prev,
-      blocks: prev.blocks.filter((block) => block.id !== block_id),
-    }));
-    dispatch(setBuilderLoading(false));
-  };
-
-  return (
-    <Box sx={{ display: "flex", gap: ".3rem" }}>
-      <IconButton onClick={() => handleMoveUp(block.position)}>
-        <ArrowUpward />
-      </IconButton>
-      <IconButton onClick={() => handleMoveDown(block.position)}>
-        <ArrowDownward />
-      </IconButton>
-      <IconButton onClick={() => handleDelete(block.id)} className="delete_btn">
-        <DeleteIcon />
-      </IconButton>
-    </Box>
-  );
+type Media = {
+  media: MediaType | null;
+  type: string;
+  modal: boolean;
 };
 
 type Props = {
@@ -126,11 +39,18 @@ type Props = {
 };
 
 const PageBuilder = ({ page, setPage }: Props) => {
-  const [uploadMedia] = useAddMediaMutation();
   const { data: pages } = useGetPostByCategoryQuery({
     tag: "page",
+    page: 1,
     per_page: 1000,
   });
+  const [activeBlock, setActiveBlock] = useState<BlockType>();
+  const [media, setMediaData] = useState<Media>({
+    media: null,
+    type: "image",
+    modal: false,
+  });
+  const [updatePost] = useUpdatePostMutation();
 
   const pagesElements =
     pages?.post.map((page) => (
@@ -143,62 +63,20 @@ const PageBuilder = ({ page, setPage }: Props) => {
     <MenuItem value={"apply"}>Apply</MenuItem>
   );
 
-  const handleOpenFileSelect = (event: MouseEvent<HTMLDivElement>) => {
-    const target = event.currentTarget as HTMLDivElement;
-    target.querySelector("input")?.click();
+  const updateBlock = (newBlock: BlockType) => {
+    setPage((prev) => {
+      if (!prev) return prev;
+
+      const updatedBlocks = prev.blocks.map((block) =>
+        block.id === newBlock.id ? newBlock : block
+      );
+
+      return {
+        ...prev,
+        blocks: updatedBlocks,
+      };
+    });
   };
-
-  const handleSelectImage = async (
-    event: ChangeEvent<HTMLInputElement>,
-    blockId: number
-  ) => {
-    const target = event.target;
-
-    if (target.files) {
-      try {
-        const form = new FormData();
-        const files = target.files;
-        for (let i = 0; i < files.length; i++) {
-          form.append("file", files[i]);
-        }
-
-        const response = await uploadMedia(form).unwrap();
-        const blocks = page.blocks.map((b) => {
-          if (b.id === blockId)
-            return {
-              ...b,
-              media: response.media.map((m) => ({ id: m.id })),
-            };
-          return b;
-        });
-
-        setPage((prev) => ({
-          ...prev,
-          blocks,
-        }));
-      } catch (error) {
-        console.log(error);
-      }
-    }
-  };
-
-  const updateBlock = useCallback(
-    (newBlock: BlockType) => {
-      setPage((prev) => {
-        if (!prev) return prev;
-
-        const updatedBlocks = prev.blocks.map((block) =>
-          block.id === newBlock.id ? newBlock : block
-        );
-
-        return {
-          ...prev,
-          blocks: updatedBlocks,
-        };
-      });
-    },
-    [page]
-  );
 
   const handleChange = (
     e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
@@ -269,34 +147,6 @@ const PageBuilder = ({ page, setPage }: Props) => {
     }
   };
 
-  const handleImageChange = async (ev: ChangeEvent<HTMLInputElement>) => {
-    const { target } = ev;
-    const id = +target.id.split("-")[1];
-
-    if (target.files && target.files[0]) {
-      try {
-        const form = new FormData();
-        form.append("file", target.files[0]);
-        const response = await uploadMedia(form).unwrap();
-
-        setPage((prev) => {
-          const blocks = prev.blocks.map((b) => {
-            if (b.id == id) {
-              const media = b?.media ? [...b.media] : b.media;
-              b = { ...b, media };
-              b.media = [{ id: response.media[0].id } as MediaCreateType];
-              console.log(b.media);
-            }
-            return b;
-          });
-          return { ...prev, blocks };
-        });
-      } catch (error) {
-        console.log(error);
-      }
-    }
-  };
-
   const displayEl = (element: BlockType) => {
     let el;
     const content = element.content?.split("::");
@@ -341,13 +191,13 @@ const PageBuilder = ({ page, setPage }: Props) => {
                 onBlur={(e) => handleChange(e, "buttonText", element.id)}
               />
               <label htmlFor={`upload-${element.id}`}>
-                <input
+                {/* <input
                   id={`upload-${element.id}`}
                   type="file"
                   accept="image/*,video/*"
                   style={{ display: "none" }}
                   onChange={handleImageChange}
-                />
+                /> */}
                 <Typography
                   sx={{
                     border: "1px solid rgba(0, 0, 0, 0.25)",
@@ -409,13 +259,13 @@ const PageBuilder = ({ page, setPage }: Props) => {
                 onBlur={(e) => handleChange(e, "buttonText", element.id)}
               />
               <label htmlFor={`upload-${element.id}`}>
-                <input
+                {/* <input
                   id={`upload-${element.id}`}
                   type="file"
                   accept="image/*,video/*"
                   style={{ display: "none" }}
                   onChange={handleImageChange}
-                />
+                /> */}
                 <Typography
                   sx={{
                     border: "1px solid rgba(0, 0, 0, 0.25)",
@@ -551,15 +401,8 @@ const PageBuilder = ({ page, setPage }: Props) => {
             <Box
               id={`element-${element.id}`}
               className="image_el dashed_border"
-              onClick={handleOpenFileSelect}
+              onClick={() => handleOpenMediaSelect(element, "image")}
             >
-              <input
-                type="file"
-                multiple
-                hidden
-                accept="image/*"
-                onChange={(e) => handleSelectImage(e, element.id)}
-              />
               {element.media?.length && (element.media[0] as MediaType)?.url ? (
                 <Box
                   className="hide_scrollbar"
@@ -618,15 +461,8 @@ const PageBuilder = ({ page, setPage }: Props) => {
             <Box
               id={`element-${element.id}`}
               className="image_el dashed_border"
-              onClick={handleOpenFileSelect}
+              onClick={() => handleOpenMediaSelect(element, "video")}
             >
-              <input
-                type="file"
-                multiple
-                hidden
-                accept="video/*"
-                onChange={(e) => handleSelectImage(e, element.id)}
-              />
               {element.media?.length && (element.media[0] as MediaType)?.url ? (
                 <Box
                   className="hide_scrollbar"
@@ -960,8 +796,82 @@ const PageBuilder = ({ page, setPage }: Props) => {
     );
   };
 
+  // Temp Placement
+  const handleOpenModal = (type: string) => {
+    setMediaData((prev) => ({ ...prev, modal: true, type }));
+  };
+
+  const handleCloseModal = () =>
+    setMediaData((prev) => ({ ...prev, modal: false }));
+
+  // Mark
+  const handleOpenMediaSelect = (block: BlockType, type: string) => {
+    setActiveBlock(block);
+    handleOpenModal(type);
+  };
+
+  const handleSelectImage = async (media: MediaType, blockId: number) => {
+    if (page) {
+      try {
+        const blocks = page.blocks.map((b) => {
+          if (b.id === blockId)
+            return {
+              ...b,
+              media: [{ id: media.id }],
+            };
+          return b;
+        });
+
+        const payload: PostCreateType = {
+          ...page,
+          blocks: blocks,
+          categories: page.categories?.map((cat) => cat.name),
+          tags: page.tags?.map((cat) => cat.name),
+        };
+
+        await updatePost(payload).unwrap();
+      } catch (error) {
+        console.log(error);
+      }
+      handleCloseModal();
+    }
+  };
+  // Temp
+
   return (
-    <Box sx={formBuilderStyles}>{page.blocks?.map((el) => displayEl(el))}</Box>
+    <>
+      <Dialog
+        open={media.modal}
+        onClose={handleCloseModal}
+        scroll="body"
+        sx={{
+          ".MuiPaper-root": { maxWidth: "100% !important" },
+        }}
+      >
+        <Box
+          sx={{
+            bgcolor: "#fff",
+            width: "min(100vw, 1000px)",
+          }}
+        >
+          <Box sx={{ padding: "1rem 1rem 0 0", textAlign: "end" }}>
+            <IconButton onClick={handleCloseModal}>
+              <Close />
+            </IconButton>
+          </Box>
+          <MediaLibraryModal
+            key="modal-2"
+            selectMedia={(media) =>
+              handleSelectImage(media, activeBlock?.id as number)
+            }
+            mediaType={media.type}
+          />
+        </Box>
+      </Dialog>
+      <Box sx={formBuilderStyles}>
+        {page.blocks?.map((el) => displayEl(el))}
+      </Box>
+    </>
   );
 };
 
