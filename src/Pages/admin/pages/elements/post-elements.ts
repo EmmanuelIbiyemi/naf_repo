@@ -1,4 +1,5 @@
 import {
+  AddLink,
   Height,
   HMobiledata,
   Image,
@@ -11,6 +12,8 @@ export const BLOCK_TYPES = {
   VIDEO: "video",
   HEADING: "heading",
   TEXT: "text",
+  LINK: "link",
+  LINK_URL: "link url",
   BIG_SPACE: "big space",
   SMALL_SPACE: "small space",
 } as const;
@@ -20,6 +23,8 @@ export const postElements = [
   { id: 7, name: "Video", type: BLOCK_TYPES.VIDEO, icon: SmartDisplay },
   { id: 8, name: "Heading", type: BLOCK_TYPES.HEADING, icon: HMobiledata },
   { id: 9, name: "Paragraph", type: BLOCK_TYPES.TEXT, icon: LocalParking },
+  { id: 1, name: "Link", type: BLOCK_TYPES.LINK, icon: AddLink },
+  { id: 1, name: "Link URL", type: BLOCK_TYPES.LINK_URL, icon: AddLink },
   { id: 14, name: "Big space", type: BLOCK_TYPES.BIG_SPACE, icon: Height },
   { id: 15, name: "Small space", type: BLOCK_TYPES.SMALL_SPACE, icon: Height },
 ] as const;

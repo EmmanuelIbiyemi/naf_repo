@@ -481,11 +481,10 @@ const PageBuilder = ({ page, setPage }: Props) => {
                 >
                   {element.media?.map((m) => (
                     <Box className="has_bg_image" key={`media-${m?.id}`}>
-                      <img
-                        className="bg"
-                        src={(m as MediaType).url}
-                        alt={(m as MediaType).name}
-                      />
+                      <video>
+                        <source src={(m as MediaType).url} type="video/mp4" />
+                        Your browser does not support the video tag.
+                      </video>
                     </Box>
                   ))}
                 </Box>
@@ -589,6 +588,42 @@ const PageBuilder = ({ page, setPage }: Props) => {
                 >
                   {pagesElements}
                 </Select>
+              </FormControl>
+            </Box>
+          </Box>
+        );
+        break;
+      case "link url":
+        el = (
+          <Box>
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                marginBottom: ".2rem",
+              }}
+            >
+              <Typography variant="h5" id={`element-${element.id}`}>
+                {capitalizeText(element.type)}
+              </Typography>
+              <ActionButtons block={element} setPage={setPage} />
+            </Box>
+            <Box sx={{ display: "flex", gap: "1rem" }}>
+              <FormControl fullWidth>
+                <label style={{ marginBottom: ".4rem" }}>Name</label>
+                <TextField
+                  label=""
+                  defaultValue={content[0]}
+                  onBlur={(e) => handleLinkChange(e, element.id)}
+                />
+              </FormControl>
+              <FormControl fullWidth>
+                <label style={{ marginBottom: ".4rem" }}>URL</label>
+                <TextField
+                  label=""
+                  defaultValue={content[1]}
+                  onBlur={(e) => handleLinkChange(e, element.id)}
+                />
               </FormControl>
             </Box>
           </Box>
