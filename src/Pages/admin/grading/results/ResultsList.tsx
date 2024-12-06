@@ -33,10 +33,12 @@ import { selectKeyword, setPageLoading } from "../../../../store/app.slice";
 import { useAppDispatch, useAppSelector } from "../../../../store/hooks";
 import SuccessModal from "../../../../components/SuccessModal";
 import { RemoveRedEye } from "@mui/icons-material";
-import { useStudentResultQuery } from "../../../../store/api/result.api";
+import { useGetStudentTranscriptQuery } from "../../../../store/api/result.api";
 import { StudentType } from "../../../../types/students";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
+import { chunk } from "lodash";
+import { StudentTranscriptResponse } from "../../../../types/transcript";
 
 const ResultsList = () => {
   const { data: faculties } = useGetFacultiesQuery({
@@ -74,17 +76,14 @@ const ResultsList = () => {
   const [selectedStudent, setSelectedStudent] = useState<StudentType | null>(
     null
   );
-  const { data: resultData, isLoading: isLoadingResults } =
-    useStudentResultQuery(
-      {
-        participant_id: selectedStudent?.id as number,
-        session: filters.session,
-        semester: filters.semester,
-      },
-      {
-        skip: !selectedStudent,
-      }
-    );
+
+  //
+  const { data: transcriptData } = useGetStudentTranscriptQuery(
+    selectedStudent?.id as number,
+    {
+      skip: !selectedStudent,
+    }
+  );
   //
 
   useEffect(() => {
@@ -112,14 +111,12 @@ const ResultsList = () => {
       programsState.isLoading ||
       levelsState.isLoading ||
       sessionsIsLoading ||
-      semesterIsLoading ||
-      isLoadingResults
+      semesterIsLoading
     )
       dispatch(setPageLoading(true));
     else dispatch(setPageLoading(false));
   }, [
     resultState,
-    resultData,
     generateState,
     departmentsState,
     programsState,
@@ -183,38 +180,54 @@ const ResultsList = () => {
 
   // To be updated
   const handleDownload = async (event: MouseEvent<HTMLButtonElement>) => {
-    // hide button before printing
+    // Hide the button before printing
     (event.target as HTMLButtonElement).style.opacity = "0";
 
     const resultContent = resultContentRef.current;
     if (!resultContent) return;
 
     try {
-      // Use html2canvas to capture the result content
-      const canvas = await html2canvas(resultContent, {
-        useCORS: true,
-        logging: false,
-      });
+      // Find all elements with the className "transcript-page"
+      const pages = resultContent.querySelectorAll(".transcript-page");
+      if (pages.length === 0) {
+        alert("No pages found to generate the PDF.");
+        return;
+      }
 
-      // Convert canvas to PDF
       const pdf = new jsPDF("p", "mm", "a4");
       const imgWidth = 210; // A4 width in mm
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
 
-      // Add image to PDF
-      const imgData = canvas.toDataURL("image/png");
-      pdf.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight);
+      for (let i = 0; i < pages.length; i++) {
+        const page = pages[i];
+
+        // Use html2canvas to capture each page
+        const canvas = await html2canvas(page as HTMLElement, {
+          useCORS: true,
+          logging: false,
+          svgRendering: true,
+        });
+
+        // Convert canvas to image data
+        const imgData = canvas.toDataURL("image/png");
+        const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+        // Add the image to the PDF
+        if (i > 0) pdf.addPage();
+        pdf.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight);
+      }
 
       // Save the PDF
       pdf.save(
         `Result_${
-          resultData?.data?.participant?.matric_number || "Unknown"
+          transcriptData?.data?.[0]?.participant?.matric_number || "Unknown"
         }.pdf`
       );
     } catch (error) {
       console.error("Error generating PDF:", error);
       alert("Failed to generate PDF. Please try again.");
     }
+
+    // Restore button visibility after printing
     (event.target as HTMLButtonElement).style.opacity = "1";
   };
 
@@ -440,7 +453,7 @@ const ResultsList = () => {
 
       {/* RESULT CONTAINER */}
 
-      {resultData?.data ? (
+      {transcriptData?.data ? (
         <Dialog
           open={openModal.transcript}
           onClose={() =>
@@ -449,172 +462,233 @@ const ResultsList = () => {
           scroll="body"
           sx={{ ".MuiPaper-root": { maxWidth: "100% !important" } }}
         >
-          <Box ref={resultContentRef} sx={{ py: 8, px: 4, width: "800px" }}>
+          <Box ref={resultContentRef} sx={{ width: "800px" }}>
             {/* Student Information Section */}
-            <Box sx={{ display: "flex", justifyContent: "end" }}>
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "end",
+                mt: "2rem",
+                mr: "2rem",
+              }}
+            >
               <Button variant="outlined" onClick={handleDownload}>
                 Download Transcript
               </Button>
             </Box>
-            <Grid2 container spacing={3} sx={{ mb: 3 }}>
-              <Box
-                sx={{
-                  display: "flex",
-                  flexDirection: "row",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  width: "100%",
-                  backgroundColor: "white",
-                  // px: 8,
-                  py: 2,
-                }}
-              >
-                <img
-                  src={import.meta.env.VITE_LOGO}
-                  alt="school logo"
-                  style={{ width: 80 }}
-                />
-                <h1>
-                  {import.meta.env.VITE_SCHOOL_NAME.split(" ").map(
-                    (word: string) => word[0]
-                  )}
-                </h1>
-                <h2>Student Result</h2>
-              </Box>
-            </Grid2>
+            {transcriptData.data.map((tr) => {
+              const courseChunks = tr.details?.length
+                ? chunk(
+                    [
+                      ...tr.details,
+                      ...tr.details,
+                      ...tr.details,
+                      ...tr.details,
+                      ...tr.details,
+                      ...tr.details,
+                      ...tr.details,
+                    ],
+                    12
+                  )
+                : [[]]; // Split courses into chunks or set a single empty chunk
 
-            <Grid2 container spacing={3} sx={{ mb: 3 }}>
-              <Box
-                sx={{
-                  display: "flex",
-                  flexDirection: "row",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  width: "100%",
-                  backgroundColor: "white",
-                  p: 2,
-                }}
-              >
-                <Box
-                  sx={{
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: 0.5,
-                  }}
-                >
-                  <Typography variant="caption" color="textSecondary">
-                    MATRIC NUMBER:{" "}
-                    {resultData?.data?.participant?.matric_number ||
-                      "Unassigned"}
-                  </Typography>
-                  <Typography variant="caption" color="textSecondary">
-                    FULL NAME:{" "}
-                    {`${resultData?.data?.participant?.first_name || ""} ${
-                      resultData?.data?.participant?.last_name || ""
-                    }`}
-                  </Typography>
-                  <Typography variant="caption" color="textSecondary">
-                    SEMESTER: {resultData?.data?.semester || "N/A" + " "}
-                  </Typography>
-                  <Typography variant="caption" color="textSecondary">
-                    LEVEL: {resultData?.data?.level?.name || "N/A" + " "}
-                  </Typography>
-                  <Typography variant="caption" color="textSecondary">
-                    SESSION: {resultData?.data?.session || "N/A"}
-                  </Typography>
-                </Box>
-                <Avatar
-                  src={resultData?.data.participant?.photo || ""}
-                  sx={{
-                    width: 128,
-                    height: 128,
-                    marginBottom: "1rem",
-                  }}
-                />
-              </Box>
-            </Grid2>
+              return courseChunks.map(
+                (
+                  courseChunk: StudentTranscriptResponse["data"][0]["details"],
+                  pageIndex: number
+                ) => (
+                  <Box
+                    key={`${tr.participant?.matric_number}-${pageIndex}`}
+                    className="transcript-page"
+                    sx={{ py: 4, px: 4 }}
+                  >
+                    {/* Header */}
+                    <Grid2 container spacing={3} sx={{ mb: 3 }}>
+                      <Box
+                        sx={{
+                          display: "flex",
+                          flexDirection: "row",
+                          justifyContent: "space-between",
+                          alignItems: "center",
+                          width: "100%",
+                          backgroundColor: "white",
+                          py: 2,
+                        }}
+                      >
+                        <img
+                          src={import.meta.env.VITE_LOGO}
+                          alt="school logo"
+                          style={{ width: 80 }}
+                        />
+                        <h1>
+                          {import.meta.env.VITE_SCHOOL_NAME.split(" ").map(
+                            (word: string) => word[0]
+                          )}
+                        </h1>
+                        <h2>Student Result</h2>
+                      </Box>
+                    </Grid2>
 
-            {/* Courses Table */}
-            <TableContainer component={Paper} sx={tableContainerStyle}>
-              <Table>
-                <TableHead>
-                  <TableRow>
-                    <TableCell>S/N</TableCell>
-                    <TableCell>COURSE CODE</TableCell>
-                    <TableCell>COURSE TITLE</TableCell>
-                    <TableCell>UNITS</TableCell>
-                    <TableCell>SCORE</TableCell>
-                    <TableCell>GRADE</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {resultData?.data?.details?.length ? (
-                    resultData.data.details.map((course, index: number) => (
-                      <TableRow key={index}>
-                        <TableCell>{index + 1}</TableCell>
-                        <TableCell>{course.course_code}</TableCell>
-                        <TableCell>{course.course_name}</TableCell>
-                        <TableCell>{course.course_credit_unit}</TableCell>
-                        <TableCell>{course.total_obtained_score}</TableCell>
-                        <TableCell>{course.score_name}</TableCell>
-                      </TableRow>
-                    ))
-                  ) : (
-                    <TableRow>
-                      <TableCell colSpan={6} align="center">
-                        No courses found for the selected criteria.
-                      </TableCell>
-                    </TableRow>
-                  )}
-                </TableBody>
-              </Table>
-            </TableContainer>
+                    {/* Student Info */}
+                    {pageIndex === 0 && (
+                      <Box>
+                        <Grid2 container spacing={3} sx={{ mb: 3 }}>
+                          <Box
+                            sx={{
+                              display: "flex",
+                              flexDirection: "row",
+                              justifyContent: "space-between",
+                              alignItems: "center",
+                              width: "100%",
+                              backgroundColor: "white",
+                              p: 2,
+                            }}
+                          >
+                            <Box
+                              sx={{
+                                display: "flex",
+                                flexDirection: "column",
+                                gap: 0.5,
+                              }}
+                            >
+                              <Typography
+                                variant="caption"
+                                color="textSecondary"
+                              >
+                                MATRIC NUMBER:{" "}
+                                {tr.participant?.matric_number || "Unassigned"}
+                              </Typography>
+                              <Typography
+                                variant="caption"
+                                color="textSecondary"
+                              >
+                                FULL NAME:{" "}
+                                {`${tr.participant?.first_name || ""} ${
+                                  tr.participant?.last_name || ""
+                                }`}
+                              </Typography>
+                              <Typography
+                                variant="caption"
+                                color="textSecondary"
+                              >
+                                SEMESTER: {tr.semester || "N/A"}
+                              </Typography>
+                              <Typography
+                                variant="caption"
+                                color="textSecondary"
+                              >
+                                LEVEL: {tr.level?.name || "N/A"}
+                              </Typography>
+                              <Typography
+                                variant="caption"
+                                color="textSecondary"
+                              >
+                                SESSION: {tr.session || "N/A"}
+                              </Typography>
+                            </Box>
+                            <Avatar
+                              src={tr.participant?.photo || ""}
+                              sx={{ width: 128, height: 128 }}
+                            />
+                          </Box>
+                        </Grid2>
+                      </Box>
+                    )}
 
-            {/* Footer with GPA */}
-            <Box
-              sx={{
-                mt: 4,
-                display: "flex",
-                flexDirection: "row",
-                justifyContent: "space-between",
-                alignItems: "center",
-                width: "100%",
-                backgroundColor: "white",
-                p: 2,
-              }}
-            >
-              <Box sx={gpaSectionStyle}>
-                <Typography variant="body1" color="textSecondary">
-                  Total Credit Units (TCU):{" "}
-                  {resultData?.data?.summary?.total_credit_units || "N/A"}
-                </Typography>
-                <Typography variant="body1" color="textSecondary">
-                  Cumulative TCU:{" "}
-                  {resultData?.data?.summary?.total_credit_units || "N/A"}
-                </Typography>
-              </Box>
-              <Box sx={gpaSectionStyle}>
-                <Typography variant="body1" color="textSecondary">
-                  Total Credit Points (TCP):{" "}
-                  {resultData?.data?.summary?.total_grade_points || "N/A"}
-                </Typography>
-                <Typography variant="body1" color="textSecondary">
-                  Cumulative TCP:{" "}
-                  {resultData?.data?.summary?.total_grade_points || "N/A"}
-                </Typography>
-              </Box>
-              <Box sx={gpaSectionStyle}>
-                <Typography variant="body1" color="textSecondary">
-                  Grade Point Average (GPA):{" "}
-                  {resultData?.data?.summary?.grade_point_average || "N/A"}
-                </Typography>
-                <Typography variant="body1" color="textSecondary">
-                  CGPA:{" "}
-                  {resultData?.data?.summary?.cumulative_grade_point_average ||
-                    "N/A"}
-                </Typography>
-              </Box>
-            </Box>
+                    {/* Courses Table or No Courses Message */}
+                    {courseChunk.length ? (
+                      <TableContainer
+                        component={Paper}
+                        sx={tableContainerStyle}
+                      >
+                        <Table>
+                          <TableHead>
+                            <TableRow>
+                              <TableCell>S/N</TableCell>
+                              <TableCell>COURSE CODE</TableCell>
+                              <TableCell>COURSE TITLE</TableCell>
+                              <TableCell>UNITS</TableCell>
+                              <TableCell>SCORE</TableCell>
+                              <TableCell>GRADE</TableCell>
+                            </TableRow>
+                          </TableHead>
+                          <TableBody>
+                            {courseChunk.map((course, index) => (
+                              <TableRow key={index}>
+                                <TableCell>
+                                  {index + 1 + pageIndex * 12}
+                                </TableCell>
+                                <TableCell>{course.course_code}</TableCell>
+                                <TableCell>{course.course_name}</TableCell>
+                                <TableCell>
+                                  {course.course_credit_unit}
+                                </TableCell>
+                                <TableCell>
+                                  {course.total_obtained_score}
+                                </TableCell>
+                                <TableCell>{course.score_name}</TableCell>
+                              </TableRow>
+                            ))}
+                          </TableBody>
+                        </Table>
+                      </TableContainer>
+                    ) : (
+                      <Typography variant="body2" align="center" sx={{ mt: 2 }}>
+                        No courses found for this transcript.
+                      </Typography>
+                    )}
+
+                    {/* Footer */}
+                    {pageIndex === courseChunks.length - 1 && (
+                      <Box
+                        sx={{
+                          mt: 4,
+                          display: "flex",
+                          flexDirection: "row",
+                          justifyContent: "space-between",
+                          alignItems: "center",
+                          width: "100%",
+                          backgroundColor: "white",
+                          p: 2,
+                        }}
+                      >
+                        <Box sx={gpaSectionStyle}>
+                          <Typography variant="body1" color="textSecondary">
+                            Total Credit Units (TCU):{" "}
+                            {tr.summary?.total_credit_units || "N/A"}
+                          </Typography>
+                          <Typography variant="body1" color="textSecondary">
+                            Cumulative TCU:{" "}
+                            {tr.summary?.total_credit_units || "N/A"}
+                          </Typography>
+                        </Box>
+                        <Box sx={gpaSectionStyle}>
+                          <Typography variant="body1" color="textSecondary">
+                            Total Credit Points (TCP):{" "}
+                            {tr.summary?.total_grade_points || "N/A"}
+                          </Typography>
+                          <Typography variant="body1" color="textSecondary">
+                            Cumulative TCP:{" "}
+                            {tr.summary?.total_grade_points || "N/A"}
+                          </Typography>
+                        </Box>
+                        <Box sx={gpaSectionStyle}>
+                          <Typography variant="body1" color="textSecondary">
+                            Grade Point Average (GPA):{" "}
+                            {tr.summary?.grade_point_average || "N/A"}
+                          </Typography>
+                          <Typography variant="body1" color="textSecondary">
+                            CGPA:{" "}
+                            {tr.summary?.cumulative_grade_point_average ||
+                              "N/A"}
+                          </Typography>
+                        </Box>
+                      </Box>
+                    )}
+                  </Box>
+                )
+              );
+            })}
 
             {/* Footer Section */}
           </Box>
@@ -636,3 +710,14 @@ const gpaSectionStyle = {
   flexDirection: "column",
   alignItems: "flex-end",
 };
+
+// const courseChunks = chunk(
+//   [
+//     ...tr.details,
+//     ...tr.details,
+//     ...tr.details,
+//     ...tr.details,
+//     ...tr.details,
+//   ],
+//   12
+// ); // Split courses into chunks of 12
