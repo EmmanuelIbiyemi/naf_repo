@@ -3,17 +3,22 @@ import TableCell from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
 import TableRow from "@mui/material/TableRow";
 import {
+  Avatar,
   Box,
   Button,
+  Dialog,
   FormControl,
+  Grid2,
   IconButton,
   MenuItem,
+  Paper,
   Select,
   SelectChangeEvent,
   TableBody,
   TableHead,
+  Typography,
 } from "@mui/material";
-import { useEffect, useState } from "react";
+import { MouseEvent, useEffect, useRef, useState } from "react";
 import {
   useGenerateResultMutation,
   useGetResultsMMutation,
@@ -27,8 +32,11 @@ import { useGetSemestersQuery } from "../../../../store/api/semesters.api";
 import { selectKeyword, setPageLoading } from "../../../../store/app.slice";
 import { useAppDispatch, useAppSelector } from "../../../../store/hooks";
 import SuccessModal from "../../../../components/SuccessModal";
-import { Download } from "@mui/icons-material";
-import { useGetStudentTranscriptMMutation } from "../../../../store/api/result.api";
+import { RemoveRedEye } from "@mui/icons-material";
+import { useStudentResultQuery } from "../../../../store/api/result.api";
+import { StudentType } from "../../../../types/students";
+import jsPDF from "jspdf";
+import html2canvas from "html2canvas";
 
 const ResultsList = () => {
   const { data: faculties } = useGetFacultiesQuery({
@@ -55,9 +63,29 @@ const ResultsList = () => {
   const [generateResults, generateState] = useGenerateResultMutation();
   const [results, setResults] = useState(resultState.data?.data);
   const keyword = useAppSelector(selectKeyword);
-  const [openModal, setOpenModal] = useState(false);
+  const [openModal, setOpenModal] = useState({
+    success: false,
+    transcript: false,
+  });
   const dispatch = useAppDispatch();
-  const [getTranscript] = useGetStudentTranscriptMMutation();
+
+  //
+  const resultContentRef = useRef<HTMLDivElement>(null);
+  const [selectedStudent, setSelectedStudent] = useState<StudentType | null>(
+    null
+  );
+  const { data: resultData, isLoading: isLoadingResults } =
+    useStudentResultQuery(
+      {
+        participant_id: selectedStudent?.id as number,
+        session: filters.session,
+        semester: filters.semester,
+      },
+      {
+        skip: !selectedStudent,
+      }
+    );
+  //
 
   useEffect(() => {
     if (keyword && resultState.data?.data)
@@ -84,12 +112,14 @@ const ResultsList = () => {
       programsState.isLoading ||
       levelsState.isLoading ||
       sessionsIsLoading ||
-      semesterIsLoading
+      semesterIsLoading ||
+      isLoadingResults
     )
       dispatch(setPageLoading(true));
     else dispatch(setPageLoading(false));
   }, [
     resultState,
+    resultData,
     generateState,
     departmentsState,
     programsState,
@@ -148,16 +178,44 @@ const ResultsList = () => {
         console.log(error);
       }
     }
-    setOpenModal(true);
+    setOpenModal((prev) => ({ ...prev, success: true }));
   };
 
   // To be updated
-  const downloadTranscript = async (student_id: number) => {
+  const handleDownload = async (event: MouseEvent<HTMLButtonElement>) => {
+    // hide button before printing
+    (event.target as HTMLButtonElement).style.opacity = "0";
+
+    const resultContent = resultContentRef.current;
+    if (!resultContent) return;
+
     try {
-      await getTranscript(student_id).unwrap();
+      // Use html2canvas to capture the result content
+      const canvas = await html2canvas(resultContent, {
+        useCORS: true,
+        logging: false,
+      });
+
+      // Convert canvas to PDF
+      const pdf = new jsPDF("p", "mm", "a4");
+      const imgWidth = 210; // A4 width in mm
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+      // Add image to PDF
+      const imgData = canvas.toDataURL("image/png");
+      pdf.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight);
+
+      // Save the PDF
+      pdf.save(
+        `Result_${
+          resultData?.data?.participant?.matric_number || "Unknown"
+        }.pdf`
+      );
     } catch (error) {
-      console.log(error);
+      console.error("Error generating PDF:", error);
+      alert("Failed to generate PDF. Please try again.");
     }
+    (event.target as HTMLButtonElement).style.opacity = "1";
   };
 
   return (
@@ -165,10 +223,10 @@ const ResultsList = () => {
       {/* Success */}
       <SuccessModal
         close={() => {
-          setOpenModal(false);
+          setOpenModal((prev) => ({ ...prev, success: false }));
         }}
         infoText="Please check back later"
-        open={openModal}
+        open={openModal.success}
         subTitle={`Results are being generated in the background.`}
         title="Updates Successful"
       />
@@ -364,17 +422,217 @@ const ResultsList = () => {
               <TableCell align="center">
                 <IconButton
                   color="primary"
-                  onClick={() => downloadTranscript(result.participant.id)}
+                  onClick={() => {
+                    setSelectedStudent({
+                      ...result.participant,
+                      courses: [],
+                    } as StudentType);
+                    setOpenModal((prev) => ({ ...prev, transcript: true }));
+                  }}
                 >
-                  <Download />
+                  <RemoveRedEye />
                 </IconButton>
               </TableCell>
             </TableRow>
           ))}
         </TableBody>
       </Table>
+
+      {/* RESULT CONTAINER */}
+
+      {resultData?.data ? (
+        <Dialog
+          open={openModal.transcript}
+          onClose={() =>
+            setOpenModal((prev) => ({ ...prev, transcript: false }))
+          }
+          scroll="body"
+          sx={{ ".MuiPaper-root": { maxWidth: "100% !important" } }}
+        >
+          <Box ref={resultContentRef} sx={{ py: 8, px: 4, width: "800px" }}>
+            {/* Student Information Section */}
+            <Box sx={{ display: "flex", justifyContent: "end" }}>
+              <Button variant="outlined" onClick={handleDownload}>
+                Download Transcript
+              </Button>
+            </Box>
+            <Grid2 container spacing={3} sx={{ mb: 3 }}>
+              <Box
+                sx={{
+                  display: "flex",
+                  flexDirection: "row",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  width: "100%",
+                  backgroundColor: "white",
+                  // px: 8,
+                  py: 2,
+                }}
+              >
+                <img
+                  src={import.meta.env.VITE_LOGO}
+                  alt="school logo"
+                  style={{ width: 80 }}
+                />
+                <h1>
+                  {import.meta.env.VITE_SCHOOL_NAME.split(" ").map(
+                    (word: string) => word[0]
+                  )}
+                </h1>
+                <h2>Student Result</h2>
+              </Box>
+            </Grid2>
+
+            <Grid2 container spacing={3} sx={{ mb: 3 }}>
+              <Box
+                sx={{
+                  display: "flex",
+                  flexDirection: "row",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  width: "100%",
+                  backgroundColor: "white",
+                  p: 2,
+                }}
+              >
+                <Box
+                  sx={{
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: 0.5,
+                  }}
+                >
+                  <Typography variant="caption" color="textSecondary">
+                    MATRIC NUMBER:{" "}
+                    {resultData?.data?.participant?.matric_number ||
+                      "Unassigned"}
+                  </Typography>
+                  <Typography variant="caption" color="textSecondary">
+                    FULL NAME:{" "}
+                    {`${resultData?.data?.participant?.first_name || ""} ${
+                      resultData?.data?.participant?.last_name || ""
+                    }`}
+                  </Typography>
+                  <Typography variant="caption" color="textSecondary">
+                    SEMESTER: {resultData?.data?.semester || "N/A" + " "}
+                  </Typography>
+                  <Typography variant="caption" color="textSecondary">
+                    LEVEL: {resultData?.data?.level?.name || "N/A" + " "}
+                  </Typography>
+                  <Typography variant="caption" color="textSecondary">
+                    SESSION: {resultData?.data?.session || "N/A"}
+                  </Typography>
+                </Box>
+                <Avatar
+                  src={resultData?.data.participant?.photo || ""}
+                  sx={{
+                    width: 128,
+                    height: 128,
+                    marginBottom: "1rem",
+                  }}
+                />
+              </Box>
+            </Grid2>
+
+            {/* Courses Table */}
+            <TableContainer component={Paper} sx={tableContainerStyle}>
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableCell>S/N</TableCell>
+                    <TableCell>COURSE CODE</TableCell>
+                    <TableCell>COURSE TITLE</TableCell>
+                    <TableCell>UNITS</TableCell>
+                    <TableCell>SCORE</TableCell>
+                    <TableCell>GRADE</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {resultData?.data?.details?.length ? (
+                    resultData.data.details.map((course, index: number) => (
+                      <TableRow key={index}>
+                        <TableCell>{index + 1}</TableCell>
+                        <TableCell>{course.course_code}</TableCell>
+                        <TableCell>{course.course_name}</TableCell>
+                        <TableCell>{course.course_credit_unit}</TableCell>
+                        <TableCell>{course.total_obtained_score}</TableCell>
+                        <TableCell>{course.score_name}</TableCell>
+                      </TableRow>
+                    ))
+                  ) : (
+                    <TableRow>
+                      <TableCell colSpan={6} align="center">
+                        No courses found for the selected criteria.
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </TableContainer>
+
+            {/* Footer with GPA */}
+            <Box
+              sx={{
+                mt: 4,
+                display: "flex",
+                flexDirection: "row",
+                justifyContent: "space-between",
+                alignItems: "center",
+                width: "100%",
+                backgroundColor: "white",
+                p: 2,
+              }}
+            >
+              <Box sx={gpaSectionStyle}>
+                <Typography variant="body1" color="textSecondary">
+                  Total Credit Units (TCU):{" "}
+                  {resultData?.data?.summary?.total_credit_units || "N/A"}
+                </Typography>
+                <Typography variant="body1" color="textSecondary">
+                  Cumulative TCU:{" "}
+                  {resultData?.data?.summary?.total_credit_units || "N/A"}
+                </Typography>
+              </Box>
+              <Box sx={gpaSectionStyle}>
+                <Typography variant="body1" color="textSecondary">
+                  Total Credit Points (TCP):{" "}
+                  {resultData?.data?.summary?.total_grade_points || "N/A"}
+                </Typography>
+                <Typography variant="body1" color="textSecondary">
+                  Cumulative TCP:{" "}
+                  {resultData?.data?.summary?.total_grade_points || "N/A"}
+                </Typography>
+              </Box>
+              <Box sx={gpaSectionStyle}>
+                <Typography variant="body1" color="textSecondary">
+                  Grade Point Average (GPA):{" "}
+                  {resultData?.data?.summary?.grade_point_average || "N/A"}
+                </Typography>
+                <Typography variant="body1" color="textSecondary">
+                  CGPA:{" "}
+                  {resultData?.data?.summary?.cumulative_grade_point_average ||
+                    "N/A"}
+                </Typography>
+              </Box>
+            </Box>
+
+            {/* Footer Section */}
+          </Box>
+        </Dialog>
+      ) : null}
     </TableContainer>
   );
 };
 
 export default ResultsList;
+
+const tableContainerStyle = {
+  borderRadius: "var(--border-radius)",
+  boxShadow: 1,
+};
+
+const gpaSectionStyle = {
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "flex-end",
+};
