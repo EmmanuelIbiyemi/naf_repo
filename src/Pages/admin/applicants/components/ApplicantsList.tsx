@@ -5,6 +5,9 @@ import TableContainer from "@mui/material/TableContainer";
 import TableRow from "@mui/material/TableRow";
 import { ApplicantType2 } from "../../../../types/applicants";
 import {
+  Box,
+  Button,
+  Checkbox,
   Chip,
   IconButton,
   Menu,
@@ -13,7 +16,7 @@ import {
   TableHead,
   Typography,
 } from "@mui/material";
-import { useEffect, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 import DeleteConfirmationModal from "../../../../components/DeleteConfirmationModal";
 import { Check, Delete } from "@mui/icons-material";
 import {
@@ -34,8 +37,9 @@ const ApplicantList = () => {
 
   const [openModal, setOpenModal] = useState({
     edit: false,
-    delete: false,
     success: false,
+    delete: false,
+    bulkDelete: false,
   });
   const [selectedApplicant, setSelectedApplicant] = useState<ApplicantType2>();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -59,9 +63,17 @@ const ApplicantList = () => {
   const [deleteApplicant, deleteState] = useDeleteApplicantMutation();
   const [updateApplicantStatus, updateState] =
     useUpdateApplicantStatusMutation();
+  const [deleteIds, setDeleteIds] = useState<number[]>([]);
 
   useEffect(() => {
     if (apcts?.data) setApplicants(apcts?.data);
+
+    // Move back 1 page if server response is empty on the page (due to bulk delete)
+    if (!apcts?.data.length && (pagination.page as number) > 1)
+      setPagination((prev) => ({
+        ...prev,
+        page: (pagination.page as number) - 1,
+      }));
   }, [keyword, apcts]);
 
   useEffect(() => {
@@ -110,6 +122,30 @@ const ApplicantList = () => {
     handleCloseModal("delete");
   };
 
+  const handleSelectAll = (event: ChangeEvent<HTMLInputElement>) => {
+    if (applicants?.length && event.target.checked)
+      setDeleteIds(applicants.map((apt) => apt.id as number));
+    else setDeleteIds([]);
+  };
+
+  const handleSelect = (
+    event: ChangeEvent<HTMLInputElement>,
+    facultyId: number
+  ) => {
+    const newIds = deleteIds.filter((id) => id != facultyId);
+    setDeleteIds(event.target.checked ? [...newIds, facultyId] : newIds);
+  };
+
+  const handleBulkDelete = async () => {
+    for (const id of deleteIds)
+      try {
+        await deleteApplicant(id).unwrap();
+        setDeleteIds([]);
+      } catch (error) {
+        console.log(error);
+      }
+  };
+
   const handleOpenMenu = (
     event: React.MouseEvent<HTMLDivElement>,
     applicant: ApplicantType2
@@ -150,6 +186,17 @@ const ApplicantList = () => {
         open={openModal.delete}
         subTitle={`Are you sure you want to delete Applicant`}
         title="Delete Applicant?"
+      />
+
+      <DeleteConfirmationModal
+        actions={{
+          proceed: () => handleBulkDelete(),
+        }}
+        close={() => handleCloseModal("bulkDelete")}
+        infoText="You can’t undo this action."
+        open={openModal.bulkDelete}
+        subTitle={`Are you sure you want to delete ${deleteIds.length} Applicants ?`}
+        title="Delete Applicants?"
       />
 
       <Menu
@@ -193,8 +240,9 @@ const ApplicantList = () => {
             sx={{
               minWidth: 650,
               ".MuiTableCell-root": {
-                maxWidth: 200,
                 a: {
+                  maxWidth: 200,
+                  padding: "",
                   overflow: "hidden",
                   textOverflow: "ellipsis",
                   whiteSpace: "nowrap",
@@ -204,7 +252,46 @@ const ApplicantList = () => {
           >
             <TableHead>
               <TableRow>
-                <TableCell>Name</TableCell>
+                <TableCell
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "start",
+                  }}
+                  align="left"
+                >
+                  {/* Bulk delete */}
+                  <Box
+                    sx={{ display: "flex", gap: "1rem", position: "relative" }}
+                  >
+                    <Checkbox
+                      onChange={handleSelectAll}
+                      checked={applicants?.length == deleteIds.length}
+                    />
+                    {deleteIds.length ? (
+                      <Button
+                        sx={{
+                          position: "absolute",
+                          left: "58px",
+                          height: "auto",
+                          textWrap: "nowrap",
+                        }}
+                        variant="contained"
+                        color="error"
+                        onClick={() =>
+                          setOpenModal((prev) => ({
+                            ...prev,
+                            bulkDelete: true,
+                          }))
+                        }
+                      >
+                        <Delete sx={{ marginRight: ".3rem" }} />
+                        Delete selected
+                      </Button>
+                    ) : null}
+                  </Box>
+                  <Typography sx={{ marginLeft: "1rem" }}>Name</Typography>
+                </TableCell>
                 <TableCell>Email Address</TableCell>
                 <TableCell>Phone Number</TableCell>
                 <TableCell>Status</TableCell>
@@ -230,18 +317,30 @@ const ApplicantList = () => {
                   key={applicant.id}
                   sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
                 >
-                  <TableCell component="th" scope="row">
+                  <TableCell
+                    component="th"
+                    scope="row"
+                    sx={{ alignItems: "center", display: "flex", gap: "1rem" }}
+                  >
+                    <Checkbox
+                      onChange={(event) =>
+                        handleSelect(event, applicant.id as number)
+                      }
+                      checked={deleteIds.includes(applicant.id as number)}
+                    />
                     <Typography
                       style={{
                         textTransform: "capitalize",
                         fontWeight: 500,
                         cursor: "pointer",
+                        textWrap: "nowrap",
                       }}
                       onClick={() => setSelectedApplicant(applicant)}
                     >
-                      {applicant.data.first_name +
-                        " " +
-                        applicant.data.last_name}
+                      {applicant.data?.full_name ||
+                        applicant.data?.first_name +
+                          " " +
+                          applicant.data?.last_name}
                     </Typography>
                   </TableCell>
                   <TableCell component="th" scope="row">

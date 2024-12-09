@@ -4,9 +4,16 @@ import TableCell from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
 import TableRow from "@mui/material/TableRow";
 import { InstructorQuizzesResponse } from "../../../types/quizzes";
-import { Box, Checkbox, IconButton, TableHead } from "@mui/material";
+import {
+  Box,
+  Button,
+  Checkbox,
+  IconButton,
+  TableHead,
+  Typography,
+} from "@mui/material";
 import DeleteConfirmationModal from "../../../components/DeleteConfirmationModal";
-import { useEffect, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 import {
   useDeleteQuizMutation,
   useGetQuizzesQuery,
@@ -26,6 +33,7 @@ const QuizList = () => {
     edit: false,
     delete: false,
     success: false,
+    bulkDelete: false,
   });
   const keyword = useAppSelector(selectKeyword);
   const dispatch = useAppDispatch();
@@ -44,14 +52,22 @@ const QuizList = () => {
   const [quizzes, setQuizzes] = useState(qzs?.data);
   const [deleteQuiz, deleteState] = useDeleteQuizMutation();
   const [selectedQuiz, setSelectedQuiz] = useState<InstructorQuizzesResponse>();
+  const [deleteIds, setDeleteIds] = useState<number[]>([]);
 
   useEffect(() => {
     if (qzs?.data) setQuizzes(qzs?.data);
+
+    // Move back 1 page if server response is empty on the page (due to bulk delete)
+    if (!qzs?.data.length && (pagination.page as number) > 1)
+      setPagination((prev) => ({
+        ...prev,
+        page: (pagination.page as number) - 1,
+      }));
   }, [keyword, qzs]);
 
   useEffect(() => {
-    if (isFetching || deleteState.isLoading) dispatch(setPageLoading(true));
-    else if (isError) dispatch(setPageLoading(false));
+    if ((isFetching || deleteState.isLoading) && !isError)
+      dispatch(setPageLoading(true));
     else dispatch(setPageLoading(false));
   }, [isFetching, isError, qzs, deleteState, dispatch]);
 
@@ -74,6 +90,30 @@ const QuizList = () => {
     handleCloseModal("delete");
   };
 
+  const handleSelectAll = (event: ChangeEvent<HTMLInputElement>) => {
+    if (quizzes?.length && event.target.checked)
+      setDeleteIds(quizzes.map((qz) => qz.id as number));
+    else setDeleteIds([]);
+  };
+
+  const handleSelect = (
+    event: ChangeEvent<HTMLInputElement>,
+    facultyId: number
+  ) => {
+    const newIds = deleteIds.filter((id) => id != facultyId);
+    setDeleteIds(event.target.checked ? [...newIds, facultyId] : newIds);
+  };
+
+  const handleBulkDelete = async () => {
+    for (const id of deleteIds)
+      try {
+        await deleteQuiz(id).unwrap();
+        setDeleteIds([]);
+      } catch (error) {
+        console.log(error);
+      }
+  };
+
   return (
     <TableContainer>
       <DeleteConfirmationModal
@@ -88,6 +128,17 @@ const QuizList = () => {
         open={openModal.delete}
         subTitle={`Are you sure you want to delete "${selectedQuiz?.name}" ?`}
         title="Delete Quiz?"
+      />
+
+      <DeleteConfirmationModal
+        actions={{
+          proceed: () => handleBulkDelete(),
+        }}
+        close={() => handleCloseModal("bulkDelete")}
+        infoText="You can’t undo this action."
+        open={openModal.bulkDelete}
+        subTitle={`Are you sure you want to delete ${deleteIds.length} Quizzes ?`}
+        title="Delete Quizzes?"
       />
 
       <SuccessModal
@@ -114,8 +165,9 @@ const QuizList = () => {
             sx={{
               minWidth: 650,
               ".MuiTableCell-root": {
-                maxWidth: 200,
                 a: {
+                  maxWidth: 200,
+                  padding: "",
                   overflow: "hidden",
                   textOverflow: "ellipsis",
                   whiteSpace: "nowrap",
@@ -125,7 +177,46 @@ const QuizList = () => {
           >
             <TableHead>
               <TableRow>
-                <TableCell>Name</TableCell>
+                <TableCell
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "start",
+                  }}
+                  align="left"
+                >
+                  {/* Bulk delete */}
+                  <Box
+                    sx={{ display: "flex", gap: "1rem", position: "relative" }}
+                  >
+                    <Checkbox
+                      onChange={handleSelectAll}
+                      checked={quizzes?.length == deleteIds.length}
+                    />
+                    {deleteIds.length ? (
+                      <Button
+                        sx={{
+                          position: "absolute",
+                          left: "58px",
+                          height: "auto",
+                          textWrap: "nowrap",
+                        }}
+                        variant="contained"
+                        color="error"
+                        onClick={() =>
+                          setOpenModal((prev) => ({
+                            ...prev,
+                            bulkDelete: true,
+                          }))
+                        }
+                      >
+                        <Delete sx={{ marginRight: ".3rem" }} />
+                        Delete selected
+                      </Button>
+                    ) : null}
+                  </Box>
+                  <Typography sx={{ marginLeft: "1rem" }}>Name</Typography>
+                </TableCell>
                 <TableCell>Code</TableCell>
                 <TableCell>Start Date</TableCell>
                 <TableCell>Expiry Date</TableCell>
@@ -136,18 +227,32 @@ const QuizList = () => {
               {quizzes?.map((quiz) => (
                 <TableRow
                   key={quiz.id}
-                  sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+                  sx={{
+                    "&:last-child td, &:last-child th": { border: 0 },
+                  }}
                 >
-                  <TableCell component="th" scope="row">
-                    <Box sx={{ alignItems: "center", display: "flex" }}>
-                      <Checkbox />
-                      <Link
-                        to={`/cbt/${quiz.id}`}
-                        style={{ textTransform: "capitalize" }}
-                      >
-                        {quiz.name}
-                      </Link>
-                    </Box>
+                  <TableCell
+                    component="th"
+                    scope="row"
+                    sx={{
+                      alignItems: "center",
+                      display: "flex",
+                      gap: "1rem",
+                      width: "100%",
+                    }}
+                  >
+                    <Checkbox
+                      onChange={(event) =>
+                        handleSelect(event, quiz.id as number)
+                      }
+                      checked={deleteIds.includes(quiz.id as number)}
+                    />
+                    <Link
+                      to={`/cbt/${quiz.id}`}
+                      style={{ textTransform: "capitalize" }}
+                    >
+                      {quiz.name}
+                    </Link>
                   </TableCell>
                   <TableCell component="th" scope="row">
                     {quiz.code}

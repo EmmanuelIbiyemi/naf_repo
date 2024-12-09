@@ -86,9 +86,10 @@ type Program = {
 type Data = {
   dob: string;
   email: string;
-  first_name: string;
+  full_name?: string;
+  first_name?: string;
+  last_name?: string;
   gender: string;
-  last_name: string;
   phone: string;
   reg_number: string;
 };
@@ -106,7 +107,6 @@ export type ApplicantType2 = {
   created_at: string;
   data: Data;
   id: number;
-  name: string;
   participants: Participant[];
   program: Program;
   status: string;

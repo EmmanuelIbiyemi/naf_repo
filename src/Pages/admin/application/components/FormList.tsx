@@ -3,11 +3,11 @@ import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
 import TableRow from "@mui/material/TableRow";
-import { Box, Checkbox, IconButton, Typography } from "@mui/material";
+import { Box, Button, Checkbox, IconButton, Typography } from "@mui/material";
 import { Delete, Edit } from "@mui/icons-material";
 import { Link, useNavigate } from "react-router-dom";
 import DeleteConfirmationModal from "../../../../components/DeleteConfirmationModal";
-import { useEffect, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 import { useAppDispatch, useAppSelector } from "../../../../store/hooks";
 import {
   selectCurrentForm,
@@ -41,9 +41,13 @@ const FormList = () => {
   });
   const [forms, setForms] = useState(frms?.data);
   const selectedForm = useAppSelector(selectCurrentForm);
-  const [openModal, setOpenModal] = useState(false);
+  const [openModal, setOpenModal] = useState({
+    delete: false,
+    bulkDelete: false,
+  });
   const navigate = useNavigate();
   const [deleteForm, deleteState] = useDeleteFormMutation();
+  const [deleteIds, setDeleteIds] = useState<number[]>([]);
 
   useEffect(() => {
     if (frms?.data) setForms(frms?.data);
@@ -57,7 +61,11 @@ const FormList = () => {
 
   const handleOpenModal = (form: FormType2) => {
     dispatch(setCurrentForm(form));
-    setOpenModal(true);
+    setOpenModal((prev) => ({ ...prev, delete: true }));
+  };
+
+  const handleCloseModal = (type: string) => {
+    setOpenModal((prev) => ({ ...prev, [type]: false }));
   };
 
   const handleDelete = async (id: number) => {
@@ -66,6 +74,30 @@ const FormList = () => {
     } catch (error) {
       console.log(error);
     }
+  };
+
+  const handleSelectAll = (event: ChangeEvent<HTMLInputElement>) => {
+    if (forms?.length && event.target.checked)
+      setDeleteIds(forms.map((form) => form.id as number));
+    else setDeleteIds([]);
+  };
+
+  const handleSelect = (
+    event: ChangeEvent<HTMLInputElement>,
+    facultyId: number
+  ) => {
+    const newIds = deleteIds.filter((id) => id != facultyId);
+    setDeleteIds(event.target.checked ? [...newIds, facultyId] : newIds);
+  };
+
+  const handleBulkDelete = async () => {
+    for (const id of deleteIds)
+      try {
+        await deleteForm(id).unwrap();
+        setDeleteIds([]);
+      } catch (error) {
+        console.log(error);
+      }
   };
 
   const handleEditForm = (form: FormType2) => {
@@ -82,11 +114,22 @@ const FormList = () => {
             console.log("proceed");
           },
         }}
-        close={() => setOpenModal(false)}
+        close={() => handleCloseModal("delete")}
         infoText=""
-        open={openModal}
+        open={openModal.delete}
         subTitle={`Are you sure you want to delete form ${selectedForm?.name}”</strong>? You can’t undo this action.`}
         title="Delete Course?"
+      />
+
+      <DeleteConfirmationModal
+        actions={{
+          proceed: () => handleBulkDelete(),
+        }}
+        close={() => handleCloseModal("bulkDelete")}
+        infoText="You can’t undo this action."
+        open={openModal.bulkDelete}
+        subTitle={`Are you sure you want to delete ${deleteIds.length} Forms ?`}
+        title="Delete Forms?"
       />
 
       {isError ? (
@@ -102,6 +145,25 @@ const FormList = () => {
         />
       ) : null}
 
+      {/* Bulk delete */}
+      <Box sx={{ paddingLeft: "1rem", display: "flex", gap: "1rem" }}>
+        <Checkbox
+          onChange={handleSelectAll}
+          checked={forms?.length == deleteIds.length}
+        />
+        {deleteIds.length ? (
+          <Button
+            variant="contained"
+            color="error"
+            onClick={() =>
+              setOpenModal((prev) => ({ ...prev, bulkDelete: true }))
+            }
+          >
+            <Delete sx={{ marginRight: ".3rem" }} />
+            Delete selected
+          </Button>
+        ) : null}
+      </Box>
       {frms?.data.length ? (
         <>
           <Table sx={{ minWidth: 650 }}>
@@ -116,7 +178,12 @@ const FormList = () => {
                     scope="row"
                     sx={{ alignItems: "center", display: "flex", gap: "1rem" }}
                   >
-                    <Checkbox />
+                    <Checkbox
+                      onChange={(event) =>
+                        handleSelect(event, form.id as number)
+                      }
+                      checked={deleteIds.includes(form.id as number)}
+                    />
                     <Box>
                       <Link
                         to={`/applicants/${form.program_id}`}
