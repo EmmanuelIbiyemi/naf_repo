@@ -478,18 +478,7 @@ const ResultsList = () => {
             </Box>
             {transcriptData.data.map((tr) => {
               const courseChunks = tr.details?.length
-                ? chunk(
-                    [
-                      ...tr.details,
-                      ...tr.details,
-                      ...tr.details,
-                      ...tr.details,
-                      ...tr.details,
-                      ...tr.details,
-                      ...tr.details,
-                    ],
-                    12
-                  )
+                ? chunk(tr.details, 12)
                 : [[]]; // Split courses into chunks or set a single empty chunk
 
               return courseChunks.map(
