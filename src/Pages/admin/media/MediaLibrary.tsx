@@ -9,6 +9,7 @@ import {
   Typography,
 } from "@mui/material";
 import {
+  ChangeEvent,
   CSSProperties,
   KeyboardEvent,
   useCallback,
@@ -17,7 +18,7 @@ import {
 } from "react";
 import { useDropzone } from "react-dropzone";
 import MediaItem from "./components/MediaItem";
-import { Close, Search } from "@mui/icons-material";
+import { Close, Delete, Search } from "@mui/icons-material";
 import uploadIcon from "../../../assets/upload-file.svg";
 import SuccessModal from "../../../components/SuccessModal";
 import DeleteConfirmationModal from "../../../components/DeleteConfirmationModal";
@@ -52,16 +53,18 @@ const MediaLibrary = () => {
     isFetching,
   } = useGetAllMediaQuery({ ...pagination, mediaType, search_term: keyword });
 
-  const [deleteMedia] = useDeleteMediaMutation();
-  const [addMedia] = useAddMediaMutation();
+  const [deleteMedia, deleteState] = useDeleteMediaMutation();
+  const [addMedia, addState] = useAddMediaMutation();
   const [openModal, setOpenModal] = useState({
     add: false,
     success: false,
     delete: false,
+    bulkDelete: false,
   });
   const [files, setFiles] = useState<File[]>([]);
   const [startUpload, setStartUpload] = useState(false);
   const [selectedMedia, setSelectedMedia] = useState<MediaType>();
+  const [deleteIds, setDeleteIds] = useState<number[]>([]);
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
     setFiles(acceptedFiles);
@@ -93,9 +96,27 @@ const MediaLibrary = () => {
     dispatch(setPageLoading(false));
   };
 
-  const handleDeleteAction = (media: MediaType) => {
+  const handleOpenDeleteModal = (media: MediaType) => {
     handleOpenModal("delete");
     setSelectedMedia(media);
+  };
+
+  const handleSelect = (
+    event: ChangeEvent<HTMLInputElement>,
+    mediaId: number
+  ) => {
+    const newIds = deleteIds.filter((id) => id != mediaId);
+    setDeleteIds(event.target.checked ? [...newIds, mediaId] : newIds);
+  };
+
+  const handleBulkDelete = async () => {
+    for (const id of deleteIds)
+      try {
+        await deleteMedia(id).unwrap();
+        setDeleteIds([]);
+      } catch (error) {
+        console.log(error);
+      }
   };
 
   const handleSearch = async (event: KeyboardEvent) => {
@@ -124,9 +145,21 @@ const MediaLibrary = () => {
   }, [files]);
 
   useEffect(() => {
-    if (isFetching) dispatch(setPageLoading(true));
+    setDeleteIds([]);
+
+    // Move back 1 page if server response is empty on the page (due to bulk delete)
+    if (!allMedia?.media.length && (pagination.page as number) > 1)
+      setPagination((prev) => ({
+        ...prev,
+        page: (pagination.page as number) - 1,
+      }));
+  }, [keyword, allMedia]);
+
+  useEffect(() => {
+    if ((isFetching && !isError) || deleteState.isLoading || addState.isLoading)
+      dispatch(setPageLoading(true));
     else dispatch(setPageLoading(false));
-  }, [isFetching]);
+  }, [isFetching, isError, deleteState, addState]);
 
   return (
     <Box sx={contentStyles}>
@@ -151,7 +184,18 @@ const MediaLibrary = () => {
         infoText=""
         open={openModal.delete}
         subTitle={`Are you sure you want to delete media ? You can’t undo this action.`}
-        title="Delete Media?"
+        title="Delete Media ?"
+      />
+
+      <DeleteConfirmationModal
+        actions={{
+          proceed: () => handleBulkDelete(),
+        }}
+        close={() => handleCloseModal("bulkDelete")}
+        infoText="You can’t undo this action."
+        open={openModal.bulkDelete}
+        subTitle={`Are you sure you want to delete ${deleteIds.length} Media ?`}
+        title="Delete Media ?"
       />
 
       <Dialog
@@ -253,7 +297,7 @@ const MediaLibrary = () => {
 
       <Box sx={{ width: "100%", position: "relative" }}>
         <Box>
-          <Box>
+          <Box sx={{ display: "flex", justifyContent: "space-between" }}>
             <Box>
               {tabs.map((tab, index) => (
                 <Button
@@ -272,6 +316,21 @@ const MediaLibrary = () => {
                 </Button>
               ))}
             </Box>
+            {/* Bulk delete */}
+            <Box sx={{ paddingLeft: "1rem", display: "flex", gap: "1rem" }}>
+              {deleteIds.length ? (
+                <Button
+                  variant="contained"
+                  color="error"
+                  onClick={() =>
+                    setOpenModal((prev) => ({ ...prev, bulkDelete: true }))
+                  }
+                >
+                  <Delete sx={{ marginRight: ".3rem" }} />
+                  Delete selected
+                </Button>
+              ) : null}
+            </Box>
           </Box>
 
           {allMedia?.media.length ? (
@@ -281,7 +340,9 @@ const MediaLibrary = () => {
                   <MediaItem
                     key={`mediaitem-${media.id}`}
                     media={media}
-                    deleteItem={() => handleDeleteAction(media)}
+                    deleteItem={() => handleOpenDeleteModal(media)}
+                    deleteIds={deleteIds}
+                    handleSelect={handleSelect}
                   />
                 ))}
               </Box>

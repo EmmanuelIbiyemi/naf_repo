@@ -1,18 +1,36 @@
-import { Box, IconButton, SxProps, Typography } from "@mui/material";
+import { Box, Checkbox, IconButton, SxProps, Typography } from "@mui/material";
 import DeleteIcon from "../../../../assets/deleteIcon";
 import { MediaType } from "../../../../types/media";
-// import { useEffect, useState } from "react";
+import { ChangeEvent } from "react";
 
 type Props = {
   media: MediaType;
   deleteItem: () => void;
+  handleSelect: (event: ChangeEvent<HTMLInputElement>, postId: number) => void;
+  deleteIds: number[];
 };
-const MediaItem = ({ media, deleteItem }: Props) => {
+const MediaItem = ({ media, deleteItem, handleSelect, deleteIds }: Props) => {
   const extension = media.name.substring(media.name.lastIndexOf(".") + 1);
 
   return (
     <Box sx={mediaItemStyles}>
       <Box sx={mediaThumbStyles}>
+        <Checkbox
+          sx={{
+            bgcolor: "#fff",
+            borderRadius: "0",
+            opacity: 0.8,
+            position: "absolute",
+            transition: ".3s",
+            zIndex: 99,
+
+            "&:hover": {
+              bgcolor: "#fff",
+            },
+          }}
+          onChange={(event) => handleSelect(event, media.id as number)}
+          checked={deleteIds.includes(media.id as number)}
+        />
         {media.type == "image" ? (
           <img src={media.url} alt="Media thumbnail" />
         ) : (
