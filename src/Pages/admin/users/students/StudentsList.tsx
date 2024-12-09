@@ -4,10 +4,10 @@ import TableCell from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
 import TableRow from "@mui/material/TableRow";
 import { StudentFormAction, StudentType } from "../../../../types/students";
-import { Checkbox, IconButton, Typography } from "@mui/material";
+import { Box, Button, Checkbox, IconButton, Typography } from "@mui/material";
 import { Delete, Edit } from "@mui/icons-material";
 import DeleteConfirmationModal from "../../../../components/DeleteConfirmationModal";
-import { useEffect, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 import {
   useDeleteStudentMutation,
   useGetStudentsQuery,
@@ -29,6 +29,7 @@ const StudentsList = () => {
     success: false,
     delete: false,
     sidebar: false,
+    bulkDelete: false,
   });
   const [selectedStudent, setSelectedStudent] = useState<StudentType>();
   const [pagination, setPagination] = useState<Pagination>({
@@ -43,17 +44,30 @@ const StudentsList = () => {
     isError,
   } = useGetStudentsQuery({ ...pagination, search_term: keyword });
   const [students, setStudents] = useState(stds?.data);
-  const [deleteStudent] = useDeleteStudentMutation();
-  const [updateStudent] = useUpdateStudentMutation();
+  const [deleteStudent, deleteState] = useDeleteStudentMutation();
+  const [updateStudent, updateState] = useUpdateStudentMutation();
+  const [deleteIds, setDeleteIds] = useState<number[]>([]);
 
   useEffect(() => {
     if (stds?.data) setStudents(stds?.data);
+
+    // Move back 1 page if server response is empty on the page (due to bulk delete)
+    if (!stds?.data.length && (pagination.page as number) > 1)
+      setPagination((prev) => ({
+        ...prev,
+        page: (pagination.page as number) - 1,
+      }));
   }, [keyword, stds]);
 
   useEffect(() => {
-    if (isFetching && isError) dispatch(setPageLoading(true));
+    if (
+      (isFetching && isError) ||
+      deleteState.isLoading ||
+      updateState.isLoading
+    )
+      dispatch(setPageLoading(true));
     else dispatch(setPageLoading(false));
-  }, [isFetching, isError, stds]);
+  }, [isFetching, isError, stds, deleteState, updateState]);
 
   const handleOpenModal = (student: StudentType, type: string) => {
     setSelectedStudent(student);
@@ -71,6 +85,30 @@ const StudentsList = () => {
     } catch (error) {
       console.log(error);
     }
+  };
+
+  const handleSelectAll = (event: ChangeEvent<HTMLInputElement>) => {
+    if (students?.length && event.target.checked)
+      setDeleteIds(students.map((std) => std.id as number));
+    else setDeleteIds([]);
+  };
+
+  const handleSelect = (
+    event: ChangeEvent<HTMLInputElement>,
+    studentId: number
+  ) => {
+    const newIds = deleteIds.filter((id) => id != studentId);
+    setDeleteIds(event.target.checked ? [...newIds, studentId] : newIds);
+  };
+
+  const handleBulkDelete = async () => {
+    for (const id of deleteIds)
+      try {
+        await deleteStudent(id).unwrap();
+        setDeleteIds([]);
+      } catch (error) {
+        console.log(error);
+      }
   };
 
   const handleEditStudent = async (student: StudentType) => {
@@ -116,6 +154,17 @@ const StudentsList = () => {
         title="Delete Student?"
       />
 
+      <DeleteConfirmationModal
+        actions={{
+          proceed: () => handleBulkDelete(),
+        }}
+        close={() => handleCloseModal("bulkDelete")}
+        infoText="You can’t undo this action."
+        open={openModal.bulkDelete}
+        subTitle={`Are you sure you want to delete ${deleteIds.length} Students ?`}
+        title="Delete Students?"
+      />
+
       {/* Success */}
       <SuccessModal
         close={() => {
@@ -141,6 +190,25 @@ const StudentsList = () => {
         />
       ) : null}
 
+      {/* Bulk delete */}
+      <Box sx={{ paddingLeft: "1rem", display: "flex", gap: "1rem" }}>
+        <Checkbox
+          onChange={handleSelectAll}
+          checked={students?.length == deleteIds.length}
+        />
+        {deleteIds.length ? (
+          <Button
+            variant="contained"
+            color="error"
+            onClick={() =>
+              setOpenModal((prev) => ({ ...prev, bulkDelete: true }))
+            }
+          >
+            <Delete sx={{ marginRight: ".3rem" }} />
+            Delete selected
+          </Button>
+        ) : null}
+      </Box>
       {stds?.data.length ? (
         <>
           <Table sx={{ minWidth: 650 }}>
@@ -155,7 +223,12 @@ const StudentsList = () => {
                     scope="row"
                     sx={{ alignItems: "center", display: "flex", gap: "1rem" }}
                   >
-                    <Checkbox />
+                    <Checkbox
+                      onChange={(event) =>
+                        handleSelect(event, student.id as number)
+                      }
+                      checked={deleteIds.includes(student.id as number)}
+                    />
                     <Typography
                       style={{
                         cursor: "pointer",

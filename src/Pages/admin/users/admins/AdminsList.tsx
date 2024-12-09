@@ -4,10 +4,10 @@ import TableCell from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
 import TableRow from "@mui/material/TableRow";
 import { AdminFormAction, Admin } from "../../../../types/admins";
-import { Checkbox, IconButton, Typography } from "@mui/material";
+import { Box, Button, Checkbox, IconButton, Typography } from "@mui/material";
 import { Delete, Edit } from "@mui/icons-material";
 import DeleteConfirmationModal from "../../../../components/DeleteConfirmationModal";
-import { useEffect, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 import {
   useDeleteAdminMutation,
   useGetAdminsQuery,
@@ -29,6 +29,7 @@ const AdminsList = () => {
     success: false,
     delete: false,
     sidebar: false,
+    bulkDelete: false,
   });
   const [selectedAdmin, setSelectedAdmin] = useState<Admin>();
   const [pagination, setPagination] = useState<Pagination>({
@@ -43,17 +44,30 @@ const AdminsList = () => {
     isError,
   } = useGetAdminsQuery({ ...pagination, search_term: keyword });
   const [admins, setAdmins] = useState<Admin[] | undefined>(adminsData?.data);
-  const [deleteAdmin] = useDeleteAdminMutation();
-  const [updateAdmin] = useUpdateAdminMutation();
+  const [deleteAdmin, deleteState] = useDeleteAdminMutation();
+  const [updateAdmin, updateState] = useUpdateAdminMutation();
+  const [deleteIds, setDeleteIds] = useState<number[]>([]);
 
   useEffect(() => {
     if (adminsData?.data) setAdmins(adminsData?.data);
+
+    // Move back 1 page if server response is empty on the page (due to bulk delete)
+    if (!adminsData?.data.length && (pagination.page as number) > 1)
+      setPagination((prev) => ({
+        ...prev,
+        page: (pagination.page as number) - 1,
+      }));
   }, [keyword, adminsData]);
 
   useEffect(() => {
-    if (isFetching && !isError) dispatch(setPageLoading(true));
+    if (
+      (isFetching && !isError) ||
+      deleteState.isLoading ||
+      updateState.isLoading
+    )
+      dispatch(setPageLoading(true));
     else dispatch(setPageLoading(false));
-  }, [isFetching, isError, adminsData]);
+  }, [isFetching, isError, adminsData, deleteState, updateState]);
 
   const handleOpenModal = (admin: Admin, type: string) => {
     setSelectedAdmin(admin);
@@ -71,6 +85,30 @@ const AdminsList = () => {
     } catch (error) {
       console.log(error);
     }
+  };
+
+  const handleSelectAll = (event: ChangeEvent<HTMLInputElement>) => {
+    if (admins?.length && event.target.checked)
+      setDeleteIds(admins.map((fac) => fac.id as number));
+    else setDeleteIds([]);
+  };
+
+  const handleSelect = (
+    event: ChangeEvent<HTMLInputElement>,
+    facultyId: number
+  ) => {
+    const newIds = deleteIds.filter((id) => id != facultyId);
+    setDeleteIds(event.target.checked ? [...newIds, facultyId] : newIds);
+  };
+
+  const handleBulkDelete = async () => {
+    for (const id of deleteIds)
+      try {
+        await deleteAdmin(id).unwrap();
+        setDeleteIds([]);
+      } catch (error) {
+        console.log(error);
+      }
   };
 
   const handleEditAdmin = async (admin: Admin) => {
@@ -116,6 +154,17 @@ const AdminsList = () => {
         title="Delete Admin?"
       />
 
+      <DeleteConfirmationModal
+        actions={{
+          proceed: () => handleBulkDelete(),
+        }}
+        close={() => handleCloseModal("bulkDelete")}
+        infoText="You can’t undo this action."
+        open={openModal.bulkDelete}
+        subTitle={`Are you sure you want to delete ${deleteIds.length} Admins ?`}
+        title="Delete Admins?"
+      />
+
       {/* Success */}
       <SuccessModal
         close={() => {
@@ -141,11 +190,30 @@ const AdminsList = () => {
         />
       ) : null}
 
+      {/* Bulk delete */}
+      <Box sx={{ paddingLeft: "1rem", display: "flex", gap: "1rem" }}>
+        <Checkbox
+          onChange={handleSelectAll}
+          checked={admins?.length == deleteIds.length}
+        />
+        {deleteIds.length ? (
+          <Button
+            variant="contained"
+            color="error"
+            onClick={() =>
+              setOpenModal((prev) => ({ ...prev, bulkDelete: true }))
+            }
+          >
+            <Delete sx={{ marginRight: ".3rem" }} />
+            Delete selected
+          </Button>
+        ) : null}
+      </Box>
       {adminsData?.data.length ? (
         <>
           <Table sx={{ minWidth: 650 }}>
             <TableBody>
-              {admins?.map((admin: Admin) => (
+              {admins?.map((admin) => (
                 <TableRow
                   key={admin.id}
                   sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
@@ -155,7 +223,12 @@ const AdminsList = () => {
                     scope="row"
                     sx={{ alignItems: "center", display: "flex", gap: "1rem" }}
                   >
-                    <Checkbox />
+                    <Checkbox
+                      onChange={(event) =>
+                        handleSelect(event, admin.id as number)
+                      }
+                      checked={deleteIds.includes(admin.id as number)}
+                    />
                     <Typography
                       style={{
                         cursor: "pointer",

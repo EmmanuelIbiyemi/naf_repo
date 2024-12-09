@@ -4,10 +4,10 @@ import TableCell from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
 import TableRow from "@mui/material/TableRow";
 import { LecturerFormAction, Lecturer } from "../../../../types/lecturers";
-import { Checkbox, IconButton, Typography } from "@mui/material";
+import { Box, Button, Checkbox, IconButton, Typography } from "@mui/material";
 import { Delete, Edit } from "@mui/icons-material";
 import DeleteConfirmationModal from "../../../../components/DeleteConfirmationModal";
-import { useEffect, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 import {
   useDeleteLecturerMutation,
   useGetLecturersQuery,
@@ -29,6 +29,7 @@ const LecturersList = () => {
     success: false,
     delete: false,
     sidebar: false,
+    bulkDelete: false,
   });
   const [selectedLecturer, setSelectedLecturer] = useState<Lecturer>();
   const [pagination, setPagination] = useState<Pagination>({
@@ -43,12 +44,30 @@ const LecturersList = () => {
     isError,
   } = useGetLecturersQuery({ ...pagination, search_term: keyword });
   const [lecturers, setLecturers] = useState(ltcs?.data);
-  const [deleteLecturer] = useDeleteLecturerMutation();
-  const [updateLecturer] = useUpdateLecturerMutation();
+  const [deleteLecturer, deleteState] = useDeleteLecturerMutation();
+  const [updateLecturer, updateState] = useUpdateLecturerMutation();
+  const [deleteIds, setDeleteIds] = useState<number[]>([]);
 
   useEffect(() => {
     if (ltcs?.data) setLecturers(ltcs?.data);
+
+    // Move back 1 page if server response is empty on the page (due to bulk delete)
+    if (!ltcs?.data.length && (pagination.page as number) > 1)
+      setPagination((prev) => ({
+        ...prev,
+        page: (pagination.page as number) - 1,
+      }));
   }, [keyword, ltcs]);
+
+  useEffect(() => {
+    if (
+      (isFetching && isError) ||
+      deleteState.isLoading ||
+      updateState.isLoading
+    )
+      dispatch(setPageLoading(true));
+    else dispatch(setPageLoading(false));
+  }, [isFetching, isError, lecturers, deleteState, updateState]);
 
   const handleOpenModal = (lecturer: Lecturer, type: string) => {
     setSelectedLecturer(lecturer);
@@ -68,6 +87,30 @@ const LecturersList = () => {
     }
   };
 
+  const handleSelectAll = (event: ChangeEvent<HTMLInputElement>) => {
+    if (lecturers?.length && event.target.checked)
+      setDeleteIds(lecturers.map((ltc) => ltc.id as number));
+    else setDeleteIds([]);
+  };
+
+  const handleSelect = (
+    event: ChangeEvent<HTMLInputElement>,
+    lecturerId: number
+  ) => {
+    const newIds = deleteIds.filter((id) => id != lecturerId);
+    setDeleteIds(event.target.checked ? [...newIds, lecturerId] : newIds);
+  };
+
+  const handleBulkDelete = async () => {
+    for (const id of deleteIds)
+      try {
+        await deleteLecturer(id).unwrap();
+        setDeleteIds([]);
+      } catch (error) {
+        console.log(error);
+      }
+  };
+
   const handleEditLecturer = async (lecturer: Lecturer) => {
     try {
       await updateLecturer(lecturer).unwrap();
@@ -77,11 +120,6 @@ const LecturersList = () => {
     handleCloseModal("edit");
     handleOpenModal(lecturer, "success");
   };
-
-  useEffect(() => {
-    if (isFetching && isError) dispatch(setPageLoading(true));
-    else dispatch(setPageLoading(false));
-  }, [isFetching, isError, lecturers]);
 
   return (
     <TableContainer>
@@ -116,6 +154,17 @@ const LecturersList = () => {
         title="Delete Lecturer?"
       />
 
+      <DeleteConfirmationModal
+        actions={{
+          proceed: () => handleBulkDelete(),
+        }}
+        close={() => handleCloseModal("bulkDelete")}
+        infoText="You can’t undo this action."
+        open={openModal.bulkDelete}
+        subTitle={`Are you sure you want to delete ${deleteIds.length} Instructors ?`}
+        title="Delete Instructors?"
+      />
+
       {/* Success */}
       <SuccessModal
         close={() => {
@@ -141,11 +190,30 @@ const LecturersList = () => {
         />
       ) : null}
 
+      {/* Bulk delete */}
+      <Box sx={{ paddingLeft: "1rem", display: "flex", gap: "1rem" }}>
+        <Checkbox
+          onChange={handleSelectAll}
+          checked={lecturers?.length == deleteIds.length}
+        />
+        {deleteIds.length ? (
+          <Button
+            variant="contained"
+            color="error"
+            onClick={() =>
+              setOpenModal((prev) => ({ ...prev, bulkDelete: true }))
+            }
+          >
+            <Delete sx={{ marginRight: ".3rem" }} />
+            Delete selected
+          </Button>
+        ) : null}
+      </Box>
       {ltcs?.data.length ? (
         <>
           <Table sx={{ minWidth: 650 }}>
             <TableBody>
-              {lecturers?.map((lecturer: Lecturer) => (
+              {lecturers?.map((lecturer) => (
                 <TableRow
                   key={lecturer.id}
                   sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
@@ -155,7 +223,12 @@ const LecturersList = () => {
                     scope="row"
                     sx={{ alignItems: "center", display: "flex", gap: "1rem" }}
                   >
-                    <Checkbox />
+                    <Checkbox
+                      onChange={(event) =>
+                        handleSelect(event, lecturer.id as number)
+                      }
+                      checked={deleteIds.includes(lecturer.id as number)}
+                    />
                     <Typography
                       style={{
                         cursor: "pointer",
