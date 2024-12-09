@@ -4,11 +4,11 @@ import TableCell from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
 import TableRow from "@mui/material/TableRow";
 import { CourseCombinedType, CourseType } from "../../../../types/courses";
-import { Checkbox, IconButton, Typography } from "@mui/material";
+import { Box, Button, Checkbox, IconButton, Typography } from "@mui/material";
 import { Delete, Edit } from "@mui/icons-material";
 import { useParams } from "react-router-dom";
 import DeleteConfirmationModal from "../../../../components/DeleteConfirmationModal";
-import { useEffect, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 import {
   useAddLevelCourseMutation,
   useDeleteCourseMutation,
@@ -31,6 +31,7 @@ const CourseList = () => {
     edit: false,
     success: false,
     delete: false,
+    bulkDelete: false,
   });
   const [selectedCourse, setSelectedCourse] = useState<CourseType>();
   const [pagination, setPagination] = useState<Pagination>({
@@ -49,18 +50,31 @@ const CourseList = () => {
     ...pagination,
   });
   const [courses, setCourses] = useState<CourseType[] | undefined>(crs?.data);
-  const [deleteCourse] = useDeleteCourseMutation();
-  const [updateCourse] = useUpdateCourseMutation();
+  const [deleteCourse, deleteState] = useDeleteCourseMutation();
+  const [updateCourse, updateState] = useUpdateCourseMutation();
   const [addCourseToLevel] = useAddLevelCourseMutation();
+  const [deleteIds, setDeleteIds] = useState<number[]>([]);
 
   useEffect(() => {
     if (crs?.data) setCourses(crs?.data);
+
+    // Move back 1 page if server response is empty on the page (due to bulk delete)
+    if (!crs?.data.length && (pagination.page as number) > 1)
+      setPagination((prev) => ({
+        ...prev,
+        page: (pagination.page as number) - 1,
+      }));
   }, [keyword, crs]);
 
   useEffect(() => {
-    if (isFetching && !isError) dispatch(setPageLoading(true));
+    if (
+      (isFetching && !isError) ||
+      deleteState.isLoading ||
+      updateState.isLoading
+    )
+      dispatch(setPageLoading(true));
     else dispatch(setPageLoading(false));
-  }, [isFetching, isError, crs]);
+  }, [isFetching, isError, crs, deleteState, updateState]);
 
   const handleOpenModal = (course: CourseType, type: string) => {
     setSelectedCourse(course);
@@ -78,6 +92,30 @@ const CourseList = () => {
     } catch (error) {
       console.log(error);
     }
+  };
+
+  const handleSelectAll = (event: ChangeEvent<HTMLInputElement>) => {
+    if (courses?.length && event.target.checked)
+      setDeleteIds(courses.map((crs) => crs.id as number));
+    else setDeleteIds([]);
+  };
+
+  const handleSelect = (
+    event: ChangeEvent<HTMLInputElement>,
+    courseId: number
+  ) => {
+    const newIds = deleteIds.filter((id) => id != courseId);
+    setDeleteIds(event.target.checked ? [...newIds, courseId] : newIds);
+  };
+
+  const handleBulkDelete = async () => {
+    for (const id of deleteIds)
+      try {
+        await deleteCourse(id).unwrap();
+        setDeleteIds([]);
+      } catch (error) {
+        console.log(error);
+      }
   };
 
   const handleEditCourse = async (course: CourseType) => {
@@ -123,6 +161,17 @@ const CourseList = () => {
         title="Delete Course?"
       />
 
+      <DeleteConfirmationModal
+        actions={{
+          proceed: () => handleBulkDelete(),
+        }}
+        close={() => handleCloseModal("bulkDelete")}
+        infoText="You can’t undo this action."
+        open={openModal.bulkDelete}
+        subTitle={`Are you sure you want to delete ${deleteIds.length} Courses ?`}
+        title="Delete Courses?"
+      />
+
       {/* Success */}
       <SuccessModal
         close={() => {
@@ -147,6 +196,26 @@ const CourseList = () => {
           subTitle="Courses will appear here after you add them in your school."
         />
       ) : null}
+
+      {/* Bulk delete */}
+      <Box sx={{ paddingLeft: "1rem", display: "flex", gap: "1rem" }}>
+        <Checkbox
+          onChange={handleSelectAll}
+          checked={courses?.length == deleteIds.length}
+        />
+        {deleteIds.length ? (
+          <Button
+            variant="contained"
+            color="error"
+            onClick={() =>
+              setOpenModal((prev) => ({ ...prev, bulkDelete: true }))
+            }
+          >
+            <Delete sx={{ marginRight: ".3rem" }} />
+            Delete selected
+          </Button>
+        ) : null}
+      </Box>
       {crs?.data.length ? (
         <>
           <Table sx={{ minWidth: 650 }}>
@@ -161,7 +230,12 @@ const CourseList = () => {
                     scope="row"
                     sx={{ alignItems: "center", display: "flex", gap: "1rem" }}
                   >
-                    <Checkbox />
+                    <Checkbox
+                      onChange={(event) =>
+                        handleSelect(event, course.id as number)
+                      }
+                      checked={deleteIds.includes(course.id as number)}
+                    />
                     <Typography
                       sx={{ fontWeight: 500, textTransform: "capitalize" }}
                     >

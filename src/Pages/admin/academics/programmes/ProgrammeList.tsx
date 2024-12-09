@@ -4,10 +4,10 @@ import TableCell from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
 import TableRow from "@mui/material/TableRow";
 import { Programme, ProgrammeFormAction } from "../../../../types/programmes";
-import { Button, Checkbox, IconButton } from "@mui/material";
+import { Box, Button, Checkbox, IconButton } from "@mui/material";
 import { Delete, Edit } from "@mui/icons-material";
 import DeleteConfirmationModal from "../../../../components/DeleteConfirmationModal";
-import { useEffect, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 import {
   useDeleteProgrammeMutation,
   useGetProgrammesQuery,
@@ -30,6 +30,7 @@ const ProgrammeList = () => {
     edit: false,
     success: false,
     delete: false,
+    bulkDelete: false,
   });
   const [selectedProgramme, setSelectedProgramme] = useState<Programme>();
   const [pagination, setPagination] = useState<Pagination>({
@@ -48,17 +49,30 @@ const ProgrammeList = () => {
     ...pagination,
   });
   const [programmes, setProgrammes] = useState(prgms?.data);
-  const [deleteProgramme] = useDeleteProgrammeMutation();
-  const [updateProgramme] = useUpdateProgrammeMutation();
+  const [deleteProgramme, deleteState] = useDeleteProgrammeMutation();
+  const [updateProgramme, updateState] = useUpdateProgrammeMutation();
+  const [deleteIds, setDeleteIds] = useState<number[]>([]);
 
   useEffect(() => {
     if (prgms?.data) setProgrammes(prgms?.data);
+
+    // Move back 1 page if server response is empty on the page (due to bulk delete)
+    if (!prgms?.data.length && (pagination.page as number) > 1)
+      setPagination((prev) => ({
+        ...prev,
+        page: (pagination.page as number) - 1,
+      }));
   }, [keyword, prgms]);
 
   useEffect(() => {
-    if (isFetching && !isError) dispatch(setPageLoading(true));
+    if (
+      (isFetching && !isError) ||
+      deleteState.isLoading ||
+      updateState.isLoading
+    )
+      dispatch(setPageLoading(true));
     else dispatch(setPageLoading(false));
-  }, [isFetching, isError, prgms]);
+  }, [isFetching, isError, prgms, deleteState, updateState]);
 
   const handleOpenModal = (programme: Programme, type: string) => {
     setSelectedProgramme(programme);
@@ -76,6 +90,30 @@ const ProgrammeList = () => {
     } catch (error) {
       console.log(error);
     }
+  };
+
+  const handleSelectAll = (event: ChangeEvent<HTMLInputElement>) => {
+    if (programmes?.length && event.target.checked)
+      setDeleteIds(programmes.map((dep) => dep.id as number));
+    else setDeleteIds([]);
+  };
+
+  const handleSelect = (
+    event: ChangeEvent<HTMLInputElement>,
+    programId: number
+  ) => {
+    const newIds = deleteIds.filter((id) => id != programId);
+    setDeleteIds(event.target.checked ? [...newIds, programId] : newIds);
+  };
+
+  const handleBulkDelete = async () => {
+    for (const id of deleteIds)
+      try {
+        await deleteProgramme(id).unwrap();
+        setDeleteIds([]);
+      } catch (error) {
+        console.log(error);
+      }
   };
 
   const handleEditProgramme = async (programme: Programme) => {
@@ -116,6 +154,17 @@ const ProgrammeList = () => {
         title="Delete Programme?"
       />
 
+      <DeleteConfirmationModal
+        actions={{
+          proceed: () => handleBulkDelete(),
+        }}
+        close={() => handleCloseModal("bulkDelete")}
+        infoText="You can’t undo this action."
+        open={openModal.bulkDelete}
+        subTitle={`Are you sure you want to delete ${deleteIds.length} Programs ?`}
+        title="Delete Programs?"
+      />
+
       {/* Success */}
       <SuccessModal
         close={() => {
@@ -141,11 +190,30 @@ const ProgrammeList = () => {
         />
       ) : null}
 
+      {/* Bulk delete */}
+      <Box sx={{ paddingLeft: "1rem", display: "flex", gap: "1rem" }}>
+        <Checkbox
+          onChange={handleSelectAll}
+          checked={programmes?.length == deleteIds.length}
+        />
+        {deleteIds.length ? (
+          <Button
+            variant="contained"
+            color="error"
+            onClick={() =>
+              setOpenModal((prev) => ({ ...prev, bulkDelete: true }))
+            }
+          >
+            <Delete sx={{ marginRight: ".3rem" }} />
+            Delete selected
+          </Button>
+        ) : null}
+      </Box>
       {prgms?.data.length ? (
         <>
           <Table sx={{ minWidth: 650 }}>
             <TableBody>
-              {programmes?.map((programme: Programme) => (
+              {programmes?.map((programme) => (
                 <TableRow
                   key={programme.id}
                   sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
@@ -155,7 +223,12 @@ const ProgrammeList = () => {
                     scope="row"
                     sx={{ alignItems: "center", display: "flex", gap: "1rem" }}
                   >
-                    <Checkbox />
+                    <Checkbox
+                      onChange={(event) =>
+                        handleSelect(event, programme.id as number)
+                      }
+                      checked={deleteIds.includes(programme.id as number)}
+                    />
                     <Button
                       onClick={() =>
                         navigate(

@@ -4,11 +4,11 @@ import TableCell from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
 import TableRow from "@mui/material/TableRow";
 import { LevelType } from "../../../../types/levels";
-import { Button, Checkbox, IconButton } from "@mui/material";
+import { Box, Button, Checkbox, IconButton } from "@mui/material";
 import { Delete, Edit } from "@mui/icons-material";
 import { useNavigate, useParams } from "react-router-dom";
 import DeleteConfirmationModal from "../../../../components/DeleteConfirmationModal";
-import { useEffect, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 import {
   useDeleteLevelMutation,
   useGetLevelsQuery,
@@ -29,6 +29,7 @@ const LevelList = () => {
     edit: false,
     success: false,
     delete: false,
+    bulkDelete: false,
   });
   const [selectedLevel, setSelectedLevel] = useState<LevelType>();
   const keyword = useAppSelector(selectKeyword);
@@ -42,17 +43,23 @@ const LevelList = () => {
     search_term: keyword,
   });
   const [levels, setLevels] = useState(lvls?.data);
-  const [deleteLevel] = useDeleteLevelMutation();
-  const [updateLevel] = useUpdateLevelMutation();
+  const [deleteLevel, deleteState] = useDeleteLevelMutation();
+  const [updateLevel, updateState] = useUpdateLevelMutation();
+  const [deleteIds, setDeleteIds] = useState<number[]>([]);
 
   useEffect(() => {
     if (lvls?.data) setLevels(lvls?.data);
   }, [keyword, lvls]);
 
   useEffect(() => {
-    if (isFetching && !isError) dispatch(setPageLoading(true));
+    if (
+      (isFetching && !isError) ||
+      deleteState.isLoading ||
+      updateState.isLoading
+    )
+      dispatch(setPageLoading(true));
     else dispatch(setPageLoading(false));
-  }, [isFetching, isError, lvls]);
+  }, [isFetching, isError, lvls, deleteState, updateState]);
 
   const handleOpenModal = (level: LevelType, type: string) => {
     setSelectedLevel(level);
@@ -70,6 +77,30 @@ const LevelList = () => {
     } catch (error) {
       console.log(error);
     }
+  };
+
+  const handleSelectAll = (event: ChangeEvent<HTMLInputElement>) => {
+    if (levels?.length && event.target.checked)
+      setDeleteIds(levels.map((lvl) => lvl.id as number));
+    else setDeleteIds([]);
+  };
+
+  const handleSelect = (
+    event: ChangeEvent<HTMLInputElement>,
+    levelId: number
+  ) => {
+    const newIds = deleteIds.filter((id) => id != levelId);
+    setDeleteIds(event.target.checked ? [...newIds, levelId] : newIds);
+  };
+
+  const handleBulkDelete = async () => {
+    for (const id of deleteIds)
+      try {
+        await deleteLevel(id).unwrap();
+        setDeleteIds([]);
+      } catch (error) {
+        console.log(error);
+      }
   };
 
   const handleEditLevel = async (level: LevelType) => {
@@ -110,6 +141,17 @@ const LevelList = () => {
         title="Delete Level?"
       />
 
+      <DeleteConfirmationModal
+        actions={{
+          proceed: () => handleBulkDelete(),
+        }}
+        close={() => handleCloseModal("bulkDelete")}
+        infoText="You can’t undo this action."
+        open={openModal.bulkDelete}
+        subTitle={`Are you sure you want to delete ${deleteIds.length} Levels ?`}
+        title="Delete Levels?"
+      />
+
       {/* Success */}
       <SuccessModal
         close={() => {
@@ -135,6 +177,25 @@ const LevelList = () => {
         />
       ) : null}
 
+      {/* Bulk delete */}
+      <Box sx={{ paddingLeft: "1rem", display: "flex", gap: "1rem" }}>
+        <Checkbox
+          onChange={handleSelectAll}
+          checked={levels?.length == deleteIds.length}
+        />
+        {deleteIds.length ? (
+          <Button
+            variant="contained"
+            color="error"
+            onClick={() =>
+              setOpenModal((prev) => ({ ...prev, bulkDelete: true }))
+            }
+          >
+            <Delete sx={{ marginRight: ".3rem" }} />
+            Delete selected
+          </Button>
+        ) : null}
+      </Box>
       {lvls?.data.length ? (
         <Table sx={{ minWidth: 650 }}>
           <TableBody>
@@ -148,7 +209,12 @@ const LevelList = () => {
                   scope="row"
                   sx={{ alignItems: "center", display: "flex", gap: "1rem" }}
                 >
-                  <Checkbox />
+                  <Checkbox
+                    onChange={(event) =>
+                      handleSelect(event, level.id as number)
+                    }
+                    checked={deleteIds.includes(level.id as number)}
+                  />
                   <Button
                     onClick={() =>
                       navigate(

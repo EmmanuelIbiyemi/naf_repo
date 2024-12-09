@@ -4,11 +4,11 @@ import TableCell from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
 import TableRow from "@mui/material/TableRow";
 import { Faculty, FacultyFormAction } from "../../../../types/faculties";
-import { Button, Checkbox, IconButton } from "@mui/material";
+import { Box, Button, Checkbox, IconButton } from "@mui/material";
 import { Delete, Edit } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import DeleteConfirmationModal from "../../../../components/DeleteConfirmationModal";
-import { useEffect, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 import {
   useDeleteFacultyMutation,
   useGetFacultiesQuery,
@@ -29,6 +29,7 @@ const FacultyList = () => {
     edit: false,
     success: false,
     delete: false,
+    bulkDelete: false,
   });
   const [selectedFaculty, setSelectedFaculty] = useState<Faculty>();
   const keyword = useAppSelector(selectKeyword);
@@ -42,18 +43,32 @@ const FacultyList = () => {
     isFetching,
     isError,
   } = useGetFacultiesQuery({ ...pagination, search_term: keyword });
-  const [deleteFaculty] = useDeleteFacultyMutation();
-  const [updateFaculty] = useUpdateFacultyMutation();
+  const [deleteFaculty, deleteState] = useDeleteFacultyMutation();
+  const [updateFaculty, updateState] = useUpdateFacultyMutation();
   const [faculties, setFaculties] = useState<Faculty[] | undefined>(facs?.data);
+  const [deleteIds, setDeleteIds] = useState<number[]>([]);
 
   useEffect(() => {
+    setDeleteIds([]);
     if (facs?.data) setFaculties(facs?.data);
+
+    // Move back 1 page if server response is empty on the page (due to bulk delete)
+    if (!facs?.data.length && (pagination.page as number) > 1)
+      setPagination((prev) => ({
+        ...prev,
+        page: (pagination.page as number) - 1,
+      }));
   }, [keyword, facs]);
 
   useEffect(() => {
-    if (isFetching && !isError) dispatch(setPageLoading(true));
+    if (
+      (isFetching && !isError) ||
+      deleteState.isLoading ||
+      updateState.isLoading
+    )
+      dispatch(setPageLoading(true));
     else dispatch(setPageLoading(false));
-  }, [isFetching, isError, facs]);
+  }, [isFetching, isError, facs, deleteState, updateState]);
 
   const handleOpenModal = (faculty: Faculty, type: string) => {
     setSelectedFaculty(faculty);
@@ -71,6 +86,30 @@ const FacultyList = () => {
     } catch (error) {
       console.log(error);
     }
+  };
+
+  const handleSelectAll = (event: ChangeEvent<HTMLInputElement>) => {
+    if (faculties?.length && event.target.checked)
+      setDeleteIds(faculties.map((fac) => fac.id as number));
+    else setDeleteIds([]);
+  };
+
+  const handleSelect = (
+    event: ChangeEvent<HTMLInputElement>,
+    facultyId: number
+  ) => {
+    const newIds = deleteIds.filter((id) => id != facultyId);
+    setDeleteIds(event.target.checked ? [...newIds, facultyId] : newIds);
+  };
+
+  const handleBulkDelete = async () => {
+    for (const id of deleteIds)
+      try {
+        await deleteFaculty(id).unwrap();
+        setDeleteIds([]);
+      } catch (error) {
+        console.log(error);
+      }
   };
 
   const handleEditFaculty = async (faculty: Faculty) => {
@@ -101,7 +140,6 @@ const FacultyList = () => {
         actions={{
           proceed: () => {
             if (selectedFaculty) handleDelete(selectedFaculty.id as number);
-            console.log("proceed");
           },
         }}
         close={() => handleCloseModal("delete")}
@@ -109,6 +147,17 @@ const FacultyList = () => {
         open={openModal.delete}
         subTitle={`Are you sure you want to delete Faculty "${selectedFaculty?.name}" ?`}
         title="Delete Faculty?"
+      />
+
+      <DeleteConfirmationModal
+        actions={{
+          proceed: () => handleBulkDelete(),
+        }}
+        close={() => handleCloseModal("bulkDelete")}
+        infoText="You can’t undo this action."
+        open={openModal.bulkDelete}
+        subTitle={`Are you sure you want to delete ${deleteIds.length} Faculties ?`}
+        title="Delete Faculties?"
       />
 
       {/* Success */}
@@ -136,6 +185,25 @@ const FacultyList = () => {
         />
       ) : null}
 
+      {/* Bulk delete */}
+      <Box sx={{ paddingLeft: "1rem", display: "flex", gap: "1rem" }}>
+        <Checkbox
+          onChange={handleSelectAll}
+          checked={faculties?.length == deleteIds.length}
+        />
+        {deleteIds.length ? (
+          <Button
+            variant="contained"
+            color="error"
+            onClick={() =>
+              setOpenModal((prev) => ({ ...prev, bulkDelete: true }))
+            }
+          >
+            <Delete sx={{ marginRight: ".3rem" }} />
+            Delete selected
+          </Button>
+        ) : null}
+      </Box>
       {facs?.data.length ? (
         <>
           <Table sx={{ minWidth: 650 }}>
@@ -150,7 +218,12 @@ const FacultyList = () => {
                     scope="row"
                     sx={{ alignItems: "center", display: "flex", gap: "1rem" }}
                   >
-                    <Checkbox />
+                    <Checkbox
+                      onChange={(event) =>
+                        handleSelect(event, faculty.id as number)
+                      }
+                      checked={deleteIds.includes(faculty.id as number)}
+                    />
                     <Button
                       onClick={() => navigate(`/academics/${faculty.id}`)}
                       sx={{

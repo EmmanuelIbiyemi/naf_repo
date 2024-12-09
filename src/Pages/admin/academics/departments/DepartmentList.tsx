@@ -7,11 +7,11 @@ import {
   DepartmentType,
   DepartmentFormAction,
 } from "../../../../types/department";
-import { Button, Checkbox, IconButton } from "@mui/material";
+import { Box, Button, Checkbox, IconButton } from "@mui/material";
 import { Delete, Edit } from "@mui/icons-material";
 import { useNavigate, useParams } from "react-router-dom";
 import DeleteConfirmationModal from "../../../../components/DeleteConfirmationModal";
-import { useEffect, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 import {
   useDeleteDepartmentMutation,
   useGetDepartmentsQuery,
@@ -33,6 +33,7 @@ const DepartmentList = () => {
     edit: false,
     success: false,
     delete: false,
+    bulkDelete: false,
   });
   const [selectedDepartment, setSelectedDepartment] =
     useState<DepartmentType>();
@@ -54,17 +55,30 @@ const DepartmentList = () => {
   const [departments, setDepartments] = useState<DepartmentType[] | undefined>(
     deps?.data
   );
-  const [deleteDepartment] = useDeleteDepartmentMutation();
-  const [updateDepartment] = useUpdateDepartmentMutation();
+  const [deleteDepartment, deleteState] = useDeleteDepartmentMutation();
+  const [updateDepartment, updateState] = useUpdateDepartmentMutation();
+  const [deleteIds, setDeleteIds] = useState<number[]>([]);
 
   useEffect(() => {
     if (deps?.data) setDepartments(deps?.data);
+
+    // Move back 1 page if server response is empty on the page (due to bulk delete)
+    if (!deps?.data.length && (pagination.page as number) > 1)
+      setPagination((prev) => ({
+        ...prev,
+        page: (pagination.page as number) - 1,
+      }));
   }, [keyword, deps]);
 
   useEffect(() => {
-    if (isFetching && !isError) dispatch(setPageLoading(true));
+    if (
+      (isFetching && !isError) ||
+      deleteState.isLoading ||
+      updateState.isLoading
+    )
+      dispatch(setPageLoading(true));
     else dispatch(setPageLoading(false));
-  }, [isFetching, isError, deps]);
+  }, [isFetching, isError, deps, deleteState, updateState]);
 
   const handleOpenModal = (department: DepartmentType, type: string) => {
     setSelectedDepartment(department);
@@ -82,6 +96,30 @@ const DepartmentList = () => {
     } catch (error) {
       console.log(error);
     }
+  };
+
+  const handleSelectAll = (event: ChangeEvent<HTMLInputElement>) => {
+    if (departments?.length && event.target.checked)
+      setDeleteIds(departments.map((fac) => fac.id as number));
+    else setDeleteIds([]);
+  };
+
+  const handleSelect = (
+    event: ChangeEvent<HTMLInputElement>,
+    departmentId: number
+  ) => {
+    const newIds = deleteIds.filter((id) => id != departmentId);
+    setDeleteIds(event.target.checked ? [...newIds, departmentId] : newIds);
+  };
+
+  const handleBulkDelete = async () => {
+    for (const id of deleteIds)
+      try {
+        await deleteDepartment(id).unwrap();
+        setDeleteIds([]);
+      } catch (error) {
+        console.log(error);
+      }
   };
 
   const handleEditDepartment = async (department: DepartmentType) => {
@@ -123,6 +161,17 @@ const DepartmentList = () => {
         title="Delete Department?"
       />
 
+      <DeleteConfirmationModal
+        actions={{
+          proceed: () => handleBulkDelete(),
+        }}
+        close={() => handleCloseModal("bulkDelete")}
+        infoText="You can’t undo this action."
+        open={openModal.bulkDelete}
+        subTitle={`Are you sure you want to delete ${deleteIds.length} departments ?`}
+        title="Delete Departments?"
+      />
+
       {/* Success */}
       <SuccessModal
         close={() => {
@@ -148,6 +197,26 @@ const DepartmentList = () => {
         />
       ) : null}
 
+      {/* Bulk delete */}
+      <Box sx={{ paddingLeft: "1rem", display: "flex", gap: "1rem" }}>
+        <Checkbox
+          onChange={handleSelectAll}
+          checked={departments?.length == deleteIds.length}
+        />
+        {deleteIds.length ? (
+          <Button
+            variant="contained"
+            color="error"
+            onClick={() =>
+              setOpenModal((prev) => ({ ...prev, bulkDelete: true }))
+            }
+          >
+            <Delete sx={{ marginRight: ".3rem" }} />
+            Delete selected
+          </Button>
+        ) : null}
+      </Box>
+
       {deps?.data.length ? (
         <>
           <Table sx={{ minWidth: 650 }}>
@@ -162,7 +231,12 @@ const DepartmentList = () => {
                     scope="row"
                     sx={{ alignItems: "center", display: "flex", gap: "1rem" }}
                   >
-                    <Checkbox />
+                    <Checkbox
+                      onChange={(event) =>
+                        handleSelect(event, department.id as number)
+                      }
+                      checked={deleteIds.includes(department.id as number)}
+                    />
                     <Button
                       onClick={() =>
                         navigate(`/academics/${faculty_id}/${department.id}`)
