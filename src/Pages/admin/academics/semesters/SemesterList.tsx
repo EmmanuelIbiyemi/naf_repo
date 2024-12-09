@@ -7,10 +7,10 @@ import {
   SemesterCombinedType,
   SemesterType,
 } from "../../../../types/semesters";
-import { Checkbox, IconButton, Typography } from "@mui/material";
+import { Box, Button, Checkbox, IconButton, Typography } from "@mui/material";
 import { Delete, Edit } from "@mui/icons-material";
 import DeleteConfirmationModal from "../../../../components/DeleteConfirmationModal";
-import { useEffect, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 import {
   useDeleteSemesterMutation,
   useUpdateSemesterMutation,
@@ -30,6 +30,7 @@ const SemesterList = () => {
     edit: false,
     success: false,
     delete: false,
+    bulkDelete: false,
   });
   //
   const { session_id } = useParams();
@@ -43,14 +44,13 @@ const SemesterList = () => {
   const [semesters, setSemesters] = useState<SemesterType[] | undefined>(
     session?.data.semesters
   );
-  const [deleteSemester] = useDeleteSemesterMutation();
-  const [updateSemester] = useUpdateSemesterMutation();
+  const [deleteSemester, deleteState] = useDeleteSemesterMutation();
+  const [updateSemester, updateState] = useUpdateSemesterMutation();
   const keyword = useAppSelector(selectKeyword);
   const dispatch = useAppDispatch();
+  const [deleteIds, setDeleteIds] = useState<number[]>([]);
 
   useEffect(() => {
-    console.log(session?.data.semesters);
-    console.log(session_id);
     if (keyword && session?.data)
       setSemesters(
         session.data.semesters.filter((f) =>
@@ -61,10 +61,14 @@ const SemesterList = () => {
   }, [keyword, session]);
 
   useEffect(() => {
-    if (isFetching) dispatch(setPageLoading(true));
-    else if (isError) dispatch(setPageLoading(false));
+    if (
+      (isFetching && !isError) ||
+      deleteState.isLoading ||
+      updateState.isLoading
+    )
+      dispatch(setPageLoading(true));
     else dispatch(setPageLoading(false));
-  }, [isFetching, isError, session]);
+  }, [isFetching, isError, session, deleteState, updateState]);
 
   const handleOpenModal = (semester: SemesterType, type: string) => {
     setSelectedSemester(semester);
@@ -82,6 +86,30 @@ const SemesterList = () => {
     } catch (error) {
       console.log(error);
     }
+  };
+
+  const handleSelectAll = (event: ChangeEvent<HTMLInputElement>) => {
+    if (semesters?.length && event.target.checked)
+      setDeleteIds(semesters.map((fac) => fac.id as number));
+    else setDeleteIds([]);
+  };
+
+  const handleSelect = (
+    event: ChangeEvent<HTMLInputElement>,
+    semesterId: number
+  ) => {
+    const newIds = deleteIds.filter((id) => id != semesterId);
+    setDeleteIds(event.target.checked ? [...newIds, semesterId] : newIds);
+  };
+
+  const handleBulkDelete = async () => {
+    for (const id of deleteIds)
+      try {
+        await deleteSemester(id).unwrap();
+        setDeleteIds([]);
+      } catch (error) {
+        console.log(error);
+      }
   };
 
   const handleEditSemester = async (semester: SemesterType) => {
@@ -122,6 +150,17 @@ const SemesterList = () => {
         title="Delete Semester?"
       />
 
+      <DeleteConfirmationModal
+        actions={{
+          proceed: () => handleBulkDelete(),
+        }}
+        close={() => handleCloseModal("bulkDelete")}
+        infoText="You can’t undo this action."
+        open={openModal.bulkDelete}
+        subTitle={`Are you sure you want to delete ${deleteIds.length} Semesters ?`}
+        title="Delete Semesters?"
+      />
+
       {/* Success */}
       <SuccessModal
         close={() => {
@@ -146,37 +185,66 @@ const SemesterList = () => {
           subTitle="Semesters will appear here after you add them in your school."
         />
       ) : null}
-      <Table sx={{ minWidth: 650 }}>
-        <TableBody>
-          {semesters?.map((semester) => (
-            <TableRow
-              key={semester.id}
-              sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-            >
-              <TableCell
-                component="th"
-                scope="row"
-                sx={{ alignItems: "center", display: "flex", gap: "1rem" }}
+
+      {/* Bulk delete */}
+      <Box sx={{ paddingLeft: "1rem", display: "flex", gap: "1rem" }}>
+        <Checkbox
+          onChange={handleSelectAll}
+          checked={semesters?.length == deleteIds.length}
+        />
+        {deleteIds.length ? (
+          <Button
+            variant="contained"
+            color="error"
+            onClick={() =>
+              setOpenModal((prev) => ({ ...prev, bulkDelete: true }))
+            }
+          >
+            <Delete sx={{ marginRight: ".3rem" }} />
+            Delete selected
+          </Button>
+        ) : null}
+      </Box>
+      {semesters?.length ? (
+        <Table sx={{ minWidth: 650 }}>
+          <TableBody>
+            {semesters?.map((semester) => (
+              <TableRow
+                key={semester.id}
+                sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
               >
-                <Checkbox />
-                <Typography
-                  sx={{ fontWeight: 500, textTransform: "capitalize" }}
+                <TableCell
+                  component="th"
+                  scope="row"
+                  sx={{ alignItems: "center", display: "flex", gap: "1rem" }}
                 >
-                  {semester.name}
-                </Typography>
-              </TableCell>
-              <TableCell align="right">
-                <IconButton onClick={() => handleOpenModal(semester, "edit")}>
-                  <Edit />
-                </IconButton>
-                <IconButton onClick={() => handleOpenModal(semester, "delete")}>
-                  <Delete />
-                </IconButton>
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+                  <Checkbox
+                    onChange={(event) =>
+                      handleSelect(event, semester.id as number)
+                    }
+                    checked={deleteIds.includes(semester.id as number)}
+                  />
+                  <Typography
+                    sx={{ fontWeight: 500, textTransform: "capitalize" }}
+                  >
+                    {semester.name}
+                  </Typography>
+                </TableCell>
+                <TableCell align="right">
+                  <IconButton onClick={() => handleOpenModal(semester, "edit")}>
+                    <Edit />
+                  </IconButton>
+                  <IconButton
+                    onClick={() => handleOpenModal(semester, "delete")}
+                  >
+                    <Delete />
+                  </IconButton>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      ) : null}
     </TableContainer>
   );
 };

@@ -4,10 +4,10 @@ import TableCell from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
 import TableRow from "@mui/material/TableRow";
 import { SessionCombinedType, SessionType } from "../../../../types/sessions";
-import { Checkbox, IconButton } from "@mui/material";
+import { Box, Button, Checkbox, IconButton } from "@mui/material";
 import { Delete, Edit } from "@mui/icons-material";
 import DeleteConfirmationModal from "../../../../components/DeleteConfirmationModal";
-import { useEffect, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 import {
   useDeleteSessionMutation,
   useGetSessionsQuery,
@@ -27,6 +27,7 @@ const SessionList = () => {
     edit: false,
     success: false,
     delete: false,
+    bulkDelete: false,
   });
   const keyword = useAppSelector(selectKeyword);
   const dispatch = useAppDispatch();
@@ -41,17 +42,23 @@ const SessionList = () => {
   const [sessions, setSessions] = useState<SessionType[] | undefined>(
     sessionss?.data
   );
-  const [deleteSession] = useDeleteSessionMutation();
-  const [updateSession] = useUpdateSessionMutation();
+  const [deleteSession, deleteState] = useDeleteSessionMutation();
+  const [updateSession, updateState] = useUpdateSessionMutation();
+  const [deleteIds, setDeleteIds] = useState<number[]>([]);
 
   useEffect(() => {
     if (sessionss?.data) setSessions(sessionss?.data);
   }, [keyword, sessionss]);
 
   useEffect(() => {
-    if (isFetching && !isError) dispatch(setPageLoading(true));
+    if (
+      (isFetching && !isError) ||
+      deleteState.isLoading ||
+      updateState.isLoading
+    )
+      dispatch(setPageLoading(true));
     else dispatch(setPageLoading(false));
-  }, [isFetching, isError, sessionss]);
+  }, [isFetching, isError, sessionss, deleteState, updateState]);
 
   const handleOpenModal = (session: SessionType | null, type: string) => {
     if (session) setSelectedSession(session);
@@ -69,6 +76,30 @@ const SessionList = () => {
     } catch (error) {
       console.log(error);
     }
+  };
+
+  const handleSelectAll = (event: ChangeEvent<HTMLInputElement>) => {
+    if (sessions?.length && event.target.checked)
+      setDeleteIds(sessions.map((session) => session.id as number));
+    else setDeleteIds([]);
+  };
+
+  const handleSelect = (
+    event: ChangeEvent<HTMLInputElement>,
+    sessionId: number
+  ) => {
+    const newIds = deleteIds.filter((id) => id != sessionId);
+    setDeleteIds(event.target.checked ? [...newIds, sessionId] : newIds);
+  };
+
+  const handleBulkDelete = async () => {
+    for (const id of deleteIds)
+      try {
+        await deleteSession(id).unwrap();
+        setDeleteIds([]);
+      } catch (error) {
+        console.log(error);
+      }
   };
 
   const handleEditSession = async (session: SessionType) => {
@@ -109,6 +140,17 @@ const SessionList = () => {
         title="Delete Session?"
       />
 
+      <DeleteConfirmationModal
+        actions={{
+          proceed: () => handleBulkDelete(),
+        }}
+        close={() => handleCloseModal("bulkDelete")}
+        infoText="You can’t undo this action."
+        open={openModal.bulkDelete}
+        subTitle={`Are you sure you want to delete ${deleteIds.length} Sessions ?`}
+        title="Delete Sessions?"
+      />
+
       {/* Success */}
       <SuccessModal
         close={() => {
@@ -133,6 +175,26 @@ const SessionList = () => {
           subTitle="Sessions will appear here after you add them in your school."
         />
       ) : null}
+
+      {/* Bulk delete */}
+      <Box sx={{ paddingLeft: "1rem", display: "flex", gap: "1rem" }}>
+        <Checkbox
+          onChange={handleSelectAll}
+          checked={sessions?.length == deleteIds.length}
+        />
+        {deleteIds.length ? (
+          <Button
+            variant="contained"
+            color="error"
+            onClick={() =>
+              setOpenModal((prev) => ({ ...prev, bulkDelete: true }))
+            }
+          >
+            <Delete sx={{ marginRight: ".3rem" }} />
+            Delete selected
+          </Button>
+        ) : null}
+      </Box>
       <Table sx={{ minWidth: 650 }}>
         <TableBody>
           {sessions?.map((session) => (
@@ -145,7 +207,12 @@ const SessionList = () => {
                 scope="row"
                 sx={{ alignItems: "center", display: "flex", gap: "1rem" }}
               >
-                <Checkbox />
+                <Checkbox
+                  onChange={(event) =>
+                    handleSelect(event, session.id as number)
+                  }
+                  checked={deleteIds.includes(session.id as number)}
+                />
                 <Link
                   to={`/sessions/${session.id}`}
                   style={{ fontWeight: 500, textTransform: "capitalize" }}
