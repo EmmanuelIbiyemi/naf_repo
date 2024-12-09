@@ -3,12 +3,15 @@ import DeleteIcon from "../../../../assets/deleteIcon";
 import { PostType } from "../../../../types/posts";
 import { Edit } from "@mui/icons-material";
 import { useNavigate, useParams } from "react-router-dom";
+import { ChangeEvent } from "react";
 
 type Props = {
   post: PostType;
   deleteItem: () => void;
+  handleSelect: (event: ChangeEvent<HTMLInputElement>, postId: number) => void;
+  deleteIds: number[];
 };
-const PostItem = ({ post, deleteItem }: Props) => {
+const PostItem = ({ post, deleteItem, handleSelect, deleteIds }: Props) => {
   const navigate = useNavigate();
   const { resource_type } = useParams();
 
@@ -22,7 +25,10 @@ const PostItem = ({ post, deleteItem }: Props) => {
           height: "3em",
         }}
       >
-        <Checkbox />
+        <Checkbox
+          onChange={(event) => handleSelect(event, post.id as number)}
+          checked={deleteIds.includes(post.id as number)}
+        />
         <Typography
           sx={{ fontWeight: "500 !important", textTransform: "capitalize" }}
         >

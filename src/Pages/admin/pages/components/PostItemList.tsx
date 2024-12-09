@@ -1,5 +1,5 @@
-import { Box, Button, SxProps, Typography } from "@mui/material";
-import { KeyboardEvent, useEffect, useRef, useState } from "react";
+import { Box, Button, Checkbox, SxProps, Typography } from "@mui/material";
+import { ChangeEvent, KeyboardEvent, useEffect, useRef, useState } from "react";
 import PostItem from "./PageItem";
 import SuccessModal from "../../../../components/SuccessModal";
 import DeleteConfirmationModal from "../../../../components/DeleteConfirmationModal";
@@ -16,7 +16,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { PostType } from "../../../../types/posts";
 import CustomPagination from "../../../../components/CustomPagination";
 import { Pagination } from "../../../../types/pagination";
-import { Search } from "@mui/icons-material";
+import { Delete, Search } from "@mui/icons-material";
 
 const PostTypeItemList = () => {
   const { resource_type } = useParams();
@@ -35,15 +35,17 @@ const PostTypeItemList = () => {
     tag: resource_type as string,
     search_term: keyword,
   });
-  const [deletePost] = useDeletePostMutation();
+  const [deletePost, deleteState] = useDeletePostMutation();
   const [openModal, setOpenModal] = useState({
     add: false,
     success: false,
     delete: false,
+    bulkDelete: false,
   });
   const [selectedPost, setSelectedPost] = useState<PostType>();
   const navigate = useNavigate();
   const inputRef = useRef<HTMLInputElement>(null);
+  const [deleteIds, setDeleteIds] = useState<number[]>([]);
 
   const handleOpenModal = (type: string) => {
     setOpenModal((prev) => ({ ...prev, [type]: true }));
@@ -64,7 +66,31 @@ const PostTypeItemList = () => {
     dispatch(setPageLoading(false));
   };
 
-  const handleDeleteAction = (media: PostType) => {
+  const handleSelectAll = (event: ChangeEvent<HTMLInputElement>) => {
+    if (posts?.post.length && event.target.checked)
+      setDeleteIds(posts.post.map((fac) => fac.id as number));
+    else setDeleteIds([]);
+  };
+
+  const handleSelect = (
+    event: ChangeEvent<HTMLInputElement>,
+    postId: number
+  ) => {
+    const newIds = deleteIds.filter((id) => id != postId);
+    setDeleteIds(event.target.checked ? [...newIds, postId] : newIds);
+  };
+
+  const handleBulkDelete = async () => {
+    for (const id of deleteIds)
+      try {
+        await deletePost(id).unwrap();
+        setDeleteIds([]);
+      } catch (error) {
+        console.log(error);
+      }
+  };
+
+  const handleOpenDeleteModal = (media: PostType) => {
     handleOpenModal("delete");
     setSelectedPost(media);
   };
@@ -75,9 +101,9 @@ const PostTypeItemList = () => {
   };
 
   useEffect(() => {
-    if (isFetching) dispatch(setPageLoading(true));
+    if (isFetching && !allError) dispatch(setPageLoading(true));
     else dispatch(setPageLoading(false));
-  }, [isFetching]);
+  }, [isFetching, allError]);
 
   useEffect(() => {
     // clear search field on page change
@@ -85,7 +111,13 @@ const PostTypeItemList = () => {
       dispatch(setKeyword(""));
       if (inputRef.current) inputRef.current.value = "";
     }
-  }, [resource_type]);
+
+    if (!posts?.post.length && (pagination.page as number) > 1)
+      setPagination((prev) => ({
+        ...prev,
+        page: (pagination.page as number) - 1,
+      }));
+  }, [resource_type, deleteState]);
 
   return (
     <Box sx={contentStyles}>
@@ -110,6 +142,17 @@ const PostTypeItemList = () => {
         infoText=""
         open={openModal.delete}
         subTitle={`Are you sure you want to delete ${resource_type} ? You can’t undo this action.`}
+        title={`Delete ${resource_type}?`}
+      />
+
+      <DeleteConfirmationModal
+        actions={{
+          proceed: () => handleBulkDelete(),
+        }}
+        close={() => handleCloseModal("bulkDelete")}
+        infoText="You can’t undo this action."
+        open={openModal.bulkDelete}
+        subTitle={`Are you sure you want to delete ${deleteIds.length} ${resource_type} ?`}
         title={`Delete ${resource_type}?`}
       />
 
@@ -143,13 +186,34 @@ const PostTypeItemList = () => {
           display: "block",
         }}
       >
+        {/* Bulk delete */}
+        <Box sx={{ display: "flex", gap: "1rem" }}>
+          <Checkbox
+            onChange={handleSelectAll}
+            checked={posts?.post?.length == deleteIds.length}
+          />
+          {deleteIds.length ? (
+            <Button
+              variant="contained"
+              color="error"
+              onClick={() =>
+                setOpenModal((prev) => ({ ...prev, bulkDelete: true }))
+              }
+            >
+              <Delete sx={{ marginRight: ".3rem" }} />
+              Delete selected
+            </Button>
+          ) : null}
+        </Box>
         {posts?.post.length ? (
           <>
             {posts?.post?.map((post) => (
               <PostItem
                 key={`postitem-${post.id}`}
                 post={post}
-                deleteItem={() => handleDeleteAction(post)}
+                deleteItem={() => handleOpenDeleteModal(post)}
+                handleSelect={handleSelect}
+                deleteIds={deleteIds}
               />
             ))}
             <CustomPagination
