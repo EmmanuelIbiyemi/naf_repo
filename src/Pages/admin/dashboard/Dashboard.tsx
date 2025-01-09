@@ -39,7 +39,7 @@ const Dashboard = () => {
         <Typography variant="h1" sx={{ fontSize: "2rem", fontWeight: 500 }}>
           Welcome to your{" "}
           {import.meta.env.VITE_SCHOOL_NAME.split(" ").map(
-            (word: string) => word[0].toLowerCase()
+            (word: string) => word[0]
           )}{" "}
           dashboard
         </Typography>
