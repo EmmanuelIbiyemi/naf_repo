@@ -2,6 +2,8 @@ import { createBrowserRouter } from "react-router-dom";
 import { lazy } from "react";
 import PrivateRoute from "./components/ProtectedRoutes";
 import AssessmentsPage from "./Pages/admin/cbt/assessments/Assessments";
+import NotFound from "./Pages/error/NotFound";
+import ErrorPage from "./Pages/error/ErrorPage";
 
 // Admin
 const Login = lazy(() => import("./Pages/login/Login"));
@@ -168,12 +170,17 @@ const StudentAnnouncement = lazy(
 
 export const router = createBrowserRouter([
   {
+    path: "*",
+    element: <NotFound />
+  },
+  {
     path: "/login",
     element: <Login />,
   },
   {
     path: "/",
     element: <PrivateRoute />,
+    errorElement: <ErrorPage />,
     children: [
       { path: "/", element: <Dashboard /> },
       { path: "/applications", element: <FormsPage /> },
