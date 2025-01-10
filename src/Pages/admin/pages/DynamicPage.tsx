@@ -51,7 +51,7 @@ const PostPage = () => {
 
       const content = postElements.find((el) => el.type === type)?.name ?? "";
       const newBlock: BlockType = {
-        id: (blocks[blocks.length - 1]?.id ?? 0) + 1,
+        id: 0,
         content: content,
         type,
         caption: "",
