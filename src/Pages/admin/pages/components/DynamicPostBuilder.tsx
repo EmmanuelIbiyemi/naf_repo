@@ -190,32 +190,52 @@ const PageBuilder = ({ page, setPage }: Props) => {
                 defaultValue={content[2]}
                 onBlur={(e) => handleChange(e, "buttonText", element.id)}
               />
-              <label htmlFor={`upload-${element.id}`}>
-                {/* <input
-                  id={`upload-${element.id}`}
-                  type="file"
-                  accept="image/*,video/*"
-                  style={{ display: "none" }}
-                  onChange={handleImageChange}
-                /> */}
-                <Typography
+              {/* TODO: Add image/video upload field */}
+              <Box
+              id={`element-${element.id}`}
+              className="image_el dashed_border"
+              onClick={() => handleOpenMediaSelect(element, "image")}
+            >
+              {element.media?.length && (element.media[0] as MediaType)?.url ? (
+                <Box
+                  className="hide_scrollbar"
                   sx={{
-                    border: "1px solid rgba(0, 0, 0, 0.25)",
-                    cursor: "pointer",
+                    display: "flex",
+                    gap: "10px",
                     height: "100%",
-                    width: "100%",
-                    display: "grid",
-                    placeItems: "center",
-                    borderRadius: "var(--border-radius)",
-                    whiteSpace: "nowrap",
-                    overflow: "hidden",
-                    textOverflow: "ellipsis",
+                    maxWidth: "550px",
+                    overflow: "auto",
+                    ">div": {
+                      flexShrink: "0",
+                      height: "100%",
+                      width: "100px",
+                    },
                   }}
                 >
-                  {(element.media?.[0] as MediaType)?.name ||
-                    "Upload image/video"}
-                </Typography>
-              </label>
+                  {element.media?.map((m) => (
+                    <Box className="has_bg_image" key={`media-${m?.id}`}>
+                      <img
+                        className="bg"
+                        src={(m as MediaType).url}
+                        alt={(m as MediaType).name}
+                      />
+                    </Box>
+                  ))}
+                </Box>
+              ) : (
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: "1rem",
+                    width: "100%",
+                  }}
+                >
+                  <CloudUploadOutlined /> Drag and drop your image here or browse
+                </Box>
+              )}
+            </Box>
             </FormControl>
           </Box>
         );
@@ -258,31 +278,52 @@ const PageBuilder = ({ page, setPage }: Props) => {
                 defaultValue={content[2]}
                 onBlur={(e) => handleChange(e, "buttonText", element.id)}
               />
-              <label htmlFor={`upload-${element.id}`}>
-                {/* <input
-                  id={`upload-${element.id}`}
-                  type="file"
-                  accept="image/*,video/*"
-                  style={{ display: "none" }}
-                  onChange={handleImageChange}
-                /> */}
-                <Typography
+              {/* TODO: Add image/video upload field */}
+            <Box
+              id={`element-${element.id}`}
+              className="image_el dashed_border"
+              onClick={() => handleOpenMediaSelect(element, "image")}
+            >
+              {element.media?.length && (element.media[0] as MediaType)?.url ? (
+                <Box
+                  className="hide_scrollbar"
                   sx={{
-                    border: "1px solid rgba(0, 0, 0, 0.25)",
-                    cursor: "pointer",
+                    display: "flex",
+                    gap: "10px",
                     height: "100%",
-                    width: "100%",
-                    display: "grid",
-                    placeItems: "center",
-                    borderRadius: "var(--border-radius)",
-                    whiteSpace: "nowrap",
-                    overflow: "hidden",
-                    textOverflow: "ellipsis",
+                    maxWidth: "550px",
+                    overflow: "auto",
+                    ">div": {
+                      flexShrink: "0",
+                      height: "100%",
+                      width: "100px",
+                    },
                   }}
                 >
-                  {(element.media?.[0] as MediaType)?.name || "Upload image"}
-                </Typography>
-              </label>
+                  {element.media?.map((m) => (
+                    <Box className="has_bg_image" key={`media-${m?.id}`}>
+                      <img
+                        className="bg"
+                        src={(m as MediaType).url}
+                        alt={(m as MediaType).name}
+                      />
+                    </Box>
+                  ))}
+                </Box>
+              ) : (
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: "1rem",
+                    width: "100%",
+                  }}
+                >
+                  <CloudUploadOutlined /> Drag and drop your image here or browse
+                </Box>
+              )}
+            </Box>
             </FormControl>
           </Box>
         );
