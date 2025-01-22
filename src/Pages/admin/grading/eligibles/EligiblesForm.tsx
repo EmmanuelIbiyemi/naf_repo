@@ -57,12 +57,12 @@ const EligibleForm = ({ actions }: Props) => {
     e: ChangeEvent<HTMLInputElement>,
     setFieldValue: (
       field: string,
-      value: number,
+      value: number | string,
       shouldValidate?: boolean
     ) => void
   ) => {
     const { target } = e;
-    setFieldValue(target.name, +target.value);
+    setFieldValue(target.name, target.value);
 
     try {
       if (target.name === "faculty_id") {
@@ -247,13 +247,13 @@ const EligibleForm = ({ actions }: Props) => {
                 padding: ".5rem",
                 borderRadius: "var(--border-radius)",
               }}
-              onChange={(ev: ChangeEvent<HTMLInputElement>) =>
-                handleChange(ev, setFieldValue)
-              }
+              onChange={(ev: ChangeEvent<HTMLInputElement>) => {
+                handleChange(ev, setFieldValue);
+              }}
             >
               <option value="">select session</option>
               {sessions?.data.map((session, i) => (
-                <option key={session.name + i} value={session.id}>
+                <option key={session.name + i} value={session.name}>
                   {session.name}
                 </option>
               ))}
