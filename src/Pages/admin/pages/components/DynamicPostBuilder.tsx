@@ -147,7 +147,7 @@ const PageBuilder = ({ page, setPage }: Props) => {
     }
   };
 
-  const displayEl = (element: BlockType) => {
+  const displayEl = (element: BlockType, index: number) => {
     let el;
     const content = element.content?.split("::");
 
@@ -192,50 +192,52 @@ const PageBuilder = ({ page, setPage }: Props) => {
               />
               {/* TODO: Add image/video upload field */}
               <Box
-              id={`element-${element.id}`}
-              className="image_el dashed_border"
-              onClick={() => handleOpenMediaSelect(element, "image")}
-            >
-              {element.media?.length && (element.media[0] as MediaType)?.url ? (
-                <Box
-                  className="hide_scrollbar"
-                  sx={{
-                    display: "flex",
-                    gap: "10px",
-                    height: "100%",
-                    maxWidth: "550px",
-                    overflow: "auto",
-                    ">div": {
-                      flexShrink: "0",
+                id={`element-${element.id}`}
+                className="image_el dashed_border"
+                onClick={() => handleOpenMediaSelect(element, "image")}
+              >
+                {element.media?.length &&
+                (element.media[0] as MediaType)?.url ? (
+                  <Box
+                    className="hide_scrollbar"
+                    sx={{
+                      display: "flex",
+                      gap: "10px",
                       height: "100%",
-                      width: "100px",
-                    },
-                  }}
-                >
-                  {element.media?.map((m) => (
-                    <Box className="has_bg_image" key={`media-${m?.id}`}>
-                      <img
-                        className="bg"
-                        src={(m as MediaType).url}
-                        alt={(m as MediaType).name}
-                      />
-                    </Box>
-                  ))}
-                </Box>
-              ) : (
-                <Box
-                  sx={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    gap: "1rem",
-                    width: "100%",
-                  }}
-                >
-                  <CloudUploadOutlined /> Drag and drop your image here or browse
-                </Box>
-              )}
-            </Box>
+                      maxWidth: "550px",
+                      overflow: "auto",
+                      ">div": {
+                        flexShrink: "0",
+                        height: "100%",
+                        width: "100px",
+                      },
+                    }}
+                  >
+                    {element.media?.map((m) => (
+                      <Box className="has_bg_image" key={`media-${m?.id}`}>
+                        <img
+                          className="bg"
+                          src={(m as MediaType).url}
+                          alt={(m as MediaType).name}
+                        />
+                      </Box>
+                    ))}
+                  </Box>
+                ) : (
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      gap: "1rem",
+                      width: "100%",
+                    }}
+                  >
+                    <CloudUploadOutlined /> Drag and drop your image here or
+                    browse
+                  </Box>
+                )}
+              </Box>
             </FormControl>
           </Box>
         );
@@ -279,51 +281,53 @@ const PageBuilder = ({ page, setPage }: Props) => {
                 onBlur={(e) => handleChange(e, "buttonText", element.id)}
               />
               {/* TODO: Add image/video upload field */}
-            <Box
-              id={`element-${element.id}`}
-              className="image_el dashed_border"
-              onClick={() => handleOpenMediaSelect(element, "image")}
-            >
-              {element.media?.length && (element.media[0] as MediaType)?.url ? (
-                <Box
-                  className="hide_scrollbar"
-                  sx={{
-                    display: "flex",
-                    gap: "10px",
-                    height: "100%",
-                    maxWidth: "550px",
-                    overflow: "auto",
-                    ">div": {
-                      flexShrink: "0",
+              <Box
+                id={`element-${element.id}`}
+                className="image_el dashed_border"
+                onClick={() => handleOpenMediaSelect(element, "image")}
+              >
+                {element.media?.length &&
+                (element.media[0] as MediaType)?.url ? (
+                  <Box
+                    className="hide_scrollbar"
+                    sx={{
+                      display: "flex",
+                      gap: "10px",
                       height: "100%",
-                      width: "100px",
-                    },
-                  }}
-                >
-                  {element.media?.map((m) => (
-                    <Box className="has_bg_image" key={`media-${m?.id}`}>
-                      <img
-                        className="bg"
-                        src={(m as MediaType).url}
-                        alt={(m as MediaType).name}
-                      />
-                    </Box>
-                  ))}
-                </Box>
-              ) : (
-                <Box
-                  sx={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    gap: "1rem",
-                    width: "100%",
-                  }}
-                >
-                  <CloudUploadOutlined /> Drag and drop your image here or browse
-                </Box>
-              )}
-            </Box>
+                      maxWidth: "550px",
+                      overflow: "auto",
+                      ">div": {
+                        flexShrink: "0",
+                        height: "100%",
+                        width: "100px",
+                      },
+                    }}
+                  >
+                    {element.media?.map((m) => (
+                      <Box className="has_bg_image" key={`media-${m?.id}`}>
+                        <img
+                          className="bg"
+                          src={(m as MediaType).url}
+                          alt={(m as MediaType).name}
+                        />
+                      </Box>
+                    ))}
+                  </Box>
+                ) : (
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      gap: "1rem",
+                      width: "100%",
+                    }}
+                  >
+                    <CloudUploadOutlined /> Drag and drop your image here or
+                    browse
+                  </Box>
+                )}
+              </Box>
             </FormControl>
           </Box>
         );
@@ -866,7 +870,7 @@ const PageBuilder = ({ page, setPage }: Props) => {
     }
 
     return (
-      <Box key={`element-${element.id}`} className="element">
+      <Box key={`element-${element.id + index}`} className="element">
         {el}
       </Box>
     );
@@ -945,7 +949,7 @@ const PageBuilder = ({ page, setPage }: Props) => {
         </Box>
       </Dialog>
       <Box sx={formBuilderStyles}>
-        {page.blocks?.map((el) => displayEl(el))}
+        {page.blocks?.map((el, index) => displayEl(el, index))}
       </Box>
     </>
   );

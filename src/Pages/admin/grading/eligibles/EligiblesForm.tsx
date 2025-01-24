@@ -62,7 +62,9 @@ const EligibleForm = ({ actions }: Props) => {
     ) => void
   ) => {
     const { target } = e;
-    setFieldValue(target.name, target.value);
+
+    if (target.name == "session") setFieldValue(target.name, target.value);
+    else setFieldValue(target.name, +target.value);
 
     try {
       if (target.name === "faculty_id") {
