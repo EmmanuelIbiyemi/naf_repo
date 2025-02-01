@@ -89,22 +89,26 @@ const ExamCard = () => {
           {/* Center Text */}
           <Box sx={{ textAlign: "center" }}>
           <Typography variant="h6" sx={{ fontWeight: 600, color: "#002B5B" }}>
-            {(() => {
-              const nameParts = import.meta.env.VITE_SCHOOL_NAME.split(" ");
-              const meaningfulWords = nameParts.filter((word: string) => !["of", "a", "the", "and"].includes(word.toLowerCase()));
-              const midIndex = Math.ceil(meaningfulWords.length / 2);
-              
-              return meaningfulWords.slice(0, midIndex).join(" ");
-            })()}
-          </Typography>
-          <Typography variant="subtitle1" sx={{ color: "#002B5B" }}>
-            {(() => {
-              const nameParts = import.meta.env.VITE_SCHOOL_NAME.split(" ");
-              const midIndex = nameParts.findIndex((word: string) => ["of", "a", "the", "and"].includes(word.toLowerCase())) || Math.ceil(nameParts.length / 2);
-              
-              return nameParts.slice(midIndex).join(" ");
-            })()}
-          </Typography>
+          {(() => {
+            const nameParts = import.meta.env.VITE_SCHOOL_NAME.split(" ");
+            const meaningfulWords = nameParts.filter((word: string) => !["of", "a", "the", "and"].includes(word.toLowerCase()));
+            const midIndex = Math.ceil(meaningfulWords.length / 2);
+            
+            return meaningfulWords.slice(0, midIndex).join(" ");
+          })()}
+        </Typography>
+        <Typography variant="subtitle1" sx={{ color: "#002B5B" }}>
+          {(() => {
+            const nameParts = import.meta.env.VITE_SCHOOL_NAME.split(" ");
+            const meaningfulWords = nameParts.filter((word: string) => !["of", "a", "the", "and"].includes(word.toLowerCase()));
+            const midIndex = Math.ceil(meaningfulWords.length / 2);
+
+            // Use original words but start from where the second half of meaningful words begin
+            const startIndex = nameParts.indexOf(meaningfulWords[midIndex]);
+
+            return nameParts.slice(startIndex).join(" ");
+          })()}
+        </Typography>
           </Box>
 
           {/* Right Image - Participant Photo */}
