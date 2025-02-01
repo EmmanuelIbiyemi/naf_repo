@@ -281,7 +281,9 @@ export default function Results() {
                 }}
               >
                 <img src={logo} alt="school logo" style={{ width: 80 }} />
-                <h1>ATSTC</h1>
+                <h1>{import.meta.env.VITE_SCHOOL_NAME.split(" ").map(
+            (word: string) => word[0].toUpperCase()
+          )}{" "}</h1>
                 <h2>Student Result</h2>
               </Box>
             </Grid2>
