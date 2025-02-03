@@ -38,10 +38,7 @@ const Dashboard = () => {
       <Box sx={{ textAlign: "center" }}>
       <Typography variant="h1" sx={{ fontSize: "2rem", fontWeight: 500 }}>
         Welcome to your{" "}
-        {import.meta.env.VITE_SCHOOL_NAME.split(" ")
-          .filter((word: string) => !["of", "and"].includes(word.toLowerCase()))
-          .map((word: string) => word[0].toLowerCase())
-          .join("")}{" "}
+        {import.meta.env.VITE_SCHOOL_ACRONYM}{" "}
         dashboard
       </Typography>
         <Typography
