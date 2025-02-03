@@ -36,13 +36,14 @@ const Dashboard = () => {
       }}
     >
       <Box sx={{ textAlign: "center" }}>
-        <Typography variant="h1" sx={{ fontSize: "2rem", fontWeight: 500 }}>
-          Welcome to your{" "}
-          {import.meta.env.VITE_SCHOOL_NAME.split(" ").map(
-            (word: string) => word[0].toLowerCase()
-          )}{" "}
-          dashboard
-        </Typography>
+      <Typography variant="h1" sx={{ fontSize: "2rem", fontWeight: 500 }}>
+        Welcome to your{" "}
+        {import.meta.env.VITE_SCHOOL_NAME.split(" ")
+          .filter((word: string) => !["of", "and"].includes(word.toLowerCase()))
+          .map((word: string) => word[0].toLowerCase())
+          .join("")}{" "}
+        dashboard
+      </Typography>
         <Typography
           sx={{ fontSize: "1.3rem", fontWeight: 300, marginTop: ".5rem" }}
         >
