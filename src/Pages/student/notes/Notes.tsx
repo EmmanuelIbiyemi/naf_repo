@@ -162,7 +162,7 @@ const CourseNotes = () => {
             }
           }}>
             <ReactMarkdown className="markdown-content">
-              {note?.content}
+              {String(note?.content)}
             </ReactMarkdown>
           </Box>
 
