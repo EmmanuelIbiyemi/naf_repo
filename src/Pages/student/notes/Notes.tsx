@@ -87,7 +87,7 @@ const CourseNotes = () => {
     );
   }
 
-  if (!response?.data || response.data.length === 0) {
+  if (!response?.data || response?.data?.length === 0) {
     return (
       <Box sx={{ maxWidth: 800, mx: 'auto', p: 3 }}>
         <Button 
@@ -114,7 +114,7 @@ const CourseNotes = () => {
         Back to Courses
       </Button>
       
-      {response.data.map((note: note) => (
+      {response?.data?.map((note: note) => (
         <Paper 
           key={note.id} 
           sx={{ 
@@ -162,17 +162,17 @@ const CourseNotes = () => {
             }
           }}>
             <ReactMarkdown className="markdown-content">
-              {note.content}
+              {note?.content}
             </ReactMarkdown>
           </Box>
 
           <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 2 }}>
             <Typography variant="caption" color="text.secondary">
-              Created: {formatDate(note.created_at)}
+              Created: {formatDate(note?.created_at)}
             </Typography>
-            {note.updated_at && (
+            {note?.updated_at && (
               <Typography variant="caption" color="text.secondary">
-                Last updated: {formatDate(note.updated_at)}
+                Last updated: {formatDate(note?.updated_at)}
               </Typography>
             )}
           </Box>
