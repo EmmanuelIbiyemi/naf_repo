@@ -10,6 +10,9 @@ import { Faculty, FacultyFormAction } from "../../../../types/faculties";
 import FacultyForm from "./FacultyForm";
 import FacultyList from "./FacultyList";
 
+const SINGLE_FACULTY = import.meta.env.VITE_CUSTOM_SINGLE_FACULTY || "Faculty";
+const MULTIPLE_FACULTY = import.meta.env.VITE_CUSTOM_FACULTY || "Faculties";
+
 const FacultiesPage = () => {
   const [openModal, setOpenModal] = useState({
     add: false,
@@ -23,7 +26,7 @@ const FacultiesPage = () => {
   // set page name
   const dispatch = useAppDispatch();
   useEffect(() => {
-    dispatch(setPageName("Academics/Faculties"));
+    dispatch(setPageName(`Academics/${MULTIPLE_FACULTY}`));
   }, [dispatch]);
 
   const handleOpenModal = (type: string) => {
@@ -65,14 +68,14 @@ const FacultiesPage = () => {
         }}
         infoText=""
         open={openModal.success}
-        subTitle={`You have successfully added a new faculty "${facultyName}".`}
+        subTitle={`You have successfully added a new ${SINGLE_FACULTY} "${facultyName}".`}
         title="Updates Successful"
       />
 
       <PageHeader
         button={{
           action: () => setOpenModal((prev) => ({ ...prev, add: true })),
-          text: "Add Faculty",
+          text: `Add ${SINGLE_FACULTY}`,
         }}
       />
       <Box

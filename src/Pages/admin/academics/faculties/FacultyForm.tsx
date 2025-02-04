@@ -1,16 +1,15 @@
 import * as Yup from "yup";
 import { Field, Form, Formik } from "formik";
-import {
-  Box,
-  Button,
-  Typography,
-} from "@mui/material";
+import { Box, Button, Typography } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
 import formStyles from "../../../../components/form/form.module.scss";
 import { Faculty } from "../../../../types/faculties";
 
+const SINGLE_FACULTY = import.meta.env.VITE_CUSTOM_SINGLE_FACULTY || "Faculty";
+const MULTIPLE_FACULTY = import.meta.env.VITE_CUSTOM_FACULTY || "Faculties";
+
 type Props = {
-  faculty?: Faculty
+  faculty?: Faculty;
   actions: {
     submit: (faculty: Faculty) => Promise<void>;
     cancel: () => void;
@@ -18,7 +17,6 @@ type Props = {
 };
 
 const FacultyForm = ({ actions, faculty }: Props) => {
-
   const initialValues: Faculty = {
     id: faculty?.id || 0,
     name: faculty?.name || "",
@@ -29,7 +27,7 @@ const FacultyForm = ({ actions, faculty }: Props) => {
   });
 
   const handleSubmit = async (values: Faculty) => {
-    if (values.id == 0) delete values.id;
+    if (values.id === 0) delete values.id;
     await actions.submit(values);
   };
 
@@ -46,25 +44,19 @@ const FacultyForm = ({ actions, faculty }: Props) => {
             component="h2"
             sx={{ marginTop: "1rem", textAlign: "center" }}
           >
-            {faculty ? "Update Faculty" : "Add Faculty"}
+            {faculty ? `Update ${MULTIPLE_FACULTY}` : `Add ${SINGLE_FACULTY}`}
           </Typography>
-          <Box
-            sx={{
-              display: "grid",
-              gap: "1rem",
-              gridTemplateColumns: "1fr",
-            }}
-          >
+
+          <Box sx={{ display: "grid", gap: "1rem", gridTemplateColumns: "1fr" }}>
             <Box>
-              <label htmlFor="name">Faculty Name</label>
-              <Field id="name" name="name" />
+              <label htmlFor="name">{SINGLE_FACULTY} Name</label>
+              <Field id="name" name="name" className={formStyles.input_field} />
             </Box>
           </Box>
 
-
           <Box className={formStyles.btn_group}>
             <Button
-              onClick={() => actions.cancel()}
+              onClick={actions.cancel}
               className={formStyles.cancel_btn}
               variant="contained"
             >
@@ -76,7 +68,7 @@ const FacultyForm = ({ actions, faculty }: Props) => {
               variant="contained"
               disabled={!(isValid && dirty)}
             >
-              {faculty ? "Update Faculty" : "Add Faculty"}
+              {faculty ? `Update ${SINGLE_FACULTY}` : `Add ${SINGLE_FACULTY}`}
             </LoadingButton>
           </Box>
         </Form>
