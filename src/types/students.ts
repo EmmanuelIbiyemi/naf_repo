@@ -10,7 +10,7 @@ export type StudentType = {
   address: string;
   phone: string;
   photo: string;
-  courses: CourseType[] | number[];
+  courses: CourseType[] | any[];
   level_id?: number;
   level?: LevelType;
 };
