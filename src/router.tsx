@@ -171,16 +171,18 @@ const StudentAnnouncement = lazy(
 export const router = createBrowserRouter([
   {
     path: "*",
-    element: <NotFound />
+    element: <NotFound />,
+    errorElement: <ErrorPage />,
   },
   {
     path: "/login",
     element: <Login />,
+    errorElement: <ErrorPage />,
   },
   {
     path: "/",
     element: <PrivateRoute />,
-    errorElement: <ErrorPage />,
+    errorElement: <ErrorPage />, // Already present here
     children: [
       { path: "/", element: <Dashboard /> },
       { path: "/applications", element: <FormsPage /> },
