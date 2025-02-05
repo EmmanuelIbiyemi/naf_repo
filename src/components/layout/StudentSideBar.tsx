@@ -1,5 +1,4 @@
 import { Box, SxProps } from "@mui/material";
-import logo from "../../assets/logo.png";
 import { Link, useLocation } from "react-router-dom";
 import HomeIcon from "../../assets/homeIcon";
 import SettingsIcon from "../../assets/settingsIcon";
@@ -56,7 +55,7 @@ const isCurrentPage = (navLink: NavLink) => {
   return (
     <Box className="sidebar" sx={sideBarStyles}>
       <img
-        src={logo}
+        src={import.meta.env.VITE_LOGO}
         alt=""
         width={80}
         style={{ display: "block", marginInline: "auto" }}

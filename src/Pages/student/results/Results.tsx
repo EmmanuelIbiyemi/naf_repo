@@ -24,7 +24,6 @@ import { useStudentResultQuery } from "../../../store/api/result.api";
 import { useGetSessionsQuery } from "../../../store/api/sessions.api";
 import { selectCurrentUser } from "../../../store/auth.slice";
 import { SessionType } from "../../../types/sessions";
-import logo from "../../../assets/logo.png";
 import { jsPDF } from "jspdf";
 import html2canvas from "html2canvas";
 
@@ -103,59 +102,6 @@ export default function Results() {
   };
 
   const resultContentRef = useRef<HTMLDivElement>(null);
-
-  // const handlePrint = () => {
-  //   const printContent = resultContentRef.current;
-  //   if (!printContent) return;
-
-  //   // Create a new window for printing
-  //   const printWindow = window.open("", "", "height=500, width=800");
-  //   if (!printWindow) return;
-
-  //   // Clone the content to print
-  //   const clonedContent = printContent.cloneNode(true) as HTMLElement;
-
-  //   // Add print-specific styles
-  //   const printStyles = `
-  //     <style>
-  //       @media print {
-  //         body * {
-  //           visibility: hidden;
-  //         }
-  //         #printable-result, #printable-result * {
-  //           visibility: visible;
-  //         }
-  //         #printable-result {
-  //           position: absolute;
-  //           left: 0;
-  //           top: 0;
-  //           width: 100%;
-  //         }
-  //         table {
-  //           width: 100%;
-  //           border-collapse: collapse;
-  //         }
-  //         th, td {
-  //           border: 1px solid #ddd;
-  //           padding: 8px;
-  //         }
-  //       }
-  //     </style>
-  //   `;
-
-  //   // Write the content to the print window
-  //   printWindow.document.write("<html><head><title>Student Result</title>");
-  //   printWindow.document.write(printStyles);
-  //   printWindow.document.write("</head><body>");
-  //   printWindow.document.write('<div id="printable-result">');
-  //   printWindow.document.write(clonedContent.innerHTML);
-  //   printWindow.document.write("</div></body></html>");
-
-  //   printWindow.document.close();
-  //   printWindow.focus();
-  //   printWindow.print();
-  //   printWindow.close();
-  // };
 
   const handleDownload = async () => {
     const resultContent = resultContentRef.current;
@@ -280,7 +226,7 @@ export default function Results() {
                   py: 2,
                 }}
               >
-                <img src={logo} alt="school logo" style={{ width: 80 }} />
+                <img src={import.meta.env.VITE_LOGO} alt="school logo" style={{ width: 80 }} />
                 <h1>{import.meta.env.VITE_SCHOOL_NAME.split(" ").map(
             (word: string) => word[0].toUpperCase()
           )}{" "}</h1>

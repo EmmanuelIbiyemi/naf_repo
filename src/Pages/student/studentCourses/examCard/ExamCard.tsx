@@ -18,7 +18,6 @@ import { useGetParticipantQuery } from "../../../../store/api/participants.api";
 import Breadcrumb from "../components/BreadCrumb";
 import { useAppSelector } from "../../../../store/hooks";
 import { selectCurrentUser } from "../../../../store/auth.slice";
-import logo from "../../../../assets/logo.png";
 import { useGetCurrentSemesterQuery } from "../../../../store/api/semesters.api";
 import { useGetCurrentSessionQuery } from "../../../../store/api/sessions.api";
 
@@ -80,7 +79,7 @@ const ExamCard = () => {
           {/* Left Logo */}
           <Box sx={{ width: 80, height: 80 }}>
             <img
-              src={logo}
+              src={import.meta.env.VITE_LOGO}
               alt="College Logo"
               style={{ width: "100%", height: "100%", objectFit: "contain" }}
             />
