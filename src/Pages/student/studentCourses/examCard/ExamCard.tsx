@@ -11,6 +11,7 @@ import {
   TableRow,
   CircularProgress,
   Alert,
+  Avatar,
 } from "@mui/material";
 import { Print } from "@mui/icons-material";
 import { Link } from "react-router-dom";
@@ -111,13 +112,29 @@ const ExamCard = () => {
           </Box>
 
           {/* Right Image - Participant Photo */}
-          <Box sx={{ width: 80, height: 80 }}>
-            <img
-              src={participant?.photo || "/api/placeholder/80/80"}
-              alt="Student Photo"
-              style={{ width: "100%", height: "100%", objectFit: "cover" }}
+          {participant?.photo ? (
+            <Avatar
+              src={participant?.photo}
+              sx={{
+                width: 128,
+                height: 128,
+                marginBottom: "1rem",
+              }}
             />
-          </Box>
+          ) : (
+            <Avatar
+              sx={{
+                width: 128,
+                height: 128,
+                marginBottom: "1rem",
+                bgcolor: "primary.main",
+                fontSize: "3rem",
+              }}
+            >
+              {participant?.first_name?.[0]}
+              {participant?.last_name?.[0]}
+            </Avatar>
+          )}
         </Box>
 
         {/* Student Info Section */}

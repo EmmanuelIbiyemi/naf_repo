@@ -274,14 +274,29 @@ export default function Results() {
                     SESSION: {resultData?.data?.session || "N/A"}
                   </Typography>
                 </Box>
-                <Avatar
-                  src={user?.photo || ""}
-                  sx={{
-                    width: 128,
-                    height: 128,
-                    marginBottom: "1rem",
-                  }}
-                />
+                {user?.photo ? (
+                  <Avatar
+                    src={user?.photo}
+                    sx={{
+                      width: 128,
+                      height: 128,
+                      marginBottom: "1rem",
+                    }}
+                  />
+                ) : (
+                  <Avatar
+                    sx={{
+                      width: 128,
+                      height: 128,
+                      marginBottom: "1rem",
+                      bgcolor: "primary.main",
+                      fontSize: "3rem",
+                    }}
+                  >
+                    {user?.first_name?.[0]}
+                    {user?.last_name?.[0]}
+                  </Avatar>
+                )}
               </Box>
             </Grid2>
 
