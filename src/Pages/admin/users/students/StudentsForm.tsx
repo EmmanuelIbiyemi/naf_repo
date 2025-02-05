@@ -59,7 +59,14 @@ const StudentForm = ({ actions, student }: Props) => {
   });
 
   const handleSubmit = async (values: StudentCreateType) => {
-    await actions.submit(values);
+    const formattedValues = {
+      ...values,
+      courses: values.courses
+        .map((course) => typeof course === 'object' ? course.id : course)
+        .filter((id): id is number => id !== undefined),
+    };
+  
+    await actions.submit(formattedValues);
   };
 
   const handleChange = async (
