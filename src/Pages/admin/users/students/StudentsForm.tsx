@@ -50,7 +50,7 @@ const StudentForm = ({ actions, student }: Props) => {
   useEffect(() => {
   if (student?.level?.program?.department?.faculty_id) {
     getDepartments({
-      faculty_id: student.level.program.department.faculty_id,
+      faculty_id: student?.level?.program?.department.faculty_id,
       page: 1,
       per_page: 1000,
     }).then(() => {
@@ -60,8 +60,8 @@ const StudentForm = ({ actions, student }: Props) => {
       page: 1,
       per_page: 1000,
     }).then(()=>{
-      if (student?.level?.program.id) {
-        getLevels({ program_id: student.level.program.id });
+      if (student?.level?.program?.id) {
+        getLevels({ program_id: student?.level?.program?.id });
       }
     })
   }})}}, [student]);

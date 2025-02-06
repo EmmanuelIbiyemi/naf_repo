@@ -21,6 +21,7 @@ const LevelForm = ({ actions, level }: Props) => {
     id: level?.id || 0,
     name: level?.name || "",
     program_id: +(program_id || 0),
+    program: undefined
   };
 
   const validationSchema = Yup.object({

@@ -5,7 +5,7 @@ export type LevelType = {
   id?: number;
   name: string;
   program_id: number;
-  program: Programme
+  program: Programme | undefined
 };
 
 export type LevelCreateType = LevelType & {};

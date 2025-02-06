@@ -5,7 +5,7 @@ export type Programme = {
   id?: number;
   name: string;
   department_id: number;
-  department: Department
+  department: Department | undefined;
 };
 
 export type ProgrammeResponse = {

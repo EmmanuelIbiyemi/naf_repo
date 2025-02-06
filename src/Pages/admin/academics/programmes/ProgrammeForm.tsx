@@ -21,6 +21,7 @@ const ProgrammeForm = ({ actions, programme }: Props) => {
     id: programme?.id || 0,
     name: programme?.name || "",
     department_id: +(department_id || 0),
+    department: undefined
   };
 
   const validationSchema = Yup.object({
