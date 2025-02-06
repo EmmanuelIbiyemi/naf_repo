@@ -8,8 +8,8 @@ import { appApi } from "./app.api";
 
 const instructorsApi = appApi.injectEndpoints({
   endpoints: (builder) => ({
-    getInstructors: builder.query<InstructorsResponse, null>({
-      query: () => "/instructor",
+    getInstructors: builder.query<InstructorsResponse, number>({
+      query: (per_page) => `/instructor?page=1&per_page=${per_page}`,
       providesTags: ["Instructors"],
     }),
     getInstructor: builder.query<instructorSingleResponse, number>({

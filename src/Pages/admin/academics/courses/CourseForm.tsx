@@ -28,9 +28,9 @@ type Props = {
     cancel: () => void;
   };
 };
-
+const instructors_per_page = 10000
 const CourseForm = ({ actions, course }: Props) => {
-  const { data: instructors } = useGetInstructorsQuery(null);
+  const { data: instructors } = useGetInstructorsQuery(instructors_per_page);
   const { data: semesters } = useGetSemestersQuery(null);
 
   const initialValues: CourseCreateType | CourseType = {
