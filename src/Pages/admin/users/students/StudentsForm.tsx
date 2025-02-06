@@ -5,7 +5,7 @@ import { LoadingButton } from "@mui/lab";
 import formStyles from "../../../../components/form/form.module.scss";
 import { StudentCreateType, StudentType } from "../../../../types/students";
 import StudentCourseSelector from "../components/courseSelector";
-import { ChangeEvent } from "react";
+import { ChangeEvent, useEffect } from "react";
 import { useGetFacultiesQuery } from "../../../../store/api/faculties.api";
 import { useGetDepartmentsMMutation } from "../../../../store/api/departments.api";
 import { useGetProgrammesMMutation } from "../../../../store/api/programmes.api";
@@ -41,11 +41,30 @@ const StudentForm = ({ actions, student }: Props) => {
     courses: student?.courses || [],
     address: student?.address || "",
     photo: student?.photo || "",
-    faculty_id: 0,
-    department_id: 0,
-    program_id: 0,
-    level_id: student?.level_id || 0,
+    faculty_id: student?.level?.program?.department?.faculty_id || 0,
+    department_id: student?.level?.program?.department_id || 0,
+    program_id: student?.level?.program_id || 0,
+    level_id: student?.level?.id || undefined,
   };
+
+  useEffect(() => {
+  if (student?.level?.program?.department?.faculty_id) {
+    getDepartments({
+      faculty_id: student.level.program.department.faculty_id,
+      page: 1,
+      per_page: 1000,
+    }).then(() => {
+  if (student?.level?.program?.department_id) {
+    getPrograms({
+      department_id: student.level.program.department_id,
+      page: 1,
+      per_page: 1000,
+    }).then(()=>{
+      if (student?.level?.program.id) {
+        getLevels({ program_id: student.level.program.id });
+      }
+    })
+  }})}}, [student]);
 
   const validationSchema = Yup.object({
     first_name: Yup.string().required("First name is required"),
@@ -55,7 +74,7 @@ const StudentForm = ({ actions, student }: Props) => {
       .required("Email is required"),
     phone: Yup.string().required("Phone number is required"),
     level_id: Yup.number().required("Level is required"),
-    courses: Yup.array().min(1, "At least one course is required"),
+    courses: Yup.array(),
   });
 
   const handleSubmit = async (values: StudentCreateType) => {

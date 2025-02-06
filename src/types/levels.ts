@@ -1,9 +1,11 @@
 import { PaginationResponse } from "./pagination";
+import { Programme } from "./programmes";
 
 export type LevelType = {
   id?: number;
   name: string;
   program_id: number;
+  program: Programme
 };
 
 export type LevelCreateType = LevelType & {};
