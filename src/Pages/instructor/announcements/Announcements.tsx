@@ -215,36 +215,86 @@ const SingleAnnouncementPage = () => {
         >
           {announcement.blocks.map((block) => (
             <Box key={block.id}>
-              <Typography
-                variant="body1"
-                sx={{
-                  lineHeight: 1.7,
-                  whiteSpace: "pre-wrap",
-                }}
-              >
-                {block.content}
-              </Typography>
-              {block.media && block.media.length > 0 && (
+              {block.type === 'heading' && (
+                <Typography variant="h5" sx={{ fontWeight: 'bold', mb: 2 }}>
+                  {block.content}
+                </Typography>
+              )}
+
+              {block.type === 'text' && (
+                <Typography
+                  variant="body1"
+                  sx={{
+                    lineHeight: 1.7,
+                    whiteSpace: "pre-wrap",
+                  }}
+                >
+                  {block.content}
+                </Typography>
+              )}
+
+              {block.type === 'image' && block.media?.[0] && (
                 <Box sx={{ mt: 2 }}>
-                  {block.media.map((media) => (
-                    <Box key={media.id} sx={{ mt: 2 }}>
-                      <img
-                        src={media.url}
-                        alt={media.name}
-                        style={{ maxWidth: "100%", height: "auto" }}
-                      />
-                      {block.caption && (
-                        <Typography
-                          variant="caption"
-                          color="text.secondary"
-                          sx={{ mt: 1, display: "block" }}
-                        >
-                          {block.caption}
-                        </Typography>
-                      )}
-                    </Box>
-                  ))}
+                  <img
+                    src={block.media[0].url}
+                    alt={block.media[0].name}
+                    style={{ maxWidth: "100%", height: "auto" }}
+                  />
+                  {block.caption && (
+                    <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: "block" }}>
+                      {block.caption}
+                    </Typography>
+                  )}
                 </Box>
+              )}
+
+              {block.type === 'video' && block.media?.[0] && (
+                <Box sx={{ mt: 2 }}>
+                  <video
+                    controls
+                    style={{ maxWidth: "100%", height: "auto" }}
+                  >
+                    <source src={block.media[0].url} type="video/mp4" />
+                    Your browser does not support the video tag.
+                  </video>
+                  {block.caption && (
+                    <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: "block" }}>
+                      {block.caption}
+                    </Typography>
+                  )}
+                </Box>
+              )}
+
+              {block.type === 'link' && (
+                <Typography variant="body1">
+                  <a 
+                    href={block.link || ''}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{ color: 'inherit', textDecoration: 'underline' }}
+                  >
+                    {block.title || block.link}
+                  </a>
+                </Typography>
+              )}
+
+              {block.type === 'page' && block.link && (
+                <Typography variant="body1">
+                  <a 
+                    href={block.link}
+                    style={{ color: 'inherit', textDecoration: 'underline' }}
+                  >
+                    {block.title || 'View Page'}
+                  </a>
+                </Typography>
+              )}
+
+              {block.type === 'big_space' && (
+                <Box sx={{ height: 48 }} />
+              )}
+
+              {block.type === 'small_space' && (
+                <Box sx={{ height: 24 }} />
               )}
             </Box>
           ))}

@@ -1,7 +1,7 @@
 import { AnnouncementResponse } from "../../Pages/student/announcements/SingleAnnouncement";
 import { PostsResponseAnnouncement } from "../../types/announcements";
 import { Pagination } from "../../types/pagination";
-import { PostCreateType, PostResponse, PostsResponse } from "../../types/posts";
+import { CategoriesResponse, PostCreateType, PostResponse, PostsResponse } from "../../types/posts";
 import { appApi } from "./app.api";
 
 const postsApi = appApi.injectEndpoints({
@@ -28,7 +28,7 @@ const postsApi = appApi.injectEndpoints({
       providesTags: ["Posts"],
     }),
     getPostCategories: builder.query<
-      PostsResponse,
+      CategoriesResponse,
       Pagination & { search_term?: string }
     >({
       query: ({ page, per_page, search_term }) =>

@@ -5,26 +5,59 @@ import {
   Image,
   LocalParking,
   SmartDisplay,
+  ViewCarousel,
+  Newspaper,
+  Article,
+  TextFields,
+  EmojiPeople,
+  FmdGood,
+  ContactPhone,
 } from "@mui/icons-material";
 
 export const BLOCK_TYPES = {
+  // Page Elements
+  BANNER: "banner",
+  LEFTCARD: "left card",
+  RIGHTCARD: "right card",
+  POSTCARDS: "post cards",
+  NEWS_SECTION: "news section",
+  POSTCAROUSEL: "post carousel",
+  
+  // Common Elements
   IMAGE: "image",
   VIDEO: "video",
   HEADING: "heading",
+  SUBHEADING: "subheading",
   TEXT: "text",
-  LINK: "link",
+  MARGIN: "margin",
+  
+  // Link Elements
+  LINK_PAGE: "link page",
   LINK_URL: "link url",
-  BIG_SPACE: "big space",
-  SMALL_SPACE: "small space",
+  SOCIAL: "link social",
+  BUTTON_LINK: "button link",
+  
+  // Footer Elements
+  CONTACTS: "contacts",
+  MAP: "map",
 } as const;
 
-export const postElements = [
-  { id: 6, name: "Image", type: BLOCK_TYPES.IMAGE, icon: Image },
-  { id: 7, name: "Video", type: BLOCK_TYPES.VIDEO, icon: SmartDisplay },
-  { id: 8, name: "Heading", type: BLOCK_TYPES.HEADING, icon: HMobiledata },
-  { id: 9, name: "Paragraph", type: BLOCK_TYPES.TEXT, icon: LocalParking },
-  { id: 1, name: "Link", type: BLOCK_TYPES.LINK, icon: AddLink },
-  { id: 1, name: "Link URL", type: BLOCK_TYPES.LINK_URL, icon: AddLink },
-  { id: 14, name: "Big space", type: BLOCK_TYPES.BIG_SPACE, icon: Height },
-  { id: 15, name: "Small space", type: BLOCK_TYPES.SMALL_SPACE, icon: Height },
+export const elements = [
+  { id: 1, name: "Banner", type: BLOCK_TYPES.BANNER, icon: ViewCarousel },
+  { id: 2, name: "Left Card", type: BLOCK_TYPES.LEFTCARD, icon: Newspaper },
+  { id: 3, name: "Right Card", type: BLOCK_TYPES.RIGHTCARD, icon: Newspaper },
+  { id: 5, name: "Post Cards", type: BLOCK_TYPES.POSTCARDS, icon: Article },
+  { id: 7, name: "Image", type: BLOCK_TYPES.IMAGE, icon: Image },
+  { id: 8, name: "Video", type: BLOCK_TYPES.VIDEO, icon: SmartDisplay },
+  { id: 9, name: "Heading", type: BLOCK_TYPES.HEADING, icon: HMobiledata },
+  { id: 10, name: "Paragraph", type: BLOCK_TYPES.TEXT, icon: LocalParking },
+  { id: 13, name: "Margin", type: BLOCK_TYPES.MARGIN, icon: Height },
+  { id: 15, name: "Subheading", type: BLOCK_TYPES.SUBHEADING, icon: TextFields },
+  { id: 16, name: "Social", type: BLOCK_TYPES.SOCIAL, icon: EmojiPeople },
+  { id: 17, name: "Button Link", type: BLOCK_TYPES.BUTTON_LINK, icon: AddLink },
+  { id: 18, name: "Link Page", type: BLOCK_TYPES.LINK_PAGE, icon: AddLink },
+  { id: 19, name: "Link URL", type: BLOCK_TYPES.LINK_URL, icon: AddLink },
+  { id: 20, name: "Map", type: BLOCK_TYPES.MAP, icon: FmdGood },
+  { id: 21, name: "Contacts", type: BLOCK_TYPES.CONTACTS, icon: ContactPhone },
+  { id: 22, name: "Post Carousel", type: BLOCK_TYPES.POSTCAROUSEL, icon: ViewCarousel },
 ] as const;

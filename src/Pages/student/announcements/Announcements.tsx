@@ -80,9 +80,27 @@ const AnnouncementsPage = () => {
                 {announcement.blocks.length > 0 && (
                   <>
                     <Divider sx={{ my: 2 }} />
-                    <Typography variant="body2">
-                      {announcement.blocks[0].content}
-                    </Typography>
+                    {announcement.blocks.map((block) => {
+                    if (block.type === 'text') {
+                      return (
+                      <Typography
+                        key={block.id}
+                        variant="body2"
+                        color="text.secondary"
+                        sx={{
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        display: "-webkit-box",
+                        WebkitLineClamp: 2,
+                        WebkitBoxOrient: "vertical",
+                        }}
+                      >
+                        {block.content}
+                      </Typography>
+                      );
+                    }
+                    return null;
+                    })[0]}
                   </>
                 )}
               </CardContent>

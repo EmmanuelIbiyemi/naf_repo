@@ -33,3 +33,13 @@ export type PostsResponse = {
   post: PostType[];
   pagination: PaginationResponse;
 };
+
+export type CategoryType = {
+  id: number;
+  name: string;
+};
+
+export type CategoryResponse = { category: CategoryType };
+export type CategoriesResponse = {
+  categories: CategoryType[];
+};

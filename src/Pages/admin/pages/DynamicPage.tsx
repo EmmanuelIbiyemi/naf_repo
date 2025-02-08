@@ -18,13 +18,10 @@ import {
 } from "../../../store/api/posts.api";
 import { PostType, PostCreateType } from "../../../types/posts";
 import MediaLibraryModal from "../media/MediaLibraryModal";
-import { postElements } from "./elements/post-elements";
+import { elements } from "./elements/post-elements";
 import { BlockType, MediaType } from "../../../types/blocks";
 import LoadingScreen from "../../../components/LoadingScreen";
-import { pageElements } from "./elements/page-elements";
-import { navElements } from "./elements/navigation-elements";
-import { footerElements } from "./elements/footer-elements";
-import { Close } from "@mui/icons-material";
+import { Close, Save as SaveIcon } from "@mui/icons-material";
 import { setPageLoading } from "../../../store/app.slice";
 import { useAppDispatch } from "../../../store/hooks";
 
@@ -44,15 +41,22 @@ const PostPage = () => {
     type: "image",
     modal: false,
   });
+  const [categories, setCategories] = useState("");
+
+  useEffect(() => {
+    if (post?.categories) {
+      setCategories(post.categories.map((category) => category.name.toLowerCase()).join(', '));
+    }
+  }, [post]);
 
   const addBlock = useCallback((type: string) => {
     setPost((prev) => {
       const blocks: PostType["blocks"] = prev?.blocks ? [...prev.blocks] : [];
 
-      const content = postElements.find((el) => el.type === type)?.name ?? "";
       const newBlock: BlockType = {
         id: 0,
-        content: content,
+        randomId: Math.random().toString(36).substring(2, 15),
+        content: "",
         type,
         caption: "",
         link: "",
@@ -71,16 +75,19 @@ const PostPage = () => {
 
   const handleSave = useCallback(async () => {
     if (!post || !post?.title) return;
-    const categories = [resource_type || ""];
-
-    if (resource_type == "page") categories.push(post.title);
+    const initialCategories = categories.split(',').map(cat => cat.trim().toLowerCase()).filter(Boolean);
+    const additionalCategories = [
+      ...(resource_type === "page" ? [post.title.toLowerCase()] : []),
+      ...(resource_type ? [resource_type.toLowerCase()] : [])
+    ];
+    const categoriesArray = [...new Set([...initialCategories, ...additionalCategories])];
 
     const payload: PostCreateType = {
       ...post,
       blocks: post?.blocks || [],
-      featured_image: media.url,
-      categories: categories,
-      tags: categories,
+      featured_image: post.featured_image || media.url,
+      categories: categoriesArray,
+      tags: categoriesArray,
     };
 
     try {
@@ -95,22 +102,14 @@ const PostPage = () => {
     } catch (error) {
       console.error("Failed to save post:", error);
     }
-  }, [post, updatePost, addPost, getPost]);
+  }, [post, updatePost, addPost, getPost, categories]);
 
   const handleBack = useCallback(() => {
     navigate(`/settings/posttype/${resource_type}`);
   }, [navigate]);
 
   const getSidebar = () => {
-    const sidebars = {
-      page: pageElements,
-      posts: postElements,
-      navigation: navElements,
-      footer: footerElements,
-    };
-    const sidebar = sidebars[resource_type as keyof typeof sidebars];
-    if (sidebar) return sidebar;
-    return sidebars.posts;
+    return elements;
   };
 
   const handleOpenModal = (type: string) => {
@@ -125,13 +124,36 @@ const PostPage = () => {
   };
 
   useEffect(() => {
-    if (postt?.post) setPost(postt.post);
+    if (postt?.post) {
+      const updatedBlocks = postt.post.blocks.map((block) => ({
+        ...block,
+        randomId: block.randomId || Math.random().toString(36).substring(2, 15),
+      }));
+      setPost({ ...postt.post, blocks: updatedBlocks });
+    }
   }, [postt]);
 
   useEffect(() => {
     if (isFetching) dispatch(setPageLoading(true));
     else dispatch(setPageLoading(false));
   }, [isFetching]);
+
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      // Check for Ctrl (or Command on Mac) + S
+      if ((event.ctrlKey || event.metaKey) && event.key === 's') {
+        event.preventDefault();
+        handleSave();
+      }
+    };
+  
+    window.addEventListener('keydown', handleKeyDown);
+  
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [handleSave]);
+  
 
   if (!resource_type) navigate(-1);
 
@@ -167,9 +189,6 @@ const PostPage = () => {
       <Box sx={{ paddingBottom: "2rem" }}>
         <Box sx={headerStyles}>
           <Button onClick={handleBack}>Back</Button>
-          <Button variant="contained" onClick={handleSave}>
-            Save Changes
-          </Button>
         </Box>
         <Box
           sx={{
@@ -233,6 +252,23 @@ const PostPage = () => {
               </Box>
             </>
           ) : null}
+          {resource_type === "posts" && (
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                gap: "1rem",
+                marginBottom: "1rem",
+              }}
+            >
+              <label htmlFor="">Categories</label>
+              <TextField
+                variant="outlined"
+                value={categories}
+                onChange={(e) => setCategories(e.target.value)}
+              />
+            </Box>
+          )}
         </Box>
         <Box sx={blockContainerStyles}>
           {post && (
@@ -250,6 +286,13 @@ const PostPage = () => {
               }}
             />
           )}
+          <IconButton
+            aria-label="save"
+            onClick={handleSave}
+            sx={floatingButtonStyles}
+          >
+            <SaveIcon titleAccess="Save Changes" />
+          </IconButton>
         </Box>
       </Box>
       <Box sx={sidebarContentStyles}>
@@ -292,14 +335,16 @@ const blockContainerStyles: SxProps = {
   bgcolor: "#fff",
   border: "1px solid rgba(204, 204, 204, 0.5)",
   borderRadius: "var(--border-radius)",
-  position: "sticky",
-  top: 0,
+  position: "relative",
   minHeight: "50%",
+  padding: "1rem",
 };
 
 const sidebarContentStyles: SxProps = {
   bgcolor: "#fff",
   borderLeft: "1px solid rgba(204, 204, 204, 0.5)",
+  maxHeight: "100vh", // Set a maximum height
+  overflowY: "auto", // Enable vertical scrolling
 
   ">div": { position: "sticky", top: 0, padding: "1rem" },
 };
@@ -316,5 +361,18 @@ const elementSideBar: SxProps = {
     display: "grid",
     placeContent: "center",
     placeItems: "center",
+    fontSize: "0.675rem",
+  },
+};
+
+const floatingButtonStyles: SxProps = {
+  position: "absolute",
+  bottom: "20px",
+  right: "20px",
+  zIndex: 1000,
+  backgroundColor: "primary.main",
+  color: "#fff",
+  "&:hover": {
+    backgroundColor: "primary.dark",
   },
 };

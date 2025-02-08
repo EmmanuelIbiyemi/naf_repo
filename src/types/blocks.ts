@@ -12,6 +12,7 @@ export type BlockType = {
   caption: string;
   content: string;
   id: number;
+  randomId: string | null | undefined;
   link: string;
   media: MediaCreateType[] | MediaType[] | null;
   position: number;

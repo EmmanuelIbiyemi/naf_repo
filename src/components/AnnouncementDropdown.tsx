@@ -135,21 +135,27 @@ const NotificationMenu = ({
                   >
                     {announcement.date}
                   </Typography>
-                  {announcement.blocks.length > 0 && (
-                    <Typography
-                      variant="body2"
-                      color="text.secondary"
-                      sx={{
+                    {announcement.blocks.map((block) => {
+                    if (block.type === 'text') {
+                      return (
+                      <Typography
+                        key={block.id}
+                        variant="body2"
+                        color="text.secondary"
+                        sx={{
                         overflow: "hidden",
                         textOverflow: "ellipsis",
                         display: "-webkit-box",
                         WebkitLineClamp: 2,
                         WebkitBoxOrient: "vertical",
-                      }}
-                    >
-                      {announcement.blocks[0].content}
-                    </Typography>
-                  )}
+                        }}
+                      >
+                        {block.content}
+                      </Typography>
+                      );
+                    }
+                    return null;
+                    })[0]}
                 </Box>
               </MenuItem>
             ))
