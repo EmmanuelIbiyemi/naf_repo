@@ -10,9 +10,18 @@ export type StudentType = {
   address: string;
   phone: string;
   photo: string;
+  matric_number: string;
   courses: CourseType[] | any[];
   level_id?: number;
   level?: LevelType;
+};
+
+export type StudentsUploadType = {
+  faculty_id: number,
+  department_id: number,
+  program_id: number,
+  level_id: number;
+  list_url: string;
 };
 
 export type StudentCreateType = StudentType & {};
@@ -23,6 +32,9 @@ export type StudentsResponse = {
   data: StudentType[];
   pagination: PaginationResponse;
 };
+
+export type StudentUploadResponse = {
+}
 
 export type SingleStudentResponse = { data: StudentType };
 

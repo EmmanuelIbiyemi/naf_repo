@@ -212,49 +212,53 @@ const StudentsList = () => {
       {stds?.data.length ? (
         <>
           <Table sx={{ minWidth: 650 }}>
-            <TableBody>
-              {students?.map((student: StudentType) => (
-                <TableRow
-                  key={student.id}
-                  sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-                >
-                  <TableCell
-                    component="th"
-                    scope="row"
-                    sx={{ alignItems: "center", display: "flex", gap: "1rem" }}
-                  >
-                    <Checkbox
-                      onChange={(event) =>
-                        handleSelect(event, student.id as number)
-                      }
-                      checked={deleteIds.includes(student.id as number)}
-                    />
-                    <Typography
-                      style={{
-                        cursor: "pointer",
-                        fontWeight: 500,
-                        textTransform: "capitalize",
-                      }}
-                      onClick={() => handleOpenModal(student, "sidebar")}
-                    >
-                      {student.first_name}
-                    </Typography>
-                  </TableCell>
-                  <TableCell align="right">
-                    <IconButton
-                      onClick={() => handleOpenModal(student, "edit")}
-                    >
-                      <Edit />
-                    </IconButton>
-                    <IconButton
-                      onClick={() => handleOpenModal(student, "delete")}
-                    >
-                      <Delete />
-                    </IconButton>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
+          <TableBody>
+  {students?.map((student: StudentType) => (
+    <TableRow
+      key={student.id}
+      sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+    >
+      <TableCell
+        component="th"
+        scope="row"
+        sx={{ alignItems: "center", display: "flex", gap: "1rem" }}
+      >
+        <Checkbox
+          onChange={(event) =>
+            handleSelect(event, student.id as number)
+          }
+          checked={deleteIds.includes(student.id as number)}
+        />
+        <Typography
+          style={{
+            cursor: "pointer",
+            fontWeight: 500,
+            textTransform: "capitalize",
+          }}
+          onClick={() => handleOpenModal(student, "sidebar")}
+        >
+          {student.first_name} {student.last_name}
+        </Typography>
+      </TableCell>
+      <TableCell align="right">
+        {student.matric_number}
+      </TableCell>
+      <TableCell align="right">
+        <IconButton
+          onClick={() => handleOpenModal(student, "edit")}
+        >
+          <Edit />
+        </IconButton>
+        <IconButton
+          onClick={() => handleOpenModal(student, "delete")}
+        >
+          <Delete />
+        </IconButton>
+      </TableCell>
+    </TableRow>
+  ))}
+</TableBody>
+
           </Table>
 
           <CustomPagination

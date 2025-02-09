@@ -3,7 +3,9 @@ import {
   SingleStudentResponse,
   StudentCreateType,
   StudentsResponse,
+  StudentsUploadType,
   StudentType,
+  StudentUploadResponse,
 } from "../../types/students";
 import { appApi } from "./app.api";
 
@@ -31,6 +33,14 @@ const studentsApi = appApi.injectEndpoints({
       }),
       invalidatesTags: ["Students"],
     }),
+    uploadStudents: builder.mutation<StudentUploadResponse, StudentsUploadType>({
+          query: (data) => ({
+            url: `/participant/upload`,
+            method: "POST",
+            body: data,
+          }),
+          invalidatesTags: ["Students"],
+        }),
     promoteAll: builder.mutation<StudentsResponse, null>({
       query: () => ({
         url: `/participant/promote`,
@@ -60,6 +70,7 @@ const studentsApi = appApi.injectEndpoints({
 export const {
   useGetStudentsQuery,
   useAddStudentMutation,
+  useUploadStudentsMutation,
   useUpdateStudentMutation,
   useDeleteStudentMutation,
   useGetStudentQuery,

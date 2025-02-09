@@ -4,21 +4,24 @@ import FormModal from "../../../../components/FormModal";
 import { useEffect, useRef, useState } from "react";
 import StudentForm from "./StudentsForm";
 import StudentList from "./StudentsList";
-import { StudentType, StudentFormAction } from "../../../../types/students";
+import { StudentType, StudentFormAction, StudentsUploadType } from "../../../../types/students";
 import { useAppDispatch } from "../../../../store/hooks";
 import { setPageName } from "../../../../store/app.slice";
 import SuccessModal from "../../../../components/SuccessModal";
-import { useAddStudentMutation } from "../../../../store/api/students.api";
+import { useAddStudentMutation, useUploadStudentsMutation } from "../../../../store/api/students.api";
+import StudentsUploadForm from "./StudentsUploadForm";
 
 const StudentsPage = () => {
   const [openModal, setOpenModal] = useState({
     add: false,
+    upload: false,
     success: false,
   });
   const [studentName, setStudentName] = useState("");
   const [selectedStudent, setSelectedStudent] = useState<StudentType>();
   const containerRef = useRef<HTMLDivElement>(null);
   const [addStudent] = useAddStudentMutation();
+  const [uploadStudents] = useUploadStudentsMutation();
 
   // set page name
   const dispatch = useAppDispatch();
@@ -46,6 +49,16 @@ const StudentsPage = () => {
     }
   };
 
+  const handleUploadStudents = async (data: StudentsUploadType) => {
+      try {
+        await uploadStudents(data).unwrap();
+        handleCloseModal("upload");
+        handleOpenModal("success");
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
   return (
     <Box ref={containerRef} className="content-container">
       <FormModal open={openModal.add} close={() => handleCloseModal("add")}>
@@ -57,6 +70,16 @@ const StudentsPage = () => {
           student={selectedStudent}
         />
       </FormModal>
+
+      <FormModal open={openModal.upload} close={() => handleCloseModal("upload")}>
+          <StudentsUploadForm
+            actions={{
+              submit: handleUploadStudents,
+              cancel: () => handleCloseModal("upload"),
+            }}
+          />
+        </FormModal>
+
 
       <SuccessModal
         close={() => {
@@ -73,6 +96,10 @@ const StudentsPage = () => {
         button={{
           action: () => setOpenModal((prev) => ({ ...prev, add: true })),
           text: "Add Students",
+        }}
+        secondaryButton={{
+          action: () => setOpenModal((prev) => ({ ...prev, upload: true })),
+          text: "Upload Students",
         }}
       />
       <Box
