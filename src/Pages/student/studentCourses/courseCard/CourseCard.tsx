@@ -19,7 +19,6 @@ import { useGetParticipantQuery } from "../../../../store/api/participants.api";
 import Breadcrumb from "../components/BreadCrumb";
 import { useAppSelector } from "../../../../store/hooks";
 import { selectCurrentUser } from "../../../../store/auth.slice";
-import { useGetCurrentSemesterQuery } from "../../../../store/api/semesters.api";
 import { useGetCurrentSessionQuery } from "../../../../store/api/sessions.api";
 
 const CourseCard = () => {
@@ -31,7 +30,6 @@ const CourseCard = () => {
     isLoading,
     error,
   } = useGetParticipantQuery(participantId);
-  const { data: currentSemester } = useGetCurrentSemesterQuery(null);
   const { data: currentSession } = useGetCurrentSessionQuery(null);
 
   if (isLoading) {
