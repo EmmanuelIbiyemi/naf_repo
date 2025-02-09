@@ -23,7 +23,7 @@ const Dashboard = () => {
   const navigate = useNavigate();
 
   const handleManageSite = () => {
-    navigate("/settings");
+    navigate("/settings/posttype/page");
   };
 
   return (
@@ -123,7 +123,7 @@ const cards = [
     title: "Add Instructors",
     description:
       "Add new instructors to the platform and assign them to specific courses or roles as needed.",
-    link: "/instructors",
+    link: "/users/lecturers",
   },
   {
     id: 4,
