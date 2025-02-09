@@ -1,7 +1,6 @@
 import {
     Box,
     FormControl,
-    Select,
     TextField,
     Typography,
   } from "@mui/material";

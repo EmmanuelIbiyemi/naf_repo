@@ -11,7 +11,6 @@ import {
   import { ChangeEvent, useEffect } from "react";
   import { PostType } from "../../../../../types/posts";
   import { ActionButtons } from ".././ActionButtons";
-import { useGetPostByCategoryQuery } from "../../../../../store/api/posts.api";
   
   const capitalizeText = (text: string) => {
     const allTexts = text.split(" ");

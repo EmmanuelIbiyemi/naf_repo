@@ -5,7 +5,6 @@ import {
 import { BlockType } from "../../../../types/blocks";
 import { PostType } from "../../../../types/posts";
 import HeadingBlock from "./postblocks/Heading";
-import DefaultBlock from "./postblocks/Default";
 import MediaBlock from "./postblocks/Media";
 import BannerBlock from "./postblocks/Banner";
 import CardBlock from "./postblocks/Card";

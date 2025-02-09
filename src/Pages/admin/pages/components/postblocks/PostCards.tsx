@@ -7,7 +7,7 @@ import {
     Typography,
   } from "@mui/material";
   import { BlockType } from "../../../../../types/blocks";
-  import { ChangeEvent, useEffect } from "react";
+  import { useEffect } from "react";
   import { PostType } from "../../../../../types/posts";
   import { ActionButtons } from ".././ActionButtons";
 import { useGetPostCategoriesQuery } from "../../../../../store/api/posts.api";
