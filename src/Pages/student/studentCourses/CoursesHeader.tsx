@@ -53,6 +53,20 @@ const CoursesHeader = () => {
       >
         <Button
           component={Link}
+          to="course-card" // Link destination
+          variant="outlined"
+          startIcon={<SchoolIcon />}
+          sx={{
+            borderRadius: 1,
+            textTransform: 'none',
+            flex: { xs: 1, sm: 'none' },
+            whiteSpace: 'nowrap'
+          }}
+        >
+          Course Card
+        </Button>
+        <Button
+          component={Link}
           to="exam-card" // Link destination
           variant="outlined"
           startIcon={<SchoolIcon />}

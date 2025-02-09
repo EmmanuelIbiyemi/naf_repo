@@ -150,6 +150,9 @@ const StudentCourses = lazy(
 const StudentExamCard = lazy(
   () => import("./Pages/student/studentCourses/examCard/ExamCard")
 );
+const StudentCourseCard = lazy(
+  () => import("./Pages/student/studentCourses/courseCard/CourseCard")
+);
 const StudentCourseForm = lazy(
   () => import("./Pages/student/studentCourses/courseForm/CourseForm")
 );
@@ -334,6 +337,7 @@ export const router = createBrowserRouter([
       { path: "overview", element: <StudentOverview /> },
       { path: "courses", element: <StudentCourses /> },
       { path: "courses/exam-card", element: <StudentExamCard /> },
+      { path: "courses/course-card", element: <StudentCourseCard /> },
       { path: "courses/course-form", element: <StudentCourseForm /> },
       { path: "courses/add-course", element: <StudentEnroll /> },
       { path: "courses/:courseId/notes", element: <StudentNote /> },

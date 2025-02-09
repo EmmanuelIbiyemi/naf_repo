@@ -83,6 +83,7 @@ const allowedRoutes = {
     "/student/overview",
     "/student/courses",
     "/student/courses/exam-card",
+    "/student/courses/course-card",
     "/student/courses/course-form",
     "/student/courses/add-course",
     "/student/courses/details",

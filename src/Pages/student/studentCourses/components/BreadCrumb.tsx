@@ -17,6 +17,7 @@ const Breadcrumb = () => {
     overview: "Overview",
     courses: "Courses",
     "exam-card": "Exam Card",
+    "course-card": "Course Card",
     "course-form": "Course Form",
     "add-course": "Add Course",
     reports: "Reports",
