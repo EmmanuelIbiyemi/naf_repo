@@ -30,6 +30,14 @@ import {
 import DeleteConfirmationModal from "../../../../../components/DeleteConfirmationModal";
 import ImportFromQuiz from "./ImportFromQuizModal";
 
+// Optionally, define a type for clarity:
+interface ScoreRow {
+  participantId: number | null;
+  participantName?: string;
+  obtainedScore: number | null;
+  updatedAt?: string;
+}
+
 interface AddScoresModalProps {
   open: boolean;
   handleClose: () => void;
@@ -49,12 +57,7 @@ const AddScoresModal = ({
   refetch,
   courseId,
 }: AddScoresModalProps) => {
-  const [rows, setRows] = useState<
-    Array<{
-      participantId: number | null;
-      obtainedScore: number | null;
-    }>
-  >([]);
+  const [rows, setRows] = useState<ScoreRow[]>([]);
 
   const [deleteModalState, setDeleteModalState] = useState({
     open: false,
@@ -79,7 +82,9 @@ const AddScoresModal = ({
     if (recordItem?.scores && recordItem.scores.length > 0) {
       const initialRows = recordItem.scores.map((score) => ({
         participantId: score.participant.id,
+        participantName: score.participant.first_name + " " + score.participant.last_name,
         obtainedScore: score.obtained_score,
+        updatedAt: score.updated_at,
       }));
       setRows(initialRows);
     } else {
@@ -245,18 +250,27 @@ const AddScoresModal = ({
                             newRows[index].participantId = Number(
                               e.target.value
                             );
+                            // Update participantName when a student is selected:
+                            const participant = courseParticipants.find(
+                              (p) => p.id === Number(e.target.value)
+                            );
+                            if (participant) {
+                              newRows[index].participantName =
+                                participant.first_name + " " + participant.last_name;
+                              // Optionally, update updatedAt if needed:
+                              newRows[index].updatedAt = participant.updated_at;
+                            }
                             setRows(newRows);
                           }}
                         >
-                          <MenuItem defaultValue={""}></MenuItem>
+                          <MenuItem value={""}></MenuItem>
                           {courseParticipants.map((participant) => (
                             <MenuItem
                               key={participant.id}
                               value={participant.id}
                               disabled={rows.some(
                                 (r) =>
-                                  r.participantId === participant.id &&
-                                  r !== row
+                                  r.participantId === participant.id && r !== row
                               )}
                             >
                               {participant.matric_number}
@@ -266,19 +280,7 @@ const AddScoresModal = ({
                       </FormControl>
                     </TableCell>
                     <TableCell>
-                      {courseParticipants.find(
-                        (p) => p.id === row.participantId
-                      )
-                        ? `${
-                            courseParticipants.find(
-                              (p) => p.id === row.participantId
-                            )?.first_name
-                          } ${
-                            courseParticipants.find(
-                              (p) => p.id === row.participantId
-                            )?.last_name
-                          }`
-                        : "-"}
+                      {row.participantName || "-"}
                     </TableCell>
                     <TableCell>
                       <TextField
@@ -294,15 +296,7 @@ const AddScoresModal = ({
                       />
                     </TableCell>
                     <TableCell>
-                      {courseParticipants.find(
-                        (p) => p.id === row.participantId
-                      )?.updated_at
-                        ? formatDate(
-                            courseParticipants.find(
-                              (p) => p.id === row.participantId
-                            )!.updated_at!
-                          )
-                        : "-"}
+                      {row.updatedAt ? formatDate(row.updatedAt) : "-"}
                     </TableCell>
                     <TableCell>
                       <IconButton

@@ -13,7 +13,6 @@ const InstructorLayout = lazy(
   () => import("./components/layout/InstructorLayout")
 );
 const StudentLayout = lazy(() => import("./components/layout/StudentLayout"));
-const Login = lazy(() => import("./Pages/login/Login"));
 
 function App() {
   const user = useAppSelector(selectCurrentUser);
