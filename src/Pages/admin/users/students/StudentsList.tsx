@@ -5,7 +5,7 @@ import TableContainer from "@mui/material/TableContainer";
 import TableRow from "@mui/material/TableRow";
 import { StudentFormAction, StudentType } from "../../../../types/students";
 import { Box, Button, Checkbox, IconButton, Typography } from "@mui/material";
-import { Delete, Edit } from "@mui/icons-material";
+import { Delete, Edit, LockReset } from "@mui/icons-material"; // <-- added LockReset icon
 import DeleteConfirmationModal from "../../../../components/DeleteConfirmationModal";
 import { ChangeEvent, useEffect, useState } from "react";
 import {
@@ -13,6 +13,7 @@ import {
   useGetStudentsQuery,
   useUpdateStudentMutation,
 } from "../../../../store/api/students.api";
+import { useResetUserPasswordMutation } from "../../../../store/api/auth.api"; // <-- import the reset mutation
 import FormModal from "../../../../components/FormModal";
 import StudentForm from "./StudentsForm";
 import SuccessModal from "../../../../components/SuccessModal";
@@ -30,6 +31,7 @@ const StudentsList = () => {
     delete: false,
     sidebar: false,
     bulkDelete: false,
+    resetPassword: false, // <-- new flag
   });
   const [selectedStudent, setSelectedStudent] = useState<StudentType>();
   const [pagination, setPagination] = useState<Pagination>({
@@ -46,6 +48,7 @@ const StudentsList = () => {
   const [students, setStudents] = useState(stds?.data);
   const [deleteStudent, deleteState] = useDeleteStudentMutation();
   const [updateStudent, updateState] = useUpdateStudentMutation();
+  const [resetUserPassword, resetUserPasswordState] = useResetUserPasswordMutation(); // <-- add reset password mutation
   const [deleteIds, setDeleteIds] = useState<number[]>([]);
 
   useEffect(() => {
@@ -63,11 +66,12 @@ const StudentsList = () => {
     if (
       (isFetching && isError) ||
       deleteState.isLoading ||
-      updateState.isLoading
+      updateState.isLoading ||
+      resetUserPasswordState.isLoading
     )
       dispatch(setPageLoading(true));
     else dispatch(setPageLoading(false));
-  }, [isFetching, isError, stds, deleteState, updateState]);
+  }, [isFetching, isError, stds, deleteState, updateState, resetUserPasswordState]);
 
   const handleOpenModal = (student: StudentType, type: string) => {
     setSelectedStudent(student);
@@ -119,6 +123,17 @@ const StudentsList = () => {
     }
     handleCloseModal("edit");
     handleOpenModal(student, "success");
+  };
+
+  const handleResetPassword = async (student: StudentType) => {
+    try {
+      const result = await resetUserPassword(student.user_id as number).unwrap();
+      console.log(result.message);
+      setSelectedStudent(student);
+      setOpenModal((prev) => ({ ...prev, resetPassword: true }));
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (
@@ -177,6 +192,15 @@ const StudentsList = () => {
         title="Updates Successful"
       />
 
+      {/* Reset Password Success */}
+      <SuccessModal
+        close={() => handleCloseModal("resetPassword")}
+        infoText=""
+        open={openModal.resetPassword}
+        subTitle={`You have successfully reset the password for ${selectedStudent?.first_name}.`}
+        title="Password Reset Successful"
+      />
+
       {isError ? (
         <EmptyState
           title="Could not fetch Students"
@@ -212,53 +236,54 @@ const StudentsList = () => {
       {stds?.data.length ? (
         <>
           <Table sx={{ minWidth: 650 }}>
-          <TableBody>
-  {students?.map((student: StudentType) => (
-    <TableRow
-      key={student.id}
-      sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-    >
-      <TableCell
-        component="th"
-        scope="row"
-        sx={{ alignItems: "center", display: "flex", gap: "1rem" }}
-      >
-        <Checkbox
-          onChange={(event) =>
-            handleSelect(event, student.id as number)
-          }
-          checked={deleteIds.includes(student.id as number)}
-        />
-        <Typography
-          style={{
-            cursor: "pointer",
-            fontWeight: 500,
-            textTransform: "capitalize",
-          }}
-          onClick={() => handleOpenModal(student, "sidebar")}
-        >
-          {student.first_name} {student.last_name}
-        </Typography>
-      </TableCell>
-      <TableCell align="right">
-        {student.matric_number}
-      </TableCell>
-      <TableCell align="right">
-        <IconButton
-          onClick={() => handleOpenModal(student, "edit")}
-        >
-          <Edit />
-        </IconButton>
-        <IconButton
-          onClick={() => handleOpenModal(student, "delete")}
-        >
-          <Delete />
-        </IconButton>
-      </TableCell>
-    </TableRow>
-  ))}
-</TableBody>
-
+            <TableBody>
+              {students?.map((student: StudentType) => (
+                <TableRow
+                  key={student.id}
+                  sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+                >
+                  <TableCell
+                    component="th"
+                    scope="row"
+                    sx={{ alignItems: "center", display: "flex", gap: "1rem" }}
+                  >
+                    <Checkbox
+                      onChange={(event) =>
+                        handleSelect(event, student.id as number)
+                      }
+                      checked={deleteIds.includes(student.id as number)}
+                    />
+                    <Typography
+                      style={{
+                        cursor: "pointer",
+                        fontWeight: 500,
+                        textTransform: "capitalize",
+                      }}
+                      onClick={() => handleOpenModal(student, "sidebar")}
+                    >
+                      {student.first_name} {student.last_name}
+                    </Typography>
+                  </TableCell>
+                  <TableCell align="right">
+                    {student.matric_number}
+                  </TableCell>
+                  <TableCell align="right">
+                    <IconButton onClick={() => handleOpenModal(student, "edit")}>
+                      <Edit />
+                    </IconButton>
+                    <IconButton onClick={() => handleOpenModal(student, "delete")}>
+                      <Delete />
+                    </IconButton>
+                    <IconButton 
+                      onClick={() => student.user_id && handleResetPassword(student)}
+                      disabled={!student.user_id}
+                    >
+                      <LockReset />
+                    </IconButton>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
           </Table>
 
           <CustomPagination

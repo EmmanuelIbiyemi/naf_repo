@@ -14,6 +14,7 @@ export type StudentType = {
   courses: CourseType[] | any[];
   level_id?: number;
   level?: LevelType;
+  user_id?: number;
 };
 
 export type StudentsUploadType = {

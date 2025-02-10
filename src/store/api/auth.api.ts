@@ -90,7 +90,16 @@ export const authApiSlice = createApi({
       // Invalidate the Users tag to refetch user data if needed
       invalidatesTags: ["Users"],
     }),
+
+    resetUserPassword: builder.mutation<{ message: string }, number>({
+      query: (userId) => ({
+        url: `/user/reset-user-password/${userId}`,
+        method: "PATCH",
+        body: {},
+      }),
+      invalidatesTags: ["Users"],
+    }),
   }),
 });
 
-export const { useLoginMutation, useResetPasswordMutation } = authApiSlice;
+export const { useLoginMutation, useResetPasswordMutation, useResetUserPasswordMutation } = authApiSlice;
