@@ -71,10 +71,10 @@ const AnnouncementsPage = () => {
               <CardHeader title={announcement.title} />
               <CardContent>
                 <Typography variant="body1">{announcement.date}</Typography>
-                {announcement.blocks.length > 0 && (
+                {announcement?.blocks?.length > 0 && (
                   <>
                     <Divider sx={{ my: 2 }} />
-                    {announcement.blocks.map((block) => {
+                    {announcement?.blocks?.map((block) => {
                     if (block.type === 'text') {
                       return (
                       <Typography

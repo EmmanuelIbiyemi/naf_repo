@@ -125,7 +125,7 @@ const NotificationMenu = ({
                   >
                     {announcement.date}
                   </Typography>
-                    {announcement.blocks.map((block) => {
+                    {announcement?.blocks?.map((block) => {
                     if (block.type === 'text') {
                       return (
                       <Typography
