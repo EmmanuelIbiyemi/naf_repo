@@ -14,13 +14,7 @@ import { Post } from "../../../types/announcements";
 
 const AnnouncementsPage = () => {
   const [page, setPage] = useState(1);
-  const { data, isLoading, isError } = useGetAnnouncementsQuery(
-    "announcement",
-    {
-      skip: false,
-      refetchOnMountOrArgChange: true,
-    }
-  );
+  const { data, isLoading, isError } = useGetAnnouncementsQuery("announcement");
 
   const handlePageChange = (
     _event: React.ChangeEvent<unknown>,
