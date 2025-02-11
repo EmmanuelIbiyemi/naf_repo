@@ -37,6 +37,7 @@ const ProfileSettings = () => {
     phone: "",
     photo: "",
     address: "",
+    user_id: 0,
   });
 
   const [passwords, setPasswords] = useState({
@@ -68,6 +69,7 @@ const ProfileSettings = () => {
         phone: data.phone || "",
         photo: data.photo || "",
         address: data.address || "",
+        user_id: data.user_id || 0,
       });
     }
   }, [participantData]);
@@ -147,6 +149,7 @@ const ProfileSettings = () => {
         phone: formData.phone,
         photo: formData.photo,
         address: formData.address,
+        user_id: formData.user_id,
       }).unwrap();
 
       setSuccess("Profile updated successfully");

@@ -10,6 +10,7 @@ export type Lecturer = {
   phone: string;
   photo: string;
   updated_at: string;
+  user_id: number;
 };
 
 export type LecturerCreateType = Lecturer & {};

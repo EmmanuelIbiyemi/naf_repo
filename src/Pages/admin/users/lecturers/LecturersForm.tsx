@@ -24,6 +24,7 @@ const LecturerForm = ({ actions, lecturer }: Props) => {
     photo: lecturer?.photo || "",
     created_at: lecturer?.created_at || "",
     updated_at: lecturer?.updated_at || "",
+    user_id: lecturer?.user_id || 0,
   };
 
   const validationSchema = Yup.object({
