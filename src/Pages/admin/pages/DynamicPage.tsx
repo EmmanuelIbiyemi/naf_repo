@@ -120,6 +120,8 @@ const PostPage = () => {
 
   const handleSelectFeaturedImage = (media: MediaType) => {
     setMedia((prev) => ({ ...prev, url: media.url }));
+    // Also update the post state so the featured image persists
+    setPost((prev) => (prev ? { ...prev, featured_image: media.url } : prev));
     handleCloseModal();
   };
 
