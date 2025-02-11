@@ -286,7 +286,7 @@ const AddScoresModal = ({
                       <TextField
                         size="small"
                         type="number"
-                        value={row.obtainedScore || ""}
+                        value={row.obtainedScore}
                         onChange={(e) => {
                           const newRows = [...rows];
                           newRows[index].obtainedScore = Number(e.target.value);
