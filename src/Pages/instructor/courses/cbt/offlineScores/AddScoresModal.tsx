@@ -100,6 +100,21 @@ const AddScoresModal = ({
     setRows([...rows, { participantId: null, obtainedScore: null }]);
   };
 
+  const listRows = () => {
+    // Remove empty rows (where participantId is null) before adding participants
+    const filteredRows = rows.filter((row) => row.participantId !== null);
+    courseParticipants.forEach((participant) => {
+      if (!filteredRows.some((row) => row.participantId === participant.id)) {
+        filteredRows.push({
+          participantId: participant.id,
+          participantName: participant.first_name + " " + participant.last_name,
+          obtainedScore: null,
+        });
+      }
+    });
+    setRows(filteredRows);
+  }
+
   const removeRow = (index: number) => {
     const newRows = [...rows];
     newRows.splice(index, 1);
@@ -317,6 +332,14 @@ const AddScoresModal = ({
 
           <Box sx={{ display: "flex", justifyContent: "space-between", mt: 2 }}>
             <Box sx={{ display: "flex", gap: 2 }}>
+              <Button
+                startIcon={<Add />}
+                onClick={listRows}
+                variant="outlined"
+                size="small"
+              >
+                List Rows
+              </Button>
               <Button
                 startIcon={<Add />}
                 onClick={addRow}

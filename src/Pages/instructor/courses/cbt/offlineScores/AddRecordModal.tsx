@@ -124,37 +124,6 @@ AddRecordModalProps) => {
       <DialogContent sx={{ p: 0 }}>
         <form onSubmit={formik.handleSubmit}>
           <Stack spacing={3}>
-            {/* <Box>
-              <Typography variant="body2" sx={{ mb: 1 }}>
-                Name
-              </Typography>
-              <FormControl fullWidth>
-                {/* <Select
-                  id="course"
-                  name="course"
-                  value={formik.values.course}
-                  onChange={formik.handleChange}
-                  error={formik.touched.course && Boolean(formik.errors.course)}
-                  displayEmpty
-                >
-                  <MenuItem value="" disabled>
-                    <em>Select Course</em>
-                  </MenuItem>
-                  {coursesList?.data.map((item) => (
-                    <MenuItem value={item.id}>{item.name}</MenuItem>
-                  ))}
-                </Select> */}
-            {/* <TextField
-                  fullWidth
-                  label="Session"
-                  id="score"
-                  name="score"
-                  value={formik.values.score}
-                  onChange={formik.handleChange}
-                />
-              </FormControl>
-            </Box> */}
-
             <Box sx={{ display: "flex", justifyContent: "space-between" }}>
               <Box sx={{ width: "48%" }}>
                 <Typography variant="body2" sx={{ mb: 1 }}>
