@@ -36,7 +36,7 @@ const PageHeader = ({ button, secondaryButton, tertiaryButton }: Props) => {
 
   useEffect(() => {
     dispatch(setKeyword("")); // clear search field on page change
-  }, [location]);
+  }, [location, dispatch]);
 
   return (
     <Box
@@ -81,6 +81,7 @@ const PageHeader = ({ button, secondaryButton, tertiaryButton }: Props) => {
                 color: "primary.main",
                 textTransform: "capitalize",
               }}
+              disabled={tertiaryButton.disabled}
             >
               {tertiaryButton.text}
             </Button>
@@ -94,6 +95,7 @@ const PageHeader = ({ button, secondaryButton, tertiaryButton }: Props) => {
                 color: "primary.main",
                 textTransform: "capitalize",
               }}
+              disabled={secondaryButton.disabled}
             >
               {secondaryButton.text}
             </Button>
@@ -118,13 +120,11 @@ const fieldStyles: SxProps = {
   bgcolor: "#fff",
   border: "1px solid rgba(204, 204, 204, 0.6)",
   display: "inline-flex",
-
   "input, select": {
     border: "none",
     borderRadius: "var(--border-radius)",
     padding: ".8rem",
   },
-
   "select, svg": {
     color: "rgba(138, 138, 138, 1)",
   },
@@ -134,7 +134,6 @@ const searchFieldStyles: SxProps = {
   ...fieldStyles,
   alignItems: "center",
   paddingInline: ".8rem",
-
   input: {
     outline: "none",
     width: "400px",
