@@ -10,7 +10,7 @@ const ElementsSideBar = () => {
       <Box sx={elementContainerStyles}>
         {formElements.map((el, i) => (
           <Draggable key={`${el.type}-${i}`} id={el.key}>
-            <img src={el.image} alt="" /> <span>{el.name}</span>
+            <el.icon /> <span>{el.name}</span>
           </Draggable>
         ))}
       </Box>

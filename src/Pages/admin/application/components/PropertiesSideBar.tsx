@@ -5,104 +5,101 @@ import {
   SxProps,
   TextField,
   Typography,
+  Alert,
 } from "@mui/material";
-import { ChangeEvent, useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
-import {
-  useGetFormQuery,
-  useUpdateFormMutation,
-} from "../../../../store/api/form.api";
+import { ChangeEvent, useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
+import { useUpdateFormMutation } from "../../../../store/api/form.api";
 import { useAppDispatch } from "../../../../store/hooks";
 import { setPageLoading } from "../../../../store/app.slice";
 
-type FormProps = {
-  name: string;
-  button: string;
-  fee: number;
-};
+interface FormProps {
+  formData: {
+    name: string;
+    fee: number;
+    sections: any[];
+  };
+  setFormData: React.Dispatch<React.SetStateAction<{
+    name: string;
+    fee: number;
+    sections: any[];
+  }>>;
+}
 
-const PropertiesSideBar = () => {
-  const navigate = useNavigate();
+const PropertiesSideBar = ({ formData, setFormData }: FormProps) => {
   const { form_id } = useParams();
-  const { data: frm } = useGetFormQuery(+(form_id || 0));
-  const [props, setProps] = useState<FormProps>({
-    name: frm?.data.name.split("::")[0] || "",
-    button: frm?.data.name.split("::")[1] || "",
-    fee: frm?.data.fee || 0,
-  });
   const [updateForm] = useUpdateFormMutation();
   const dispatch = useAppDispatch();
+  const [saveStatus, setSaveStatus] = useState<"success" | "error" | null>(null);
 
   const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
     const {
       target: { name, value },
     } = event;
 
-    setProps((prev) => {
-      return {
-        ...prev,
-        [name]: value,
-      };
-    });
-  };
-
-  const handlePreviewForm = () => {
-    navigate(`/form/${form_id}/preview`);
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
 
   const handleSaveForm = async () => {
     dispatch(setPageLoading(true));
     try {
-      if (frm?.data)
-        await updateForm({
-          id: frm?.data.id,
-          name: `${props.name}::${props.button}`,
-          fee: props.fee,
-          sections: [],
-        }).unwrap();
+      // Prepare the request body in the desired format
+      const requestBody = {
+        id: form_id, // Assuming form_id is the ID
+        name: formData.name,
+        fee: formData.fee,
+        sections: formData.sections.map((section: any) => ({
+          name: section.name,
+          rows: section.rows.map((row: any) => ({
+            row: row.fields.map((field: any) => ({
+              key: field.id, // Use field.id as the key
+              name: field.name,
+              placeholder: field.placeholder,
+              type: field.type,
+            })),
+          })),
+        })),
+      };
+
+      await updateForm(requestBody).unwrap();
+      setSaveStatus("success");
     } catch (error) {
-      console.log(error);
+      console.error(error);
+      setSaveStatus("error");
     }
     dispatch(setPageLoading(false));
   };
 
   useEffect(() => {
-    setProps({
-      name: frm?.data.name.split("::")[0] || "",
-      button: frm?.data.name.split("::")[0] || "",
-      fee: frm?.data.fee || 0,
-    });
-  }, [frm]);
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if ((event.ctrlKey || event.metaKey) && event.key === "s") {
+        event.preventDefault(); // Prevent browser save
+        handleSaveForm();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [handleSaveForm]);
 
   return (
     <Box sx={propertiesSidebarStyles}>
       <Box>
-        <Typography variant="h5">Properties</Typography>
+        <Typography variant="h5">Form Properties</Typography>
         <Box>
-          <Typography sx={{ marginBlock: "1.5rem .5rem" }}>
-            Form Name
-          </Typography>
+          <Typography sx={{ marginBlock: "1.5rem .5rem" }}>Title</Typography>
           <Box sx={{ ...groupStyles, gap: "1rem" }}>
             <FormControl fullWidth>
               <TextField
                 placeholder={"enter name..."}
-                value={props?.name.split("::")[0]}
+                value={formData?.name}
                 name="name"
-                onChange={handleChange}
-              />
-            </FormControl>
-          </Box>
-        </Box>
-        <Box>
-          <Typography sx={{ marginBlock: "1.5rem .5rem" }}>
-            Submit button
-          </Typography>
-          <Box sx={{ ...groupStyles, gap: "1rem" }}>
-            <FormControl fullWidth>
-              <TextField
-                placeholder={"enter button text..."}
-                value={props?.button.split("::")[1]}
-                name="button"
                 onChange={handleChange}
               />
             </FormControl>
@@ -114,21 +111,30 @@ const PropertiesSideBar = () => {
             <FormControl fullWidth>
               <TextField
                 type="number"
-                value={props?.fee?.toLocaleString()}
+                value={formData?.fee}
                 name="fee"
                 onChange={handleChange}
               />
             </FormControl>
           </Box>
         </Box>
-      </Box>
-      <Box sx={{ display: "grid", gap: "1rem" }}>
-        <Button variant="contained" onClick={() => handlePreviewForm()}>
-          Preview
-        </Button>
-        <Button variant="contained" onClick={() => handleSaveForm()}>
-          Save
-        </Button>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-around",
+            marginTop: "1rem",
+          }}
+        >
+          <Button variant="contained" onClick={() => handleSaveForm()}>
+            Save
+          </Button>
+        </Box>
+        {saveStatus === "success" && (
+          <Alert severity="success">Form saved successfully!</Alert>
+        )}
+        {saveStatus === "error" && (
+          <Alert severity="error">Failed to save form.</Alert>
+        )}
       </Box>
     </Box>
   );
@@ -146,7 +152,6 @@ const propertiesSidebarStyles: SxProps = {
   padding: "1rem var(--padding)",
   position: "sticky",
   top: 0,
-
   "&::-webkit-scrollbar": {
     display: "none",
   },

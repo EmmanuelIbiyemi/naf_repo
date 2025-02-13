@@ -33,7 +33,7 @@ type FormBaseType2 = {
 };
 
 export type FormUpdateType = {
-  id: number;
+  id?: string;
   fee: number;
   name: string;
   sections: FormSection[];

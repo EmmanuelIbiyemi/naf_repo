@@ -44,9 +44,6 @@ const GradesPage = lazy(() => import("./Pages/admin/grading/grades/Grades"));
 const ScoresPage = lazy(() => import("./Pages/admin/grading/scores/Scores"));
 const FormsPage = lazy(() => import("./Pages/admin/application/FormsPage"));
 const AddFormPage = lazy(() => import("./Pages/admin/application/AddFormPage"));
-const PreviewFormPage = lazy(
-  () => import("./Pages/admin/application/PreviewForm")
-);
 const ApplicantsPage = lazy(
   () => import("./Pages/admin/applicants/ApplicantsPage")
 );
@@ -190,7 +187,6 @@ export const router = createBrowserRouter([
       { path: "/", element: <Dashboard /> },
       { path: "/applications", element: <FormsPage /> },
       { path: "/form/:form_id", element: <AddFormPage /> },
-      { path: "/form/:form_id/preview", element: <PreviewFormPage /> },
       { path: "/applicants", element: <ApplicantsPage /> },
       { path: "/applicants/:program_id", element: <ApplicantsPage /> },
       { path: "/eligibles", element: <Eligibles /> },
