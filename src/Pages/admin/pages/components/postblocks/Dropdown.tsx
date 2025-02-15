@@ -121,7 +121,7 @@ import { useGetPostByCategoryQuery } from "../../../../../store/api/posts.api";
               >
                 <TextField
                   label="Title"
-                  defaultValue={element.content}
+                  defaultValue={element.title}
                   onBlur={(e) => handleTitleChange(e, element.randomId)}
                 />
                 <TextField
