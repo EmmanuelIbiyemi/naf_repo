@@ -7,6 +7,7 @@ import DeleteIcon from "../../../../assets/deleteIcon";
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import { setBuilderLoading } from "../../../../store/app.slice";
+import { elements } from "../elements/post-elements";
 
 type ActionProp = {
   block: BlockType;
@@ -70,23 +71,12 @@ export const ActionButtons = ({ block, setPage }: ActionProp) => {
         displayEmpty
         sx={{ minWidth: 120 }}
       >
-        <MenuItem value="heading">Heading</MenuItem>
-        <MenuItem value="subheading">Subheading</MenuItem>
-        <MenuItem value="text">Text</MenuItem>
-        <MenuItem value="image">Image</MenuItem>
-        <MenuItem value="video">Video</MenuItem>
-        <MenuItem value="map">Map</MenuItem>
-        <MenuItem value="banner">Banner</MenuItem>
-        <MenuItem value="link page">Link Page</MenuItem>
-        <MenuItem value="link url">Link URL</MenuItem>
-        <MenuItem value="button link">Button Link</MenuItem>
-        <MenuItem value="link social">Link Social</MenuItem>
-        <MenuItem value="contacts">Contacts</MenuItem>
-        <MenuItem value="left card">Left Card</MenuItem>
-        <MenuItem value="right card">Right Card</MenuItem>
-        <MenuItem value="post carousel">Post Carousel</MenuItem>
-        <MenuItem value="post cards">Post Cards</MenuItem>
-        <MenuItem value="margin">Margin</MenuItem>
+        {elements.map((e) => (
+          <MenuItem key={e.id} value={e.type}>
+            {e.name}
+          </MenuItem>
+        ))}
+       
       </Select>
       <IconButton onClick={() => moveBlock('up')} className="move_up_btn">
         <ArrowUpwardIcon />

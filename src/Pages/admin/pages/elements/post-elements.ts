@@ -36,6 +36,7 @@ export const BLOCK_TYPES = {
   LINK_URL: "link url",
   SOCIAL: "link social",
   BUTTON_LINK: "button link",
+  DROPDOWN: "dropdown",
   
   // Footer Elements
   CONTACTS: "contacts",
@@ -63,6 +64,7 @@ export const elements = [
   { id: 19, name: "Link URL", type: BLOCK_TYPES.LINK_URL, icon: AddLink },
   { id: 16, name: "Social", type: BLOCK_TYPES.SOCIAL, icon: EmojiPeople },
   { id: 17, name: "Button Link", type: BLOCK_TYPES.BUTTON_LINK, icon: AddLink },
+  { id: 18, name: "Dropdown", type: BLOCK_TYPES.DROPDOWN, icon: AddLink },
 
   // Footer Elements
   { id: 21, name: "Contacts", type: BLOCK_TYPES.CONTACTS, icon: ContactPhone },

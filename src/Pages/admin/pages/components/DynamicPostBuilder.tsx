@@ -16,6 +16,7 @@ import ContactsBlock from "./postblocks/Contacts";
 import PostCarouselBlock from "./postblocks/PostCarousel";
 import PostCardsBlock from "./postblocks/PostCards";
 import MarginBlock from "./postblocks/Margin";
+import DropdownBlock from "./postblocks/Dropdown";
 
 
 type Props = {
@@ -54,6 +55,9 @@ const PageBuilder = ({ page, setPage }: Props) => {
         break
       case "link social":
         el =<LinkSocialBlock page={page} setPage={setPage} element={element} index={index}/>
+        break
+      case "dropdown":
+        el =<DropdownBlock page={page} setPage={setPage} element={element} index={index}/>
         break
       case "contacts":
         el =<ContactsBlock page={page} setPage={setPage} element={element} index={index}/>
