@@ -30,9 +30,9 @@ import { useGetPostByCategoryQuery } from "../../../../../store/api/posts.api";
     const { data: posts } = useGetPostByCategoryQuery({tag: "navigation", page:1, per_page:20});
 
     const navElements =
-    posts?.post.map((post) => (
-      <MenuItem key={`page-${post.id}`} value={post.slug}>
-        {capitalizeText(post.title)}
+    posts?.post?.map((post) => (
+      <MenuItem key={`page-${post?.id}`} value={post?.slug}>
+        {capitalizeText(post?.title)}
       </MenuItem>
     )) || [];
 
