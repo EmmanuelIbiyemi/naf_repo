@@ -49,7 +49,7 @@ const ApplicantSidebar = ({ applicant, toggleDrawer }: Props) => {
       } else if (/\.(pdf|doc|docx|xls|xlsx)$/.test(lowerValue)) {
         return (
           <Button variant="contained" component="a" href={value} download>
-            Download {field?.name}
+            Download
           </Button>
         );
       }
