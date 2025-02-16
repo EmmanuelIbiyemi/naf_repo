@@ -30,102 +30,80 @@ const ApplicantSidebar = ({ applicant, toggleDrawer }: Props) => {
   };
 
   useEffect(() => {
-    console.log(resultsState);
-  }, [resultsState]);
-
-  useEffect(() => {
     if (applicant) fetchResults();
   }, [applicant]);
+
+  const renderFieldValue = (field: any, value: any) => {
+    if (!value) return <Typography variant="body2">-</Typography>;
+    if (typeof value === "string") {
+      const lowerValue = value.toLowerCase();
+      if (/\.(jpeg|jpg|png|gif|bmp)$/.test(lowerValue)) {
+        return (
+          <Box>
+            <img
+              src={value}
+              alt={field.name}
+              style={{ maxWidth: "100%", maxHeight: "200px", borderRadius: "4px" }}
+            />
+          </Box>
+        );
+      } else if (/\.(pdf|doc|docx|xls|xlsx)$/.test(lowerValue)) {
+        return (
+          <Button variant="contained" component="a" href={value} download>
+            Download {field.name}
+          </Button>
+        );
+      }
+    }
+    return <Typography variant="body2">{value}</Typography>;
+  };
 
   return (
     <Drawer open={Boolean(applicant)} onClose={toggleDrawer} anchor="right">
       <Box sx={sideBarStyles}>
         <Box>
-          <Typography variant="h5">Preview Infomation</Typography>
+          <Typography variant="h5">{applicant?.form?.name}</Typography>
         </Box>
         <Divider sx={{ marginBottom: "1.5rem", marginTop: "1rem" }} />
-        <Box sx={{ alignItems: "center", display: "flex", gap: "1rem" }}>
-          <Box>
-            <Typography variant="h6">
-              {applicant?.data.first_name} {applicant?.data.last_name}
-            </Typography>
+
+        {/* Dynamic Form Sections */}
+        {applicant?.form?.sections.map((section: any, index: number) => (
+          <Box key={index} sx={infoSectionStyles}>
             <Typography
-              sx={{ alignItems: "center", display: "flex", gap: ".5rem" }}
+              sx={{
+                bgcolor: "primary.main",
+                color: "primary.contrastText",
+                p: ".4rem 1rem",
+              }}
+              variant="h6"
             >
-              <Mail
-                sx={{ color: "rgba(179, 179, 179, 1)", fontSize: "1.2rem" }}
-              />{" "}
-              {applicant?.data.reg_number}
+              {section.name}
             </Typography>
+            {section.rows.map((row: any, ridx: number) => (
+              <Box
+                key={ridx}
+                sx={{ display: "flex", flexWrap: "wrap", gap: "1rem", mt: ".5rem" }}
+              >
+                {row.fields.map((field: any, fidx: number) => (
+                  <Box key={fidx} sx={{ minWidth: "45%" }}>
+                    <Typography variant="body2" sx={{ fontWeight: "bold" }}>
+                      {field.name}
+                    </Typography>
+                    {renderFieldValue(field, (applicant?.data as any)[field.key])}
+                  </Box>
+                ))}
+              </Box>
+            ))}
           </Box>
-        </Box>
-        <Box sx={infoSectionStyles}>
-          <Typography
-            sx={{
-              bgcolor: "primary.main",
-              color: "primary.contrastText",
-            }}
-          >
-            Personal Information
-          </Typography>
-          <Typography>
-            <span>First Name</span>
-            <span>{applicant?.data.first_name}</span>
-          </Typography>
-          <Typography>
-            <span>Last Name</span>
-            <span>{applicant?.data.last_name}</span>
-          </Typography>
-          <Typography>
-            <span>Gender</span>
-            <span>{applicant?.data.gender}</span>
-          </Typography>
-          <Typography>
-            <span>Date of Birth</span>
-            <span>{applicant?.data.dob}</span>
-          </Typography>
-          <Typography>
-            <span>Email</span>
-            <span>{applicant?.data.email}</span>
-          </Typography>
-          <Typography>
-            <span>Phone Number</span>
-            <span>{applicant?.data.phone}</span>
-          </Typography>
-        </Box>
-        <Box sx={infoSectionStyles}>
-          <Typography
-            sx={{
-              bgcolor: "primary.main",
-              color: "primary.contrastText",
-            }}
-          >
-            Application
-          </Typography>
+        ))}
 
-          <Typography>
-            <span>Session</span>
-            <span>{applicant?.session}</span>
-          </Typography>
-          <Typography>
-            <span>Status</span>
-            <span>{applicant?.status}</span>
-          </Typography>
-          <Typography>
-            <span>Program</span>
-            <span>{applicant?.program.name}</span>
-          </Typography>
-          <Typography>
-            <span>Level</span>
-            <span>{applicant?.level.name}</span>
-          </Typography>
-        </Box>
-
+        {/* Result Section */}
         <Box sx={infoSectionStyles}>
           <Typography
             sx={{
               bgcolor: "primary.main",
               color: "primary.contrastText",
+              p: ".4rem 1rem",
             }}
           >
             Result
@@ -133,8 +111,8 @@ const ApplicantSidebar = ({ applicant, toggleDrawer }: Props) => {
           {!resultsState.data?.data.result.length ? (
             <Typography>Applicant did not take any assessment</Typography>
           ) : null}
-          {resultsState.data?.data.result.map((rs) => (
-            <Typography>
+          {resultsState.data?.data.result.map((rs: any, index: number) => (
+            <Typography key={index}>
               <span>{rs.assessment.name}</span>
               <span>
                 <span style={{ color: "green" }}>{rs.right}</span> |{" "}
@@ -164,7 +142,6 @@ const sideBarStyles: SxProps = {
   height: "100%",
   padding: "1.5rem",
   width: "35vw",
-
   p: {
     margin: 0,
   },

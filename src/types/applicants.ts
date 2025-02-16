@@ -106,6 +106,7 @@ type Level = {
 export type ApplicantType2 = {
   created_at: string;
   data: Data;
+  form: any;
   id: number;
   participants: Participant[];
   program: Program;
