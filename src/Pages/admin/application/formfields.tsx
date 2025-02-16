@@ -19,6 +19,7 @@ export type FieldProps = {
   type: string;
   placeholder: string;
   position: number;
+  key?: string;
 };
 
 type ActionButtonsProps = {
@@ -88,7 +89,7 @@ const Field = ({
   onFieldChange,
 }: FieldComponentProps) => {
   // Ensure key is set (avoid mutation if possible)
-  const field = { ...element, key: element.id };
+  const field = { ...element, key: element.key || element.id };
 
   const handleFieldTypeChange = (e: SelectChangeEvent) => {
     onFieldChange({ ...field, type: e.target.value });
