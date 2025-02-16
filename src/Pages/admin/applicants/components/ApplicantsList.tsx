@@ -42,6 +42,7 @@ const ApplicantList = () => {
     bulkDelete: false,
   });
   const [selectedApplicant, setSelectedApplicant] = useState<ApplicantType2>();
+  const [menuApplicant, setMenuApplicant] = useState<ApplicantType2 | undefined>();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
   const keyword = useAppSelector(selectKeyword);
@@ -151,7 +152,7 @@ const ApplicantList = () => {
     applicant: ApplicantType2
   ) => {
     setAnchorEl(event.currentTarget);
-    setSelectedApplicant(applicant);
+    setMenuApplicant(applicant);
   };
 
   const handleCloseMenu = () => {
@@ -215,11 +216,10 @@ const ApplicantList = () => {
               label={li.label}
               clickable
               onClick={() =>
-                handleChangeStatus(selectedApplicant?.id || 1, li.label)
+                handleChangeStatus(menuApplicant?.id ?? 1, li.label)
               }
             />
-            {selectedApplicant?.status?.toLowerCase() ==
-            li.label.toLowerCase() ? (
+            {menuApplicant?.status?.toLowerCase() === li.label.toLowerCase() ? (
               <Check />
             ) : null}
           </MenuItem>
