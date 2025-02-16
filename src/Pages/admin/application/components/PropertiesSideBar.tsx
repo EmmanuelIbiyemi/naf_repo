@@ -62,6 +62,7 @@ const PropertiesSideBar = ({ formData, setFormData }: FormProps) => {
               name: field.name,
               placeholder: field.placeholder,
               type: field.type,
+              is_required: field.is_required,
             })),
           })),
         })),

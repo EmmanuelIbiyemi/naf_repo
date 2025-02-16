@@ -49,7 +49,6 @@ interface FormProps {
 const FormContentArea = ({ formData, setFormData }: FormProps) => {
   const [sectionCounter, setSectionCounter] = useState(1);
   const [rowCounter, setRowCounter] = useState(1);
-  const [fieldCounter, setFieldCounter] = useState(1);
   const [availableFields] = useState<FormElement[]>(formElements);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedSectionId, setSelectedSectionId] = useState<number | null>(null);
@@ -129,6 +128,7 @@ const FormContentArea = ({ formData, setFormData }: FormProps) => {
         name: field.name,
         type: field.type,
         placeholder: field.placeholder,
+        is_required: true,
         position: 0,
       };
 
@@ -149,8 +149,6 @@ const FormContentArea = ({ formData, setFormData }: FormProps) => {
           return section;
         }),
       }));
-
-      setFieldCounter(prev => prev + 1);
       setDialogOpen(false);
     }
   };

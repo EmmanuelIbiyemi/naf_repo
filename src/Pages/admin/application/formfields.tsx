@@ -8,6 +8,8 @@ import {
   TextField,
   InputLabel,
   Select,
+  FormControlLabel,
+  Checkbox,
 } from "@mui/material";
 import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
 import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
@@ -20,6 +22,7 @@ export type FieldProps = {
   placeholder: string;
   position: number;
   key?: string;
+  is_required?: boolean;
 };
 
 type ActionButtonsProps = {
@@ -157,6 +160,24 @@ const Field = ({
           onChange={handleFieldPlaceholderChange}
           variant="outlined" // Added variant for a cleaner look
         />
+        {/* Add Is required checkbox */}
+        <FormControl>
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={field.is_required}
+                onChange={(e) =>
+                  onFieldChange({
+                    ...field,
+                    is_required: e.target.checked,
+                    key: field.key,
+                  })
+                }
+              />
+            }
+            label="Is required"
+          />
+      </FormControl>
       </FormControl>
     </Box>
   );
