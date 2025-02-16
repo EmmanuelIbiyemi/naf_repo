@@ -159,7 +159,7 @@ const SessionList = () => {
         }}
         infoText=""
         open={openModal.success}
-        subTitle={`You have successfully added a new Session "${selectedSession?.name}".`}
+        subTitle={`You have successfully updated session "${selectedSession?.name}".`}
         title="Updates Successful"
       />
 
