@@ -13,8 +13,8 @@ import {
 import { useGetPostByCategoryQuery } from "../../../../../store/api/posts.api";
   
   const capitalizeText = (text: string) => {
-    const allTexts = text.split(" ");
-    return allTexts.map((t) => t[0].toUpperCase() + t.substring(1)).join(" ");
+    const allTexts = text?.split(" ");
+    return allTexts.map((t) => t[0]?.toUpperCase() + t?.substring(1))?.join(" ");
   };
   
   
@@ -106,8 +106,8 @@ import { useGetPostByCategoryQuery } from "../../../../../store/api/posts.api";
                 marginBottom: "1rem",
               }}
               >
-              <Typography variant="h5" id={`element-${element.id}`}>
-                {capitalizeText(element.type)}
+              <Typography variant="h5" id={`element-${element?.id}`}>
+                {capitalizeText(element?.type)}
               </Typography>
               <ActionButtons block={element} setPage={setPage} />
               </Box>
