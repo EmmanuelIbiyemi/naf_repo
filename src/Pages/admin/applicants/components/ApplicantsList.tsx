@@ -292,8 +292,8 @@ const ApplicantList = () => {
                   </Box>
                   <Typography sx={{ marginLeft: "1rem" }}>Name</Typography>
                 </TableCell>
+                <TableCell>Reg. Number</TableCell>
                 <TableCell>Email Address</TableCell>
-                <TableCell>Phone Number</TableCell>
                 <TableCell>Status</TableCell>
                 <TableCell align="center">Actions</TableCell>
               </TableRow>
@@ -337,17 +337,16 @@ const ApplicantList = () => {
                       }}
                       onClick={() => setSelectedApplicant(applicant)}
                     >
-                      {applicant.data?.full_name ||
-                        applicant.data?.first_name +
+                      {applicant.data?.first_name +
                           " " +
                           applicant.data?.last_name}
                     </Typography>
                   </TableCell>
                   <TableCell component="th" scope="row">
-                    {applicant.data.email}
+                    {applicant.data.reg_number}
                   </TableCell>
                   <TableCell component="th" scope="row">
-                    {applicant.data.phone}
+                    {applicant.data.email}
                   </TableCell>
                   <TableCell component="th" scope="row">
                     <Chip
