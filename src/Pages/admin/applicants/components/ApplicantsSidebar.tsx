@@ -41,7 +41,7 @@ const ApplicantSidebar = ({ applicant, toggleDrawer }: Props) => {
           <Box>
             <img
               src={value}
-              alt={field.name}
+              alt={field?.name}
               style={{ maxWidth: "100%", maxHeight: "200px", borderRadius: "4px" }}
             />
           </Box>
@@ -49,7 +49,7 @@ const ApplicantSidebar = ({ applicant, toggleDrawer }: Props) => {
       } else if (/\.(pdf|doc|docx|xls|xlsx)$/.test(lowerValue)) {
         return (
           <Button variant="contained" component="a" href={value} download>
-            Download {field.name}
+            Download {field?.name}
           </Button>
         );
       }
@@ -61,12 +61,12 @@ const ApplicantSidebar = ({ applicant, toggleDrawer }: Props) => {
     <Drawer open={Boolean(applicant)} onClose={toggleDrawer} anchor="right">
       <Box sx={sideBarStyles}>
         <Box>
-          <Typography variant="h5">{applicant?.form?.name}</Typography>
+          <Typography variant="h5">{applicant?.form?.name ?? "-"}</Typography>
         </Box>
         <Divider sx={{ marginBottom: "1.5rem", marginTop: "1rem" }} />
 
         {/* Dynamic Form Sections */}
-        {applicant?.form?.sections.map((section: any, index: number) => (
+        {applicant?.form?.sections?.map((section: any, index: number) => (
           <Box key={index} sx={infoSectionStyles}>
             <Typography
               sx={{
@@ -76,19 +76,19 @@ const ApplicantSidebar = ({ applicant, toggleDrawer }: Props) => {
               }}
               variant="h6"
             >
-              {section.name}
+              {section?.name ?? "-"}
             </Typography>
-            {section.rows.map((row: any, ridx: number) => (
+            {section?.rows?.map((row: any, ridx: number) => (
               <Box
                 key={ridx}
                 sx={{ display: "flex", flexWrap: "wrap", gap: "1rem", mt: ".5rem" }}
               >
-                {row.fields.map((field: any, fidx: number) => (
+                {row?.fields?.map((field: any, fidx: number) => (
                   <Box key={fidx} sx={{ minWidth: "45%" }}>
                     <Typography variant="body2" sx={{ fontWeight: "bold" }}>
-                      {field.name}
+                      {field?.name ?? "-"}
                     </Typography>
-                    {renderFieldValue(field, (applicant?.data as any)[field.key])}
+                    {renderFieldValue(field, applicant?.data?.[field.key as keyof typeof applicant.data])}
                   </Box>
                 ))}
               </Box>
@@ -107,15 +107,15 @@ const ApplicantSidebar = ({ applicant, toggleDrawer }: Props) => {
           >
             Result
           </Typography>
-          {!resultsState.data?.data.result.length ? (
+          {!resultsState?.data?.data?.result?.length ? (
             <Typography>Applicant did not take any assessment</Typography>
           ) : null}
-          {resultsState.data?.data.result.map((rs: any, index: number) => (
+          {resultsState?.data?.data?.result?.map((rs: any, index: number) => (
             <Typography key={index}>
-              <span>{rs.assessment.name}</span>
+              <span>{rs?.assessment?.name ?? "-"}</span>
               <span>
-                <span style={{ color: "green" }}>{rs.right}</span> |{" "}
-                <span style={{ color: "red" }}>{rs.wrong}</span>
+                <span style={{ color: "green" }}>{rs?.right}</span> |{" "}
+                <span style={{ color: "red" }}>{rs?.wrong}</span>
               </span>
             </Typography>
           ))}
