@@ -104,7 +104,7 @@ const FormContentArea = ({ formData, setFormData }: FormProps) => {
   const handleFieldSelection = (field: FormElement) => {
     if (selectedSectionId !== null && selectedRowId !== null) {
       const newField: FieldProps = {
-        id: `field-${fieldCounter}`,
+        id: field.key || `field-${fieldCounter}`,
         name: field.name,
         type: field.type,
         placeholder: field.placeholder,
