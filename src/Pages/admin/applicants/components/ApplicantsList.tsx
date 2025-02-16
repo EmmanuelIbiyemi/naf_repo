@@ -15,6 +15,11 @@ import {
   SxProps,
   TableHead,
   Typography,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
 } from "@mui/material";
 import { ChangeEvent, useEffect, useState } from "react";
 import DeleteConfirmationModal from "../../../../components/DeleteConfirmationModal";
@@ -66,6 +71,33 @@ const ApplicantList = () => {
     useUpdateApplicantStatusMutation();
   const [deleteIds, setDeleteIds] = useState<number[]>([]);
 
+  const [statusConfirmation, setStatusConfirmation] = useState({
+    open: false,
+    id: 0,
+    status: "",
+  });
+
+  const [deleteConfirmation, setDeleteConfirmation] = useState({
+    open: false,
+    id: 0,
+  });
+
+  const handleOpenStatusConfirmation = (id: number, status: string) => {
+    setStatusConfirmation({ open: true, id, status });
+  };
+
+  const handleCloseStatusConfirmation = () => {
+    setStatusConfirmation({ open: false, id: 0, status: "" });
+  };
+
+  const handleOpenDeleteConfirmation = (id: number) => {
+    setDeleteConfirmation({ open: true, id });
+  };
+
+  const handleCloseDeleteConfirmation = () => {
+    setDeleteConfirmation({ open: false, id: 0 });
+  };
+
   useEffect(() => {
     if (apcts?.data) setApplicants(apcts?.data);
 
@@ -103,11 +135,6 @@ const ApplicantList = () => {
       color: "rgba(229, 72, 77, 1)",
     },
   ];
-
-  const handleOpenModal = (applicant: ApplicantType2, type: string) => {
-    setSelectedApplicant(applicant);
-    setOpenModal((prev) => ({ ...prev, [type]: true }));
-  };
 
   const handleCloseModal = (type: string) => {
     setOpenModal((prev) => ({ ...prev, [type]: false }));
@@ -161,6 +188,7 @@ const ApplicantList = () => {
 
   const handleChangeStatus = async (id: number, status: string) => {
     handleCloseMenu();
+    handleCloseStatusConfirmation();
     try {
       await updateApplicantStatus({ applicant_id: id, status }).unwrap();
     } catch (error) {
@@ -175,19 +203,59 @@ const ApplicantList = () => {
         toggleDrawer={() => setSelectedApplicant(undefined)}
       />
 
-      <DeleteConfirmationModal
-        actions={{
-          proceed: () => {
-            if (selectedApplicant) handleDeleteApplicant(selectedApplicant.id);
-            console.log("proceed");
-          },
-        }}
-        close={() => handleCloseModal("delete")}
-        infoText=""
-        open={openModal.delete}
-        subTitle={`Are you sure you want to delete Applicant`}
-        title="Delete Applicant?"
-      />
+      {/* Confirmation before changing status */}
+      <Dialog
+        open={statusConfirmation.open}
+        onClose={handleCloseStatusConfirmation}
+        aria-describedby="alert-dialog-slide-description"
+      >
+        <DialogTitle>{"Change Applicant Status?"}</DialogTitle>
+        <DialogContent>
+          <DialogContentText id="alert-dialog-slide-description">
+            Are you sure you want to change the applicant's status to{" "}
+            <b>{statusConfirmation.status}</b>?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseStatusConfirmation}>Cancel</Button>
+          <Button
+            onClick={() =>
+              handleChangeStatus(
+                statusConfirmation.id,
+                statusConfirmation.status
+              )
+            }
+          >
+            Confirm
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Confirmation before deleting applicant */}
+      <Dialog
+        open={deleteConfirmation.open}
+        onClose={handleCloseDeleteConfirmation}
+        aria-describedby="alert-dialog-slide-description"
+      >
+        <DialogTitle>{"Delete Applicant?"}</DialogTitle>
+        <DialogContent>
+          <DialogContentText id="alert-dialog-slide-description">
+            Are you sure you want to delete this applicant? This action cannot
+            be undone.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseDeleteConfirmation}>Cancel</Button>
+          <Button
+            onClick={() => {
+              handleDeleteApplicant(deleteConfirmation.id);
+              handleCloseDeleteConfirmation();
+            }}
+          >
+            Confirm
+          </Button>
+        </DialogActions>
+      </Dialog>
 
       <DeleteConfirmationModal
         actions={{
@@ -210,14 +278,16 @@ const ApplicantList = () => {
           Change Status
         </Typography>
         {menuList.map((li) => (
-          <MenuItem key={li.label} onClick={handleCloseMenu}>
+          <MenuItem
+            key={li.label}
+            onClick={() =>
+              handleOpenStatusConfirmation(menuApplicant?.id ?? 1, li.label)
+            }
+          >
             <Chip
               sx={{ bgcolor: li.bgcolor, color: li.color }}
               label={li.label}
               clickable
-              onClick={() =>
-                handleChangeStatus(menuApplicant?.id ?? 1, li.label)
-              }
             />
             {menuApplicant?.status?.toLowerCase() === li.label.toLowerCase() ? (
               <Check />
@@ -369,7 +439,7 @@ const ApplicantList = () => {
                   </TableCell>
                   <TableCell align="center">
                     <IconButton
-                      onClick={() => handleOpenModal(applicant, "delete")}
+                      onClick={() => handleOpenDeleteConfirmation(applicant.id as number)}
                     >
                       <Delete />
                     </IconButton>
