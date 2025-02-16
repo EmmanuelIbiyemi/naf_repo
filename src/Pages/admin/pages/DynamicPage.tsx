@@ -159,6 +159,10 @@ const PostPage = () => {
 
   if (!resource_type) navigate(-1);
 
+  function setPostDate(value: string): void {
+    setPost((prev) => (prev ? { ...prev, date: value } : prev));
+  }
+
   return (
     <Box sx={contentStyles}>
       <Dialog
@@ -268,6 +272,24 @@ const PostPage = () => {
                 variant="outlined"
                 value={categories}
                 onChange={(e) => setCategories(e.target.value)}
+              />
+            </Box>
+          )}
+          {resource_type === "posts" && (
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                gap: "1rem",
+                marginBottom: "1rem",
+              }}
+            >
+              <label htmlFor="">Post Date</label>
+              <TextField
+                type="datetime-local"
+                variant="outlined"
+                value={post?.date || ""}
+                onChange={(e) => setPostDate(e.target.value)}
               />
             </Box>
           )}
