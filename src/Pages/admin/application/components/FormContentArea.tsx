@@ -19,6 +19,8 @@ import { Add, Delete } from "@mui/icons-material";
 import Field, { FieldProps } from "../formfields";
 import { formElements } from "../elements";
 import { FormElement } from "../../../../types/form";
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 interface Row {
   id: number;
@@ -104,9 +106,26 @@ const FormContentArea = ({ formData, setFormData }: FormProps) => {
 
   const handleFieldSelection = (field: FormElement) => {
     if (selectedSectionId !== null && selectedRowId !== null) {
+      const newFieldKey = field.key || `field-${Math.random().toString(36).substring(2, 9)}`;
+
+      // Check for duplicate keys within the entire form
+      const isDuplicateKey = formData.sections.some(section =>
+        section.rows.some(row =>
+          row.fields.some(existingField => existingField.key === newFieldKey)
+        )
+      );
+
+      if (isDuplicateKey) {
+        toast.warn("A similar field already exists. Please use a different type or use a custom instead.", {
+          position: "top-right"
+        });
+        setDialogOpen(false);
+        return; // Prevent adding the field
+      }
+
       const newField: FieldProps = {
-        id: Math.random().toString(36).substr(2, 9),
-        key: field.key || `field-${fieldCounter}`,
+        id: Math.random().toString(36).substring(2, 9),
+        key: newFieldKey,
         name: field.name,
         type: field.type,
         placeholder: field.placeholder,

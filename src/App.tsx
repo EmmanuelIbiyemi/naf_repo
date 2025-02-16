@@ -7,6 +7,8 @@ import { Box, LinearProgress } from "@mui/material";
 import { selectBuilderLoading, selectPageLoading } from "./store/app.slice";
 import LoadingScreen from "./components/LoadingScreen";
 import ErrorBoundary from "./components/ErrorBoundary";
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const AdminLayout = lazy(() => import("./components/layout/AdminLayout"));
 const InstructorLayout = lazy(
@@ -73,6 +75,7 @@ function App() {
           )}
 
           {renderLayout()}
+          <ToastContainer />
         </Box>
       </Suspense>
     </ErrorBoundary>
