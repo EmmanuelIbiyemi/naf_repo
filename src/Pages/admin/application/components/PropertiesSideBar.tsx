@@ -16,11 +16,13 @@ import { setPageLoading } from "../../../../store/app.slice";
 interface FormProps {
   formData: {
     name: string;
+    instructions: string;
     fee: number;
     sections: any[];
   };
   setFormData: React.Dispatch<React.SetStateAction<{
     name: string;
+    instructions: string;
     fee: number;
     sections: any[];
   }>>;
@@ -50,12 +52,13 @@ const PropertiesSideBar = ({ formData, setFormData }: FormProps) => {
       const requestBody = {
         id: form_id, // Assuming form_id is the ID
         name: formData.name,
+        instructions: formData.instructions,
         fee: formData.fee,
         sections: formData.sections.map((section: any) => ({
           name: section.name,
           rows: section.rows.map((row: any) => ({
             row: row.fields.map((field: any) => ({
-              key: field.id, // Use field.id as the key
+              key: field.key, // Use field.id as the key
               name: field.name,
               placeholder: field.placeholder,
               type: field.type,
@@ -100,6 +103,21 @@ const PropertiesSideBar = ({ formData, setFormData }: FormProps) => {
                 placeholder={"enter name..."}
                 value={formData?.name}
                 name="name"
+                onChange={handleChange}
+              />
+            </FormControl>
+          </Box>
+        </Box>
+        <Box>
+          <Typography sx={{ marginBlock: "1.5rem .5rem" }}>Instructions</Typography>
+          <Box sx={{ ...groupStyles, gap: "1rem" }}>
+            <FormControl fullWidth>
+              <TextField
+                type="textarea"
+                rows={4}
+                placeholder={"enter form instructions..."}
+                value={formData?.instructions}
+                name="instructions"
                 onChange={handleChange}
               />
             </FormControl>

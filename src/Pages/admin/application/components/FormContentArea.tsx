@@ -34,6 +34,7 @@ interface Section {
 // Define the structure of the form data to match the backend
 interface FormData {
   name: string;
+  instructions: string;
   fee: number;
   sections: Section[];
 }
@@ -104,7 +105,8 @@ const FormContentArea = ({ formData, setFormData }: FormProps) => {
   const handleFieldSelection = (field: FormElement) => {
     if (selectedSectionId !== null && selectedRowId !== null) {
       const newField: FieldProps = {
-        id: field.key || `field-${fieldCounter}`,
+        id: Math.random().toString(36).substr(2, 9),
+        key: field.key || `field-${fieldCounter}`,
         name: field.name,
         type: field.type,
         placeholder: field.placeholder,
@@ -378,7 +380,7 @@ const FormContentArea = ({ formData, setFormData }: FormProps) => {
         <DialogContent>
           <Box sx={{ width: 400, maxWidth: "100%" }}>
             {availableFields.map(field => (
-              <ListItem key={field.id} disablePadding>
+              <ListItem key={field.key} disablePadding>
                 <ListItemButton onClick={() => handleFieldSelection(field)}>
                   <ListItemIcon>
                     <field.icon />

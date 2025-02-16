@@ -67,6 +67,7 @@ const fieldTypes = [
   "radio",
   "date",
   "file",
+  "photo",
 ].map((type) => (
   <MenuItem key={type} value={type}>
     {capitalizeText(type)}
@@ -92,17 +93,17 @@ const Field = ({
   const field = { ...element, key: element.key || element.id };
 
   const handleFieldTypeChange = (e: SelectChangeEvent) => {
-    onFieldChange({ ...field, type: e.target.value });
+    onFieldChange({ ...field, type: e.target.value, key: field.key });
   };
 
   const handleFieldNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    onFieldChange({ ...field, name: e.target.value });
+    onFieldChange({ ...field, name: e.target.value, key: field.key });
   };
 
   const handleFieldPlaceholderChange = (
     e: React.ChangeEvent<HTMLInputElement>
   ) => {
-    onFieldChange({ ...field, placeholder: e.target.value });
+    onFieldChange({ ...field, placeholder: e.target.value, key: field.key });
   };
 
   // The position change logic uses the provided callbacks onMoveUp / onMoveDown.

@@ -9,6 +9,7 @@ import { useParams } from "react-router-dom";
 
 interface FormData {
   name: string;
+  instructions: string;
   sections: any[]; // Replace 'any' with a more specific type if possible
   fee: number;
 }
@@ -25,6 +26,7 @@ const AddFormPage = () => {
 
   const [formData, setFormData] = useState<FormData>({
     name: form?.data?.name || "",
+    instructions: form?.data?.instructions || "",
     sections: form?.data?.sections || [],
     fee: form?.data?.fee || 0,
   });
@@ -33,6 +35,7 @@ const AddFormPage = () => {
     if (form?.data) {
       setFormData({
         name: form.data.name,
+        instructions: form.data.instructions,
         sections: form.data.sections || [],
         fee: form.data.fee,
       });

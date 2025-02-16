@@ -26,6 +26,7 @@ export type FormSection = {
 type FormBaseType2 = {
   id?: number;
   name: string;
+  instructions: string;
   program_id: number;
   level_id: number;
   fee: number;
@@ -36,6 +37,7 @@ export type FormUpdateType = {
   id?: string;
   fee: number;
   name: string;
+  instructions: string;
   sections: FormSection[];
 };
 
