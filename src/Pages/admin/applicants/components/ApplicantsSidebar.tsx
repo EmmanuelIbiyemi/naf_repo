@@ -6,7 +6,6 @@ import {
   SxProps,
   Typography,
 } from "@mui/material";
-import { Mail } from "@mui/icons-material";
 import formStyles from "../../../../components/form/form.module.scss";
 import { ApplicantType2 } from "../../../../types/applicants";
 import { useGetApplicantResultMutation } from "../../../../store/api/applicants.api";
