@@ -5,7 +5,9 @@ import {
   Drawer,
   SxProps,
   Typography,
+  IconButton,
 } from "@mui/material";
+import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import formStyles from "../../../../components/form/form.module.scss";
 import { ApplicantType2 } from "../../../../types/applicants";
 import { useGetApplicantResultMutation } from "../../../../store/api/applicants.api";
@@ -47,11 +49,7 @@ const ApplicantSidebar = ({ applicant, toggleDrawer }: Props) => {
           </Box>
         );
       } else if (/\.(pdf|doc|docx|xls|xlsx)$/.test(lowerValue)) {
-        return (
-          <Button variant="contained" component="a" href={value} download>
-            Download
-          </Button>
-        );
+        return <Typography variant="body2">File Attached</Typography>;
       }
     }
     return <Typography variant="body2">{value}</Typography>;
@@ -85,9 +83,23 @@ const ApplicantSidebar = ({ applicant, toggleDrawer }: Props) => {
               >
                 {row?.fields?.map((field: any, fidx: number) => (
                   <Box key={fidx} sx={{ minWidth: "45%" }}>
-                    <Typography variant="body2" sx={{ fontWeight: "bold" }}>
-                      {field?.name ?? "-"}
-                    </Typography>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <Typography variant="body2" sx={{ fontWeight: "bold" }}>
+                        {field?.name ?? "-"}
+                      </Typography>
+                      {typeof applicant?.data?.[field.key as keyof typeof applicant.data] === 'string' && 
+                      /\.(pdf|doc|docx|xls|xlsx)$/.test((applicant?.data?.[field.key as keyof typeof applicant.data] as string)?.toLowerCase() ?? '') && (
+                        <IconButton 
+                          size="small" 
+                          component="a" 
+                          href={applicant?.data?.[field.key as keyof typeof applicant.data]} 
+                          download
+                          sx={{ padding: '2px' }}
+                        >
+                          <FileDownloadIcon fontSize="small" />
+                        </IconButton>
+                      )}
+                    </Box>
                     {renderFieldValue(field, applicant?.data?.[field.key as keyof typeof applicant.data])}
                   </Box>
                 ))}
@@ -140,7 +152,7 @@ export default ApplicantSidebar;
 const sideBarStyles: SxProps = {
   height: "100%",
   padding: "1.5rem",
-  width: "35vw",
+  width: "50vw",
   p: {
     margin: 0,
   },
