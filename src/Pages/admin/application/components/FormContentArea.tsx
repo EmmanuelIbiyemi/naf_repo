@@ -227,54 +227,82 @@ const FormContentArea = ({ formData, setFormData }: FormProps) => {
     }));
   };
 
+  // Update the handleMoveFieldUp function to handle moving between rows
   const handleMoveFieldUp = (sectionId: number, rowId: number, fieldId: string) => {
     setFormData(prev => ({
       ...prev,
       sections: prev.sections.map(section => {
         if (section.id === sectionId) {
-          return {
-            ...section,
-            rows: section.rows.map(row => {
-              if (row.id === rowId) {
-                const fields = [...row.fields];
-                const index = fields.findIndex(field => field.id === fieldId);
-                if (index > 0) {
-                  const temp = fields[index];
-                  fields[index] = fields[index - 1];
-                  fields[index - 1] = temp;
-                  return { ...row, fields: fields };
-                }
-              }
-              return row;
-            }),
-          };
+          const sectionRows = [...section.rows];
+          const currentRowIndex = sectionRows.findIndex(row => row.id === rowId);
+          const currentRow = {...sectionRows[currentRowIndex]};
+          const fieldIndex = currentRow.fields.findIndex(field => field.id === fieldId);
+          
+          // If field is at the top of current row and there's a row above
+          if (fieldIndex === 0 && currentRowIndex > 0) {
+            const fieldToMove = currentRow.fields[0];
+            // Create new arrays instead of modifying existing ones
+            sectionRows[currentRowIndex] = {
+              ...currentRow,
+              fields: [...currentRow.fields.slice(1)]
+            };
+            sectionRows[currentRowIndex - 1] = {
+              ...sectionRows[currentRowIndex - 1],
+              fields: [...sectionRows[currentRowIndex - 1].fields, fieldToMove]
+            };
+          } else if (fieldIndex > 0) {
+            // Move within the same row
+            const newFields = [...currentRow.fields];
+            const temp = newFields[fieldIndex];
+            newFields[fieldIndex] = newFields[fieldIndex - 1];
+            newFields[fieldIndex - 1] = temp;
+            sectionRows[currentRowIndex] = {
+              ...currentRow,
+              fields: newFields
+            };
+          }
+          return { ...section, rows: sectionRows };
         }
         return section;
       }),
     }));
   };
 
+  // Update the handleMoveFieldDown function to handle moving between rows
   const handleMoveFieldDown = (sectionId: number, rowId: number, fieldId: string) => {
     setFormData(prev => ({
       ...prev,
       sections: prev.sections.map(section => {
         if (section.id === sectionId) {
-          return {
-            ...section,
-            rows: section.rows.map(row => {
-              if (row.id === rowId) {
-                const fields = [...row.fields];
-                const index = fields.findIndex(field => field.id === fieldId);
-                if (index < fields.length - 1) {
-                  const temp = fields[index];
-                  fields[index] = fields[index + 1];
-                  fields[index + 1] = temp;
-                  return { ...row, fields: fields };
-                }
-              }
-              return row;
-            }),
-          };
+          const sectionRows = [...section.rows];
+          const currentRowIndex = sectionRows.findIndex(row => row.id === rowId);
+          const currentRow = {...sectionRows[currentRowIndex]};
+          const fieldIndex = currentRow.fields.findIndex(field => field.id === fieldId);
+          
+          // If field is at the bottom of current row and there's a row below
+          if (fieldIndex === currentRow.fields.length - 1 && currentRowIndex < sectionRows.length - 1) {
+            const fieldToMove = currentRow.fields[fieldIndex];
+            // Create new arrays instead of modifying existing ones
+            sectionRows[currentRowIndex] = {
+              ...currentRow,
+              fields: [...currentRow.fields.slice(0, -1)]
+            };
+            sectionRows[currentRowIndex + 1] = {
+              ...sectionRows[currentRowIndex + 1],
+              fields: [fieldToMove, ...sectionRows[currentRowIndex + 1].fields]
+            };
+          } else if (fieldIndex < currentRow.fields.length - 1) {
+            // Move within the same row
+            const newFields = [...currentRow.fields];
+            const temp = newFields[fieldIndex];
+            newFields[fieldIndex] = newFields[fieldIndex + 1];
+            newFields[fieldIndex + 1] = temp;
+            sectionRows[currentRowIndex] = {
+              ...currentRow,
+              fields: newFields
+            };
+          }
+          return { ...section, rows: sectionRows };
         }
         return section;
       }),
