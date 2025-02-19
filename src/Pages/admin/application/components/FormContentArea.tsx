@@ -15,7 +15,7 @@ import {
   ListItemText,
   IconButton,
 } from "@mui/material";
-import { Add, Delete } from "@mui/icons-material";
+import { Add, Delete, KeyboardArrowUp, KeyboardArrowDown } from "@mui/icons-material";
 import Field, { FieldProps } from "../formfields";
 import { formElements } from "../elements";
 import { FormElement } from "../../../../types/form";
@@ -281,6 +281,44 @@ const FormContentArea = ({ formData, setFormData }: FormProps) => {
     }));
   };
 
+  const handleMoveRowUp = (sectionId: number, rowId: number) => {
+    setFormData(prev => ({
+      ...prev,
+      sections: prev.sections.map(section => {
+        if (section.id === sectionId) {
+          const rows = [...section.rows];
+          const index = rows.findIndex(row => row.id === rowId);
+          if (index > 0) {
+            const temp = rows[index];
+            rows[index] = rows[index - 1];
+            rows[index - 1] = temp;
+            return { ...section, rows };
+          }
+        }
+        return section;
+      }),
+    }));
+  };
+
+  const handleMoveRowDown = (sectionId: number, rowId: number) => {
+    setFormData(prev => ({
+      ...prev,
+      sections: prev.sections.map(section => {
+        if (section.id === sectionId) {
+          const rows = [...section.rows];
+          const index = rows.findIndex(row => row.id === rowId);
+          if (index < rows.length - 1) {
+            const temp = rows[index];
+            rows[index] = rows[index + 1];
+            rows[index + 1] = temp;
+            return { ...section, rows };
+          }
+        }
+        return section;
+      }),
+    }));
+  };
+
   return (
     <Box>
       {/* Floating Add Section Button */}
@@ -325,7 +363,7 @@ const FormContentArea = ({ formData, setFormData }: FormProps) => {
                 </Tooltip>
               </Box>
               {/* Render rows as selectable rectangles */}
-              {section.rows.map(row => (
+              {section.rows.map((row, rowIndex) => (
                 <Box
                   key={row.id}
                   sx={{
@@ -369,14 +407,36 @@ const FormContentArea = ({ formData, setFormData }: FormProps) => {
                     </Tooltip>
                   </Box>
 
-                  <Tooltip title="Delete Row" placement="bottom">
-                    <IconButton
-                      className="delete_btn"
-                      onClick={() => handleDeleteRow(section.id, row.id)}
-                    >
-                      <Delete />
-                    </IconButton>
-                  </Tooltip>
+                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                    {rowIndex > 0 && (
+                      <Tooltip title="Move Row Up" placement="left">
+                        <IconButton
+                          onClick={() => handleMoveRowUp(section.id, row.id)}
+                          size="small"
+                        >
+                          <KeyboardArrowUp />
+                        </IconButton>
+                      </Tooltip>
+                    )}
+                    {rowIndex < section.rows.length - 1 && (
+                      <Tooltip title="Move Row Down" placement="left">
+                        <IconButton
+                          onClick={() => handleMoveRowDown(section.id, row.id)}
+                          size="small"
+                        >
+                          <KeyboardArrowDown />
+                        </IconButton>
+                      </Tooltip>
+                    )}
+                    <Tooltip title="Delete Row" placement="left">
+                      <IconButton
+                        className="delete_btn"
+                        onClick={() => handleDeleteRow(section.id, row.id)}
+                      >
+                        <Delete />
+                      </IconButton>
+                    </Tooltip>
+                  </Box>
                 </Box>
               ))}
               <Tooltip title="Add Row" placement="bottom">
