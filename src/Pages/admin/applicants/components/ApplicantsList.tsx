@@ -400,16 +400,16 @@ const ApplicantList = () => {
                     />
                     <Typography
                       style={{
-                        textTransform: "capitalize",
-                        fontWeight: 500,
-                        cursor: "pointer",
-                        textWrap: "nowrap",
+                      textTransform: "capitalize",
+                      fontWeight: 500,
+                      cursor: "pointer",
+                      textWrap: "nowrap",
                       }}
                       onClick={() => setSelectedApplicant(applicant)}
                     >
-                      {applicant.data?.first_name +
-                          " " +
-                          applicant.data?.last_name}
+                      {applicant.data?.first_name && applicant.data?.last_name
+                      ? applicant.data.first_name + " " + applicant.data.last_name
+                      : "--"}
                     </Typography>
                   </TableCell>
                   <TableCell component="th" scope="row">
