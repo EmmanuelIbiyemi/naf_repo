@@ -386,6 +386,8 @@ const ApplicantList = () => {
                 <TableRow
                   key={applicant.id}
                   sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+                  onClick={() => setSelectedApplicant(applicant)}
+                  style={{cursor: "pointer"}}
                 >
                   <TableCell
                     component="th"
@@ -402,11 +404,8 @@ const ApplicantList = () => {
                       style={{
                       textTransform: "capitalize",
                       fontWeight: 500,
-                      cursor: "pointer",
                       textWrap: "nowrap",
-                      }}
-                      onClick={() => setSelectedApplicant(applicant)}
-                    >
+                      }}>
                       {applicant.data?.first_name && applicant.data?.last_name
                       ? applicant.data.first_name + " " + applicant.data.last_name
                       : "--"}
