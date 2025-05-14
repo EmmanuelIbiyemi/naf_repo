@@ -21,6 +21,7 @@ import {
   DialogContentText,
   DialogTitle,
 } from "@mui/material";
+import { LoadingButton } from "@mui/lab";
 import { ChangeEvent, useEffect, useState } from "react";
 import DeleteConfirmationModal from "../../../../components/DeleteConfirmationModal";
 import { Check, Delete, FileDownload } from "@mui/icons-material";
@@ -70,7 +71,7 @@ const ApplicantList = () => {
   const [deleteApplicant, deleteState] = useDeleteApplicantMutation();
   const [updateApplicantStatus, updateState] =
     useUpdateApplicantStatusMutation();
-  const [downloadApplicantsCSV] = useDownloadApplicantsCSVMutation();
+  const [downloadApplicantsCSV, { isLoading: isDownloading }] = useDownloadApplicantsCSVMutation();
   const [deleteIds, setDeleteIds] = useState<number[]>([]);
 
   const [statusConfirmation, setStatusConfirmation] = useState({
@@ -334,16 +335,18 @@ const ApplicantList = () => {
         <EmptyState title="No Applicants found" subTitle="" />
       ) : (
         <>
-          {/* Download CSV Button */}
+          {/* Export CSV Button */}
           <Box sx={{ display: "flex", justifyContent: "flex-end", mb: 2 }}>
-            <Button
+            <LoadingButton
               variant="contained"
               color="primary"
               startIcon={<FileDownload />}
               onClick={handleDownloadCSV}
+              loading={isDownloading}
+              disabled={isDownloading}
             >
-              Download CSV
-            </Button>
+              Export
+            </LoadingButton>
           </Box>
           
           <Table
