@@ -23,9 +23,10 @@ import {
 } from "@mui/material";
 import { ChangeEvent, useEffect, useState } from "react";
 import DeleteConfirmationModal from "../../../../components/DeleteConfirmationModal";
-import { Check, Delete } from "@mui/icons-material";
+import { Check, Delete, FileDownload } from "@mui/icons-material";
 import {
   useDeleteApplicantMutation,
+  useDownloadApplicantsCSVMutation,
   useGetApplicantsQuery,
   useUpdateApplicantStatusMutation,
 } from "../../../../store/api/applicants.api";
@@ -69,6 +70,7 @@ const ApplicantList = () => {
   const [deleteApplicant, deleteState] = useDeleteApplicantMutation();
   const [updateApplicantStatus, updateState] =
     useUpdateApplicantStatusMutation();
+  const [downloadApplicantsCSV] = useDownloadApplicantsCSVMutation();
   const [deleteIds, setDeleteIds] = useState<number[]>([]);
 
   const [statusConfirmation, setStatusConfirmation] = useState({
@@ -196,6 +198,32 @@ const ApplicantList = () => {
     }
   };
 
+  // Function to handle downloading applicants as CSV
+  const handleDownloadCSV = async () => {
+    try {
+      const params = program_id 
+        ? { program_id: +program_id, search_term: keyword }
+        : { search_term: keyword };
+      
+      const response = await downloadApplicantsCSV(params).unwrap();
+      
+      // Create a blob from the response
+      const blob = new Blob([response], { type: 'text/csv' });
+      
+      // Create a download link and trigger the download
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'applicants.csv';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.log('Error downloading CSV:', error);
+    }
+  };
+
   return (
     <TableContainer>
       <ApplicantSidebar
@@ -262,7 +290,7 @@ const ApplicantList = () => {
           proceed: () => handleBulkDelete(),
         }}
         close={() => handleCloseModal("bulkDelete")}
-        infoText="You can’t undo this action."
+        infoText="You can't undo this action."
         open={openModal.bulkDelete}
         subTitle={`Are you sure you want to delete ${deleteIds.length} Applicants ?`}
         title="Delete Applicants?"
@@ -306,19 +334,30 @@ const ApplicantList = () => {
         <EmptyState title="No Applicants found" subTitle="" />
       ) : (
         <>
+          {/* Download CSV Button */}
+          <Box sx={{ display: "flex", justifyContent: "flex-end", mb: 2 }}>
+            <Button
+              variant="contained"
+              color="primary"
+              startIcon={<FileDownload />}
+              onClick={handleDownloadCSV}
+            >
+              Download CSV
+            </Button>
+          </Box>
+          
           <Table
             sx={{
               minWidth: 650,
               ".MuiTableCell-root": {
-                a: {
-                  maxWidth: 200,
-                  padding: "",
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
-                  whiteSpace: "nowrap",
-                },
+                padding: "",
+                maxWidth: 200,
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
               },
             }}
+            aria-label="applicants table"
           >
             <TableHead>
               <TableRow>

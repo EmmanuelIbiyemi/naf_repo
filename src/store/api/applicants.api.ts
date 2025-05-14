@@ -63,6 +63,18 @@ const applicantsApi = appApi.injectEndpoints({
       }),
       invalidatesTags: ["Applicants"],
     }),
+    downloadApplicantsCSV: builder.mutation<Blob, { 
+      program_id?: number; 
+      search_term?: string;
+    }>({
+      query: ({ search_term, program_id }) => ({
+        url: `/applicant/download?${
+          program_id ? "program_id=" + program_id : ""
+        }${search_term ? "&search_term=" + search_term : ""}`,
+        method: "GET",
+        responseHandler: (response) => response.blob(),
+      }),
+    }),
   }),
   overrideExisting: false,
 });
@@ -75,4 +87,5 @@ export const {
   useDeleteApplicantMutation,
   useGetApplicantQuery,
   useUpdateApplicantStatusMutation,
+  useDownloadApplicantsCSVMutation,
 } = applicantsApi;
