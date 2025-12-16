@@ -64,7 +64,7 @@ const StudentsList = () => {
 
   useEffect(() => {
     if (
-      (isFetching && isError) ||
+      isFetching ||
       deleteState.isLoading ||
       updateState.isLoading ||
       resetUserPasswordState.isLoading
