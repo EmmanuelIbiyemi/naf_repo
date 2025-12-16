@@ -140,7 +140,7 @@ const StudentsList = () => {
     <TableContainer>
       <StudentSidebar
         open={openModal.sidebar}
-        student={selectedStudent}
+        studentId={selectedStudent?.id}
         toggleDrawer={() => handleCloseModal("sidebar")}
       />
       {/* ADD */}
@@ -150,7 +150,7 @@ const StudentsList = () => {
             submit: handleEditStudent as StudentFormAction,
             cancel: () => handleCloseModal("edit"),
           }}
-          student={selectedStudent}
+          studentId={selectedStudent?.id}
         />
       </FormModal>
 
