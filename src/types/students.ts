@@ -11,7 +11,7 @@ export type StudentType = {
   phone: string;
   photo: string;
   matric_number: string;
-  courses: CourseType[] | any[];
+  courses?: CourseType[] | any[];
   level_id?: number;
   level?: LevelType;
   user_id?: number;

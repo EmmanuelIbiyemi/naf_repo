@@ -88,7 +88,7 @@ const StudentForm = ({ actions, studentId }: Props) => {
   const handleSubmit = async (values: StudentCreateType) => {
     const formattedValues = {
       ...values,
-      courses: values.courses
+      courses: (values.courses || [])
         .map((course) => typeof course === 'object' ? course.id : course)
         .filter((id): id is number => id !== undefined),
     };
