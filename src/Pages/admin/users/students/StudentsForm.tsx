@@ -1,6 +1,6 @@
 import * as Yup from "yup";
 import { Field, Form, Formik } from "formik";
-import { Box, Button, Typography } from "@mui/material";
+import { Box, Button, CircularProgress, Typography } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
 import formStyles from "../../../../components/form/form.module.scss";
 import { StudentCreateType, StudentType } from "../../../../types/students";
@@ -10,16 +10,23 @@ import { useGetFacultiesQuery } from "../../../../store/api/faculties.api";
 import { useGetDepartmentsMMutation } from "../../../../store/api/departments.api";
 import { useGetProgrammesMMutation } from "../../../../store/api/programmes.api";
 import { useGetLevelsMMutation } from "../../../../store/api/levels.api";
+import { useGetStudentQuery } from "../../../../store/api/students.api";
 
 type Props = {
-  student?: StudentType;
+  studentId?: number;
   actions: {
     submit: (student: StudentType) => Promise<void>;
     cancel: () => void;
   };
 };
 
-const StudentForm = ({ actions, student }: Props) => {
+const StudentForm = ({ actions, studentId }: Props) => {
+  // Fetch full student data when editing (to get courses)
+  const { data: studentData, isFetching: isLoadingStudent } = useGetStudentQuery(studentId!, {
+    skip: !studentId,
+  });
+  const student = studentData?.data;
+
   const { data: faculties } = useGetFacultiesQuery({
     page: 1,
     per_page: 1000,
@@ -122,11 +129,21 @@ const StudentForm = ({ actions, student }: Props) => {
     }
   };
 
+  // Show loading state while fetching student data for edit mode
+  if (studentId && isLoadingStudent) {
+    return (
+      <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "200px" }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
+
   return (
     <Formik
       initialValues={initialValues}
       validationSchema={validationSchema}
       onSubmit={handleSubmit}
+      enableReinitialize
     >
       {({ isValid, dirty, errors, touched, setFieldValue }) => (
         <Form className={formStyles.modal_form}>
@@ -135,7 +152,7 @@ const StudentForm = ({ actions, student }: Props) => {
             component="h2"
             sx={{ marginTop: "1rem", textAlign: "center" }}
           >
-            {student ? "Update Student" : "Add Student"}
+            {studentId ? "Update Student" : "Add Student"}
           </Typography>
           <Box
             sx={{
@@ -288,7 +305,7 @@ const StudentForm = ({ actions, student }: Props) => {
               variant="contained"
               disabled={!(isValid && dirty)}
             >
-              {student ? "Update Student" : "Add Student"}
+              {studentId ? "Update Student" : "Add Student"}
             </LoadingButton>
           </Box>
         </Form>

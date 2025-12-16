@@ -16,7 +16,6 @@ const StudentsPage = () => {
     success: false,
   });
   const [studentName, setStudentName] = useState("");
-  const [selectedStudent, setSelectedStudent] = useState<StudentType>();
   const containerRef = useRef<HTMLDivElement>(null);
   const [addStudent] = useAddStudentMutation();
 
@@ -31,7 +30,6 @@ const StudentsPage = () => {
   };
 
   const handleCloseModal = (type: string) => {
-    setSelectedStudent(undefined);
     setOpenModal((prev) => ({ ...prev, [type]: false }));
   };
 
@@ -54,14 +52,12 @@ const StudentsPage = () => {
             submit: handleAddStudent as StudentFormAction,
             cancel: () => handleCloseModal("add"),
           }}
-          student={selectedStudent}
         />
       </FormModal>
 
       <SuccessModal
         close={() => {
           handleCloseModal("success");
-          setSelectedStudent(undefined);
         }}
         infoText=""
         open={openModal.success}
