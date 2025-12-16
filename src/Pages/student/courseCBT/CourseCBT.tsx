@@ -281,7 +281,7 @@ const CourseCBT = () => {
               {isParticipantLoading ? (
                 <LoadingCoursesSkeleton />
               ) : (
-                participantData?.data?.courses.map((course: CourseBaseType) => (
+                participantData?.data?.courses?.map((course: CourseBaseType) => (
                   <React.Fragment key={course.id}>
                     <ListItem disablePadding>
                       <ListItemButton

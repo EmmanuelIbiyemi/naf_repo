@@ -128,7 +128,7 @@ const processClassStatus = (liveClass: {
               Courses
             </Typography>
             <List sx={{ width: "100%", bgcolor: "background.paper" }}>
-              {participantData?.data?.courses.map((course) => (
+              {participantData?.data?.courses?.map((course) => (
                 <React.Fragment key={course.id}>
                   <ListItem disablePadding>
                     <ListItemButton

@@ -146,7 +146,7 @@ const CourseCard = () => {
               {`${participant?.first_name} ${participant?.last_name}`}
             </Typography>
             <Typography variant="body2">
-              <strong>LEVEL:</strong> {participant?.level.name || "100"}
+              <strong>LEVEL:</strong> {participant?.level?.name || "100"}
             </Typography>
             <Typography variant="body2">
               <strong>SESSION:</strong> {currentSession?.data.name || "N/A"}

@@ -107,7 +107,7 @@ const StudentCourses: React.FC = () => {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {participant.courses.map((course: CourseBaseType) => (
+                {participant.courses?.map((course: CourseBaseType) => (
                   <TableRow key={course.id}>
                     <TableCell>{course.code}</TableCell>
                     <TableCell>{course.name}</TableCell>
