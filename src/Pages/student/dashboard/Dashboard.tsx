@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { School, AssignmentTurnedIn, History } from "@mui/icons-material";
+import { School, AssignmentTurnedIn, History, VideoLibrary } from "@mui/icons-material";
 import {
   Box,
   Button,
@@ -21,15 +21,13 @@ interface DashboardCard {
   id: number;
   icon: React.ReactNode;
   title: string;
-  description: string;
   link: string;
 }
 
 const Dashboard: React.FC = () => {
   const dispatch = useAppDispatch();
-  // Assuming we're getting the participant ID from somewhere (e.g., context, route params)
   const user = useAppSelector(selectCurrentUser);
-  const participantId = user?.id || 0; // Replace with actual ID source
+  const participantId = user?.id || 0;
   const {
     data: participantData,
     isLoading,
@@ -41,29 +39,10 @@ const Dashboard: React.FC = () => {
   }, [dispatch]);
 
   const cards: DashboardCard[] = [
-    {
-      id: 1,
-      icon: <School />,
-      title: "Course Enrollment",
-      description: `View and manage your ${
-        participantData?.data.courses?.length || 0
-      } course enrollments`,
-      link: "/student/courses",
-    },
-    {
-      id: 3,
-      icon: <AssignmentTurnedIn />,
-      title: "Check Result",
-      description: "View your academic performance and semester results",
-      link: "/student/results",
-    },
-    {
-      id: 4,
-      icon: <History />,
-      title: "My Activity",
-      description: "View your activity history and track your actions on the platform",
-      link: "/student/my-activity",
-    },
+    { id: 1, icon: <School />, title: "My Courses", link: "/student/courses" },
+    { id: 2, icon: <AssignmentTurnedIn />, title: "Check Results", link: "/student/results" },
+    { id: 3, icon: <VideoLibrary />, title: "Live Classes", link: "/student/live-class" },
+    { id: 4, icon: <History />, title: "My Activity", link: "/student/my-activity" },
   ];
 
   if (isLoading) {
@@ -100,9 +79,7 @@ const Dashboard: React.FC = () => {
       {/* Header */}
       <Box sx={{ textAlign: "center", marginBottom: "2rem" }}>
         <Typography variant="h1" sx={{ fontSize: "2rem", fontWeight: 500 }}>
-          Welcome to your{" "}
-          {import.meta.env.VITE_SCHOOL_ACRONYM}{" "}
-          dashboard
+          Welcome to your {import.meta.env.VITE_SCHOOL_ACRONYM} dashboard
         </Typography>
         <Typography
           sx={{
@@ -120,43 +97,30 @@ const Dashboard: React.FC = () => {
       <Box
         sx={{
           display: "grid",
-          gridTemplateColumns: { xs: "1fr", md: "1fr 400px" },
+          gridTemplateColumns: { xs: "1fr", md: "1fr 350px" },
           gap: "2rem",
         }}
       >
         {/* Left Side - Cards */}
-        <Box sx={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+        <Box
+          sx={{
+            display: "grid",
+            gap: "1rem",
+            gridTemplateColumns: "repeat(2, 1fr)",
+            alignContent: "start",
+          }}
+        >
           {cards.map((card) => (
             <Link
               key={`dashboard-card-${card.id}`}
               to={card.link}
               style={{ textDecoration: "none" }}
             >
-              <Box
-                sx={{
-                  ...cardStyles,
-                  "&:hover": {
-                    boxShadow: 3,
-                    transition: "box-shadow 0.3s ease-in-out",
-                  },
-                }}
-              >
+              <Box sx={cardStyles}>
                 <Box className="icon">{card.icon}</Box>
-                <Box sx={{ flex: 1 }}>
-                  <Typography sx={{ fontSize: "1.2rem", fontWeight: 500 }}>
-                    {card.title}
-                  </Typography>
-                  <Typography
-                    sx={{
-                      fontWeight: 300,
-                      marginTop: ".5rem",
-                      color: "text.secondary",
-                      fontSize: "0.9rem",
-                    }}
-                  >
-                    {card.description}
-                  </Typography>
-                </Box>
+                <Typography sx={{ fontSize: "0.95rem", fontWeight: 500, color: "text.primary" }}>
+                  {card.title}
+                </Typography>
               </Box>
             </Link>
           ))}
@@ -166,31 +130,31 @@ const Dashboard: React.FC = () => {
         <Box
           sx={{
             bgcolor: "#fff",
-            borderRadius: "var(--border-radius)",
+            borderRadius: "12px",
             padding: "2rem",
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
-            boxShadow: 1,
+            boxShadow: "0 1px 3px rgba(0,0,0,0.08)",
           }}
         >
           {participant.photo ? (
             <Avatar
               src={participant.photo}
               sx={{
-                width: 128,
-                height: 128,
+                width: 100,
+                height: 100,
                 marginBottom: "1rem",
               }}
             />
           ) : (
             <Avatar
               sx={{
-                width: 128,
-                height: 128,
+                width: 100,
+                height: 100,
                 marginBottom: "1rem",
                 bgcolor: "primary.main",
-                fontSize: "3rem",
+                fontSize: "2.5rem",
               }}
             >
               {participant.first_name?.[0]}
@@ -204,35 +168,18 @@ const Dashboard: React.FC = () => {
             {participant.matric_number || "N/A"}
           </Typography>
           <Typography
-            sx={{ color: "text.secondary", fontSize: "0.9rem", mt: 0.5 }}
+            sx={{ color: "text.secondary", fontSize: "0.9rem", mt: 0.5, textAlign: "center" }}
           >
-            {participant.level?.program?.department?.name || "N/A"} •{" "}
-            {participant.level?.name || "N/A"}
+            {participant.level?.program?.department?.name || "N/A"} • {participant.level?.name || "N/A"}
           </Typography>
           <Box sx={{ width: "100%", mt: 2 }}>
-            <Typography
-              sx={{
-                color: "text.secondary",
-                fontSize: "0.9rem",
-                mb: 1,
-              }}
-            >
+            <Typography sx={{ color: "text.secondary", fontSize: "0.85rem", mb: 1 }}>
               Contact Information
             </Typography>
-            <Typography sx={{ fontSize: "0.9rem" }}>
-              Email: {participant.email}
-            </Typography>
-            <Typography sx={{ fontSize: "0.9rem" }}>
-              Phone: {participant.phone}
-            </Typography>
-            <Typography sx={{ fontSize: "0.9rem" }}>
-              Address: {participant.address}
-            </Typography>
+            <Typography sx={{ fontSize: "0.85rem" }}>Email: {participant.email}</Typography>
+            <Typography sx={{ fontSize: "0.85rem" }}>Phone: {participant.phone}</Typography>
           </Box>
-          <Link
-            to="/student/settings"
-            style={{ textDecoration: "none", width: "100%" }}
-          >
+          <Link to="/student/settings" style={{ textDecoration: "none", width: "100%" }}>
             <Button variant="contained" fullWidth sx={{ marginTop: "1.5rem" }}>
               Profile Settings
             </Button>
@@ -244,23 +191,31 @@ const Dashboard: React.FC = () => {
 };
 
 const cardStyles: SxProps<Theme> = {
-  alignItems: "start",
+  alignItems: "center",
   bgcolor: "#fff",
-  borderRadius: "var(--border-radius)",
+  borderRadius: "12px",
   display: "flex",
-  gap: "1rem",
-  padding: "1rem",
-  boxShadow: 1,
-  color: "text.primary",
-
+  flexDirection: "column",
+  gap: "0.75rem",
+  padding: "1.5rem 1rem",
+  textAlign: "center",
+  transition: "all 0.2s ease-in-out",
+  boxShadow: "0 1px 3px rgba(0,0,0,0.08)",
+  "&:hover": {
+    boxShadow: "0 4px 12px rgba(0,0,0,0.12)",
+    transform: "translateY(-2px)",
+  },
   ".icon": {
     bgcolor: "rgba(239, 243, 250, 1)",
-    borderRadius: "var(--border-radius)",
+    borderRadius: "12px",
     color: "primary.main",
-    padding: ".5rem",
+    padding: "0.75rem",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
+    "& svg": {
+      fontSize: "1.5rem",
+    },
   },
 };
 

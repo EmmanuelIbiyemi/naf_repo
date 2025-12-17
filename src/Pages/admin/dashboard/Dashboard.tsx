@@ -37,11 +37,9 @@ const Dashboard = () => {
       }}
     >
       <Box sx={{ textAlign: "center" }}>
-      <Typography variant="h1" sx={{ fontSize: "2rem", fontWeight: 500 }}>
-        Welcome to your{" "}
-        {import.meta.env.VITE_SCHOOL_ACRONYM}{" "}
-        dashboard
-      </Typography>
+        <Typography variant="h1" sx={{ fontSize: "2rem", fontWeight: 500 }}>
+          Welcome to your {import.meta.env.VITE_SCHOOL_ACRONYM} dashboard
+        </Typography>
         <Typography
           sx={{ fontSize: "1.3rem", fontWeight: 300, marginTop: ".5rem" }}
         >
@@ -51,30 +49,27 @@ const Dashboard = () => {
       <Box
         sx={{
           display: "grid",
-          gap: "1.4rem",
-          gridTemplateColumns: "1fr 1fr",
+          gap: "1rem",
+          gridTemplateColumns: "repeat(3, 1fr)",
           marginTop: "3rem",
         }}
       >
         {cards.map((card) => (
-          <Link to={card.link} key={`dashboard-card-${card.id}`}>
+          <Link
+            to={card.link}
+            key={`dashboard-card-${card.id}`}
+            style={{ textDecoration: "none" }}
+          >
             <Box sx={cardStyles}>
               <Box className="icon">{card.icon}</Box>
-              <Box>
-                <Typography sx={{ fontSize: "1.4rem" }}>
-                  {card.title}
-                </Typography>
-                <Typography
-                  sx={{ fontWeight: 300, marginTop: "1rem", maxWidth: "60ch" }}
-                >
-                  {card.description}
-                </Typography>
-              </Box>
+              <Typography sx={{ fontSize: "0.95rem", fontWeight: 500, color: "text.primary" }}>
+                {card.title}
+              </Typography>
             </Box>
           </Link>
         ))}
       </Box>
-      <Box sx={{ display: "flex", justifyContent: "end", marginTop: "1rem" }}>
+      <Box sx={{ display: "flex", justifyContent: "center", marginTop: "2rem" }}>
         <Button variant="contained" onClick={handleManageSite}>
           Manage website
         </Button>
@@ -86,68 +81,39 @@ const Dashboard = () => {
 export default Dashboard;
 
 const cardStyles: SxProps = {
-  alignItems: "start",
+  alignItems: "center",
   bgcolor: "#fff",
-  borderRadius: "var(--border-radius)",
+  borderRadius: "12px",
   display: "flex",
-  gap: "1rem",
-  padding: "1rem",
-
+  flexDirection: "column",
+  gap: "0.75rem",
+  padding: "1.5rem 1rem",
+  textAlign: "center",
+  transition: "all 0.2s ease-in-out",
+  boxShadow: "0 1px 3px rgba(0,0,0,0.08)",
+  "&:hover": {
+    boxShadow: "0 4px 12px rgba(0,0,0,0.12)",
+    transform: "translateY(-2px)",
+  },
   ".icon": {
     bgcolor: "rgba(239, 243, 250, 1)",
-    borderRadius: "var(--border-radius)",
+    borderRadius: "12px",
     color: "primary.main",
-    padding: ".35rem .5rem",
+    padding: "0.75rem",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    "& svg": {
+      fontSize: "1.5rem",
+    },
   },
 };
 
 const cards = [
-  {
-    id: 1,
-    icon: <Add />,
-    title: "Add other admins",
-    description:
-      "Assign and manage additional administrators to oversee and maintain system operations effectively.",
-    link: "/users",
-  },
-  {
-    id: 2,
-    icon: <Assignment />,
-    title: "Manage Courses",
-    description:
-      "Create, update, and organize courses for seamless learning. Ensure all content is up-to-date and accessible.",
-    link: "/academics",
-  },
-  {
-    id: 3,
-    icon: <BusinessCenter />,
-    title: "Add Instructors",
-    description:
-      "Add new instructors to the platform and assign them to specific courses or roles as needed.",
-    link: "/users/lecturers",
-  },
-  {
-    id: 4,
-    icon: <Inventory />,
-    title: "View Applications",
-    description:
-      "Review and process applications submitted by students or instructors. Approve or reject applications with ease.",
-    link: "/applicants",
-  },
-  {
-    id: 5,
-    icon: <Groups />,
-    title: "Add Students",
-    description:
-      "Enroll students into the system, assign them to courses, and ensure they have access to the resources they need.",
-    link: "/users/students",
-  },
-  {
-    id: 6,
-    icon: <History />,
-    title: "Activity Logs",
-    description:
-      "View and monitor all system activities. Track user actions, changes, and events across the platform.",
-    link: "/activity-logs",
-  },
+  { id: 1, icon: <Add />, title: "Add Admins", link: "/users" },
+  { id: 2, icon: <Assignment />, title: "Manage Courses", link: "/academics" },
+  { id: 3, icon: <BusinessCenter />, title: "Add Instructors", link: "/users/lecturers" },
+  { id: 4, icon: <Inventory />, title: "View Applications", link: "/applicants" },
+  { id: 5, icon: <Groups />, title: "Add Students", link: "/users/students" },
+  { id: 6, icon: <History />, title: "Activity Logs", link: "/activity-logs" },
 ];
