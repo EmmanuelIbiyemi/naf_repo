@@ -12,9 +12,15 @@ import {
   CircularProgress,
   Alert,
   Avatar,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  SelectChangeEvent,
 } from "@mui/material";
 import { Print } from "@mui/icons-material";
 import { Link } from "react-router-dom";
+import { useState, useMemo } from "react";
 import { useGetParticipantQuery } from "../../../../store/api/participants.api";
 import Breadcrumb from "../components/BreadCrumb";
 import { useAppSelector } from "../../../../store/hooks";
@@ -25,12 +31,37 @@ const CourseCard = () => {
   // Assuming we get the participant ID from URL params or props
   const user = useAppSelector(selectCurrentUser);
   const participantId = user?.id || 0; // Replace with actual ID source
+  const [semesterFilter, setSemesterFilter] = useState<string>("all");
+  
   const {
     data: response,
     isLoading,
     error,
   } = useGetParticipantQuery(participantId);
   const { data: currentSession } = useGetCurrentSessionQuery(null);
+
+  // Get unique semesters from courses
+  const availableSemesters = useMemo(() => {
+    if (!response?.data?.courses) return [];
+    const semesters = new Set(response.data.courses.map((course: { semester: string }) => course.semester));
+    return Array.from(semesters) as string[];
+  }, [response?.data?.courses]);
+
+  // Filter courses based on selected semester
+  const filteredCourses = useMemo(() => {
+    if (!response?.data?.courses) return [];
+    if (semesterFilter === "all") return response.data.courses;
+    return response.data.courses.filter((course: { semester: string }) => course.semester === semesterFilter);
+  }, [response?.data?.courses, semesterFilter]);
+
+  // Calculate total credit units for filtered courses
+  const totalCreditUnits = useMemo(() => {
+    return filteredCourses.reduce((sum: number, course: { credit_units?: number }) => sum + (course.credit_units || 0), 0);
+  }, [filteredCourses]);
+
+  const handleSemesterChange = (event: SelectChangeEvent) => {
+    setSemesterFilter(event.target.value);
+  };
 
   if (isLoading) {
     return (
@@ -50,9 +81,6 @@ const CourseCard = () => {
 
   const participant = response?.data;
 
-  // Sample course data - you would typically get this from another endpoint
-  const courseRows = participant?.courses;
-
   return (
     <Box sx={{ maxWidth: 800, mx: "auto" }}>
       <Box
@@ -61,6 +89,32 @@ const CourseCard = () => {
         }}
       >
         <Breadcrumb />
+      </Box>
+
+      {/* Semester Filter - hidden when printing */}
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "flex-end",
+          mb: 2,
+          "@media print": { display: "none" },
+        }}
+      >
+        <FormControl size="small" sx={{ minWidth: 220 }}>
+          <InputLabel>Filter by Semester</InputLabel>
+          <Select
+            value={semesterFilter}
+            label="Filter by Semester"
+            onChange={handleSemesterChange}
+          >
+            <MenuItem value="all">All Semesters (Full Session)</MenuItem>
+            {availableSemesters.map((semester) => (
+              <MenuItem key={semester} value={semester}>
+                {semester}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
       </Box>
 
       <Paper sx={{ p: 4, my: 3, bgcolor: "#ffffff" }}>
@@ -151,6 +205,11 @@ const CourseCard = () => {
             <Typography variant="body2">
               <strong>SESSION:</strong> {currentSession?.data.name || "N/A"}
             </Typography>
+            {semesterFilter !== "all" && (
+              <Typography variant="body2">
+                <strong>SEMESTER:</strong> {semesterFilter}
+              </Typography>
+            )}
           </Box>
         </Box>
 
@@ -177,7 +236,7 @@ const CourseCard = () => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {courseRows?.map((row, index) => (
+              {filteredCourses?.map((row, index) => (
                 <TableRow
                   key={index}
                   sx={{ "&:nth-of-type(odd)": { bgcolor: "#f5f5f5" } }}
@@ -189,6 +248,13 @@ const CourseCard = () => {
                   <TableCell>{row.credit_units}</TableCell>
                 </TableRow>
               ))}
+              {/* Total Credit Units Row */}
+              <TableRow sx={{ bgcolor: "#e3f2fd" }}>
+                <TableCell colSpan={4} align="right" sx={{ fontWeight: 600 }}>
+                  Total Credit Units:
+                </TableCell>
+                <TableCell sx={{ fontWeight: 600 }}>{totalCreditUnits}</TableCell>
+              </TableRow>
             </TableBody>
           </Table>
         </TableContainer>
@@ -250,7 +316,9 @@ const CourseCard = () => {
             }}
             onClick={() => window.print()}
           >
-            Print Course Card
+            {semesterFilter === "all" 
+              ? "Print Full Session Course Card" 
+              : `Print ${semesterFilter} Course Card`}
           </Button>
         </Paper>
       </Box>
