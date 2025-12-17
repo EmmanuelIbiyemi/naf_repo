@@ -8,8 +8,9 @@ import CustomPagination from "../../../components/CustomPagination";
 
 const Courses = () => {
   const containerRef = useRef<HTMLDivElement>(null);
+  const [currentPage, setCurrentPage] = useState(1);
   const { data: courses, isLoading } = useGetInstructorCoursesQuery({
-    page: 1,
+    page: currentPage,
     per_page: 9,
   });
 
@@ -18,7 +19,6 @@ const Courses = () => {
   useEffect(() => {
     dispatch(setPageName("Courses"));
   }, [dispatch]);
-  const [currentPage, setCurrentPage] = useState(1);
 
   const handleChangePage = (
     _event: React.ChangeEvent<unknown>,
