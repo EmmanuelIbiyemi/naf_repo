@@ -7,6 +7,7 @@ import {
   Assignment,
   BusinessCenter,
   Groups,
+  History,
   Inventory,
 } from "@mui/icons-material";
 import { Link } from "react-router-dom";
@@ -131,6 +132,14 @@ const cards = [
     title: "Notes and Resources",
     description:
       "Provide downloadable notes and resources to support your courses, giving students easy access to essential learning materials.",
+  },
+  {
+    id: 6,
+    link: "my-activity",
+    icon: <History />,
+    title: "My Activity",
+    description:
+      "View your activity history and track actions you have taken on the platform.",
   },
 ];
 

@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { School, AssignmentTurnedIn } from "@mui/icons-material";
+import { School, AssignmentTurnedIn, History } from "@mui/icons-material";
 import {
   Box,
   Button,
@@ -56,6 +56,13 @@ const Dashboard: React.FC = () => {
       title: "Check Result",
       description: "View your academic performance and semester results",
       link: "/student/results",
+    },
+    {
+      id: 4,
+      icon: <History />,
+      title: "My Activity",
+      description: "View your activity history and track your actions on the platform",
+      link: "/student/my-activity",
     },
   ];
 

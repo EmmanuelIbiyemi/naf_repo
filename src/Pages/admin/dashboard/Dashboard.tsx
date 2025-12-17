@@ -3,6 +3,7 @@ import {
   Assignment,
   BusinessCenter,
   Groups,
+  History,
   Inventory,
 } from "@mui/icons-material";
 import { Box, Button, SxProps, Typography } from "@mui/material";
@@ -140,5 +141,13 @@ const cards = [
     description:
       "Enroll students into the system, assign them to courses, and ensure they have access to the resources they need.",
     link: "/users/students",
+  },
+  {
+    id: 6,
+    icon: <History />,
+    title: "Activity Logs",
+    description:
+      "View and monitor all system activities. Track user actions, changes, and events across the platform.",
+    link: "/activity-logs",
   },
 ];
