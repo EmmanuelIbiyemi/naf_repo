@@ -45,6 +45,7 @@ const allowedRoutes = {
     "/settings/posttype/:resource_type",
     "/settings/posttype/:resource_type/:post_id",
     "/settings/posttype/:resource_type/add",
+    "/activity-logs",
   ],
   instructor: [
     "/instructor",
@@ -77,6 +78,7 @@ const allowedRoutes = {
     "/instructor/classes",
     "/instructor/announcements/:id",
     "/instructor/scores",
+    "/instructor/my-activity",
   ],
   participant: [
     "/student/dashboard",
@@ -96,6 +98,7 @@ const allowedRoutes = {
     "/student/live-class",
     "/student/settings",
     "/student/announcements/:id",
+    "/student/my-activity",
   ],
 };
 

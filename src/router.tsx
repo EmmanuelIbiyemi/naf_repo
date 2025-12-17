@@ -70,6 +70,9 @@ const SemestersPage = lazy(
 const QuestionsPage = lazy(
   () => import("./Pages/admin/cbt/questions/Questions")
 );
+const ActivityLogsPage = lazy(
+  () => import("./Pages/admin/activitylogs/ActivityLogs")
+);
 
 // Instructor
 
@@ -137,6 +140,9 @@ const SettingsPage = lazy(() => import("./Pages/instructor/settings/Settings"));
 const InstructorAnnouncementPage = lazy(
   () => import("./Pages/instructor/announcements/Announcements")
 );
+const InstructorMyActivityPage = lazy(
+  () => import("./Pages/instructor/activity/MyActivity")
+);
 
 const StudentDashboard = lazy(
   () => import("./Pages/student/dashboard/Dashboard")
@@ -167,6 +173,9 @@ const StudentSettings = lazy(() => import("./Pages/student/settings/Settings"));
 const StudentAnnouncement = lazy(
   () => import("./Pages/student/announcements/SingleAnnouncement")
 );
+const StudentMyActivityPage = lazy(
+  () => import("./Pages/student/activity/MyActivity")
+);
 
 export const router = createBrowserRouter([
   {
@@ -195,6 +204,7 @@ export const router = createBrowserRouter([
       { path: "/cbt/:quiz_id/:assessment_id", element: <QuestionsPage /> },
       { path: "/sessions", element: <SessionsPage /> },
       { path: "/sessions/:session_id", element: <SemestersPage /> },
+      { path: "/activity-logs", element: <ActivityLogsPage /> },
       {
         path: "/academics",
         element: <AdminAcademicsPage />,
@@ -321,6 +331,10 @@ export const router = createBrowserRouter([
         path: "/instructor/announcements/:id",
         element: <InstructorAnnouncementPage />,
       },
+      {
+        path: "/instructor/my-activity",
+        element: <InstructorMyActivityPage />,
+      },
     ],
   },
 
@@ -343,6 +357,7 @@ export const router = createBrowserRouter([
       { path: "results", element: <StudentResults /> },
       { path: "live-class", element: <StudentClass /> },
       { path: "settings", element: <StudentSettings /> },
+      { path: "my-activity", element: <StudentMyActivityPage /> },
     ],
   },
 ]);
