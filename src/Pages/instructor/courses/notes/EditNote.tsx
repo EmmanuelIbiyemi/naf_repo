@@ -1,6 +1,6 @@
 import { Box, Button } from "@mui/material";
 import { useRef, useState } from "react";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { Navigate, useLocation, useNavigate, useParams } from "react-router-dom";
 import CustomMarkdownEditor from "../../../../components/layout/CustomMarkdownEditor";
 import * as yup from "yup";
 import { useFormik } from "formik";
@@ -22,7 +22,12 @@ const EditNote = () => {
   const handleOpenModal = () => setOpenModal(true);
   // const handleCloseModal = () => setOpenModal(false);
 
-  const { noteData } = location.state as noteProps;
+  const { noteData } = (location.state as noteProps) || {};
+
+  // Redirect if no note data (direct navigation or page refresh)
+  if (!noteData) {
+    return <Navigate to="/instructor/notes" replace />;
+  }
 
   const mediaItems = noteData.media
     .filter((media) => media.id)

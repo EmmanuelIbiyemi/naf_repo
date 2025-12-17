@@ -70,8 +70,12 @@ AddRecordModalProps) => {
       course_id: yup.number().required(),
     }),
     onSubmit: async (values) => {
-      await createRecord(values).unwrap();
-      handleOpenSuccessModal();
+      try {
+        await createRecord(values).unwrap();
+        handleOpenSuccessModal();
+      } catch (error) {
+        // Record creation failed - error handled silently
+      }
     },
   });
 

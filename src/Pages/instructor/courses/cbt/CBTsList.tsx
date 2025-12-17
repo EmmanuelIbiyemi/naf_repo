@@ -86,10 +86,11 @@ const QuizList: React.FC<QuizListProps> = ({ courseId }) => {
   const handleDeleteQuiz = async (id: number) => {
     try {
       await deleteQuiz(id).unwrap();
+      handleCloseModal("delete");
+      setOpenModal((prev) => ({ ...prev, success: true }));
     } catch (error) {
-      console.log(error);
+      handleCloseModal("delete");
     }
-    handleCloseModal("delete");
   };
 
   const totalItems = qzs?.pagination?.total || 0;

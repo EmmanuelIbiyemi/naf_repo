@@ -89,10 +89,11 @@ const MediaLibrary = ({ selectMedia, mediaType }: Props) => {
     dispatch(setPageLoading(true));
     try {
       await deleteMedia(id).unwrap();
+      handleCloseModal("delete");
+      handleOpenModal("success");
     } catch (error) {
-      // Delete failed - error handled silently
+      handleCloseModal("delete");
     }
-    handleOpenModal("success");
     dispatch(setPageLoading(false));
   };
 

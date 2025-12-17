@@ -135,9 +135,10 @@ const Notes = () => {
   const handleDelete = async (noteId: number) => {
     try {
       await deleteNote(noteId).unwrap();
-      setOpenActionsModal((prev) => ({ ...prev, delete: true }));
+      setOpenActionsModal((prev) => ({ ...prev, delete: false, success: true }));
     } catch (error) {
       console.error(error);
+      setOpenActionsModal((prev) => ({ ...prev, delete: false }));
     }
   };
 

@@ -22,7 +22,7 @@ const QuestionsForm = ({ actions }: Props) => {
   // const navigate = useNavigate();
   const dispatch = useAppDispatch();
 
-  if (!assessment_id) <Navigate to="/cbt" />;
+  if (!assessment_id) return <Navigate to="/cbt" />;
 
   const initialValues: FileType = {
     file: null,

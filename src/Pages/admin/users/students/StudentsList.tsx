@@ -86,8 +86,10 @@ const StudentsList = () => {
   const handleDelete = async (student_id: number) => {
     try {
       await deleteStudent(student_id).unwrap();
+      handleCloseModal("delete");
+      handleOpenModal(selectedStudent as StudentType, "success");
     } catch (error) {
-      console.log(error);
+      handleCloseModal("delete");
     }
   };
 
@@ -106,13 +108,16 @@ const StudentsList = () => {
   };
 
   const handleBulkDelete = async () => {
-    for (const id of deleteIds)
-      try {
+    try {
+      for (const id of deleteIds) {
         await deleteStudent(id).unwrap();
-        setDeleteIds([]);
-      } catch (error) {
-        console.log(error);
       }
+      setDeleteIds([]);
+      handleCloseModal("bulkDelete");
+    } catch (error) {
+      // Delete failed - some items may have been deleted
+      setDeleteIds([]);
+    }
   };
 
   const handleEditStudent = async (student: StudentType) => {

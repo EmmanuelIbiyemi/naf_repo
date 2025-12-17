@@ -127,7 +127,7 @@ const Login = () => {
             <img src={import.meta.env.VITE_LOGO} alt="logo" height={80} />
             <Typography
               dangerouslySetInnerHTML={{
-                __html: import.meta.env.VITE_SCHOOL_NAME_IN_HEADER,
+                __html: import.meta.env.VITE_SCHOOL_NAME_IN_HEADER || '',
               }}
             />
           </Link>
