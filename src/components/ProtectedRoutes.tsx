@@ -104,7 +104,7 @@ const allowedRoutes = {
 
 const pathMatches = (pathPattern: string, currentPath: string): boolean => {
   // Convert pathPattern with ":params" into a regex that matches word chars and hyphens
-  const regexPattern = new RegExp(`^${pathPattern.replace(/:\w+/g, "[\\w\\-]+")}$");
+  const regexPattern = new RegExp(`^${pathPattern.replace(/:\w+/g, "[\\w\\-]+")}$"`);
   return regexPattern.test(currentPath);
 };
 
