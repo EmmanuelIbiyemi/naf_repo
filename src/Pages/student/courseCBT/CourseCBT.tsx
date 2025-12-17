@@ -19,7 +19,7 @@ import {
   CalendarToday,
   Assessment,
 } from "@mui/icons-material";
-import { format } from "date-fns";
+import { formatDateShort } from "../../../utils/dateUtils";
 import { Link, useNavigate } from "react-router-dom";
 import { useAppSelector } from "../../../store/hooks";
 import { selectCurrentUser } from "../../../store/auth.slice";
@@ -149,8 +149,8 @@ const QuizItem: React.FC<QuizItemProps> = ({ quiz }) => (
         >
           <CalendarToday fontSize="small" />
           <Typography variant="body2">
-            {format(new Date(quiz.start_date), "MMM dd, yyyy")} -{" "}
-            {format(new Date(quiz.expiry_date), "MMM dd, yyyy")}
+            {formatDateShort(quiz.start_date)} -{" "}
+            {formatDateShort(quiz.expiry_date)}
           </Typography>
         </Box>
       </Box>

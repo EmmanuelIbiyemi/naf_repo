@@ -11,6 +11,7 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import ReactMarkdown from 'react-markdown';
 import { useGetParticipantCourseNotesQuery } from '../../../store/api/notes.api';
 import { note } from '../../../types/notes';
+import { formatDateLong } from '../../../utils/dateUtils';
 
 
 const CourseNotes = () => {
@@ -28,14 +29,6 @@ const CourseNotes = () => {
 
   const handleGoBack = () => {
     navigate('/student/overview'); // Adjust this route as needed
-  }; 
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    });
   };
 
   if (!parsedCourseId) {
@@ -168,11 +161,11 @@ const CourseNotes = () => {
 
           <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 2 }}>
             <Typography variant="caption" color="text.secondary">
-              Created: {formatDate(note?.created_at)}
+              Created: {formatDateLong(note?.created_at)}
             </Typography>
             {note?.updated_at && (
               <Typography variant="caption" color="text.secondary">
-                Last updated: {formatDate(note?.updated_at)}
+                Last updated: {formatDateLong(note?.updated_at)}
               </Typography>
             )}
           </Box>

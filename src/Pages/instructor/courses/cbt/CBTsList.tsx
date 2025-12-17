@@ -5,7 +5,7 @@ import TableContainer from "@mui/material/TableContainer";
 import TableRow from "@mui/material/TableRow";
 import { Box, Checkbox, IconButton, TableHead } from "@mui/material";
 import { useEffect, useState } from "react";
-import dayjs from "dayjs";
+import { formatDateNumeric } from "../../../../utils/dateUtils";
 import { Delete } from "@mui/icons-material";
 import { Link } from "react-router-dom";
 import {
@@ -183,10 +183,10 @@ const QuizList: React.FC<QuizListProps> = ({ courseId }) => {
                     {quiz.code}
                   </TableCell>
                   <TableCell component="th" scope="row">
-                    {dayjs(quiz.start_date).format("DD-MM-YYYY")}
+                    {formatDateNumeric(quiz.start_date)}
                   </TableCell>
                   <TableCell component="th" scope="row">
-                    {dayjs(quiz.expiry_date).format("DD-MM-YYYY")}
+                    {formatDateNumeric(quiz.expiry_date)}
                   </TableCell>
 
                   <TableCell>

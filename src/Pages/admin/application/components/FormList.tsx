@@ -18,7 +18,7 @@ import {
   useDeleteFormMutation,
   useGetFormsQuery,
 } from "../../../../store/api/form.api";
-import dayjs from "dayjs";
+import { formatDateNumeric } from "../../../../utils/dateUtils";
 import { selectKeyword, setPageLoading } from "../../../../store/app.slice";
 import EmptyState from "../../../../components/EmptyState";
 import CustomPagination from "../../../../components/CustomPagination";
@@ -195,7 +195,7 @@ const FormList = () => {
                       </Link>
                       <Typography>
                         Last Edited on{" "}
-                        {dayjs(form.updated_at).format("DD-MM-YYYY")}
+                        {formatDateNumeric(form.updated_at)}
                       </Typography>
                     </Box>
                   </TableCell>

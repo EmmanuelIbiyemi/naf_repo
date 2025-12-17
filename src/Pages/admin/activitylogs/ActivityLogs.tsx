@@ -29,6 +29,7 @@ import {
 } from "../../../store/api/activitylog.api";
 import CustomPagination from "../../../components/CustomPagination";
 import EmptyState from "../../../components/EmptyState";
+import { formatDateTime } from "../../../utils/dateUtils";
 
 const ACTION_TYPE_COLORS: Record<ActionType, "success" | "info" | "warning" | "error" | "default"> = {
   CREATE: "success",
@@ -41,17 +42,6 @@ const ACTION_TYPE_COLORS: Record<ActionType, "success" | "info" | "warning" | "e
   UPLOAD: "info",
   DOWNLOAD: "info",
   OTHER: "default",
-};
-
-const formatDate = (dateString: string) => {
-  const date = new Date(dateString);
-  return date.toLocaleString("en-US", {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
 };
 
 const ActivityLogs = () => {
@@ -245,7 +235,7 @@ const ActivityLogs = () => {
                       onClick={() => log.extra_data && toggleRowExpand(log.id)}
                     >
                       <TableCell>
-                        <Typography variant="body2">{formatDate(log.created_at)}</Typography>
+                        <Typography variant="body2">{formatDateTime(log.created_at)}</Typography>
                       </TableCell>
                       <TableCell>
                         <Typography variant="body2" fontWeight={500}>
