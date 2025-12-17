@@ -53,7 +53,7 @@ const ApplicationPage = () => {
 
       navigate(`/form/${response.data.id}`);
     } catch (error) {
-      console.log(error);
+      // Form creation failed - error handled silently
     }
   };
 

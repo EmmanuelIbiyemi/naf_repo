@@ -48,7 +48,7 @@ const QuestionsForm = ({ actions }: Props) => {
         file_url: mediaResponse.media[0].url,
       }).unwrap();
     } catch (error) {
-      console.log(error);
+      // Upload failed - error handled silently
     }
     dispatch(setPageLoading(false));
     // actions.cancel();

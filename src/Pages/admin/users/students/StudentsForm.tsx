@@ -126,7 +126,7 @@ const StudentForm = ({ actions, studentId }: Props) => {
         }).unwrap();
       }
     } catch (error) {
-      console.log(error);
+      // Error handled - cascade selects may fail silently
     }
   };
 

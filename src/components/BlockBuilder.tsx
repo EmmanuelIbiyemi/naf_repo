@@ -1,4 +1,5 @@
 import { Box, SxProps, Typography } from "@mui/material";
+import DOMPurify from "dompurify";
 import { Post } from "../types/announcements";
 
 const imageContainerStyles: SxProps = {
@@ -15,7 +16,6 @@ type Props = {
 };
 
 const BlockBuilder = ({ blocks }: Props) => {
-  console.log("Blocks: ", blocks?.[0]);
   return (
     <>
       {blocks.map((block, index) => {
@@ -43,15 +43,15 @@ const BlockBuilder = ({ blocks }: Props) => {
               key={`block-${index + 1}`}
               variant="h3"
               component="h2"
-              dangerouslySetInnerHTML={{ __html: title }}
+              dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(title) }}
             />
           );
         else if (block.type === "text")
           return (
             <Typography
               key={`block-${index + 1}`}
-              sx={{ marginBottom: "1rem", border: "1px solid red" }}
-              dangerouslySetInnerHTML={{ __html: title }}
+              sx={{ marginBottom: "1rem" }}
+              dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(title) }}
             />
           );
         else if (block.type === "title")
@@ -61,7 +61,7 @@ const BlockBuilder = ({ blocks }: Props) => {
               variant="h3"
               component="h2"
               sx={{ fontWeight: 500 }}
-              dangerouslySetInnerHTML={{ __html: title }}
+              dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(title) }}
             />
           );
         else if (block.type === "subtitle")
@@ -69,7 +69,7 @@ const BlockBuilder = ({ blocks }: Props) => {
             <Typography
               key={`block-${index + 1}`}
               sx={{ margin: ".5rem 0 2.5rem !important" }}
-              dangerouslySetInnerHTML={{ __html: title }}
+              dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(title) }}
             />
           );
         else if (block.type === "big space")

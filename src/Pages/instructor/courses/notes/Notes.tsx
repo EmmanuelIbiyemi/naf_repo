@@ -90,17 +90,16 @@ const Notes = () => {
     try {
       const formData = new FormData();
       formData.append("file", file);
-      console.log(file);
       setOpenFileSuccessModal(true);
     } catch (error) {
-      console.log(error);
+      // Error handled silently - consider adding toast notification
     }
     setOpenModal(false);
   };
 
   const handleProcessFileUrl = (fileUrl: string) => {
-    console.log(fileUrl);
-    // Restored original implementation
+    // TODO: Implement file URL processing
+    void fileUrl;
   };
 
   const handleChangePage = (
@@ -133,9 +132,9 @@ const Notes = () => {
     handleOpenPreviewModal(note.id);
   };
 
-  const handleDelete = (noteId: number) => {
+  const handleDelete = async (noteId: number) => {
     try {
-      deleteNote(noteId).unwrap();
+      await deleteNote(noteId).unwrap();
       setOpenActionsModal((prev) => ({ ...prev, delete: true }));
     } catch (error) {
       console.error(error);

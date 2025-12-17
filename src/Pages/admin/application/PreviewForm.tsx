@@ -29,7 +29,7 @@ const PreviewFormPage = ({ formData }: PreviewFormProps) => {
   const elRef = useRef<HTMLDivElement>(null);
 
   const handleSubmit = async () => {
-    console.log(formData);
+    // TODO: Implement form submission
     navigate("/applications");
   };
 
