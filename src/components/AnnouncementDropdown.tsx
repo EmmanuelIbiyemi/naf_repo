@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useGetAnnouncementsQuery } from "../store/api/posts.api";
 import {
   Box,
@@ -12,7 +12,7 @@ import {
 } from "@mui/material";
 import { Close as CloseIcon } from "@mui/icons-material";
 import { Post } from "../types/announcements";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 interface NotificationMenuProps {
   anchorEl: null | HTMLElement;
@@ -27,9 +27,20 @@ const NotificationMenu = ({
 }: NotificationMenuProps) => {
   const [page, setPage] = useState(1);
   const navigate = useNavigate();
+  const location = useLocation();
   const open = Boolean(anchorEl);
 
-  const { data, isLoading, isError } = useGetAnnouncementsQuery("announcement");
+  const shouldFetch = useMemo(
+    () => location.pathname.toLowerCase().includes("dashboard"),
+    [location.pathname]
+  );
+
+  const { data, isLoading, isError } = useGetAnnouncementsQuery("announcement", {
+    skip: !shouldFetch,
+    refetchOnMountOrArgChange: false,
+    refetchOnFocus: false,
+    refetchOnReconnect: false,
+  });
 
   const handlePageChange = (
     _event: React.ChangeEvent<unknown>,
@@ -84,7 +95,13 @@ const NotificationMenu = ({
 
       <Divider />
 
-      {isLoading ? (
+      {!shouldFetch ? (
+        <MenuItem disabled>
+          <Typography color="text.secondary">
+            Announcements load on dashboard/announcement pages.
+          </Typography>
+        </MenuItem>
+      ) : isLoading ? (
         <Box sx={{ p: 3, display: "flex", justifyContent: "center" }}>
           <CircularProgress size={24} />
         </Box>
