@@ -36,6 +36,7 @@ const StudentUploadForm = ({ actions }: Props) => {
     program_id: 0,
     level_id: 0,
     list_url: "",
+    promotion: false,
   };
 
   const validationSchema = Yup.object({
@@ -235,6 +236,12 @@ const StudentUploadForm = ({ actions }: Props) => {
               type="file"
               onChange={(ev) => handleFileUpload(ev, setFieldValue)}
             />
+            <Box sx={{ marginTop: '.5rem' }}>
+              <label style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.95rem' }}>
+                <Field type="checkbox" name="promotion" style={{ width: 16, height: 16, marginRight: 4 }} />
+                <span style={{ fontSize: '0.95rem' }}>Promotion list (move existing students to this level)</span>
+              </label>
+            </Box>
             {errors.list_url && touched.list_url && (
               <div>{errors.list_url}</div>
             )}
@@ -259,6 +266,8 @@ const StudentUploadForm = ({ actions }: Props) => {
                 onClick={() => actions.cancel()}
                 className={formStyles.cancel_btn}
                 variant="contained"
+                size="small"
+                sx={{ fontSize: '0.95rem', padding: '4px 16px', minWidth: 0 }}
               >
                 Cancel
               </Button>
@@ -266,6 +275,8 @@ const StudentUploadForm = ({ actions }: Props) => {
                 className={formStyles.submit_btn}
                 type="submit"
                 variant="contained"
+                size="small"
+                sx={{ fontSize: '0.95rem', padding: '4px 16px', minWidth: 0 }}
                 disabled={!(isValid && dirty)}
               >
                 {"Upload Students"}

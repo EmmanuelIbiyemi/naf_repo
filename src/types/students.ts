@@ -23,6 +23,7 @@ export type StudentsUploadType = {
   program_id: number,
   level_id: number;
   list_url: string;
+  promotion?: boolean;
 };
 
 export type StudentCreateType = StudentType & {};
