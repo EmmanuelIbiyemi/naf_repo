@@ -75,6 +75,57 @@ export interface ResultCreateType {
   }[];
 }
 
+export type LegacyResultCourseInput = {
+  course_code: string;
+  course_name?: string;
+  course_credit_unit: number | string;
+  total_obtainable_score: number | string;
+  total_obtained_score: number | string;
+  score_name?: string;
+  score_remark?: string;
+  grade_point?: number | string;
+  quality_point?: number | string;
+};
+
+export type LegacyResultCreateType = {
+  participant_id: number;
+  session: string;
+  semester: string;
+  department_id: number;
+  level_id: number;
+  details: LegacyResultCourseInput[];
+  summary?: {
+    total_grade_points?: number;
+    total_credit_units?: number;
+    grade_point_average?: number;
+    cumulative_grade_point_average?: number;
+  };
+};
+
+export type LegacyResultResponse = {
+  data: StudentResultResponse["data"];
+  message: string;
+  status: string;
+};
+
+export type LegacyResultUploadPayload = {
+  department_id: number;
+  level_id: number;
+  session: string;
+  semester: string;
+  file_url: string;
+};
+
+export type LegacyResultUploadResponse = {
+  data: {
+    uploaded: number;
+    failed: number;
+    failures: Array<{ row: number; matric_number?: string; reason: string }>;
+  };
+  message: string;
+  status: string;
+};
+
 export interface ResultResponse {
   data: {
     id: number;
