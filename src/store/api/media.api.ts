@@ -13,13 +13,12 @@ const mediasApi = appApi.injectEndpoints({
       Pagination & { mediaType?: string; search_term: string }
     >({
       query: ({ search_term, mediaType, page = 1, per_page = 12 }) => {
+        const searchParam = search_term
+          ? "&query=" + encodeURIComponent(search_term)
+          : "";
         if (mediaType)
-          return `/media/type/${mediaType}?page=${page}&per_page=${per_page}${
-            search_term ? "&search_term=" + search_term : ""
-          }`;
-        return `/media/all?page=${page}&per_page=${per_page}${
-          search_term ? "&search_term=" + search_term : ""
-        }`;
+          return `/media/type/${mediaType}?page=${page}&per_page=${per_page}${searchParam}`;
+        return `/media/all?page=${page}&per_page=${per_page}${searchParam}`;
       },
       providesTags: ["Media"],
     }),
