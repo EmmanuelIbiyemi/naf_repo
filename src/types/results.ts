@@ -153,13 +153,26 @@ export interface ResultResponse {
   status: string;
 }
 
-export interface ResultTaskResponse {
-  task_id: string;
-  status: "pending" | "in_progress" | "completed" | "failed";
+export type ResultTaskStartResponse = {
+  data: { task_id: string };
   message: string;
-  created_at: string;
-  updated_at?: string;
-}
+  status: string;
+};
+
+export type ResultTaskStatus = {
+  task_id: string;
+  state: string;
+  ready: boolean;
+  successful: boolean;
+  result?: unknown;
+  error?: string | null;
+};
+
+export type ResultTaskStatusResponse = {
+  data: ResultTaskStatus;
+  message: string;
+  status: string;
+};
 
 export interface TranscriptResponse {
   data: {

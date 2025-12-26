@@ -2,7 +2,8 @@ import {
   ResultCreateType,
   ResultResponse,
   StudentResultResponse,
-  ResultTaskResponse,
+  ResultTaskStartResponse,
+  ResultTaskStatusResponse,
 } from "../../types/results.ts";
 import { StudentTranscriptResponse } from "../../types/transcript.ts";
 import { appApi } from "./app.api.ts";
@@ -10,7 +11,7 @@ import { appApi } from "./app.api.ts";
 const resultApi = appApi.injectEndpoints({
   endpoints: (builder) => ({
     // Generate Result
-    generateResult: builder.mutation<ResultTaskResponse, ResultCreateType>({
+    generateResult: builder.mutation<ResultTaskStartResponse, ResultCreateType>({
       query: (resultData: ResultCreateType) => ({
         url: `/result`,
         method: "POST",
@@ -20,7 +21,7 @@ const resultApi = appApi.injectEndpoints({
     }),
 
     // Check Result Task
-    checkResultTask: builder.query<ResultTaskResponse, string>({
+    checkResultTask: builder.query<ResultTaskStatusResponse, string>({
       query: (taskId: string) => `/result/task/${taskId}`,
       providesTags: ["ResultTasks"],
     }),

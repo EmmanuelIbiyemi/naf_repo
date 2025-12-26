@@ -9,6 +9,10 @@ import {
   Button,
   Divider,
   Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
   FormControl,
   Grid,
   Grid2,
@@ -23,13 +27,20 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import { MouseEvent, useEffect, useRef, useState, ChangeEvent } from "react";
+import {
+  MouseEvent,
+  useEffect,
+  useRef,
+  useState,
+  ChangeEvent,
+} from "react";
 import {
   useAddLegacyResultMutation,
   useGenerateResultMutation,
   useGetResultsMMutation,
   useUploadLegacyResultsMutation,
 } from "../../../../store/api/results.api";
+import { useCheckResultTaskQuery } from "../../../../store/api/result.api";
 import { useGetFacultiesQuery } from "../../../../store/api/faculties.api";
 import { useGetDepartmentsMMutation } from "../../../../store/api/departments.api";
 import { useGetProgrammesMMutation } from "../../../../store/api/programmes.api";
@@ -145,6 +156,15 @@ const ResultsList = () => {
       semester: "",
       file_url: "",
     });
+  const [pendingTask, setPendingTask] = useState<{
+    taskId: string;
+    type: "generate" | "legacyUpload";
+    description: string;
+  } | null>(null);
+  const [taskPromptOpen, setTaskPromptOpen] = useState(false);
+  const [waitingTask, setWaitingTask] = useState<typeof pendingTask>(null);
+  const [taskStatusNote, setTaskStatusNote] = useState<string | null>(null);
+  const [lastTaskId, setLastTaskId] = useState<string | null>(null);
   const legacyTemplateUrl =
     import.meta.env.VITE_LEGACY_RESULT_TEMPLATE;
   const dispatch = useAppDispatch();
@@ -162,7 +182,75 @@ const ResultsList = () => {
       skip: !selectedStudent,
     }
   );
+  const { data: taskStatusData, isFetching: taskStatusLoading } =
+    useCheckResultTaskQuery(waitingTask?.taskId || "", {
+      skip: !waitingTask,
+      pollingInterval: waitingTask ? 4000 : 0,
+    });
   //
+
+  const buildTaskCompletionCopy = (
+    taskType: "generate" | "legacyUpload",
+    result: unknown
+  ) => {
+    if (typeof result === "string") {
+      return { subTitle: result, infoText: undefined };
+    }
+    if (result && typeof result === "object") {
+      const asRecord = result as Record<string, unknown>;
+      const message =
+        typeof asRecord.message === "string"
+          ? asRecord.message
+          : taskType === "legacyUpload"
+          ? "Legacy upload completed."
+          : "Result generation completed.";
+
+      if (taskType === "legacyUpload") {
+        const uploaded =
+          typeof asRecord.uploaded === "number" ? asRecord.uploaded : null;
+        const failed =
+          typeof asRecord.failed === "number" ? asRecord.failed : null;
+        const infoParts = [];
+        if (uploaded !== null) infoParts.push(`Uploaded: ${uploaded}`);
+        if (failed !== null) infoParts.push(`Failed: ${failed}`);
+        return {
+          subTitle: message,
+          infoText: infoParts.length ? infoParts.join(" | ") : undefined,
+        };
+      }
+
+      if (taskType === "generate") {
+        const processed =
+          typeof asRecord.participants_processed === "number"
+            ? asRecord.participants_processed
+            : null;
+        const semesterCopy =
+          typeof asRecord.semester === "string"
+            ? asRecord.semester
+            : filters.semester;
+        const sessionCopy =
+          typeof asRecord.session === "string"
+            ? asRecord.session
+            : filters.session;
+        const infoParts = [];
+        if (processed !== null)
+          infoParts.push(`Participants processed: ${processed}`);
+        if (semesterCopy && semesterCopy !== "default")
+          infoParts.push(`Semester: ${semesterCopy}`);
+        if (sessionCopy && sessionCopy !== "default")
+          infoParts.push(`Session: ${sessionCopy}`);
+        return {
+          subTitle: message,
+          infoText: infoParts.length ? infoParts.join(" | ") : undefined,
+        };
+      }
+    }
+
+    return {
+      subTitle: "Background task completed successfully.",
+      infoText: undefined,
+    };
+  };
 
   useEffect(() => {
     if (keyword && resultState.data?.data)
@@ -211,6 +299,45 @@ const ResultsList = () => {
     uploadFileState,
   ]);
 
+  useEffect(() => {
+    if (!waitingTask || !taskStatusData?.data) return;
+    const taskData = taskStatusData.data;
+
+    if (taskData.ready) {
+      if (taskData.successful) {
+        const copy = buildTaskCompletionCopy(
+          waitingTask.type,
+          taskData.result
+        );
+        setSuccessContent({
+          title:
+            waitingTask.type === "legacyUpload"
+              ? "Legacy upload completed"
+              : "Results generated",
+          subTitle: copy.subTitle,
+          infoText: copy.infoText,
+        });
+        setOpenModal((prev) => ({ ...prev, success: true }));
+        setWaitingTask(null);
+        setTaskStatusNote(null);
+        if (filters.program_id) {
+          getResults(filters).unwrap().catch(() => null);
+        }
+      } else if (taskData.error) {
+        setSuccessContent({
+          title: "Task failed",
+          subTitle: taskData.error,
+          infoText: `Task ID: ${waitingTask.taskId}`,
+        });
+        setOpenModal((prev) => ({ ...prev, success: true }));
+        setWaitingTask(null);
+        setTaskStatusNote(taskData.error);
+      } else if (taskStatusData.status === "failed") {
+        setTaskStatusNote("Task failed. Please try again.");
+      }
+    }
+  }, [waitingTask, taskStatusData, buildTaskCompletionCopy, filters, getResults]);
+
   const handleChange = async (e: SelectChangeEvent<number | string>) => {
     const { target } = e;
     console.log(target.value);
@@ -254,19 +381,29 @@ const ResultsList = () => {
   };
 
   const generateResult = async () => {
-    if (filters.program_id) {
-      try {
-        await generateResults(filters).unwrap();
-      } catch (error) {
-        console.log(error);
+    if (!filters.program_id) return;
+    try {
+      const res = await generateResults(filters).unwrap();
+      const taskId = res?.data?.task_id;
+      if (taskId) {
+        setPendingTask({
+          taskId,
+          type: "generate",
+          description: "Result generation",
+        });
+        setTaskPromptOpen(true);
+        setLastTaskId(taskId);
+      } else {
+        setSuccessContent({
+          title: "Updates Successful",
+          subTitle: "Results are being generated in the background.",
+          infoText: "You can check back later for the status.",
+        });
+        setOpenModal((prev) => ({ ...prev, success: true }));
       }
+    } catch (error) {
+      console.log(error);
     }
-    setSuccessContent({
-      title: "Updates Successful",
-      subTitle: "Results are being generated in the background.",
-      infoText: "Please check back later",
-    });
-    setOpenModal((prev) => ({ ...prev, success: true }));
   };
 
   const openLegacyModal = () => {
@@ -521,17 +658,26 @@ const ResultsList = () => {
     }
     try {
       const res = await uploadLegacyResults(legacyUploadForm).unwrap();
-      setSuccessContent({
-        title: "Legacy CSV Uploaded",
-        subTitle: `Processed ${res.data.uploaded} rows${res.data.failed ? `, ${res.data.failed} failed` : ""}.`,
-        infoText: res.data.failed
-          ? "See failed rows for corrections."
-          : "All rows processed successfully.",
-      });
+      const taskId = res?.data?.task_id;
+      if (taskId) {
+        setPendingTask({
+          taskId,
+          type: "legacyUpload",
+          description: "Legacy results upload",
+        });
+        setTaskPromptOpen(true);
+        setLastTaskId(taskId);
+      } else {
+        setSuccessContent({
+          title: "Legacy upload started",
+          subTitle: "The file is processing in the background.",
+          infoText: "You can check back later for the status.",
+        });
+        setOpenModal((prev) => ({ ...prev, success: true }));
+      }
       setOpenModal((prev) => ({
         ...prev,
         legacyUpload: false,
-        success: true,
       }));
       setLegacyUploadForm({
         department_id: 0,
@@ -549,6 +695,38 @@ const ResultsList = () => {
           "Failed to process CSV upload. Please check the file format."
       );
     }
+  };
+
+  const handleTaskPromptDecision = (shouldWait: boolean) => {
+    if (!pendingTask) return;
+    setTaskStatusNote(null);
+    setLastTaskId(pendingTask.taskId);
+    if (shouldWait) {
+      setWaitingTask(pendingTask);
+    } else {
+      setSuccessContent({
+        title: "Background task started",
+        subTitle: `${pendingTask.description} will continue running.`,
+        infoText: `Task ID: ${pendingTask.taskId}. You can leave and come back later.`,
+      });
+      setOpenModal((prev) => ({ ...prev, success: true }));
+    }
+    setPendingTask(null);
+    setTaskPromptOpen(false);
+  };
+
+  const handleStopWaiting = () => {
+    if (waitingTask) {
+      setSuccessContent({
+        title: "Still processing",
+        subTitle: `${waitingTask.description} is still running in the background.`,
+        infoText: `Task ID: ${waitingTask.taskId}. You can return later to check the status.`,
+      });
+      setOpenModal((prev) => ({ ...prev, success: true }));
+      setLastTaskId(waitingTask.taskId);
+    }
+    setWaitingTask(null);
+    setTaskStatusNote(null);
   };
 
   // To be updated
@@ -616,6 +794,72 @@ const ResultsList = () => {
         subTitle={successContent.subTitle}
         title={successContent.title}
       />
+      <Dialog
+        open={taskPromptOpen && Boolean(pendingTask)}
+        onClose={() => {
+          if (pendingTask) {
+            handleTaskPromptDecision(false);
+          } else {
+            setTaskPromptOpen(false);
+          }
+        }}
+      >
+        <DialogTitle>Wait for this task?</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            {pendingTask?.description} has started in the background (Task ID:
+            {pendingTask?.taskId ? ` ${pendingTask.taskId}` : " pending"}).
+            Would you like to wait here while we poll for completion, or close
+            this and come back later?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => handleTaskPromptDecision(false)}>
+            Come back later
+          </Button>
+          <Button
+            variant="contained"
+            onClick={() => handleTaskPromptDecision(true)}
+          >
+            Wait here
+          </Button>
+        </DialogActions>
+      </Dialog>
+      <Dialog
+        open={Boolean(waitingTask)}
+        onClose={handleStopWaiting}
+        fullWidth
+        maxWidth="sm"
+      >
+        <DialogTitle>
+          {waitingTask?.description || "Background task"}
+        </DialogTitle>
+        <DialogContent>
+          <Stack spacing={2}>
+            <DialogContentText>
+              We are checking the task status. You can stop waiting and return
+              later at any time.
+            </DialogContentText>
+            <Alert severity={taskStatusNote ? "error" : "info"}>
+              Status: {taskStatusData?.data?.state || "PENDING"}
+            </Alert>
+            <Typography variant="body2">
+              Task ID: {waitingTask?.taskId || lastTaskId || "Unavailable"}
+            </Typography>
+            {taskStatusLoading ? (
+              <DialogContentText>Checking for updates...</DialogContentText>
+            ) : null}
+            {taskStatusNote ? (
+              <Alert severity="error">{taskStatusNote}</Alert>
+            ) : null}
+          </Stack>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleStopWaiting} color="inherit">
+            Stop waiting
+          </Button>
+        </DialogActions>
+      </Dialog>
       <Dialog
         open={openModal.legacyUpload}
         onClose={() => {

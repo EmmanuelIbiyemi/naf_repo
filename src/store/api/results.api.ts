@@ -5,7 +5,7 @@ import {
   LegacyResultCreateType,
   LegacyResultResponse,
   LegacyResultUploadPayload,
-  LegacyResultUploadResponse,
+  ResultTaskStartResponse,
 } from "../../types/results.ts";
 import { appApi } from "./app.api.ts";
 
@@ -24,7 +24,7 @@ const scoreApi = appApi.injectEndpoints({
       query: (score_id) => `/scoring/${score_id}`,
       providesTags: ["Results"],
     }),
-    generateResult: builder.mutation<ResultResponse, ResultsGetInput>({
+    generateResult: builder.mutation<ResultTaskStartResponse, ResultsGetInput>({
       query: (result) => ({
         url: `/result`,
         method: "POST",
@@ -44,7 +44,7 @@ const scoreApi = appApi.injectEndpoints({
       invalidatesTags: ["Results", "Transcripts"],
     }),
     uploadLegacyResults: builder.mutation<
-      LegacyResultUploadResponse,
+      ResultTaskStartResponse,
       LegacyResultUploadPayload
     >({
       query: (payload) => ({
