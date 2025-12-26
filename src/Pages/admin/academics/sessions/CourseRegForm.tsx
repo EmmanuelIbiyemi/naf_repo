@@ -8,8 +8,11 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { CourseRegType } from "../../../../types/courses";
 import { DateTimePicker } from "@mui/x-date-pickers";
 import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
 import { useMemo } from "react";
 import { useGetCourseRegQuery } from "../../../../store/api/courses.api";
+
+dayjs.extend(utc);
 
 type Props = {
   actions: {
@@ -24,11 +27,11 @@ const CourseRegForm = ({ actions }: Props) => {
   const initialValues: CourseRegType = useMemo(() => {
     const start =
       courseRegData?.data?.start_date && dayjs(courseRegData.data.start_date).isValid()
-        ? dayjs(courseRegData.data.start_date).toISOString()
+        ? courseRegData.data.start_date
         : "";
     const end =
       courseRegData?.data?.end_date && dayjs(courseRegData.data.end_date).isValid()
-        ? dayjs(courseRegData.data.end_date).toISOString()
+        ? courseRegData.data.end_date
         : "";
     return {
       start_date: start,
@@ -44,6 +47,16 @@ const CourseRegForm = ({ actions }: Props) => {
   const handleSubmit = async (values: CourseRegType) => {
     await actions.submit(values);
   };
+
+  const toLocalPickerValue = (value?: string) => {
+    if (!value) return null;
+    const parsed = dayjs.utc(value);
+    if (!parsed.isValid()) return null;
+    return parsed.local();
+  };
+
+  const toUtcString = (value: dayjs.Dayjs | null) =>
+    value ? value.utc().toISOString() : "";
 
   return (
     <Formik
@@ -74,14 +87,8 @@ const CourseRegForm = ({ actions }: Props) => {
                 <label htmlFor="start_date">Start Date</label>
                 <DateTimePicker
                   sx={{ width: "100%" }}
-                  value={
-                    values.start_date && dayjs(values.start_date).isValid()
-                      ? dayjs(values.start_date)
-                      : null
-                  }
-                  onChange={(value) =>
-                    setFieldValue("start_date", value ? value.toISOString() : "")
-                  }
+                  value={toLocalPickerValue(values.start_date)}
+                  onChange={(value) => setFieldValue("start_date", toUtcString(value))}
                   disabled={isFetching}
                 />
               </Box>
@@ -89,14 +96,8 @@ const CourseRegForm = ({ actions }: Props) => {
                 <label htmlFor="end_date">End Date</label>
                 <DateTimePicker
                   sx={{ width: "100%" }}
-                  value={
-                    values.end_date && dayjs(values.end_date).isValid()
-                      ? dayjs(values.end_date)
-                      : null
-                  }
-                  onChange={(value) =>
-                    setFieldValue("end_date", value ? value.toISOString() : "")
-                  }
+                  value={toLocalPickerValue(values.end_date)}
+                  onChange={(value) => setFieldValue("end_date", toUtcString(value))}
                   disabled={isFetching}
                 />
               </Box>
