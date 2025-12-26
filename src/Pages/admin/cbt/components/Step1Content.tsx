@@ -8,6 +8,11 @@ import { CreateQuiz2 } from "../../../../types/quizzes";
 
 const Step1Content = () => {
   const form = useFormikContext<CreateQuiz2>();
+  const getPickerValue = (value?: string) => {
+    if (!value) return null;
+    const parsed = dayjs(value);
+    return parsed.isValid() ? parsed : null;
+  };
   return (
     <Box sx={containerStyles}>
       <Box>
@@ -63,13 +68,9 @@ const Step1Content = () => {
             <label htmlFor="start_date">Start Date</label>
             <DateTimePicker
               sx={{ width: "100%" }}
-              value={
-                form?.values.start_date
-                  ? dayjs(form?.values.start_date)
-                  : dayjs()
-              }
+              value={getPickerValue(form?.values.start_date)}
               onChange={(value) =>
-                form.setFieldValue("start_date", value?.format())
+                form.setFieldValue("start_date", value ? value.toISOString() : "")
               }
             />
           </Box>
@@ -77,13 +78,12 @@ const Step1Content = () => {
             <label htmlFor="expiry_date">End Date</label>
             <DateTimePicker
               sx={{ width: "100%" }}
-              value={
-                form?.values.expiry_date
-                  ? dayjs(form?.values.expiry_date)
-                  : dayjs()
-              }
+              value={getPickerValue(form?.values.expiry_date)}
               onChange={(value) =>
-                form.setFieldValue("expiry_date", value?.format())
+                form.setFieldValue(
+                  "expiry_date",
+                  value ? value.toISOString() : ""
+                )
               }
             />
           </Box>

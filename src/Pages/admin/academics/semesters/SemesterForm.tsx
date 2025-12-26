@@ -26,8 +26,12 @@ const SemesterForm = ({ actions, semester }: Props) => {
     id: (semester as SemesterType)?.id || 0,
     name: semester?.name || "",
     session_id: +(session_id || 0),
-    end_date: dayjs(semester?.end_date).format("YYYY-MM-DD") || "",
-    start_date: dayjs(semester?.start_date).format("YYYY-MM-DD") || "",
+    end_date: semester?.end_date
+      ? dayjs(semester.end_date).format("YYYY-MM-DD")
+      : "",
+    start_date: semester?.start_date
+      ? dayjs(semester.start_date).format("YYYY-MM-DD")
+      : "",
   };
 
   const validationSchema = Yup.object({

@@ -22,8 +22,12 @@ const SessionForm = ({ actions, session }: Props) => {
   const initialValues: SessionCreateType | SessionType = {
     id: (session as SessionType)?.id || 0,
     name: session?.name || "",
-    end_date: dayjs(session?.end_date).format("YYYY-MM-DD") || "",
-    start_date: dayjs(session?.start_date).format("YYYY-MM-DD") || "",
+    end_date: session?.end_date
+      ? dayjs(session.end_date).format("YYYY-MM-DD")
+      : "",
+    start_date: session?.start_date
+      ? dayjs(session.start_date).format("YYYY-MM-DD")
+      : "",
     semesters: session?.semesters || [],
   };
 

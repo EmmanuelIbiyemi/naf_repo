@@ -8,6 +8,8 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { CourseRegType } from "../../../../types/courses";
 import { DateTimePicker } from "@mui/x-date-pickers";
 import dayjs from "dayjs";
+import { useMemo } from "react";
+import { useGetCourseRegQuery } from "../../../../store/api/courses.api";
 
 type Props = {
   actions: {
@@ -17,10 +19,22 @@ type Props = {
 };
 
 const CourseRegForm = ({ actions }: Props) => {
-  const initialValues: CourseRegType = {
-    start_date: "",
-    end_date: "",
-  };
+  const { data: courseRegData, isFetching } = useGetCourseRegQuery(null);
+
+  const initialValues: CourseRegType = useMemo(() => {
+    const start =
+      courseRegData?.data?.start_date && dayjs(courseRegData.data.start_date).isValid()
+        ? dayjs(courseRegData.data.start_date).toISOString()
+        : "";
+    const end =
+      courseRegData?.data?.end_date && dayjs(courseRegData.data.end_date).isValid()
+        ? dayjs(courseRegData.data.end_date).toISOString()
+        : "";
+    return {
+      start_date: start,
+      end_date: end,
+    };
+  }, [courseRegData]);
 
   const validationSchema = Yup.object({
     start_date: Yup.string().required("Required"),
@@ -60,20 +74,30 @@ const CourseRegForm = ({ actions }: Props) => {
                 <label htmlFor="start_date">Start Date</label>
                 <DateTimePicker
                   sx={{ width: "100%" }}
-                  value={values.start_date ? dayjs(values.start_date) : dayjs()}
-                  onChange={(value) =>
-                    setFieldValue("start_date", value?.format())
+                  value={
+                    values.start_date && dayjs(values.start_date).isValid()
+                      ? dayjs(values.start_date)
+                      : null
                   }
+                  onChange={(value) =>
+                    setFieldValue("start_date", value ? value.toISOString() : "")
+                  }
+                  disabled={isFetching}
                 />
               </Box>
               <Box>
                 <label htmlFor="end_date">End Date</label>
                 <DateTimePicker
                   sx={{ width: "100%" }}
-                  value={values.end_date ? dayjs(values.end_date) : dayjs()}
-                  onChange={(value) =>
-                    setFieldValue("end_date", value?.format())
+                  value={
+                    values.end_date && dayjs(values.end_date).isValid()
+                      ? dayjs(values.end_date)
+                      : null
                   }
+                  onChange={(value) =>
+                    setFieldValue("end_date", value ? value.toISOString() : "")
+                  }
+                  disabled={isFetching}
                 />
               </Box>
             </LocalizationProvider>

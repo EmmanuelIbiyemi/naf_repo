@@ -1,6 +1,7 @@
 import {
   CourseCreateType,
   CourseInstructor,
+  CourseRegResponse,
   CourseRegType,
   CourseResponse,
   CoursesResponse,
@@ -122,6 +123,10 @@ const coursesApi = appApi.injectEndpoints({
         body: dates,
       }),
     }),
+    getCourseReg: builder.query<CourseRegResponse, null>({
+      query: () => `/session/coursereg`,
+      providesTags: ["Courses"],
+    }),
   }),
   overrideExisting: false,
 });
@@ -138,4 +143,5 @@ export const {
   useAddLevelCourseMutation,
   useDeleteLevelCourseMutation,
   useManageCourseRegMutation,
+  useGetCourseRegQuery,
 } = coursesApi;
