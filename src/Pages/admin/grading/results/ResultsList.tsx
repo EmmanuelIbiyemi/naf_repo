@@ -7,6 +7,7 @@ import {
   Avatar,
   Box,
   Button,
+  Chip,
   Dialog,
   DialogActions,
   DialogContent,
@@ -23,6 +24,8 @@ import {
   TableBody,
   TableHead,
   TextField,
+  FormControlLabel,
+  Switch,
   Typography,
 } from "@mui/material";
 import {
@@ -36,6 +39,7 @@ import {
   useGenerateResultMutation,
   useGetResultsMMutation,
   useUploadLegacyResultsMutation,
+  useSetResultVisibilityMutation,
 } from "../../../../store/api/results.api";
 import { useCheckResultTaskQuery } from "../../../../store/api/result.api";
 import { useGetFacultiesQuery } from "../../../../store/api/faculties.api";
@@ -85,6 +89,8 @@ const ResultsList = () => {
   const [generateResults, generateState] = useGenerateResultMutation();
   const [uploadLegacyResults, uploadLegacyState] =
     useUploadLegacyResultsMutation();
+  const [setResultVisibility, setVisibilityState] =
+    useSetResultVisibilityMutation();
   const [uploadFile, uploadFileState] = useAddMediaMutation();
   const [results, setResults] = useState(resultState.data?.data);
   const keyword = useAppSelector(selectKeyword);
@@ -109,6 +115,14 @@ const ResultsList = () => {
       semester: "",
       file_url: "",
     });
+  const [visibilityDialogOpen, setVisibilityDialogOpen] = useState(false);
+  const [visibilityFormError, setVisibilityFormError] = useState<string | null>(
+    null
+  );
+  const [visibilityForm, setVisibilityForm] = useState({
+    is_visible: true,
+    visible_after: "",
+  });
   const [legacyUploadSelections, setLegacyUploadSelections] = useState({
     faculty_id: 0,
     department_id: 0,
@@ -237,7 +251,8 @@ const ResultsList = () => {
       sessionsIsLoading ||
       semesterIsLoading ||
       uploadLegacyState.isLoading ||
-      uploadFileState.isLoading
+      uploadFileState.isLoading ||
+      setVisibilityState.isLoading
     )
       dispatch(setPageLoading(true));
     else dispatch(setPageLoading(false));
@@ -251,6 +266,7 @@ const ResultsList = () => {
     semesters,
     uploadLegacyState,
     uploadFileState,
+    setVisibilityState,
   ]);
 
   useEffect(() => {
@@ -438,6 +454,24 @@ const ResultsList = () => {
     setLegacyUploadForm((prev) => ({ ...prev, [field]: value }));
   };
 
+  const filtersReadyForVisibility =
+    Boolean(
+      filters.department_id &&
+        filters.level_id &&
+        filters.session !== "default" &&
+        filters.semester !== "default"
+    );
+
+  const openVisibilityDialog = () => {
+    setVisibilityFormError(null);
+    setVisibilityForm((prev) => ({
+      ...prev,
+      is_visible: true,
+      visible_after: "",
+    }));
+    setVisibilityDialogOpen(true);
+  };
+
   const handleLegacyUploadFile = async (ev: ChangeEvent<HTMLInputElement>) => {
     if (!ev.target.files?.[0]) return;
     try {
@@ -498,6 +532,55 @@ const ResultsList = () => {
       setLegacyUploadError(
         error?.data?.message ||
           "Failed to process CSV upload. Please check the file format."
+      );
+    }
+  };
+
+  const handleVisibilitySubmit = async () => {
+    setVisibilityFormError(null);
+    if (!filtersReadyForVisibility) {
+      setVisibilityFormError(
+        "Select department, level, session, and semester before updating visibility."
+      );
+      return;
+    }
+    const payload = {
+      department_id: filters.department_id,
+      level_id: filters.level_id,
+      session: filters.session as string,
+      semester: filters.semester as string,
+      is_visible: visibilityForm.is_visible,
+      visible_after:
+        visibilityForm.is_visible && visibilityForm.visible_after
+          ? new Date(visibilityForm.visible_after).toISOString()
+          : null,
+    };
+    try {
+      await setResultVisibility(payload).unwrap();
+      const scheduleCopy =
+        visibilityForm.is_visible && visibilityForm.visible_after
+          ? `Results will be visible after ${new Date(
+              visibilityForm.visible_after
+            ).toLocaleString()}.`
+          : visibilityForm.is_visible
+          ? "Results are now visible to students."
+          : "Students can no longer view these results.";
+      setSuccessContent({
+        title: visibilityForm.is_visible
+          ? "Results published to students"
+          : "Results hidden from students",
+        subTitle: scheduleCopy,
+        infoText: "",
+      });
+      setOpenModal((prev) => ({ ...prev, success: true }));
+      setVisibilityDialogOpen(false);
+      if (filters.program_id) {
+        await getResults(filters).unwrap();
+      }
+    } catch (error: any) {
+      setVisibilityFormError(
+        error?.data?.message ||
+          "Unable to update visibility. Please try again."
       );
     }
   };
@@ -664,6 +747,75 @@ const ResultsList = () => {
             Stop waiting
           </Button>
         </DialogActions>
+      </Dialog>
+      <Dialog
+        open={visibilityDialogOpen}
+        onClose={() => {
+          setVisibilityFormError(null);
+          setVisibilityDialogOpen(false);
+        }}
+        fullWidth
+        maxWidth="sm"
+      >
+        <Box sx={{ p: 3, display: "flex", flexDirection: "column", gap: 2 }}>
+          <Typography variant="h6">Student visibility</Typography>
+          <Typography variant="body2" color="text.secondary">
+            Control when results for the selected department, level, session, and
+            semester are visible to students.
+          </Typography>
+          {visibilityFormError ? (
+            <Alert severity="error">{visibilityFormError}</Alert>
+          ) : null}
+          <FormControlLabel
+            control={
+              <Switch
+                checked={visibilityForm.is_visible}
+                onChange={(e) =>
+                  setVisibilityForm((prev) => ({
+                    ...prev,
+                    is_visible: e.target.checked,
+                    visible_after: e.target.checked ? prev.visible_after : "",
+                  }))
+                }
+              />
+            }
+            label={
+              visibilityForm.is_visible
+                ? "Visible to students"
+                : "Hidden from students"
+            }
+          />
+          <TextField
+            label="Visible after (optional)"
+            type="datetime-local"
+            disabled={!visibilityForm.is_visible}
+            value={visibilityForm.visible_after}
+            onChange={(e) =>
+              setVisibilityForm((prev) => ({
+                ...prev,
+                visible_after: e.target.value,
+              }))
+            }
+            InputLabelProps={{ shrink: true }}
+            helperText="Pick a future date/time to schedule release. Leave blank to apply immediately."
+          />
+          <Stack direction="row" spacing={2} justifyContent="flex-end">
+            <Button
+              onClick={() => setVisibilityDialogOpen(false)}
+              color="inherit"
+              disabled={setVisibilityState.isLoading}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="contained"
+              onClick={handleVisibilitySubmit}
+              disabled={setVisibilityState.isLoading}
+            >
+              {setVisibilityState.isLoading ? "Saving..." : "Save"}
+            </Button>
+          </Stack>
+        </Box>
       </Dialog>
       <Dialog
         open={openModal.legacyUpload}
@@ -973,6 +1125,13 @@ const ResultsList = () => {
           <Button onClick={fetchResults} variant="contained">
             Fetch
           </Button>
+          <Button
+            onClick={openVisibilityDialog}
+            variant="outlined"
+            disabled={!filtersReadyForVisibility}
+          >
+            Set Visibility
+          </Button>
           <Button onClick={generateResult} variant="contained">
             Generate
             </Button>
@@ -1003,6 +1162,9 @@ const ResultsList = () => {
             </TableCell>
             <TableCell component="th" scope="row">
               Remark
+            </TableCell>
+            <TableCell component="th" scope="row">
+              Visibility
             </TableCell>
             <TableCell component="th" scope="row" align="center">
               Transcript
@@ -1041,6 +1203,29 @@ const ResultsList = () => {
                 {result.summary.cumulative_grade_point_average}
               </TableCell>
               <TableCell>{result.details?.[0].score_remark}</TableCell>
+              <TableCell>
+                <Chip
+                  size="small"
+                  color={
+                    !result.is_visible
+                      ? "default"
+                      : result.visible_after &&
+                        new Date(result.visible_after) > new Date()
+                      ? "warning"
+                      : "success"
+                  }
+                  label={
+                    !result.is_visible
+                      ? "Hidden"
+                      : result.visible_after &&
+                        new Date(result.visible_after) > new Date()
+                      ? `Scheduled (${new Date(
+                          result.visible_after
+                        ).toLocaleString()})`
+                      : "Visible"
+                  }
+                />
+              </TableCell>
               <TableCell align="center">
                 <IconButton
                   color="primary"

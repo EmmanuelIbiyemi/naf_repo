@@ -87,6 +87,14 @@ export default function Results() {
     }
   );
 
+  const resultFetchError = resultError as any;
+  const isVisibilityBlocked = resultFetchError?.status === 403;
+  const visibleAfterCopy = resultFetchError?.data?.visible_after;
+  const errorMessage =
+    resultFetchError?.data?.message ||
+    resultFetchError?.error ||
+    "Failed to load results. Please try again later.";
+
   useEffect(() => {
     dispatch(setPageName("Results"));
   }, [dispatch]);
@@ -201,8 +209,19 @@ export default function Results() {
           <CircularProgress />
         </Box>
       ) : resultError ? (
-        <Alert severity="error">
-          Failed to load results. Please try again later.
+        <Alert severity={isVisibilityBlocked ? "info" : "error"}>
+          {isVisibilityBlocked ? (
+            <>
+              {errorMessage}
+              {visibleAfterCopy
+                ? ` (Available after ${new Date(
+                    visibleAfterCopy
+                  ).toLocaleString()})`
+                : ""}
+            </>
+          ) : (
+            errorMessage
+          )}
         </Alert>
       ) : !resultData?.data ? (
         <Alert severity="info">

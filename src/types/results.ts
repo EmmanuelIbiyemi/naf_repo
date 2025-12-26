@@ -49,6 +49,8 @@ export interface StudentResultResponse {
     };
     semester: string;
     session: string;
+    is_visible: boolean;
+    visible_after: string | null;
     summary: {
       cumulative_grade_point_average: number;
       grade_point_average: number;
@@ -105,6 +107,8 @@ export interface ResultResponse {
       id: number;
       name: string;
     };
+    is_visible: boolean;
+    visible_after: string | null;
     level: {
       id: number;
       name: string;
@@ -257,6 +261,8 @@ export type ResultType2 = {
     };
     semester: string;
     session: string;
+    is_visible: boolean;
+    visible_after: string | null;
     summary: {
       cumulative_grade_point_average: number;
       grade_point_average: number;
@@ -265,6 +271,21 @@ export type ResultType2 = {
     };
     updated_at: string;
   }>;
+  message: string;
+  status: string;
+};
+
+export type ResultVisibilityPayload = {
+  department_id: number;
+  level_id: number;
+  session: string;
+  semester: string;
+  is_visible: boolean;
+  visible_after?: string | null;
+};
+
+export type ResultVisibilityResponse = {
+  data: { updated: number };
   message: string;
   status: string;
 };

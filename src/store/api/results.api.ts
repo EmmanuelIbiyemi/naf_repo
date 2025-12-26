@@ -4,6 +4,8 @@ import {
   ResultType2,
   LegacyResultUploadPayload,
   ResultTaskStartResponse,
+  ResultVisibilityPayload,
+  ResultVisibilityResponse,
 } from "../../types/results.ts";
 import { appApi } from "./app.api.ts";
 
@@ -41,6 +43,17 @@ const scoreApi = appApi.injectEndpoints({
       }),
       invalidatesTags: ["Results", "Transcripts"],
     }),
+    setResultVisibility: builder.mutation<
+      ResultVisibilityResponse,
+      ResultVisibilityPayload
+    >({
+      query: (payload) => ({
+        url: `/result/visibility`,
+        method: "PATCH",
+        body: payload,
+      }),
+      invalidatesTags: ["Results", "Transcripts"],
+    }),
   }),
   overrideExisting: false,
 });
@@ -51,4 +64,5 @@ export const {
   useGetResultQuery,
   useGenerateResultMutation,
   useUploadLegacyResultsMutation,
+  useSetResultVisibilityMutation,
 } = scoreApi;
