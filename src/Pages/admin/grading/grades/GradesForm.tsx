@@ -94,10 +94,16 @@ const GradeForm = ({ actions, grade, defaults }: Props) => {
       .min(0, "Min point must be a positive number"),
     max_point: Yup.number()
       .nullable()
-      .when("min_point", (min_point: number, schema: any) =>
-        min_point !== null && min_point !== undefined
-          ? schema.min(min_point, "Max point must be greater than or equal to min point")
-          : schema
+      .test(
+        "max-gte-min",
+        "Max point must be greater than or equal to min point",
+        function (value) {
+          const min = this.parent.min_point;
+          if (min === null || min === undefined || value === null || value === undefined) {
+            return true;
+          }
+          return value >= min;
+        }
       ),
     remark: Yup.string().nullable(),
     program_id: Yup.number()
