@@ -40,6 +40,7 @@ import {
   useGetResultsMMutation,
   useUploadLegacyResultsMutation,
   useSetResultVisibilityMutation,
+  useDeleteResultsMutation,
 } from "../../../../store/api/results.api";
 import { useCheckResultTaskQuery } from "../../../../store/api/result.api";
 import { useGetFacultiesQuery } from "../../../../store/api/faculties.api";
@@ -91,6 +92,7 @@ const ResultsList = () => {
     useUploadLegacyResultsMutation();
   const [setResultVisibility, setVisibilityState] =
     useSetResultVisibilityMutation();
+  const [deleteResults, deleteResultsState] = useDeleteResultsMutation();
   const [uploadFile, uploadFileState] = useAddMediaMutation();
   const [results, setResults] = useState(resultState.data?.data);
   const keyword = useAppSelector(selectKeyword);
@@ -123,6 +125,8 @@ const ResultsList = () => {
     is_visible: true,
     visible_after: "",
   });
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
   const [legacyUploadSelections, setLegacyUploadSelections] = useState({
     faculty_id: 0,
     department_id: 0,
@@ -252,7 +256,8 @@ const ResultsList = () => {
       semesterIsLoading ||
       uploadLegacyState.isLoading ||
       uploadFileState.isLoading ||
-      setVisibilityState.isLoading
+      setVisibilityState.isLoading ||
+      deleteResultsState.isLoading
     )
       dispatch(setPageLoading(true));
     else dispatch(setPageLoading(false));
@@ -267,6 +272,7 @@ const ResultsList = () => {
     uploadLegacyState,
     uploadFileState,
     setVisibilityState,
+    deleteResultsState,
   ]);
 
   useEffect(() => {
@@ -585,6 +591,44 @@ const ResultsList = () => {
     }
   };
 
+  const openDeleteDialog = () => {
+    setDeleteError(null);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleDeleteSubmit = async () => {
+    setDeleteError(null);
+    if (!filtersReadyForVisibility) {
+      setDeleteError(
+        "Select department, level, session, and semester before deleting results."
+      );
+      return;
+    }
+    const payload = {
+      department_id: filters.department_id,
+      level_id: filters.level_id,
+      session: filters.session as string,
+      semester: filters.semester as string,
+    };
+    try {
+      const res = await deleteResults(payload).unwrap();
+      setSuccessContent({
+        title: "Results deleted",
+        subTitle: `Deleted ${res?.data?.deleted ?? 0} records.`,
+        infoText: "",
+      });
+      setOpenModal((prev) => ({ ...prev, success: true }));
+      setDeleteDialogOpen(false);
+      if (filters.program_id) {
+        await getResults(filters).unwrap();
+      }
+    } catch (error: any) {
+      setDeleteError(
+        error?.data?.message || "Unable to delete results. Please try again."
+      );
+    }
+  };
+
   const handleTaskPromptDecision = (shouldWait: boolean) => {
     if (!pendingTask) return;
     setTaskStatusNote(null);
@@ -818,6 +862,43 @@ const ResultsList = () => {
         </Box>
       </Dialog>
       <Dialog
+        open={deleteDialogOpen}
+        onClose={() => {
+          setDeleteError(null);
+          setDeleteDialogOpen(false);
+        }}
+        fullWidth
+        maxWidth="sm"
+      >
+        <Box sx={{ p: 3, display: "flex", flexDirection: "column", gap: 2 }}>
+          <Typography variant="h6">Delete generated results</Typography>
+          <Typography variant="body2" color="text.secondary">
+            This will remove all generated results for the selected department, level, session, and semester. This action cannot be undone.
+          </Typography>
+          {deleteError ? <Alert severity="error">{deleteError}</Alert> : null}
+          <Alert severity="warning">
+            Please confirm you want to delete these results. Students will no longer see them.
+          </Alert>
+          <Stack direction="row" spacing={2} justifyContent="flex-end">
+            <Button
+              onClick={() => setDeleteDialogOpen(false)}
+              color="inherit"
+              disabled={deleteResultsState.isLoading}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="contained"
+              color="error"
+              onClick={handleDeleteSubmit}
+              disabled={deleteResultsState.isLoading}
+            >
+              {deleteResultsState.isLoading ? "Deleting..." : "Delete"}
+            </Button>
+          </Stack>
+        </Box>
+      </Dialog>
+      <Dialog
         open={openModal.legacyUpload}
         onClose={() => {
           setLegacyUploadError(null);
@@ -1006,7 +1087,6 @@ const ResultsList = () => {
         sx={{
           ".MuiSelect-select": {
             padding: ".5rem",
-            maxWidth: "70px",
           },
           "td.MuiTableCell-body": {
             "&:last-child td, &:last-child th": { border: 0 },
@@ -1021,10 +1101,12 @@ const ResultsList = () => {
             justifyContent: "space-between",
             flexWrap: "wrap",
             rowGap: ".5rem",
+            columnGap: "1rem",
+            alignItems: "center",
           }}
         >
-          <Box sx={{ display: "flex", gap: ".5em", flexWrap: "wrap" }}>
-            <FormControl>
+          <Box sx={{ display: "flex", gap: ".75em", flexWrap: "wrap" }}>
+            <FormControl sx={{ minWidth: 150 }}>
               <Select
                 value={filters.faculty_id}
                 onChange={handleChange}
@@ -1038,7 +1120,7 @@ const ResultsList = () => {
                 ))}
               </Select>
             </FormControl>
-            <FormControl>
+            <FormControl sx={{ minWidth: 150 }}>
               <Select
                 value={filters.department_id}
                 onChange={handleChange}
@@ -1052,7 +1134,7 @@ const ResultsList = () => {
                 ))}
               </Select>
             </FormControl>
-            <FormControl>
+            <FormControl sx={{ minWidth: 150 }}>
               <Select
                 value={filters.program_id}
                 onChange={handleChange}
@@ -1066,7 +1148,7 @@ const ResultsList = () => {
                 ))}
               </Select>
             </FormControl>
-            <FormControl>
+            <FormControl sx={{ minWidth: 120 }}>
               <Select
                 value={filters.level_id}
                 onChange={handleChange}
@@ -1080,7 +1162,7 @@ const ResultsList = () => {
                 ))}
               </Select>
             </FormControl>
-            <FormControl>
+            <FormControl sx={{ minWidth: 150 }}>
               <Select
                 value={filters.session}
                 onChange={handleChange}
@@ -1094,7 +1176,7 @@ const ResultsList = () => {
                 ))}
               </Select>
             </FormControl>
-            <FormControl>
+            <FormControl sx={{ minWidth: 150 }}>
               <Select
                 value={filters.semester}
                 onChange={handleChange}
@@ -1131,6 +1213,14 @@ const ResultsList = () => {
             disabled={!filtersReadyForVisibility}
           >
             Set Visibility
+          </Button>
+          <Button
+            onClick={openDeleteDialog}
+            variant="outlined"
+            color="error"
+            disabled={!filtersReadyForVisibility}
+          >
+            Delete Results
           </Button>
           <Button onClick={generateResult} variant="contained">
             Generate

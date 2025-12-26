@@ -289,3 +289,16 @@ export type ResultVisibilityResponse = {
   message: string;
   status: string;
 };
+
+export type ResultDeletePayload = {
+  department_id: number;
+  level_id: number;
+  session: string;
+  semester: string;
+};
+
+export type ResultDeleteResponse = {
+  data: { deleted: number };
+  message: string;
+  status: string;
+};

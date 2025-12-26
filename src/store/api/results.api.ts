@@ -6,6 +6,8 @@ import {
   ResultTaskStartResponse,
   ResultVisibilityPayload,
   ResultVisibilityResponse,
+  ResultDeletePayload,
+  ResultDeleteResponse,
 } from "../../types/results.ts";
 import { appApi } from "./app.api.ts";
 
@@ -54,6 +56,17 @@ const scoreApi = appApi.injectEndpoints({
       }),
       invalidatesTags: ["Results", "Transcripts"],
     }),
+    deleteResults: builder.mutation<
+      ResultDeleteResponse,
+      ResultDeletePayload
+    >({
+      query: (payload) => ({
+        url: `/result`,
+        method: "DELETE",
+        body: payload,
+      }),
+      invalidatesTags: ["Results", "Transcripts"],
+    }),
   }),
   overrideExisting: false,
 });
@@ -65,4 +78,5 @@ export const {
   useGenerateResultMutation,
   useUploadLegacyResultsMutation,
   useSetResultVisibilityMutation,
+  useDeleteResultsMutation,
 } = scoreApi;
