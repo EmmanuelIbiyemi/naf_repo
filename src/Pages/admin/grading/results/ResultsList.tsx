@@ -315,7 +315,7 @@ const ResultsList = () => {
               ? "Legacy upload completed"
               : "Results generated",
           subTitle: copy.subTitle,
-          infoText: copy.infoText,
+          infoText: copy.infoText || "",
         });
         setOpenModal((prev) => ({ ...prev, success: true }));
         setWaitingTask(null);
