@@ -7,6 +7,7 @@ import { createTheme, ThemeProvider } from "@mui/material";
 import LoadingScreen from "./components/LoadingScreen.tsx";
 import { Provider } from "react-redux";
 import { store } from "./store/store.ts";
+import { registerServiceWorker } from "./registerServiceWorker";
 
 import "@mdxeditor/editor/style.css";
 
@@ -24,6 +25,8 @@ const theme = createTheme({
     },
   },
 });
+
+registerServiceWorker();
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   // <React.StrictMode>

@@ -13,7 +13,7 @@ import {
   DialogContentText,
   DialogTitle,
   FormControl,
-  Grid2,
+  Grid,
   IconButton,
   MenuItem,
   Paper,
@@ -1101,7 +1101,7 @@ const ResultsList = () => {
                     sx={{ py: 4, px: 4 }}
                   >
                     {/* Header */}
-                    <Grid2 container spacing={3} sx={{ mb: 3 }}>
+                    <Grid container spacing={3} sx={{ mb: 3 }}>
                       <Box
                         sx={{
                           display: "flex",
@@ -1125,12 +1125,12 @@ const ResultsList = () => {
                         </h1>
                         <h2>Student Result</h2>
                       </Box>
-                    </Grid2>
+                    </Grid>
 
                     {/* Student Info */}
                     {pageIndex === 0 && (
                       <Box>
-                        <Grid2 container spacing={3} sx={{ mb: 3 }}>
+                        <Grid container spacing={3} sx={{ mb: 3 }}>
                           <Box
                             sx={{
                               display: "flex",
@@ -1189,7 +1189,7 @@ const ResultsList = () => {
                               sx={{ width: 128, height: 128 }}
                             />
                           </Box>
-                        </Grid2>
+                        </Grid>
                       </Box>
                     )}
 
