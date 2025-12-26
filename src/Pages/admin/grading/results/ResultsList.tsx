@@ -43,6 +43,7 @@ import {
   useDeleteResultsMutation,
 } from "../../../../store/api/results.api";
 import { useGetScoresQuery } from "../../../../store/api/scores.api";
+import { useGetGradesQuery } from "../../../../store/api/grades.api";
 import { useCheckResultTaskQuery } from "../../../../store/api/result.api";
 import { useGetFacultiesQuery } from "../../../../store/api/faculties.api";
 import { useGetDepartmentsMMutation } from "../../../../store/api/departments.api";
@@ -121,6 +122,9 @@ const ResultsList = () => {
     });
   const [generateConfirmOpen, setGenerateConfirmOpen] = useState(false);
   const { data: scoringBands } = useGetScoresQuery(filters.program_id, {
+    skip: !filters.program_id,
+  });
+  const { data: gradingBands } = useGetGradesQuery(filters.program_id, {
     skip: !filters.program_id,
   });
   const [visibilityDialogOpen, setVisibilityDialogOpen] = useState(false);
@@ -681,41 +685,58 @@ const ResultsList = () => {
 
   const getResultRemark = (result: ResultType2["data"][number]) => {
     const details = result?.details || [];
-    if (!details.length) return "N/A";
+    const gradeLookup = gradingBands?.data || [];
+    const scoringLookup = scoringBands?.data || [];
 
-    const totals = details.reduce(
-      (acc, detail) => {
-        acc.obtained += detail.total_obtained_score || 0;
-        acc.obtainable += detail.total_obtainable_score || 0;
-        return acc;
-      },
-      { obtained: 0, obtainable: 0 }
-    );
+    const findGradeNameByPoint = (point?: number | null) => {
+      if (point === null || point === undefined || !gradeLookup.length)
+        return undefined;
+      const exact = gradeLookup.find((g) => Number(g.point) === Number(point));
+      if (exact) return exact.name;
+      const nearest = [...gradeLookup].sort(
+        (a, b) =>
+          Math.abs(Number(a.point) - Number(point)) -
+          Math.abs(Number(b.point) - Number(point))
+      )[0];
+      return nearest?.name;
+    };
 
-    const averageScore =
-      totals.obtainable > 0
-        ? (totals.obtained / totals.obtainable) * 100
-        : null;
+    const findRemarkByGradeName = (gradeName?: string | null) => {
+      if (!gradeName) return undefined;
+      const match = scoringLookup.find((band) => band.name === gradeName);
+      return match?.remark || match?.name;
+    };
 
-    if (averageScore !== null && scoringBands?.data?.length) {
-      const matchingBand = scoringBands.data.find(
-        (band) =>
-          averageScore >= band.min_score && averageScore <= band.max_score
-      );
-      if (matchingBand) return matchingBand.remark || matchingBand.name;
+    const detailRemarks = details
+      .map((detail) => {
+        const gradeName =
+          findGradeNameByPoint(detail.grade_point) || detail.score_name;
+        return (
+          findRemarkByGradeName(gradeName) ||
+          detail.score_remark ||
+          undefined
+        );
+      })
+      .filter(Boolean) as string[];
+
+    if (detailRemarks.length) {
+      const [commonRemark] =
+        Object.entries(
+          detailRemarks.reduce<Record<string, number>>((acc, remark) => {
+            acc[remark] = (acc[remark] || 0) + 1;
+            return acc;
+          }, {})
+        ).sort((a, b) => b[1] - a[1])[0] || [];
+      if (commonRemark) return commonRemark;
     }
 
-    const [commonRemark] =
-      Object.entries(
-        details.reduce<Record<string, number>>((acc, detail) => {
-          if (detail.score_remark) {
-            acc[detail.score_remark] = (acc[detail.score_remark] || 0) + 1;
-          }
-          return acc;
-        }, {})
-      ).sort((a, b) => b[1] - a[1])[0] || [];
+    const summaryGradeName = findGradeNameByPoint(
+      result.summary?.grade_point_average
+    );
+    const summaryRemark = findRemarkByGradeName(summaryGradeName);
+    if (summaryRemark) return summaryRemark;
 
-    return commonRemark || details[0]?.score_remark || "N/A";
+    return details[0]?.score_remark || "N/A";
   };
 
   // To be updated
