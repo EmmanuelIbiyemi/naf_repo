@@ -406,7 +406,7 @@ const ResultsList = () => {
   };
 
   const fetchResults = async () => {
-    if (filters.program_id) {
+    if (filtersComplete) {
       try {
         await getResults(filters).unwrap();
       } catch (error) {
@@ -416,7 +416,7 @@ const ResultsList = () => {
   };
 
   const generateResult = async () => {
-    if (!filters.program_id) return;
+    if (!filtersComplete) return;
     try {
       const res = await generateResults(filters).unwrap();
       const taskId = res?.data?.task_id;
@@ -466,9 +466,11 @@ const ResultsList = () => {
     setLegacyUploadForm((prev) => ({ ...prev, [field]: value }));
   };
 
-  const filtersReadyForVisibility =
+  const filtersComplete =
     Boolean(
-      filters.department_id &&
+      filters.faculty_id &&
+        filters.department_id &&
+        filters.program_id &&
         filters.level_id &&
         filters.session !== "default" &&
         filters.semester !== "default"
@@ -550,9 +552,9 @@ const ResultsList = () => {
 
   const handleVisibilitySubmit = async () => {
     setVisibilityFormError(null);
-    if (!filtersReadyForVisibility) {
+    if (!filtersComplete) {
       setVisibilityFormError(
-        "Select department, level, session, and semester before updating visibility."
+        "Select faculty, department, program, level, session, and semester before updating visibility."
       );
       return;
     }
@@ -604,9 +606,9 @@ const ResultsList = () => {
 
   const handleDeleteSubmit = async () => {
     setDeleteError(null);
-    if (!filtersReadyForVisibility) {
+    if (!filtersComplete) {
       setDeleteError(
-        "Select department, level, session, and semester before deleting results."
+        "Select faculty, department, program, level, session, and semester before deleting results."
       );
       return;
     }
@@ -668,7 +670,7 @@ const ResultsList = () => {
   };
 
   const openGenerateConfirm = () => {
-    if (!filters.program_id) return;
+    if (!filtersComplete) return;
     setGenerateConfirmOpen(true);
   };
 
@@ -1281,13 +1283,17 @@ const ResultsList = () => {
           <Button onClick={openLegacyUploadModal} variant="outlined">
             Upload Offline Result
           </Button>
-          <Button onClick={fetchResults} variant="contained">
+          <Button
+            onClick={fetchResults}
+            variant="contained"
+            disabled={!filtersComplete}
+          >
             Fetch
           </Button>
           <Button
             onClick={openVisibilityDialog}
             variant="outlined"
-            disabled={!filtersReadyForVisibility}
+            disabled={!filtersComplete}
           >
             Set Visibility
           </Button>
@@ -1295,14 +1301,14 @@ const ResultsList = () => {
             onClick={openDeleteDialog}
             variant="outlined"
             color="error"
-            disabled={!filtersReadyForVisibility}
+            disabled={!filtersComplete}
           >
             Delete Results
           </Button>
           <Button
             onClick={openGenerateConfirm}
             variant="contained"
-            disabled={!filters.program_id}
+            disabled={!filtersComplete}
           >
             Generate
             </Button>
