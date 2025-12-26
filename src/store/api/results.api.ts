@@ -2,8 +2,6 @@ import {
   ResultResponse,
   ResultsGetInput,
   ResultType2,
-  LegacyResultCreateType,
-  LegacyResultResponse,
   LegacyResultUploadPayload,
   ResultTaskStartResponse,
 } from "../../types/results.ts";
@@ -32,17 +30,6 @@ const scoreApi = appApi.injectEndpoints({
       }),
       invalidatesTags: ["Results"],
     }),
-    addLegacyResult: builder.mutation<
-      LegacyResultResponse,
-      LegacyResultCreateType
-    >({
-      query: (payload) => ({
-        url: `/result/manual`,
-        method: "POST",
-        body: payload,
-      }),
-      invalidatesTags: ["Results", "Transcripts"],
-    }),
     uploadLegacyResults: builder.mutation<
       ResultTaskStartResponse,
       LegacyResultUploadPayload
@@ -63,6 +50,5 @@ export const {
   useGetResultsMMutation,
   useGetResultQuery,
   useGenerateResultMutation,
-  useAddLegacyResultMutation,
   useUploadLegacyResultsMutation,
 } = scoreApi;
