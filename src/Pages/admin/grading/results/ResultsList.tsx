@@ -707,6 +707,12 @@ const ResultsList = () => {
       return match?.remark || match?.name;
     };
 
+    const summaryGradeName = findGradeNameByPoint(
+      result.summary?.cumulative_grade_point_average
+    );
+    const summaryRemark = findRemarkByGradeName(summaryGradeName);
+    if (summaryRemark) return summaryRemark;
+
     const detailRemarks = details
       .map((detail) => {
         const gradeName =
@@ -729,12 +735,6 @@ const ResultsList = () => {
         ).sort((a, b) => b[1] - a[1])[0] || [];
       if (commonRemark) return commonRemark;
     }
-
-    const summaryGradeName = findGradeNameByPoint(
-      result.summary?.grade_point_average
-    );
-    const summaryRemark = findRemarkByGradeName(summaryGradeName);
-    if (summaryRemark) return summaryRemark;
 
     return details[0]?.score_remark || "N/A";
   };
