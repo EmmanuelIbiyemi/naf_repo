@@ -161,7 +161,7 @@ const ResultsList = () => {
         typeof asRecord.message === "string"
           ? asRecord.message
           : taskType === "legacyUpload"
-          ? "Legacy upload completed."
+          ? "Offline result upload completed."
           : "Result generation completed.";
 
       if (taskType === "legacyUpload") {
@@ -267,7 +267,7 @@ const ResultsList = () => {
         setSuccessContent({
           title:
             waitingTask.type === "legacyUpload"
-              ? "Legacy upload completed"
+              ? "Offline result upload completed"
               : "Results generated",
           subTitle: copy.subTitle,
           infoText: copy.infoText || "",
@@ -469,13 +469,13 @@ const ResultsList = () => {
         setPendingTask({
           taskId,
           type: "legacyUpload",
-          description: "Legacy results upload",
+          description: "Offline result upload",
         });
         setTaskPromptOpen(true);
         setLastTaskId(taskId);
       } else {
         setSuccessContent({
-          title: "Legacy upload started",
+          title: "Offline result upload started",
           subTitle: "The file is processing in the background.",
           infoText: "You can check back later for the status.",
         });
@@ -676,7 +676,7 @@ const ResultsList = () => {
         maxWidth="md"
       >
         <Box sx={{ p: 3, display: "flex", flexDirection: "column", gap: 2 }}>
-          <Typography variant="h6">Upload Legacy Results (CSV/XLSX)</Typography>
+          <Typography variant="h6">Upload Offline Results (CSV/XLSX)</Typography>
           <Typography variant="body2" color="text.secondary">
             Upload one Excel file per semester/level. Use the template: one sheet per student, rows per course. Summary/GPA will be computed automatically.
           </Typography>
@@ -969,7 +969,7 @@ const ResultsList = () => {
           }}
         >
           <Button onClick={openLegacyUploadModal} variant="outlined">
-            Upload Legacy CSV
+            Upload Offline Result
           </Button>
           <Button onClick={fetchResults} variant="contained">
             Fetch
