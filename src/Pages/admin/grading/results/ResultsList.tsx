@@ -42,6 +42,7 @@ import {
   useSetResultVisibilityMutation,
   useDeleteResultsMutation,
 } from "../../../../store/api/results.api";
+import { useGetScoresQuery } from "../../../../store/api/scores.api";
 import { useCheckResultTaskQuery } from "../../../../store/api/result.api";
 import { useGetFacultiesQuery } from "../../../../store/api/faculties.api";
 import { useGetDepartmentsMMutation } from "../../../../store/api/departments.api";
@@ -62,6 +63,7 @@ import { chunk } from "lodash";
 import { StudentTranscriptResponse } from "../../../../types/transcript";
 import {
   LegacyResultUploadPayload,
+  ResultType2,
 } from "../../../../types/results";
 import { downloadFile } from "../../../../utils/downloadFile";
 
@@ -117,6 +119,9 @@ const ResultsList = () => {
       semester: "",
       file_url: "",
     });
+  const { data: scoringBands } = useGetScoresQuery(filters.program_id, {
+    skip: !filters.program_id,
+  });
   const [visibilityDialogOpen, setVisibilityDialogOpen] = useState(false);
   const [visibilityFormError, setVisibilityFormError] = useState<string | null>(
     null
@@ -659,6 +664,45 @@ const ResultsList = () => {
     }
     setWaitingTask(null);
     setTaskStatusNote(null);
+  };
+
+  const getResultRemark = (result: ResultType2["data"][number]) => {
+    const details = result?.details || [];
+    if (!details.length) return "N/A";
+
+    const totals = details.reduce(
+      (acc, detail) => {
+        acc.obtained += detail.total_obtained_score || 0;
+        acc.obtainable += detail.total_obtainable_score || 0;
+        return acc;
+      },
+      { obtained: 0, obtainable: 0 }
+    );
+
+    const averageScore =
+      totals.obtainable > 0
+        ? (totals.obtained / totals.obtainable) * 100
+        : null;
+
+    if (averageScore !== null && scoringBands?.data?.length) {
+      const matchingBand = scoringBands.data.find(
+        (band) =>
+          averageScore >= band.min_score && averageScore <= band.max_score
+      );
+      if (matchingBand) return matchingBand.remark || matchingBand.name;
+    }
+
+    const [commonRemark] =
+      Object.entries(
+        details.reduce<Record<string, number>>((acc, detail) => {
+          if (detail.score_remark) {
+            acc[detail.score_remark] = (acc[detail.score_remark] || 0) + 1;
+          }
+          return acc;
+        }, {})
+      ).sort((a, b) => b[1] - a[1])[0] || [];
+
+    return commonRemark || details[0]?.score_remark || "N/A";
   };
 
   // To be updated
@@ -1292,7 +1336,7 @@ const ResultsList = () => {
               <TableCell>
                 {result.summary.cumulative_grade_point_average}
               </TableCell>
-              <TableCell>{result.details?.[0].score_remark}</TableCell>
+              <TableCell>{getResultRemark(result)}</TableCell>
               <TableCell>
                 <Chip
                   size="small"
