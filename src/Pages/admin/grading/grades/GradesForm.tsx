@@ -11,6 +11,9 @@ import { ChangeEvent, useEffect } from "react";
 export type Grade = {
   id?: number;
   point: number;
+  min_point?: number | null;
+  max_point?: number | null;
+  remark?: string | null;
   name: string;
   program_id: number;
 };
@@ -43,6 +46,9 @@ const GradeForm = ({ actions, grade, defaults }: Props) => {
     id: grade?.id || undefined,
     name: grade?.name || "",
     point: grade?.point || 0,
+    min_point: grade?.min_point ?? null,
+    max_point: grade?.max_point ?? null,
+    remark: grade?.remark ?? "",
     faculty_id: initialFacultyId,
     department_id: initialDepartmentId,
     program_id: initialProgramId,
@@ -83,6 +89,17 @@ const GradeForm = ({ actions, grade, defaults }: Props) => {
     point: Yup.number()
       .required("Point is required")
       .min(0, "Point must be a positive number"),
+    min_point: Yup.number()
+      .nullable()
+      .min(0, "Min point must be a positive number"),
+    max_point: Yup.number()
+      .nullable()
+      .when("min_point", (min_point: number, schema: any) =>
+        min_point !== null && min_point !== undefined
+          ? schema.min(min_point, "Max point must be greater than or equal to min point")
+          : schema
+      ),
+    remark: Yup.string().nullable(),
     program_id: Yup.number()
       .required("Program ID is required")
       .positive("Program ID must be a positive number"),
@@ -144,9 +161,24 @@ const GradeForm = ({ actions, grade, defaults }: Props) => {
             {errors.name && touched.name && <div>{errors.name}</div>}
           </Box>
           <Box>
+            <label htmlFor="min_point">Min Point (optional)</label>
+            <Field id="min_point" name="min_point" type="number" />
+            {errors.min_point && touched.min_point && <div>{errors.min_point}</div>}
+          </Box>
+          <Box>
+            <label htmlFor="max_point">Max Point (optional)</label>
+            <Field id="max_point" name="max_point" type="number" />
+            {errors.max_point && touched.max_point && <div>{errors.max_point}</div>}
+          </Box>
+          <Box>
             <label htmlFor="point">Point</label>
             <Field id="point" name="point" type="number" />
             {errors.point && touched.point && <div>{errors.point}</div>}
+          </Box>
+          <Box>
+            <label htmlFor="remark">Remark (optional)</label>
+            <Field id="remark" name="remark" as="textarea" />
+            {errors.remark && touched.remark && <div>{errors.remark}</div>}
           </Box>
           <Box>
             <label htmlFor="faculty">Faculty</label>

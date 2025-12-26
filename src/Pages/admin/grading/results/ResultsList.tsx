@@ -691,6 +691,12 @@ const ResultsList = () => {
     const findGradeNameByPoint = (point?: number | null) => {
       if (point === null || point === undefined || !gradeLookup.length)
         return undefined;
+      const rangeMatch = gradeLookup.find((g) => {
+        const min = g.min_point ?? g.point ?? Number.NEGATIVE_INFINITY;
+        const max = g.max_point ?? g.point ?? Number.POSITIVE_INFINITY;
+        return Number(point) >= min && Number(point) <= max;
+      });
+      if (rangeMatch) return rangeMatch.name;
       const exact = gradeLookup.find((g) => Number(g.point) === Number(point));
       if (exact) return exact.name;
       const nearest = [...gradeLookup].sort(
@@ -704,7 +710,9 @@ const ResultsList = () => {
     const findRemarkByGradeName = (gradeName?: string | null) => {
       if (!gradeName) return undefined;
       const match = scoringLookup.find((band) => band.name === gradeName);
-      return match?.remark || match?.name;
+      if (match?.remark) return match.remark;
+      const gradeRemark = gradeLookup.find((g) => g.name === gradeName)?.remark;
+      return gradeRemark || match?.name;
     };
 
     const summaryGradeName = findGradeNameByPoint(

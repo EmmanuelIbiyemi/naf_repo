@@ -237,7 +237,10 @@ const GradesList: React.FC = () => {
             >
               Name
             </TableCell>
+            <TableCell align="right">Min</TableCell>
+            <TableCell align="right">Max</TableCell>
             <TableCell align="right">Point</TableCell>
+            <TableCell align="right">Remark</TableCell>
             <TableCell align="right">Actions</TableCell>
           </TableRow>
         </TableHead>
@@ -276,7 +279,10 @@ const GradesList: React.FC = () => {
                   {grade.name}
                 </span>
               </TableCell>
+              <TableCell align="right">{grade.min_point ?? "-"}</TableCell>
+              <TableCell align="right">{grade.max_point ?? "-"}</TableCell>
               <TableCell align="right">{grade.point}</TableCell>
+              <TableCell align="right">{grade.remark || "-"}</TableCell>
               <TableCell align="right">
                 <IconButton onClick={() => handleOpenModal(grade, "edit")}>
                   <Edit />
