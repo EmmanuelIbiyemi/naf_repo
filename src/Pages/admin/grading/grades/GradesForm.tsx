@@ -6,7 +6,7 @@ import formStyles from "../../../../components/form/form.module.scss";
 import { useGetFacultiesQuery } from "../../../../store/api/faculties.api";
 import { useGetDepartmentsMMutation } from "../../../../store/api/departments.api";
 import { useGetProgrammesMMutation } from "../../../../store/api/programmes.api";
-import { ChangeEvent } from "react";
+import { ChangeEvent, useEffect } from "react";
 
 export type Grade = {
   id?: number;
@@ -17,28 +17,66 @@ export type Grade = {
 
 type Props = {
   grade?: Grade;
+  defaults?: {
+    faculty_id: number;
+    department_id: number;
+    program_id: number;
+  };
   actions: {
     submit: (grade: Grade) => Promise<void>;
     cancel: () => void;
   };
 };
 
-const GradeForm = ({ actions, grade }: Props) => {
+const GradeForm = ({ actions, grade, defaults }: Props) => {
   const { data: faculties } = useGetFacultiesQuery({
     page: 1,
     per_page: 1000,
   });
   const [getDepartments, departmentsState] = useGetDepartmentsMMutation();
   const [getPrograms, programsState] = useGetProgrammesMMutation();
+  const initialFacultyId = defaults?.faculty_id ?? 0;
+  const initialDepartmentId = defaults?.department_id ?? 0;
+  const initialProgramId = grade?.program_id ?? defaults?.program_id ?? 0;
 
   const initialValues: Grade & { faculty_id: number; department_id: number } = {
     id: grade?.id || undefined,
     name: grade?.name || "",
     point: grade?.point || 0,
-    faculty_id: 0,
-    department_id: 0,
-    program_id: grade?.program_id || 0,
+    faculty_id: initialFacultyId,
+    department_id: initialDepartmentId,
+    program_id: initialProgramId,
   };
+
+  useEffect(() => {
+    const loadDefaults = async () => {
+      try {
+        if (initialFacultyId) {
+          await getDepartments({
+            faculty_id: initialFacultyId,
+            page: 1,
+            per_page: 1000,
+          }).unwrap();
+        }
+        if (initialDepartmentId) {
+          await getPrograms({
+            department_id: initialDepartmentId,
+            page: 1,
+            per_page: 1000,
+          }).unwrap();
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    loadDefaults();
+  }, [
+    getDepartments,
+    getPrograms,
+    initialDepartmentId,
+    initialFacultyId,
+  ]);
 
   const validationSchema = Yup.object({
     name: Yup.string().required("Name is required"),
@@ -89,6 +127,7 @@ const GradeForm = ({ actions, grade }: Props) => {
       initialValues={initialValues}
       validationSchema={validationSchema}
       onSubmit={handleSubmit}
+      enableReinitialize
     >
       {({ isValid, dirty, errors, setFieldValue, touched }) => (
         <Form className={formStyles.modal_form}>
@@ -124,7 +163,7 @@ const GradeForm = ({ actions, grade }: Props) => {
                 handleChange(ev, setFieldValue)
               }
             >
-              <option value="">select faculty</option>
+              <option value={0}>select faculty</option>
               {faculties?.data.map((fac) => (
                 <option key={fac.name} value={fac.id}>
                   {fac.name}
@@ -150,7 +189,7 @@ const GradeForm = ({ actions, grade }: Props) => {
                 handleChange(ev, setFieldValue)
               }
             >
-              <option value="">select department</option>
+              <option value={0}>select department</option>
               {departmentsState.data?.data.map((dep, i) => (
                 <option key={dep.name + i} value={dep.id}>
                   {dep.name}
@@ -176,7 +215,7 @@ const GradeForm = ({ actions, grade }: Props) => {
                 handleChange(ev, setFieldValue)
               }
             >
-              <option value="">select program</option>
+              <option value={0}>select program</option>
               {programsState.data?.data.map((dep, i) => (
                 <option key={dep.name + i} value={dep.id}>
                   {dep.name}

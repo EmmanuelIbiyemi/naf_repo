@@ -15,7 +15,6 @@ import {
   TableHead,
 } from "@mui/material";
 import { Delete, Edit } from "@mui/icons-material";
-import { Link } from "react-router-dom";
 import DeleteConfirmationModal from "../../../../components/DeleteConfirmationModal";
 import FormModal from "../../../../components/FormModal";
 import GradeForm from "./GradesForm";
@@ -53,7 +52,9 @@ const GradesList: React.FC = () => {
     department_id: 0,
     program_id: 0,
   });
-  const { data: grds, isLoading } = useGetGradesQuery(filters.program_id);
+  const { data: grds, isLoading } = useGetGradesQuery(filters.program_id, {
+    skip: !filters.program_id,
+  });
   const [grades, setGrades] = useState(grds?.data);
   const keyword = useAppSelector(selectKeyword);
 
@@ -129,6 +130,7 @@ const GradesList: React.FC = () => {
             submit: handleEditGrade as GradeFormAction,
             cancel: () => handleCloseModal("edit"),
           }}
+          defaults={filters}
           grade={selectedGrade}
         />
       </FormModal>
@@ -241,7 +243,7 @@ const GradesList: React.FC = () => {
         </TableHead>
 
         <TableBody>
-          {!grades?.length ? (
+          {!isLoading && grades && grades.length === 0 ? (
             <TableRow
               sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
             >
@@ -270,15 +272,11 @@ const GradesList: React.FC = () => {
                 sx={{ alignItems: "center", display: "flex", gap: "1rem" }}
               >
                 <Checkbox />
-                <Link
-                  to={`/grades/${grade.id}`}
-                  style={{ textTransform: "capitalize" }}
-                >
+                <span style={{ textTransform: "capitalize" }}>
                   {grade.name}
-                </Link>
+                </span>
               </TableCell>
               <TableCell align="right">{grade.point}</TableCell>
-              <TableCell align="right">{grade.program_id}</TableCell>
               <TableCell align="right">
                 <IconButton onClick={() => handleOpenModal(grade, "edit")}>
                   <Edit />
