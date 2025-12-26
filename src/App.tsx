@@ -44,7 +44,7 @@ function App() {
 
   return (
     <ErrorBoundary>
-      <Suspense fallback={<div>Loading...</div>}>
+      <Suspense fallback={<LoadingScreen />}>
         <Box sx={{ fontFamily: "outfit" }}>
           {isPageLoading && (
             <Box
