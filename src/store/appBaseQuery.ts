@@ -5,7 +5,7 @@ import {
   FetchArgs,
   FetchBaseQueryError,
 } from "@reduxjs/toolkit/query";
-import { logout, setAccessToken } from "./auth.slice";
+import { logout, setAccessToken, setRefreshToken } from "./auth.slice";
 
 export const myBaseQuery = fetchBaseQuery({
   baseUrl: import.meta.env.VITE_API_URL,
@@ -50,11 +50,21 @@ export const baseQueryWithReauth: BaseQueryFn<
       );
 
       if (refreshResult.data) {
-        // Save the new access token and retry the original query
-        const newAccessToken = (refreshResult.data as { access_token: string })
-          .access_token;
+        // Save the new tokens and retry the original query
+        const {
+          access_token: newAccessToken,
+          refresh_token: newRefreshToken,
+        } = refreshResult.data as {
+          access_token: string;
+          refresh_token?: string;
+        };
         api.dispatch(setAccessToken({ access_token: newAccessToken }));
         localStorage.setItem("access_token", newAccessToken);
+
+        if (newRefreshToken) {
+          api.dispatch(setRefreshToken({ refresh_token: newRefreshToken }));
+          localStorage.setItem("refresh_token", newRefreshToken);
+        }
 
         // Retry the original request with the new token
         result = await myBaseQuery(args, api, extraOptions);

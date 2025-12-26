@@ -43,6 +43,15 @@ export const authSlice = createSlice({
       localStorage.setItem("access_token", access_token);
     },
 
+    setRefreshToken: (
+      state,
+      action: PayloadAction<{ refresh_token: string }>
+    ) => {
+      const { refresh_token } = action.payload;
+      state.refresh_token = refresh_token;
+      localStorage.setItem("refresh_token", refresh_token);
+    },
+
     setUser: (state, action: PayloadAction<{ user: UserType }>) => {
       const { user } = action.payload;
       state.user = user;
@@ -82,6 +91,7 @@ export const {
   login,
   setAccessToken,
   setUser,
+  setRefreshToken,
   setUserFromLocalStorage,
   setLastVisitedPage,
   logout,
