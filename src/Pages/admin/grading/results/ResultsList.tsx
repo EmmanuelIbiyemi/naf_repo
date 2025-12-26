@@ -119,6 +119,7 @@ const ResultsList = () => {
       semester: "",
       file_url: "",
     });
+  const [generateConfirmOpen, setGenerateConfirmOpen] = useState(false);
   const { data: scoringBands } = useGetScoresQuery(filters.program_id, {
     skip: !filters.program_id,
   });
@@ -666,6 +667,16 @@ const ResultsList = () => {
     setTaskStatusNote(null);
   };
 
+  const openGenerateConfirm = () => {
+    if (!filters.program_id) return;
+    setGenerateConfirmOpen(true);
+  };
+
+  const handleConfirmGenerate = () => {
+    setGenerateConfirmOpen(false);
+    generateResult();
+  };
+
   const getResultRemark = (result: ResultType2["data"][number]) => {
     const details = result?.details || [];
     if (!details.length) return "N/A";
@@ -798,6 +809,28 @@ const ResultsList = () => {
             onClick={() => handleTaskPromptDecision(true)}
           >
             Wait here
+          </Button>
+        </DialogActions>
+      </Dialog>
+      <Dialog
+        open={generateConfirmOpen}
+        onClose={() => setGenerateConfirmOpen(false)}
+      >
+        <DialogTitle>Generate results?</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            This will generate results for the selected faculty, department,
+            program, level, session, and semester. Continue?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setGenerateConfirmOpen(false)}>Cancel</Button>
+          <Button
+            variant="contained"
+            onClick={handleConfirmGenerate}
+            disabled={generateState.isLoading}
+          >
+            {generateState.isLoading ? "Generating..." : "Generate"}
           </Button>
         </DialogActions>
       </Dialog>
@@ -1266,7 +1299,11 @@ const ResultsList = () => {
           >
             Delete Results
           </Button>
-          <Button onClick={generateResult} variant="contained">
+          <Button
+            onClick={openGenerateConfirm}
+            variant="contained"
+            disabled={!filters.program_id}
+          >
             Generate
             </Button>
           </Box>
