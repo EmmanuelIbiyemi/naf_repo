@@ -42,7 +42,6 @@ import {
   useSetResultVisibilityMutation,
   useDeleteResultsMutation,
 } from "../../../../store/api/results.api";
-import { useGetScoresQuery } from "../../../../store/api/scores.api";
 import { useGetGradesQuery } from "../../../../store/api/grades.api";
 import { useCheckResultTaskQuery } from "../../../../store/api/result.api";
 import { useGetFacultiesQuery } from "../../../../store/api/faculties.api";
@@ -121,9 +120,6 @@ const ResultsList = () => {
       file_url: "",
     });
   const [generateConfirmOpen, setGenerateConfirmOpen] = useState(false);
-  const { data: scoringBands } = useGetScoresQuery(filters.program_id, {
-    skip: !filters.program_id,
-  });
   const { data: gradingBands } = useGetGradesQuery(filters.program_id, {
     skip: !filters.program_id,
   });
@@ -684,11 +680,9 @@ const ResultsList = () => {
   };
 
   const getResultRemark = (result: ResultType2["data"][number]) => {
-    const details = result?.details || [];
     const gradeLookup = gradingBands?.data || [];
-    const scoringLookup = scoringBands?.data || [];
 
-    const findGradeNameByPoint = (point?: number | null) => {
+    const findRemarkByPoint = (point?: number | null) => {
       if (point === null || point === undefined || !gradeLookup.length)
         return undefined;
       const rangeMatch = gradeLookup.find((g) => {
@@ -696,55 +690,19 @@ const ResultsList = () => {
         const max = g.max_point ?? g.point ?? Number.POSITIVE_INFINITY;
         return Number(point) >= min && Number(point) <= max;
       });
-      if (rangeMatch) return rangeMatch.name;
-      const exact = gradeLookup.find((g) => Number(g.point) === Number(point));
-      if (exact) return exact.name;
-      const nearest = [...gradeLookup].sort(
-        (a, b) =>
-          Math.abs(Number(a.point) - Number(point)) -
-          Math.abs(Number(b.point) - Number(point))
-      )[0];
-      return nearest?.name;
+      const grade =
+        rangeMatch ||
+        gradeLookup.find((g) => Number(g.point) === Number(point)) ||
+        null;
+      return grade?.remark || grade?.name;
     };
 
-    const findRemarkByGradeName = (gradeName?: string | null) => {
-      if (!gradeName) return undefined;
-      const match = scoringLookup.find((band) => band.name === gradeName);
-      if (match?.remark) return match.remark;
-      const gradeRemark = gradeLookup.find((g) => g.name === gradeName)?.remark;
-      return gradeRemark || match?.name;
-    };
-
-    const summaryGradeName = findGradeNameByPoint(
+    const summaryRemark = findRemarkByPoint(
       result.summary?.cumulative_grade_point_average
     );
-    const summaryRemark = findRemarkByGradeName(summaryGradeName);
     if (summaryRemark) return summaryRemark;
 
-    const detailRemarks = details
-      .map((detail) => {
-        const gradeName =
-          findGradeNameByPoint(detail.grade_point) || detail.score_name;
-        return (
-          findRemarkByGradeName(gradeName) ||
-          detail.score_remark ||
-          undefined
-        );
-      })
-      .filter(Boolean) as string[];
-
-    if (detailRemarks.length) {
-      const [commonRemark] =
-        Object.entries(
-          detailRemarks.reduce<Record<string, number>>((acc, remark) => {
-            acc[remark] = (acc[remark] || 0) + 1;
-            return acc;
-          }, {})
-        ).sort((a, b) => b[1] - a[1])[0] || [];
-      if (commonRemark) return commonRemark;
-    }
-
-    return details[0]?.score_remark || "N/A";
+    return "N/A";
   };
 
   // To be updated
