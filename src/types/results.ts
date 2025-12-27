@@ -55,6 +55,8 @@ export interface StudentResultResponse {
     visible_after: string | null;
     summary: {
       cumulative_grade_point_average: number;
+      cumulative_total_credit_units?: number;
+      cumulative_total_grade_points?: number;
       grade_point_average: number;
       total_credit_units: number;
       total_grade_points: number;
@@ -116,6 +118,8 @@ export interface ResultResponse {
       name: string;
     };
     summary: {
+      cumulative_total_credit_units?: number;
+      cumulative_total_grade_points?: number;
       total_credit_units: number;
       total_grade_points: number;
       grade_point_average: number;
@@ -161,6 +165,8 @@ export interface TranscriptResponse {
       score_remark: string;
     }[];
     cumulative_grade_point_average: number;
+    cumulative_total_credit_units?: number;
+    cumulative_total_grade_points?: number;
     total_credit_units: number;
     total_grade_points: number;
   };
@@ -268,6 +274,8 @@ export type ResultType2 = {
     is_visible: boolean;
     visible_after: string | null;
     summary: {
+      cumulative_total_credit_units?: number;
+      cumulative_total_grade_points?: number;
       cumulative_grade_point_average: number;
       grade_point_average: number;
       total_credit_units: number;

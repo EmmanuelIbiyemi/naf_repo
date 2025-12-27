@@ -166,6 +166,20 @@ export default function Results() {
     );
   }
 
+  const summary = resultData?.data?.summary;
+  const totalCreditUnits = summary?.total_credit_units ?? "N/A";
+  const cumulativeCreditUnits =
+    summary?.cumulative_total_credit_units ??
+    summary?.total_credit_units ??
+    "N/A";
+  const totalGradePoints = summary?.total_grade_points ?? "N/A";
+  const cumulativeGradePoints =
+    summary?.cumulative_total_grade_points ??
+    summary?.total_grade_points ??
+    "N/A";
+  const gpa = summary?.grade_point_average ?? "N/A";
+  const cgpa = summary?.cumulative_grade_point_average ?? "N/A";
+
   return (
     <Box sx={{ padding: "2rem" }}>
       <Box sx={filterContainerStyle}>
@@ -371,32 +385,31 @@ export default function Results() {
               <Box sx={gpaSectionStyle}>
                 <Typography variant="body1" color="textSecondary">
                   Total Credit Units (TCU):{" "}
-                  {resultData?.data?.summary?.total_credit_units || "N/A"}
+                  {totalCreditUnits}
                 </Typography>
                 <Typography variant="body1" color="textSecondary">
                   Cumulative TCU:{" "}
-                  {resultData?.data?.summary?.total_credit_units || "N/A"}
+                  {cumulativeCreditUnits}
                 </Typography>
               </Box>
               <Box sx={gpaSectionStyle}>
                 <Typography variant="body1" color="textSecondary">
                   Total Credit Points (TCP):{" "}
-                  {resultData?.data?.summary?.total_grade_points || "N/A"}
+                  {totalGradePoints}
                 </Typography>
                 <Typography variant="body1" color="textSecondary">
                   Cumulative TCP:{" "}
-                  {resultData?.data?.summary?.total_grade_points || "N/A"}
+                  {cumulativeGradePoints}
                 </Typography>
               </Box>
               <Box sx={gpaSectionStyle}>
                 <Typography variant="body1" color="textSecondary">
                   Grade Point Average (GPA):{" "}
-                  {resultData?.data?.summary?.grade_point_average || "N/A"}
+                  {gpa}
                 </Typography>
                 <Typography variant="body1" color="textSecondary">
                   CGPA:{" "}
-                  {resultData?.data?.summary?.cumulative_grade_point_average ||
-                    "N/A"}
+                  {cgpa}
                 </Typography>
               </Box>
             </Box>

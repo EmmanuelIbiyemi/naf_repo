@@ -1511,6 +1511,22 @@ const ResultsList = () => {
               const courseChunks = tr.details?.length
                 ? chunk(tr.details, 12)
                 : [[]]; // Split courses into chunks or set a single empty chunk
+              const summary = tr.summary;
+              const totalCreditUnits =
+                summary?.total_credit_units ?? "N/A";
+              const cumulativeCreditUnits =
+                summary?.cumulative_total_credit_units ??
+                summary?.total_credit_units ??
+                "N/A";
+              const totalGradePoints =
+                summary?.total_grade_points ?? "N/A";
+              const cumulativeGradePoints =
+                summary?.cumulative_total_grade_points ??
+                summary?.total_grade_points ??
+                "N/A";
+              const gpa = summary?.grade_point_average ?? "N/A";
+              const cgpa =
+                summary?.cumulative_grade_point_average ?? "N/A";
 
               return courseChunks.map(
                 (
@@ -1675,32 +1691,31 @@ const ResultsList = () => {
                         <Box sx={gpaSectionStyle}>
                           <Typography variant="body1" color="textSecondary">
                             Total Credit Units (TCU):{" "}
-                            {tr.summary?.total_credit_units || "N/A"}
+                            {totalCreditUnits}
                           </Typography>
                           <Typography variant="body1" color="textSecondary">
                             Cumulative TCU:{" "}
-                            {tr.summary?.total_credit_units || "N/A"}
+                            {cumulativeCreditUnits}
                           </Typography>
                         </Box>
                         <Box sx={gpaSectionStyle}>
                           <Typography variant="body1" color="textSecondary">
                             Total Credit Points (TCP):{" "}
-                            {tr.summary?.total_grade_points || "N/A"}
+                            {totalGradePoints}
                           </Typography>
                           <Typography variant="body1" color="textSecondary">
                             Cumulative TCP:{" "}
-                            {tr.summary?.total_grade_points || "N/A"}
+                            {cumulativeGradePoints}
                           </Typography>
                         </Box>
                         <Box sx={gpaSectionStyle}>
                           <Typography variant="body1" color="textSecondary">
                             Grade Point Average (GPA):{" "}
-                            {tr.summary?.grade_point_average || "N/A"}
+                            {gpa}
                           </Typography>
                           <Typography variant="body1" color="textSecondary">
                             CGPA:{" "}
-                            {tr.summary?.cumulative_grade_point_average ||
-                              "N/A"}
+                            {cgpa}
                           </Typography>
                         </Box>
                       </Box>
