@@ -34,6 +34,7 @@ import {
   useRef,
   useState,
   ChangeEvent,
+  useCallback,
 } from "react";
 import {
   useGenerateResultMutation,
@@ -54,9 +55,11 @@ import { useAddMediaMutation } from "../../../../store/api/media.api";
 import { selectKeyword, setPageLoading } from "../../../../store/app.slice";
 import { useAppDispatch, useAppSelector } from "../../../../store/hooks";
 import SuccessModal from "../../../../components/SuccessModal";
+import CustomPagination from "../../../../components/CustomPagination";
 import { RemoveRedEye } from "@mui/icons-material";
 import { useGetStudentTranscriptQuery } from "../../../../store/api/result.api";
 import { StudentType } from "../../../../types/students";
+import { Pagination } from "../../../../types/pagination";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 import { chunk } from "lodash";
@@ -66,6 +69,8 @@ import {
   ResultType2,
 } from "../../../../types/results";
 import { downloadFile } from "../../../../utils/downloadFile";
+
+const RESULTS_PER_PAGE = 10;
 
 const ResultsList = () => {
   const { data: faculties } = useGetFacultiesQuery({
@@ -88,6 +93,10 @@ const ResultsList = () => {
     session: "default",
     semester: "default",
   });
+  const [pagination, setPagination] = useState<Pagination>({
+    page: 1,
+    per_page: RESULTS_PER_PAGE,
+  });
   const [getResults, resultState] = useGetResultsMMutation();
   const [generateResults, generateState] = useGenerateResultMutation();
   const [uploadLegacyResults, uploadLegacyState] =
@@ -97,6 +106,15 @@ const ResultsList = () => {
   const [deleteResults, deleteResultsState] = useDeleteResultsMutation();
   const [uploadFile, uploadFileState] = useAddMediaMutation();
   const [results, setResults] = useState(resultState.data?.data);
+  const filtersComplete =
+    Boolean(
+      filters.faculty_id &&
+        filters.department_id &&
+        filters.program_id &&
+        filters.level_id &&
+        filters.session !== "default" &&
+        filters.semester !== "default"
+    );
   const keyword = useAppSelector(selectKeyword);
   const [openModal, setOpenModal] = useState({
     success: false,
@@ -235,9 +253,23 @@ const ResultsList = () => {
   };
 
   useEffect(() => {
-    if (keyword && resultState.data?.data)
+    const fetchedResults = resultState.data?.data;
+    const paginationData = resultState.data?.pagination;
+
+    if (paginationData) {
+      setPagination((prev) => ({
+        ...prev,
+        page: paginationData.page,
+        per_page:
+          paginationData.per_page ||
+          prev.per_page ||
+          RESULTS_PER_PAGE,
+      }));
+    }
+
+    if (keyword && fetchedResults)
       setResults(
-        resultState.data?.data.filter(
+        fetchedResults.filter(
           (f) =>
             f.participant.first_name
               .toLowerCase()
@@ -248,8 +280,8 @@ const ResultsList = () => {
             f.participant.email.toLowerCase().includes(keyword.toLowerCase())
         )
       );
-    else setResults(resultState.data?.data);
-  }, [keyword, resultState]);
+    else setResults(fetchedResults);
+  }, [keyword, resultState.data]);
 
   useEffect(() => {
     if (
@@ -281,6 +313,33 @@ const ResultsList = () => {
     deleteResultsState,
   ]);
 
+  const fetchResults = useCallback(
+    async (
+      page = pagination.page || 1,
+      perPage = pagination.per_page || RESULTS_PER_PAGE
+    ) => {
+      if (!filtersComplete) return;
+      try {
+        const response = await getResults({
+          ...filters,
+          page,
+          per_page: perPage,
+        }).unwrap();
+        setPagination((prev) => ({
+          ...prev,
+          page: response?.pagination?.page ?? page,
+          per_page:
+            response?.pagination?.per_page ||
+            prev.per_page ||
+            RESULTS_PER_PAGE,
+        }));
+      } catch (error) {
+        console.log(error);
+      }
+    },
+    [filters, filtersComplete, getResults, pagination.page, pagination.per_page]
+  );
+
   useEffect(() => {
     if (!waitingTask || !taskStatusData?.data) return;
     const taskData = taskStatusData.data;
@@ -302,8 +361,8 @@ const ResultsList = () => {
         setOpenModal((prev) => ({ ...prev, success: true }));
         setWaitingTask(null);
         setTaskStatusNote(null);
-        if (filters.program_id) {
-          getResults(filters).unwrap().catch(() => null);
+        if (filtersComplete) {
+          fetchResults(1, pagination.per_page || RESULTS_PER_PAGE);
         }
       } else if (taskData.error) {
         setSuccessContent({
@@ -318,7 +377,14 @@ const ResultsList = () => {
         setTaskStatusNote("Task failed. Please try again.");
       }
     }
-  }, [waitingTask, taskStatusData, buildTaskCompletionCopy, filters, getResults]);
+  }, [
+    waitingTask,
+    taskStatusData,
+    buildTaskCompletionCopy,
+    filtersComplete,
+    fetchResults,
+    pagination.per_page,
+  ]);
 
   const handleChange = async (e: SelectChangeEvent<number | string>) => {
     const { target } = e;
@@ -329,6 +395,7 @@ const ResultsList = () => {
       [target.name]:
         typeof target.value == "number" ? +target.value : target.value,
     }));
+    setPagination((prev) => ({ ...prev, page: 1 }));
     try {
       if (target.name === "faculty_id") {
         await getDepartments({
@@ -405,16 +472,6 @@ const ResultsList = () => {
     }
   };
 
-  const fetchResults = async () => {
-    if (filtersComplete) {
-      try {
-        await getResults(filters).unwrap();
-      } catch (error) {
-        console.log(error);
-      }
-    }
-  };
-
   const generateResult = async () => {
     if (!filtersComplete) return;
     try {
@@ -465,16 +522,6 @@ const ResultsList = () => {
   ) => {
     setLegacyUploadForm((prev) => ({ ...prev, [field]: value }));
   };
-
-  const filtersComplete =
-    Boolean(
-      filters.faculty_id &&
-        filters.department_id &&
-        filters.program_id &&
-        filters.level_id &&
-        filters.session !== "default" &&
-        filters.semester !== "default"
-    );
 
   const openVisibilityDialog = () => {
     setVisibilityFormError(null);
@@ -539,8 +586,8 @@ const ResultsList = () => {
         semester: "",
         file_url: "",
       });
-      if (filters.program_id) {
-        await getResults(filters).unwrap();
+      if (filtersComplete) {
+        await fetchResults(1);
       }
     } catch (error: any) {
       setLegacyUploadError(
@@ -588,8 +635,8 @@ const ResultsList = () => {
       });
       setOpenModal((prev) => ({ ...prev, success: true }));
       setVisibilityDialogOpen(false);
-      if (filters.program_id) {
-        await getResults(filters).unwrap();
+      if (filtersComplete) {
+        await fetchResults(1);
       }
     } catch (error: any) {
       setVisibilityFormError(
@@ -627,8 +674,8 @@ const ResultsList = () => {
       });
       setOpenModal((prev) => ({ ...prev, success: true }));
       setDeleteDialogOpen(false);
-      if (filters.program_id) {
-        await getResults(filters).unwrap();
+      if (filtersComplete) {
+        await fetchResults(1);
       }
     } catch (error: any) {
       setDeleteError(
@@ -1272,7 +1319,7 @@ const ResultsList = () => {
             Upload Offline Result
           </Button>
           <Button
-            onClick={fetchResults}
+            onClick={() => fetchResults(1)}
             variant="contained"
             disabled={!filtersComplete}
           >
@@ -1409,6 +1456,31 @@ const ResultsList = () => {
           ))}
         </TableBody>
       </Table>
+      {resultState.data?.pagination ? (
+        <CustomPagination
+          count={Math.ceil(
+            resultState.data.pagination.total /
+              resultState.data.pagination.per_page
+          )}
+          page={resultState.data.pagination.page}
+          handleChangePage={(_, page) =>
+            fetchResults(
+              page,
+              resultState.data?.pagination?.per_page || RESULTS_PER_PAGE
+            )
+          }
+          startIndex={
+            resultState.data.pagination.per_page *
+              (resultState.data.pagination.page - 1) +
+            1
+          }
+          endIndex={
+            resultState.data.pagination.per_page *
+            resultState.data.pagination.page
+          }
+          totalNumber={resultState.data.pagination.total}
+        />
+      ) : null}
 
       {/* RESULT CONTAINER */}
 

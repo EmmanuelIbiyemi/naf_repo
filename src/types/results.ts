@@ -1,3 +1,5 @@
+import { PaginationResponse } from "./pagination";
+
 export interface StudentResultResponse {
   data: {
     created_at: string;
@@ -188,6 +190,8 @@ export type ResultsGetInput = {
   level_id: number;
   session?: string;
   semester?: string;
+  page?: number;
+  per_page?: number;
 };
 // export type ResultCreateType = Result & {};
 
@@ -271,6 +275,7 @@ export type ResultType2 = {
     };
     updated_at: string;
   }>;
+  pagination?: PaginationResponse;
   message: string;
   status: string;
 };

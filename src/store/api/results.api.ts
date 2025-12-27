@@ -14,13 +14,45 @@ import { appApi } from "./app.api.ts";
 const scoreApi = appApi.injectEndpoints({
   endpoints: (builder) => ({
     getResults: builder.query<ResultResponse, ResultsGetInput>({
-      query: ({ department_id, level_id, semester, session }) =>
-        `/result?department_id=${department_id}&level_id=${level_id}&session=${session}&semester=${semester}`,
+      query: ({
+        department_id,
+        level_id,
+        semester,
+        session,
+        page = 1,
+        per_page = 10,
+      }) => ({
+        url: `/result`,
+        params: {
+          department_id,
+          level_id,
+          session,
+          semester,
+          page,
+          per_page,
+        },
+      }),
       providesTags: ["Results"],
     }),
     getResultsM: builder.mutation<ResultType2, ResultsGetInput>({
-      query: ({ department_id, level_id, semester, session }) =>
-        `/result?department_id=${department_id}&level_id=${level_id}&session=${session}&semester=${semester}`,
+      query: ({
+        department_id,
+        level_id,
+        semester,
+        session,
+        page = 1,
+        per_page = 10,
+      }) => ({
+        url: `/result`,
+        params: {
+          department_id,
+          level_id,
+          session,
+          semester,
+          page,
+          per_page,
+        },
+      }),
     }),
     getResult: builder.query<ResultResponse, number>({
       query: (score_id) => `/scoring/${score_id}`,
