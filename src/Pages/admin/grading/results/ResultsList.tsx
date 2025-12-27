@@ -685,15 +685,16 @@ const ResultsList = () => {
     const findRemarkByPoint = (point?: number | null) => {
       if (point === null || point === undefined || !gradeLookup.length)
         return undefined;
-      const rangeMatch = gradeLookup.find((g) => {
+      const orderedGrades = [...gradeLookup].sort((a, b) => {
+        const aMax = a.max_point ?? a.point ?? Number.NEGATIVE_INFINITY;
+        const bMax = b.max_point ?? b.point ?? Number.NEGATIVE_INFINITY;
+        return bMax - aMax; // descending, so highest range checked first
+      });
+      const grade = orderedGrades.find((g) => {
         const min = g.min_point ?? g.point ?? Number.NEGATIVE_INFINITY;
         const max = g.max_point ?? g.point ?? Number.POSITIVE_INFINITY;
         return Number(point) >= min && Number(point) <= max;
       });
-      const grade =
-        rangeMatch ||
-        gradeLookup.find((g) => Number(g.point) === Number(point)) ||
-        null;
       return grade?.remark || grade?.name;
     };
 
