@@ -133,20 +133,22 @@ const GoogleDocsEditor = ({
             position: "relative",
           }}
         >
-          <Box
-            sx={{
-              position: "sticky",
-              top: 0,
-              zIndex: 100,
-              backgroundColor: "#F9FBFD",
-              borderBottom: "1px solid #E8EAED",
-            }}
-          >
-            <ToolbarPlugin 
-              onImageUpload={onImageUpload}
-              onFileUpload={onFileUpload}
-            />
-          </Box>
+          {!readOnly && (
+            <Box
+              sx={{
+                position: "sticky",
+                top: 0,
+                zIndex: 100,
+                backgroundColor: "#F9FBFD",
+                borderBottom: "1px solid #E8EAED",
+              }}
+            >
+              <ToolbarPlugin 
+                onImageUpload={onImageUpload}
+                onFileUpload={onFileUpload}
+              />
+            </Box>
+          )}
 
           <Box
             sx={{
@@ -211,14 +213,14 @@ const GoogleDocsEditor = ({
                   />
                   <OnChangePlugin onChange={handleEditorChange} />
                   <HistoryPlugin />
-                  <AutoFocusPlugin />
+                  {!readOnly && <AutoFocusPlugin />}
                   <ListPlugin />
                   <LinkPlugin />
-                  <ImagesPlugin onUpload={onUpload} />
-                  <DragDropPastePlugin onUpload={onUpload} />
-                  <FloatingLinkEditorPlugin />
-                  <SlashCommandPlugin />
-                  {floatingAnchorElem && (
+                  {!readOnly && <ImagesPlugin onUpload={onUpload} />}
+                  {!readOnly && <DragDropPastePlugin onUpload={onUpload} />}
+                  {!readOnly && <FloatingLinkEditorPlugin />}
+                  {!readOnly && <SlashCommandPlugin />}
+                  {!readOnly && floatingAnchorElem && (
                     <FloatingToolbarPlugin anchorElem={floatingAnchorElem} />
                   )}
                 </Box>

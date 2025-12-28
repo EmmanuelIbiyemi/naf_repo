@@ -8,7 +8,7 @@ import {
   Skeleton,
 } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import ReactMarkdown from 'react-markdown';
+import GoogleDocsEditor from '../../../components/layout/GoogleDocsEditor';
 import { useGetParticipantCourseNotesQuery } from '../../../store/api/notes.api';
 import { note } from '../../../types/notes';
 import { formatDateLong } from '../../../utils/dateUtils';
@@ -171,36 +171,22 @@ const CourseNotes = () => {
           </Box>
 
           <Box sx={{ 
-            '& > .markdown-content': {
-              '& strong': {
-                fontWeight: 'bold'
-              },
-              '& em': {
-                fontStyle: 'italic'
-              },
-              '& h1, & h2, & h3, & h4, & h5, & h6': {
-                margin: '1em 0 0.5em',
-                fontWeight: 'bold',
-                lineHeight: 1.2
-              },
-              '& p': {
-                margin: '0.5em 0'
-              },
-              '& ul, & ol': {
-                marginLeft: '1.5em',
-                marginBottom: '1em'
-              },
-              '& code': {
-                backgroundColor: (theme) => theme.palette.grey[100],
-                padding: '0.2em 0.4em',
-                borderRadius: '3px',
-                fontSize: '0.9em'
-              }
+            border: '1px solid #e0e0e0',
+            borderRadius: '4px',
+            backgroundColor: '#fff',
+            overflow: 'hidden',
+            '& .editor-container': {
+              minHeight: '200px',
+            },
+            '& .editor-input': {
+              cursor: 'default',
             }
           }}>
-            <ReactMarkdown className="markdown-content">
-              {String(note?.content)}
-            </ReactMarkdown>
+            <GoogleDocsEditor
+              initialContent={note?.content}
+              readOnly={true}
+              placeholder=""
+            />
           </Box>
 
           <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 2 }}>
