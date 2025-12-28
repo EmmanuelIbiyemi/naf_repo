@@ -9,7 +9,7 @@ interface ImagesPluginProps {
 
 export const INSERT_IMAGE_COMMAND: LexicalCommand<ImagePayload> = createCommand();
 
-const ImagesPlugin = ({ onUpload }: ImagesPluginProps): null => {
+const ImagesPlugin = ({ }: ImagesPluginProps): null => {
   const [editor] = useLexicalComposerContext();
 
   useEffect(() => {
