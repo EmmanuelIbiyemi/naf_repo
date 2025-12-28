@@ -51,6 +51,7 @@ import { useGetProgrammesMMutation } from "../../../../store/api/programmes.api"
 import { useGetLevelsMMutation } from "../../../../store/api/levels.api";
 import { useGetSessionsQuery } from "../../../../store/api/sessions.api";
 import { useGetSemestersQuery } from "../../../../store/api/semesters.api";
+import SessionDropdown from "../../../../components/SessionDropdown";
 import { useAddMediaMutation } from "../../../../store/api/media.api";
 import { selectKeyword, setPageLoading } from "../../../../store/app.slice";
 import { useAppDispatch, useAppSelector } from "../../../../store/hooks";
@@ -84,7 +85,7 @@ const ResultsList = () => {
     { search_term: "" }
   );
   const { data: semesters, isFetching: semesterIsLoading } =
-    useGetSemestersQuery(null);
+    useGetSemestersQuery({});
   const [filters, setFilters] = useState({
     faculty_id: 0,
     department_id: 0,
@@ -93,6 +94,7 @@ const ResultsList = () => {
     session: "default",
     semester: "default",
   });
+  const [selectedSession, setSelectedSession] = useState<any>(null);
   const [pagination, setPagination] = useState<Pagination>({
     page: 1,
     per_page: RESULTS_PER_PAGE,
@@ -1276,20 +1278,21 @@ const ResultsList = () => {
                 ))}
               </Select>
             </FormControl>
-            <FormControl sx={{ minWidth: 150 }}>
-              <Select
-                value={filters.session}
-                onChange={handleChange}
-                name="session"
-              >
-                <MenuItem value="default">session</MenuItem>
-                {sessions?.data.map((session) => (
-                  <MenuItem key={session.name} value={session.name}>
-                    {session.name}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
+            <Box sx={{ minWidth: 200 }}>
+              <SessionDropdown
+                value={selectedSession}
+                onChange={(session) => {
+                  setSelectedSession(session);
+                  setFilters((prev) => ({
+                    ...prev,
+                    session: session ? session.name : "default",
+                  }));
+                  setPagination((prev) => ({ ...prev, page: 1 }));
+                }}
+                label=""
+                placeholder="Select session"
+              />
+            </Box>
             <FormControl sx={{ minWidth: 150 }}>
               <Select
                 value={filters.semester}

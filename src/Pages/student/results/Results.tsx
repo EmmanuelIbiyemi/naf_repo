@@ -24,12 +24,14 @@ import { useStudentResultQuery } from "../../../store/api/result.api";
 import { useGetSessionsQuery } from "../../../store/api/sessions.api";
 import { selectCurrentUser } from "../../../store/auth.slice";
 import { SessionType } from "../../../types/sessions";
+import SessionDropdown from "../../../components/SessionDropdown";
 import { jsPDF } from "jspdf";
 import html2canvas from "html2canvas";
 
 export default function Results() {
   const dispatch = useAppDispatch();
   const keyword = useAppSelector(selectKeyword);
+  const [selectedSessionObj, setSelectedSessionObj] = useState<SessionType | null>(null);
   const [selectedSession, setSelectedSession] = useState("");
   const [selectedSemester, setSelectedSemester] = useState("");
   const [availableSemesters, setAvailableSemesters] = useState<
@@ -53,6 +55,7 @@ export default function Results() {
   useEffect(() => {
     if (sessionsData?.data && sessionsData.data.length > 0) {
       const currentSession = sessionsData.data[0] as SessionType;
+      setSelectedSessionObj(currentSession);
       setSelectedSession(currentSession.name);
 
       if (currentSession.semesters?.length > 0) {
@@ -184,17 +187,18 @@ export default function Results() {
     <Box sx={{ padding: "2rem" }}>
       <Box sx={filterContainerStyle}>
         <Box sx={filterItemStyle}>
-          <Select
-            value={selectedSession}
-            onChange={handleSessionChange}
-            sx={{ minWidth: "200px" }}
-          >
-            {sessionsData?.data.map((session) => (
-              <MenuItem key={session.id} value={session.name}>
-                {session.name}
-              </MenuItem>
-            ))}
-          </Select>
+          <SessionDropdown
+            value={selectedSessionObj}
+            onChange={(session) => {
+              setSelectedSessionObj(session);
+              if (session) {
+                setSelectedSession(session.name);
+                updateAvailableSemesters(session.name);
+              }
+            }}
+            label=""
+            placeholder="Select session"
+          />
         </Box>
         <Box sx={filterItemStyle}>
           <Select

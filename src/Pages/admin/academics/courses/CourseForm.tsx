@@ -3,7 +3,6 @@ import { Field, Form, Formik } from "formik";
 import {
   Box,
   Button,
-  Chip,
   FormControl,
   MenuItem,
   OutlinedInput,
@@ -17,9 +16,9 @@ import {
   CourseCreateType,
   CourseType,
 } from "../../../../types/courses";
-import { useGetInstructorsQuery } from "../../../../store/api/instructors.api";
 import { InstructorType } from "../../../../types/instructors";
 import { useGetSemestersQuery } from "../../../../store/api/semesters.api";
+import InstructorDropdown from "../../../../components/InstructorDropdown";
 
 type Props = {
   course?: CourseCombinedType;
@@ -28,10 +27,9 @@ type Props = {
     cancel: () => void;
   };
 };
-const instructors_per_page = 10000
+
 const CourseForm = ({ actions, course }: Props) => {
-  const { data: instructors } = useGetInstructorsQuery(instructors_per_page);
-  const { data: semesters } = useGetSemestersQuery(null);
+  const { data: semesters } = useGetSemestersQuery(undefined);
 
   const initialValues: CourseCreateType | CourseType = {
     id: (course as CourseType)?.id || 0,
@@ -45,6 +43,7 @@ const CourseForm = ({ actions, course }: Props) => {
       (course?.instructors as InstructorType[])
         ?.map((ins) => ins.id)
         .filter((id) => id !== undefined) || [],
+    instructors: (course?.instructors as InstructorType[]) || [],
   };
 
   const validationSchema = Yup.object({
@@ -143,54 +142,31 @@ const CourseForm = ({ actions, course }: Props) => {
             }}
           >
             <Box>
-              <FormControl fullWidth>
-                <label htmlFor="instructor_ids">Assign Instructors(s)</label>
-                <Select
-                  sx={{
-                    padding: 0,
-                    ".MuiSelect-select": { p: "5px", minHeight: "25px" },
-                  }}
-                  multiple
-                  id="instructor_ids"
-                  name="instructor_ids"
-                  value={
-                    (values as CourseCreateType).instructor_ids
-                      ? (values as CourseCreateType).instructor_ids
-                      : (values.instructors as InstructorType[]).map(
-                          (ins) => ins.id
-                        )
-                  }
-                  onChange={(event) => {
-                    const {
-                      target: { value },
-                    } = event;
-
-                    setFieldValue("instructor_ids", value);
-                  }}
-                  input={<OutlinedInput />}
-                  renderValue={(selected) => (
-                    <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
-                      {selected.map((id) => {
-                        const instructor = instructors?.data.find(
-                          (instructor) => instructor.id === id
-                        );
-                        return (
-                          <Chip
-                            key={id}
-                            label={`${instructor?.first_name} ${instructor?.last_name}`}
-                          />
-                        );
-                      })}
-                    </Box>
-                  )}
-                >
-                  {instructors?.data.map((instructor) => (
-                    <MenuItem key={instructor.id} value={instructor.id}>
-                      {`${instructor.first_name} ${instructor.last_name}`}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
+              <label htmlFor="instructor_ids">Assign Instructor(s)</label>
+              <InstructorDropdown
+                name="instructor_ids"
+                label=""
+                multiple
+                value={values.instructors || []}
+                onChange={(selectedInstructors) => {
+                  const instructorIds = Array.isArray(selectedInstructors)
+                    ? selectedInstructors.map((ins) => ins.id)
+                    : [];
+                  setFieldValue("instructor_ids", instructorIds);
+                  setFieldValue("instructors", selectedInstructors || []);
+                }}
+                error={Boolean(
+                  (values as any).instructor_ids &&
+                    (values as any).instructor_ids.length === 0
+                )}
+                helperText={
+                  (values as any).instructor_ids &&
+                  (values as any).instructor_ids.length === 0
+                    ? "Please select at least one instructor"
+                    : ""
+                }
+                required
+              />
             </Box>
             <Box>
               <FormControl fullWidth>

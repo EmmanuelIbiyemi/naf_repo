@@ -6,13 +6,13 @@ import formStyles from "../../../../components/form/form.module.scss";
 import { useGetFacultiesQuery } from "../../../../store/api/faculties.api";
 import { useGetDepartmentsMMutation } from "../../../../store/api/departments.api";
 import { useGetProgrammesMMutation } from "../../../../store/api/programmes.api";
-import { ChangeEvent, useEffect } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 import { EligibleCreateType } from "../../../../types/eligibles";
 import { useGetLevelsMMutation } from "../../../../store/api/levels.api";
 import { useAddMediaMutation } from "../../../../store/api/media.api";
-import { useGetSessionsQuery } from "../../../../store/api/sessions.api";
 import { useAppDispatch } from "../../../../store/hooks";
 import { setPageLoading } from "../../../../store/app.slice";
+import SessionDropdown from "../../../../components/SessionDropdown";
 
 type Props = {
   actions: {
@@ -27,8 +27,8 @@ const EligibleForm = ({ actions }: Props) => {
   const [getPrograms, programsState] = useGetProgrammesMMutation();
   const [getLevels, levelsState] = useGetLevelsMMutation();
   const [uploadFile, uploadState] = useAddMediaMutation();
-  const { data: sessions } = useGetSessionsQuery({ search_term: "" });
   const dispatch = useAppDispatch();
+  const [selectedSession, setSelectedSession] = useState<any>(null);
 
   const initialValues: EligibleCreateType & {
     faculty_id: number;
@@ -240,29 +240,20 @@ const EligibleForm = ({ actions }: Props) => {
           </Box>
           <Box>
             <label htmlFor="session">Session</label>
-            <Field
-              id="session"
+            <SessionDropdown
               name="session"
-              as="select"
-              style={{
-                width: "100%",
-                padding: ".5rem",
-                borderRadius: "var(--border-radius)",
+              label=""
+              value={selectedSession}
+              onChange={(session) => {
+                setSelectedSession(session);
+                setFieldValue("session", session?.name || "");
               }}
-              onChange={(ev: ChangeEvent<HTMLInputElement>) => {
-                handleChange(ev, setFieldValue);
-              }}
-            >
-              <option value="">select session</option>
-              {sessions?.data.map((session, i) => (
-                <option key={session.name + i} value={session.name}>
-                  {session.name}
-                </option>
-              ))}
-            </Field>
-            {errors.level_id && touched.level_id && (
-              <div>{errors.level_id}</div>
-            )}
+              error={Boolean(errors.session && touched.session)}
+              helperText={
+                errors.session && touched.session ? String(errors.session) : ""
+              }
+              required
+            />
           </Box>
           <Box>
             <label htmlFor="file">Upload List</label>
