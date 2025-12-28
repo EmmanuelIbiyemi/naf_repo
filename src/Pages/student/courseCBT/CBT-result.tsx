@@ -171,15 +171,15 @@ const QuizResult = () => {
         <Stack spacing={4} alignItems="center">
           {/* Status Alert */}
           <Alert
-            severity={passStatus ? "success" : "error"}
+            severity={passStatus ? "success" : "info"}
             sx={{ width: "100%" }}
           >
             <AlertTitle>
-              {passStatus ? "Congratulations!" : "Keep Practicing!"}
+              {passStatus ? "Excellent Performance!" : "Quiz Completed!"}
             </AlertTitle>
             {passStatus
-              ? "You have successfully passed this quiz!"
-              : "You didn't meet the passing score this time. Review and try again!"}
+              ? "Great job! You scored very well on this quiz!"
+              : "You have completed this quiz. Review your answers to improve your understanding."}
           </Alert>
 
           {/* Score Circle */}

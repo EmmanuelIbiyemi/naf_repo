@@ -565,32 +565,6 @@ const CBTTest = () => {
               )}
             </Box>
           </Box>
-
-          {/* Submit Button (always available) */}
-          <Box
-            sx={{
-              position: "fixed",
-              bottom: 24,
-              right: 24,
-              zIndex: 1000,
-            }}
-          >
-            <Button
-              variant="contained"
-              color="primary"
-              size="large"
-              onClick={() => setShowSubmitDialog(true)}
-              disabled={submitting}
-              sx={{
-                boxShadow: 4,
-                "&:hover": {
-                  boxShadow: 8,
-                },
-              }}
-            >
-              Submit Quiz ({answeredCount}/{questions.length})
-            </Button>
-          </Box>
         </>
       )}
 
