@@ -1,9 +1,8 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
   Box,
   Card,
   CardContent,
-  CircularProgress,
   Grid,
   Paper,
   Table,
@@ -17,8 +16,9 @@ import {
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { useGetParticipantQuery } from '../../../store/api/participants.api';
-import { useAppSelector } from '../../../store/hooks';
+import { useAppSelector, useAppDispatch } from '../../../store/hooks';
 import { selectCurrentUser } from '../../../store/auth.slice';
+import { setPageLoading } from '../../../store/app.slice';
 import CoursesHeader from './CoursesHeader';
 import { CourseBaseType } from '../../../types/courses';
 import { InstructorType } from '../../../types/instructors';
@@ -46,14 +46,15 @@ const StudentCourses: React.FC = () => {
   const participantId = user?.id || 0; // Replace with actual ID source
 
   const { data: response, isLoading, error } = useGetParticipantQuery(participantId);
+  const dispatch = useAppDispatch();
 
-  if (isLoading) {
-    return (
-      <Box display="flex" justifyContent="center" alignItems="center" minHeight="200px">
-        <CircularProgress />
-      </Box>
-    );
-  }
+  useEffect(() => {
+    if (isLoading) {
+      dispatch(setPageLoading(true));
+    } else {
+      dispatch(setPageLoading(false));
+    }
+  }, [isLoading, dispatch]);
 
   if (error || !response?.data) {
     return (

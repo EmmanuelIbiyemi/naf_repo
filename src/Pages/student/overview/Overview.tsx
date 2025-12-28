@@ -1,10 +1,9 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
   Box,
   Typography,
   Card,
   CardContent,
-  CircularProgress,
   List,
   ListItem,
   ListItemIcon,
@@ -21,6 +20,8 @@ import {
   ArrowForward,
 } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
+import { useAppDispatch } from "../../../store/hooks";
+import { setPageLoading } from "../../../store/app.slice";
 import EmptyState from "../../../components/EmptyState";
 import { useGetParticipantQuery } from "../../../store/api/participants.api";
 import { useAppSelector } from "../../../store/hooks";
@@ -132,13 +133,15 @@ const Overview = () => {
 
   const { data: transcript } = useGetStudentTranscriptQuery(participantId);
 
-  if (isLoading) {
-    return (
-      <Box sx={{ display: "flex", justifyContent: "center", padding: "2rem" }}>
-        <CircularProgress />
-      </Box>
-    );
-  }
+  const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    if (isLoading) {
+      dispatch(setPageLoading(true));
+    } else {
+      dispatch(setPageLoading(false));
+    }
+  }, [isLoading, dispatch]);
 
   if (error || !participantData) {
     return (

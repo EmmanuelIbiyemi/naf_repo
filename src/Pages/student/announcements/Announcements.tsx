@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useGetAnnouncementsQuery } from "../../../store/api/posts.api";
 import {
   Box,
@@ -11,10 +11,21 @@ import {
   Typography,
 } from "@mui/material";
 import { Post } from "../../../types/announcements";
+import { useAppDispatch } from "../../../store/hooks";
+import { setPageLoading } from "../../../store/app.slice";
 
 const AnnouncementsPage = () => {
   const [page, setPage] = useState(1);
   const { data, isLoading, isError } = useGetAnnouncementsQuery("announcement");
+  const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    if (isLoading) {
+      dispatch(setPageLoading(true));
+    } else {
+      dispatch(setPageLoading(false));
+    }
+  }, [isLoading, dispatch]);
 
   const handlePageChange = (
     _event: React.ChangeEvent<unknown>,

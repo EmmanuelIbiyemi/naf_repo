@@ -7,11 +7,10 @@ import {
   Avatar,
   SxProps,
   Theme,
-  CircularProgress,
 } from "@mui/material";
 import { Link } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../../../store/hooks";
-import { setPageName } from "../../../store/app.slice";
+import { setPageName, setPageLoading } from "../../../store/app.slice";
 import { useGetParticipantQuery } from "../../../store/api/participants.api";
 import EmptyState from "../../../components/EmptyState";
 import { selectCurrentUser } from "../../../store/auth.slice";
@@ -45,21 +44,13 @@ const Dashboard: React.FC = () => {
     { id: 4, icon: <History />, title: "My Activity", link: "/student/my-activity" },
   ];
 
-  if (isLoading) {
-    return (
-      <Box
-        sx={{
-          padding: "2rem",
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          minHeight: "50vh",
-        }}
-      >
-        <CircularProgress />
-      </Box>
-    );
-  }
+  useEffect(() => {
+    if (isLoading) {
+      dispatch(setPageLoading(true));
+    } else {
+      dispatch(setPageLoading(false));
+    }
+  }, [isLoading, dispatch]);
 
   if (error || !participantData) {
     return (

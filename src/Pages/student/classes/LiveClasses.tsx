@@ -8,7 +8,6 @@ import {
   ListItemText,
   Divider,
   Typography,
-  CircularProgress,
   Grid,
   Pagination,
   Stack,
@@ -16,7 +15,7 @@ import {
 import { ArrowForward, Quiz } from "@mui/icons-material";
 import React, { useEffect, useState } from "react";
 import { useAppDispatch, useAppSelector } from "../../../store/hooks";
-import { setPageName } from "../../../store/app.slice";
+import { setPageName, setPageLoading } from "../../../store/app.slice";
 import { selectCurrentUser } from "../../../store/auth.slice";
 import EmptyState from "../../../components/EmptyState";
 import LiveClassCard from "./LiveClassCard";
@@ -112,6 +111,14 @@ const processClassStatus = (liveClass: {
     !isSessionLoading &&
     !isFetching
 
+  useEffect(() => {
+    if (!isFullyLoaded) {
+      dispatch(setPageLoading(true));
+    } else {
+      dispatch(setPageLoading(false));
+    }
+  }, [isFullyLoaded, dispatch]);
+
   return (
     <Box className="content-container">
       <Box
@@ -167,11 +174,7 @@ const processClassStatus = (liveClass: {
           </Box>
           <Box sx={{ flex: 1 }}>
             <Box sx={{ bgcolor: "#fff" }}>
-              {!isFullyLoaded ? (
-                <Box sx={{ p: 3, textAlign: "center" }}>
-                  <CircularProgress />
-                </Box>
-              ) : !currentSemester?.data ||
+              {!currentSemester?.data ||
                 !currentSession?.data ||
                 !selectedCourse ? (
                 <EmptyState
@@ -224,9 +227,6 @@ const processClassStatus = (liveClass: {
                       color="primary"
                       disabled={isFetching}
                     />
-                    {isFetching && (
-                      <CircularProgress size={24} sx={{ mt: 2 }} />
-                    )}
                   </Stack>
                 </Box>
               ) : (
