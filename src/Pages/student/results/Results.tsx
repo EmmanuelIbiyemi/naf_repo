@@ -102,12 +102,6 @@ export default function Results() {
     dispatch(setPageName("Results"));
   }, [dispatch]);
 
-  const handleSessionChange = (event: SelectChangeEvent) => {
-    const newSession = event.target.value as string;
-    setSelectedSession(newSession);
-    updateAvailableSemesters(newSession);
-  };
-
   const handleSemesterChange = (event: SelectChangeEvent) => {
     setSelectedSemester(event.target.value as string);
   };
