@@ -18,7 +18,7 @@ import { setPageLoading } from "../../../../store/app.slice";
 import CustomMarkdownEditor from "../../../../components/layout/CustomMarkdownEditor";
 import * as yup from "yup";
 import { useFormik } from "formik";
-import { useAddNoteMutation } from "../../../../store/api/notes.api";
+import { useAddNoteMutation, useUpdateNoteMutation } from "../../../../store/api/notes.api";
 import { noteInput } from "../../../../types/notes";
 import { useGetCourseParticipantsQuery } from "../../../../store/api/participants.api";
 import { useAddMediaMutation } from "../../../../store/api/media.api";
@@ -49,6 +49,7 @@ const NewNote = () => {
 
   const [createNote, { isLoading: isCreatingNote }] = useAddNoteMutation();
   const [uploadFile, { isLoading: isUploadingFile }] = useAddMediaMutation();
+  const [updateNote] = useUpdateNoteMutation();
 
   const dispatch = useDispatch();
 
@@ -72,6 +73,7 @@ const NewNote = () => {
       content: "",
       media: [],
       course_id: courseId ? parseInt(courseId) : 0,
+      is_draft: true,
     },
     validationSchema: yup.object({
       title: yup.string().required("Required"),
@@ -80,8 +82,17 @@ const NewNote = () => {
     }),
     onSubmit: async (values: noteInput) => {
       try {
-        const response = await createNote(values).unwrap();
-        setNoteId(response?.data?.id);
+        // If note already exists (from auto-save), update it and mark as not draft
+        if (noteId) {
+          await updateNote({
+            body: { ...values, is_draft: false },
+            id: noteId,
+          }).unwrap();
+        } else {
+          // Create new note and mark as not draft
+          const response = await createNote({ ...values, is_draft: false }).unwrap();
+          setNoteId(response?.data?.id);
+        }
         setSnackbarMessage("Note created successfully!");
         setSnackbarOpen(true);
         handleOpenModal();
@@ -104,20 +115,33 @@ const NewNote = () => {
 
   // Auto-save functionality
   const autoSave = useCallback(async () => {
-    if (!formik.values.title || !formik.values.content) return;
+    if (!formik.values.title || !formik.values.content || !courseId) return;
     
     try {
       setAutoSaveStatus("saving");
-      // Here you could call a draft save API endpoint
-      // For now, we'll just simulate the save
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      
+      if (noteId) {
+        // Update existing draft
+        await updateNote({
+          body: { ...formik.values, is_draft: true },
+          id: noteId,
+        }).unwrap();
+      } else {
+        // Create new draft
+        const response = await createNote({
+          ...formik.values,
+          is_draft: true,
+        }).unwrap();
+        setNoteId(response?.data?.id);
+      }
+      
       setAutoSaveStatus("saved");
       setTimeout(() => setAutoSaveStatus(null), 3000);
     } catch (error) {
       setAutoSaveStatus("error");
       console.error("Auto-save failed:", error);
     }
-  }, [formik.values.title, formik.values.content]);
+  }, [formik.values, noteId, courseId, createNote, updateNote]);
 
   // Trigger auto-save on content change
   useEffect(() => {
