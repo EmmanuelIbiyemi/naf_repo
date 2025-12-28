@@ -23,14 +23,22 @@ export interface SettingItem {
   updated_at: string;
 }
 
+export interface ApiResponse<T> {
+  data: T;
+  message: string;
+  status: string;
+}
+
 const appSettingsApi = appApi.injectEndpoints({
   endpoints: (builder) => ({
     getAppSettings: builder.query<AppSettings, void>({
       query: () => "/settings",
+      transformResponse: (response: ApiResponse<AppSettings>) => response.data,
       providesTags: ["AppSettings"],
     }),
     getAdminSettings: builder.query<SettingItem[], void>({
       query: () => "/admin/settings",
+      transformResponse: (response: ApiResponse<SettingItem[]>) => response.data,
       providesTags: ["AppSettings"],
     }),
     updateSetting: builder.mutation<SettingItem, { key: string; value: string }>({
@@ -39,14 +47,16 @@ const appSettingsApi = appApi.injectEndpoints({
         method: "PUT",
         body: { value },
       }),
+      transformResponse: (response: ApiResponse<SettingItem>) => response.data,
       invalidatesTags: ["AppSettings"],
     }),
-    bulkUpdateSettings: builder.mutation<{ message: string }, { settings: Array<{ key: string; value: string }> }>({
+    bulkUpdateSettings: builder.mutation<SettingItem[], { settings: Array<{ key: string; value: string }> }>({
       query: (body) => ({
         url: "/admin/settings/bulk",
         method: "POST",
         body,
       }),
+      transformResponse: (response: ApiResponse<SettingItem[]>) => response.data,
       invalidatesTags: ["AppSettings"],
     }),
   }),
