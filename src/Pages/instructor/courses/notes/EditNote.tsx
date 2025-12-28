@@ -231,6 +231,10 @@ const EditNote = () => {
       );
       if (!confirmLeave) return;
     }
+    // Store the course ID so Notes page can use it
+    if (courseId) {
+      localStorage.setItem('lastSelectedCourseId', courseId);
+    }
     navigate(-1);
   };
 

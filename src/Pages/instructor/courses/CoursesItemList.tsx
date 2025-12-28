@@ -25,7 +25,7 @@ type ListProps = {
   edit?: boolean;
   courseId: number;
   handleOpenActionsModal: (list: note, type: string) => void;
-  handleEditActionsModal: (list: note) => void;
+  handleEditActionsModal?: (list: note) => void;
 };
 
 // const ITEMS_PER_PAGE = 10;
@@ -115,7 +115,7 @@ const CoursesItemList = ({
                     </IconButton>
                   )}
                   {view && (
-                    <IconButton onClick={() => handleEditActionsModal(list)}>
+                    <IconButton onClick={() => handleEditActionsModal?.(list)}>
                       <Visibility />
                     </IconButton>
                   )}

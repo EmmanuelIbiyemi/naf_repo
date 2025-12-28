@@ -9,7 +9,7 @@ import { useEffect, useState } from "react";
 import InstructorPageHeader from "../../../../components/layout/InstructorPageHeader";
 import { useAppDispatch } from "../../../../store/hooks";
 import { setPageName, setPageLoading } from "../../../../store/app.slice";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useGetInstructorCoursesQuery } from "../../../../store/api/courses.api";
 import {
   useDeleteNoteMutation,
@@ -21,29 +21,35 @@ import EmptyState from "../../../../components/EmptyState";
 import NotesUploadModal from "./NotesUploadModal";
 import CustomSuccessModal from "../../../../components/CustomSuccessModal";
 import DeleteConfirmationModal from "../../../../components/DeleteConfirmationModal";
-import CustomPreviewModal from "../../../../components/CustomPreviewModal";
 import { note } from "../../../../types/notes";
 
 const Notes = () => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
+  const location = useLocation();
+
+  // Get persisted course ID from localStorage or location state
+  const getInitialCourseId = () => {
+    const locationState = location.state as { selectedCourseId?: string } | null;
+    if (locationState?.selectedCourseId) {
+      return locationState.selectedCourseId;
+    }
+    return localStorage.getItem('lastSelectedCourseId') || '';
+  };
 
   // State for modals and interactions
   const [openModal, setOpenModal] = useState(false);
   const [openFileSuccessModal, setOpenFileSuccessModal] = useState(false);
-  const [selectedCourseId, setSelectedCourseId] = useState("");
+  const [selectedCourseId, setSelectedCourseId] = useState(getInitialCourseId);
   const [currentPage, setCurrentPage] = useState(1);
 
-  // State for notes actions and preview
+  // State for notes actions
   const [openActionsModal, setOpenActionsModal] = useState({
     edit: false,
     success: false,
     delete: false,
   });
   const [selectedNotes, setSelectedNotes] = useState<note | undefined>();
-  const [openPreviewModals, setOpenPreviewModals] = useState<{
-    [key: number]: boolean;
-  }>({});
 
   // Fetch instructor courses
   const { data: instructorCourses, isLoading: isLoadingCourses } =
@@ -82,7 +88,9 @@ const Notes = () => {
   // Event handlers
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleCourseChange = (event: any) => {
-    setSelectedCourseId(event.target.value as string);
+    const courseId = event.target.value as string;
+    setSelectedCourseId(courseId);
+    localStorage.setItem('lastSelectedCourseId', courseId);
     setCurrentPage(1); // Reset to first page when changing course
   };
 
@@ -113,15 +121,7 @@ const Notes = () => {
     setCurrentPage(newPage);
   };
 
-  // Preview and actions modal handlers
-  const handleOpenPreviewModal = (noteId: number) => {
-    setOpenPreviewModals((prev) => ({ ...prev, [noteId]: true }));
-  };
-
-  const handleClosePreviewModal = (noteId: number) => {
-    setOpenPreviewModals((prev) => ({ ...prev, [noteId]: false }));
-  };
-
+  // Actions modal handlers
   const handleOpenActionsModal = (course: note, type: string) => {
     setSelectedNotes(course);
     setOpenActionsModal((prev) => ({ ...prev, [type]: true }));
@@ -130,10 +130,6 @@ const Notes = () => {
   const handleCloseActionsModal = (type: string) => {
     setSelectedNotes(undefined);
     setOpenActionsModal((prev) => ({ ...prev, [type]: false }));
-  };
-
-  const handleEditActionsModal = (note: note) => {
-    handleOpenPreviewModal(note.id);
   };
 
   const handleDelete = async (noteId: number) => {
@@ -195,22 +191,10 @@ const Notes = () => {
               <CoursesItemList
                 lists={note?.data || []}
                 handleOpenActionsModal={handleOpenActionsModal}
-                handleEditActionsModal={handleEditActionsModal}
                 deleteIcon={true}
                 edit={true}
-                view={true}
                 courseId={parseInt(selectedCourseId)}
               />
-              {note?.data.map((singleNote) => (
-                <CustomPreviewModal
-                  key={singleNote.id}
-                  openModal={openPreviewModals[singleNote.id] || false}
-                  handleCloseModal={() =>
-                    handleClosePreviewModal(singleNote.id)
-                  }
-                  note={singleNote}
-                />
-              ))}
             </Box>
 
             {note?.data.length ? (
