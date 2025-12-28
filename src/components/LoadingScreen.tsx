@@ -126,7 +126,8 @@ const LoadingScreen = () => {
             }}
           />
           <Typography variant="caption" color="text.secondary">
-            Pro tip: navigation stays live -- feel free to jump between sections.
+            Navigation is paused while we load. If this takes a while, please refresh or check your
+            connection.
           </Typography>
         </Box>
       </Box>

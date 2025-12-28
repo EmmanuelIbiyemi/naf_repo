@@ -1,14 +1,18 @@
-import { Navigate, useLocation } from "react-router-dom";
+import { Navigate, useLocation, useNavigation } from "react-router-dom";
 import "./App.scss";
 import { selectCurrentUser, setLastVisitedPage } from "./store/auth.slice";
 import { useAppDispatch, useAppSelector } from "./store/hooks";
 import { lazy, useEffect, Suspense, useState } from "react";
 import { Box, LinearProgress } from "@mui/material";
-import { selectBuilderLoading, selectPageLoading } from "./store/app.slice";
+import {
+  selectBuilderLoading,
+  selectPageLoading,
+  setPageLoading,
+} from "./store/app.slice";
 import LoadingScreen from "./components/LoadingScreen";
 import ErrorBoundary from "./components/ErrorBoundary";
 import OfflineOverlay from "./components/OfflineOverlay";
-import { ToastContainer } from "react-toastify";
+import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 const AdminLayout = lazy(() => import("./components/layout/AdminLayout"));
@@ -23,10 +27,14 @@ function App() {
   const isBuilderLoading = useAppSelector(selectBuilderLoading);
   const isPageLoading = useAppSelector(selectPageLoading);
   const location = useLocation();
+  const navigation = useNavigation();
   const [isOffline, setIsOffline] = useState<boolean>(() => {
     if (typeof navigator === "undefined") return false;
     return !navigator.onLine;
   });
+
+  const isRouteLoading =
+    navigation.state === "loading" || navigation.state === "submitting";
 
   // Update last visited page
   useEffect(() => {
@@ -53,6 +61,19 @@ function App() {
     setIsOffline(!navigator.onLine);
   };
 
+  useEffect(() => {
+    if (!isPageLoading) return;
+
+    const timeout = setTimeout(() => {
+      dispatch(setPageLoading(false));
+      toast.error(
+        "Loading is taking longer than expected. Please check your connection or try again."
+      );
+    }, 15000);
+
+    return () => clearTimeout(timeout);
+  }, [dispatch, isPageLoading]);
+
   // Handle layout rendering based on user role
   const renderLayout = () => {
     switch (user?.role) {
@@ -71,17 +92,20 @@ function App() {
     <ErrorBoundary>
       <Suspense fallback={<LoadingScreen />}>
         <Box sx={{ fontFamily: "outfit", position: "relative", minHeight: "100vh" }}>
+          {isRouteLoading && <LoadingScreen />}
+
           {isPageLoading && (
             <Box
               sx={{
-                color: "lightgreen",
                 position: "fixed",
                 top: 0,
+                left: 0,
                 width: "100%",
-                zIndex: 2000,
+                zIndex: 1900,
+                pointerEvents: "none",
               }}
             >
-              <LoadingScreen />
+              <LinearProgress color="primary" sx={{ height: "5px" }} />
             </Box>
           )}
 
