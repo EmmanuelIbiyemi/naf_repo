@@ -1,7 +1,7 @@
 import { Box } from "@mui/material";
 import React, { useEffect, useRef } from "react";
 import { useDispatch } from "react-redux";
-import { setPageLoading } from "../../../../../store/app.slice";
+import { setPageLoading, setPageName } from "../../../../../store/app.slice";
 import RecordsItemsList from "./RecordItemsList";
 import { useGetRecordQuery } from "../../../../../store/api/records.api";
 import AddRecordModal from "./AddRecordModal";
@@ -78,6 +78,10 @@ const OfflineScores = () => {
       refetch();
     }
   }, [selectedCourse, refetch]);
+
+  useEffect(() => {
+    dispatch(setPageName("Manage Scores"));
+  }, [dispatch]);
 
   useEffect(() => {
     if (isFetchingRecords || isFetchingParticipants) {
