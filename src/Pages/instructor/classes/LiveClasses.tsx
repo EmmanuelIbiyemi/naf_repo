@@ -3,7 +3,6 @@ import {
   FormControl,
   Grid2,
   InputLabel,
-  LinearProgress,
   MenuItem,
   Select,
   // SxProps,
@@ -21,6 +20,7 @@ import { useGetCurrentSemesterQuery } from "../../../store/api/semesters.api";
 import { useGetInstructorCoursesQuery } from "../../../store/api/courses.api";
 import dayjs from "dayjs";
 import CustomPagination from "../../../components/CustomPagination";
+import { setPageLoading } from "../../../store/app.slice";
 
 const LiveClasses = () => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -73,6 +73,14 @@ const LiveClasses = () => {
     dispatch(setPageName("Live Classes"));
   }, [dispatch]);
 
+  useEffect(() => {
+    if (isLoading || isGettingSemester || isGettingSession || isLoadingCourses) {
+      dispatch(setPageLoading(true));
+    } else {
+      dispatch(setPageLoading(false));
+    }
+  }, [isLoading, isGettingSemester, isGettingSession, isLoadingCourses, dispatch]);
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleCourseChange = (event: any) => {
     setSelectedCourseId(event.target.value);
@@ -90,10 +98,6 @@ const LiveClasses = () => {
 
   return (
     <Box ref={containerRef} className="content-container">
-      {(isLoading ||
-        isGettingSemester ||
-        isGettingSession ||
-        isLoadingCourses) && <LinearProgress />}
       <InstructorPageHeader
         additionalButton={{
           action: handleOpenCreateModal,

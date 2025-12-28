@@ -1,15 +1,18 @@
 import { AccessTime, CalendarToday } from "@mui/icons-material";
-import { Box, Button, Grid2, LinearProgress, Typography } from "@mui/material";
-import { useRef } from "react";
+import { Box, Button, Grid2, Typography } from "@mui/material";
+import { useRef, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { CourseType } from "../../../types/courses";
 import { useGetCourseQuery } from "../../../store/api/courses.api";
 import { useGetCourseParticipantsQuery } from "../../../store/api/participants.api";
+import { useAppDispatch } from "../../../store/hooks";
+import { setPageLoading } from "../../../store/app.slice";
 
 const Details = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const location = useLocation();
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
   const locationData = location.pathname.split("/");
   const courseId = locationData[locationData.length - 2];
   const { data: courseData, isLoading } = useGetCourseQuery(
@@ -19,13 +22,13 @@ const Details = () => {
   const { data: participants, isLoading: isFetchingParticipants } =
     useGetCourseParticipantsQuery({ course_id: parseInt(courseId) });
 
-  if (isLoading || isFetchingParticipants) {
-    return (
-      <div>
-        <LinearProgress />
-      </div>
-    );
-  }
+  useEffect(() => {
+    if (isLoading || isFetchingParticipants) {
+      dispatch(setPageLoading(true));
+    } else {
+      dispatch(setPageLoading(false));
+    }
+  }, [isLoading, isFetchingParticipants, dispatch]);
 
   let course: CourseType | undefined;
 

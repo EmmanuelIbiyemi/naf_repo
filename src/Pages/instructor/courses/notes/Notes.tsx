@@ -1,17 +1,14 @@
 import {
   Box,
   FormControl,
-  LinearProgress,
   InputLabel,
   Select,
   MenuItem,
-  Backdrop,
-  CircularProgress,
 } from "@mui/material";
 import { useEffect, useRef, useState } from "react";
 import InstructorPageHeader from "../../../../components/layout/InstructorPageHeader";
 import { useAppDispatch } from "../../../../store/hooks";
-import { setPageName } from "../../../../store/app.slice";
+import { setPageName, setPageLoading } from "../../../../store/app.slice";
 import { useNavigate } from "react-router-dom";
 import { useGetInstructorCoursesQuery } from "../../../../store/api/courses.api";
 import {
@@ -53,7 +50,7 @@ const Notes = () => {
   const { data: instructorCourses, isLoading: isLoadingCourses } =
     useGetInstructorCoursesQuery({ page: 1, per_page: 1000 });
 
-  const [deleteNote, { isLoading: isDeleting }] = useDeleteNoteMutation();
+  const [deleteNote] = useDeleteNoteMutation();
 
   // Fetch notes for selected course
   const { data: note, isLoading: isGettingNotes } = useGetCourseNotesQuery(
@@ -74,6 +71,14 @@ const Notes = () => {
   useEffect(() => {
     dispatch(setPageName("Notes"));
   }, [dispatch]);
+
+  useEffect(() => {
+    if (isLoadingCourses || isGettingNotes) {
+      dispatch(setPageLoading(true));
+    } else {
+      dispatch(setPageLoading(false));
+    }
+  }, [isLoadingCourses, isGettingNotes, dispatch]);
 
   // Event handlers
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -154,7 +159,6 @@ const Notes = () => {
         }}
       />
 
-      {isLoadingCourses && <LinearProgress />}
       <Box
         sx={{
           bgcolor: "#fff",
@@ -182,8 +186,6 @@ const Notes = () => {
             </Select>
           </FormControl>
         </Box>
-
-        {isGettingNotes && <LinearProgress />}
 
         {selectedCourseId ? (
           <>
@@ -260,9 +262,6 @@ const Notes = () => {
         subTitle={`Are you sure you want to delete the note "${selectedNotes?.title}" ?`}
         title="Delete Note?"
       />
-      <Backdrop open={isDeleting}>
-        <CircularProgress />
-      </Backdrop>
     </Box>
   );
 };

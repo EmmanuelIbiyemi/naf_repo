@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import {
   Box,
@@ -7,7 +7,6 @@ import {
   Typography,
   Grid2,
   Paper,
-  LinearProgress,
 } from "@mui/material";
 import { useGetStudentQuery } from "../../../../../store/api/students.api";
 import { useGetUserQuizResultQuery } from "../../../../../store/api/quizzes.api";
@@ -15,6 +14,8 @@ import CustomPagination from "../../../../../components/CustomPagination";
 import { ArrowBack } from "@mui/icons-material";
 import { Question } from "../../../../../types/quizzes";
 import { option } from "../../../../../types/options";
+import { useDispatch } from "react-redux";
+import { setPageLoading } from "../../../../../store/app.slice";
 
 interface QuestionDisplay {
   id: number;
@@ -25,6 +26,7 @@ interface QuestionDisplay {
 }
 
 const ViewQuizAnswers: React.FC = () => {
+  const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
   const [currentPage, setCurrentPage] = useState<number>(1);
@@ -43,6 +45,14 @@ const ViewQuizAnswers: React.FC = () => {
       quizId: parseInt(quizId),
       userId: parseInt(userId),
     });
+
+  useEffect(() => {
+    if (isGettingResult || isGettingStudent) {
+      dispatch(setPageLoading(true));
+    } else {
+      dispatch(setPageLoading(false));
+    }
+  }, [isGettingResult, isGettingStudent, dispatch]);
 
   const questionsPerPage = 9;
   const indexOfLastQuestion = currentPage * questionsPerPage;
@@ -108,8 +118,6 @@ const ViewQuizAnswers: React.FC = () => {
 
   return (
     <Box sx={{ p: 4, mx: "auto" }}>
-      {(isGettingResult || isGettingStudent) && <LinearProgress />}
-
       <Box
         sx={{
           display: "flex",

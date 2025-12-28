@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import CBTForm from "./components/QuizzesForm";
 import QuizList from "./CBTsList";
 import { useAppDispatch } from "../../../../store/hooks";
-import { setPageName } from "../../../../store/app.slice";
+import { setPageName, setPageLoading } from "../../../../store/app.slice";
 import FormModal from "../../../../components/FormModal";
 import SuccessModal from "../../../../components/SuccessModal";
 import PageHeader from "../../../../components/PageHeader";
@@ -12,7 +12,6 @@ import {
   InputLabel,
   Select,
   MenuItem,
-  LinearProgress,
 } from "@mui/material";
 import { useGetInstructorCoursesQuery } from "../../../../store/api/courses.api";
 import EmptyState from "../../../../components/EmptyState";
@@ -24,12 +23,21 @@ const CourseQuizSelector = ({
   selectedCourseId: string;
   onCourseChange: (courseId: string) => void;
 }) => {
+  const dispatch = useAppDispatch();
   // Fetch instructor courses
   const { data: instructorCourses, isLoading: isLoadingCourses } =
     useGetInstructorCoursesQuery({
       page: 1,
       per_page: 1000,
     });
+
+  useEffect(() => {
+    if (isLoadingCourses) {
+      dispatch(setPageLoading(true));
+    } else {
+      dispatch(setPageLoading(false));
+    }
+  }, [isLoadingCourses, dispatch]);
 
   // Event handler for course selection
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -40,8 +48,6 @@ const CourseQuizSelector = ({
 
   return (
     <Box>
-      {isLoadingCourses && <LinearProgress />}
-
       <FormControl fullWidth sx={{ marginBottom: 2 }}>
         <InputLabel id="course-select-label">Select Course</InputLabel>
         <Select

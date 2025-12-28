@@ -1,6 +1,8 @@
-import { Box, Button, LinearProgress } from "@mui/material";
-import { useRef, useState } from "react";
+import { Box, Button } from "@mui/material";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { setPageLoading } from "../../../../store/app.slice";
 import CustomMarkdownEditor from "../../../../components/layout/CustomMarkdownEditor";
 import * as yup from "yup";
 import { useFormik } from "formik";
@@ -25,11 +27,21 @@ const NewNote = () => {
   const [createNote, { isLoading: isCreatingNote }] = useAddNoteMutation();
   const [uploadFile, { isLoading: isUploadingFile }] = useAddMediaMutation();
 
+  const dispatch = useDispatch();
+
   const { data: participants, isLoading: isFetchingParticipants } =
     useGetCourseParticipantsQuery(
       { course_id: parseInt(courseId || "") },
       { skip: !courseId || isNaN(parseInt(courseId)) }
     );
+
+  useEffect(() => {
+    if (isFetchingParticipants) {
+      dispatch(setPageLoading(true));
+    } else {
+      dispatch(setPageLoading(false));
+    }
+  }, [isFetchingParticipants, dispatch]);
   const formik = useFormik<noteInput>({
     initialValues: {
       title: "Untitled Document",
@@ -74,7 +86,6 @@ const NewNote = () => {
 
   return (
     <Box ref={containerRef} className="content-container">
-      {isFetchingParticipants && <LinearProgress />}
       <Box
         sx={{
           bgcolor: "#fff",

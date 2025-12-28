@@ -1,7 +1,7 @@
-import { Box, Grid2, LinearProgress, Typography } from "@mui/material";
+import { Box, Grid2, Typography } from "@mui/material";
 import { useEffect, useRef, useState } from "react";
 import { useAppDispatch } from "../../../store/hooks";
-import { setPageName } from "../../../store/app.slice";
+import { setPageName, setPageLoading } from "../../../store/app.slice";
 import CoursesCard from "./CoursesCard";
 import { useGetInstructorCoursesQuery } from "../../../store/api/courses.api";
 import CustomPagination from "../../../components/CustomPagination";
@@ -19,6 +19,14 @@ const Courses = () => {
   useEffect(() => {
     dispatch(setPageName("Courses"));
   }, [dispatch]);
+
+  useEffect(() => {
+    if (isLoading) {
+      dispatch(setPageLoading(true));
+    } else {
+      dispatch(setPageLoading(false));
+    }
+  }, [isLoading, dispatch]);
 
   const handleChangePage = (
     _event: React.ChangeEvent<unknown>,
@@ -48,7 +56,6 @@ const Courses = () => {
             Assigned Courses
           </Typography>
           <Box sx={{ marginTop: "3em" }}>
-            {isLoading && <LinearProgress />}
             <Grid2 container spacing={2}>
               {courses?.data.map((course) => (
                 <Grid2 size={4} key={course.id}>

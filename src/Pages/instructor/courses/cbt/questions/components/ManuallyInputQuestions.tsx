@@ -11,13 +11,14 @@ import {
   Pagination,
   Grid2,
   IconButton,
-  LinearProgress,
 } from "@mui/material";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import RemoveCircleOutlineIcon from "@mui/icons-material/RemoveCircleOutline";
 import { useCreateQuestionManuallyMutation } from "../../../../../../store/api/quizzes.api";
 import ShareWithModal from "../../../../../../components/ShareWithModal";
 import { useGetCourseParticipantsQuery } from "../../../../../../store/api/participants.api";
+import { useDispatch } from "react-redux";
+import { setPageLoading } from "../../../../../../store/app.slice";
 
 interface TestQuestion {
   question: string;
@@ -93,6 +94,7 @@ const QuestionField: React.FC<QuestionFieldProps> = ({
 );
 
 const ManualInputQuestions: React.FC = () => {
+  const dispatch = useDispatch();
   const navigate = useNavigate();
   const [currentPage, setCurrentPage] = React.useState(1);
   const questionsPerPage = 9;
@@ -117,6 +119,14 @@ const ManualInputQuestions: React.FC = () => {
       { course_id: parseInt(courseId) },
       { skip: !courseId }
     );
+
+  React.useEffect(() => {
+    if (isFetchingParticipants) {
+      dispatch(setPageLoading(true));
+    } else {
+      dispatch(setPageLoading(false));
+    }
+  }, [isFetchingParticipants, dispatch]);
 
   const handleSubmit = async (
     values: FormValues,
@@ -149,7 +159,6 @@ const ManualInputQuestions: React.FC = () => {
 
   return (
     <>
-      {isFetchingParticipants && <LinearProgress />}
       <Formik
         initialValues={initialValues}
         validationSchema={validationSchema}

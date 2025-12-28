@@ -1,8 +1,7 @@
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import {
   Box,
   Button,
-  LinearProgress,
   Tooltip,
   Typography,
 } from "@mui/material";
@@ -17,20 +16,27 @@ import { useNavigate, useParams } from "react-router-dom";
 import TestParticipantsList from "./TestParticipantsList";
 import { useGetSingleInstructorQuizQuery } from "../../../../../store/api/quizzes.api";
 import EmptyState from "../../../../../components/EmptyState";
+import { useAppDispatch } from "../../../../../store/hooks";
+import { setPageLoading } from "../../../../../store/app.slice";
 
 const Students = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
   const { quiz_id } = useParams();
   const [copiedCode, setCopiedCode] = useState(false);
+  const dispatch = useAppDispatch();
 
   const { data: quizData, isLoading } = useGetSingleInstructorQuizQuery({
     quiz_id: +(quiz_id || 0),
   });
 
-  if (isLoading) {
-    return <LinearProgress />;
-  }
+  useEffect(() => {
+    if (isLoading) {
+      dispatch(setPageLoading(true));
+    } else {
+      dispatch(setPageLoading(false));
+    }
+  }, [isLoading, dispatch]);
 
   if (!quizData) {
     return <EmptyState title={"Quiz data does not exist"} subTitle={""} />;

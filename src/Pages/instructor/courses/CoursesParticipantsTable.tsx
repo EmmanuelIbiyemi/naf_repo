@@ -7,10 +7,13 @@ import TableHead from "@mui/material/TableHead";
 import TablePagination from "@mui/material/TablePagination";
 import TableRow from "@mui/material/TableRow";
 // import { VisibilityOutlined } from "@mui/icons-material";
-import { Box, LinearProgress } from "@mui/material";
+import { Box } from "@mui/material";
 import { useGetCourseParticipantsQuery } from "../../../store/api/participants.api";
+import { useDispatch } from "react-redux";
+import { setPageLoading } from "../../../store/app.slice";
 
 const CoursesParticipantsTable = () => {
+  const dispatch = useDispatch();
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
   const locationData = location.pathname.split("/");
@@ -30,6 +33,14 @@ const CoursesParticipantsTable = () => {
   const { data: participants, isLoading: isFetchingParticipants } =
     useGetCourseParticipantsQuery({ course_id: parseInt(courseId) });
 
+  React.useEffect(() => {
+    if (isFetchingParticipants) {
+      dispatch(setPageLoading(true));
+    } else {
+      dispatch(setPageLoading(false));
+    }
+  }, [isFetchingParticipants, dispatch]);
+
   // Calculate the slice of data to display based on current page and rowsPerPage
   const PaginatedRows = React.useMemo(() => {
     const startIndex = page * rowsPerPage;
@@ -38,8 +49,6 @@ const CoursesParticipantsTable = () => {
 
   return (
     <Box sx={{ width: "100%", overflow: "hidden" }}>
-      {isFetchingParticipants && <LinearProgress />}
-      {isFetchingParticipants && <LinearProgress />}
       <TableContainer>
         <Table stickyHeader aria-label="sticky table">
           <TableHead>

@@ -1,13 +1,14 @@
 import {
   Box,
   Button,
-  LinearProgress,
   MenuItem,
   Select,
   SelectChangeEvent,
   Typography,
 } from "@mui/material";
 import React, { useEffect, useRef } from "react";
+import { useDispatch } from "react-redux";
+import { setPageLoading } from "../../../../../store/app.slice";
 import { useGetInstructorCoursesQuery } from "../../../../../store/api/courses.api";
 import RecordsItemsList from "./RecordItemsList";
 import { useGetRecordQuery } from "../../../../../store/api/records.api";
@@ -18,6 +19,7 @@ import { useGetCourseParticipantsQuery } from "../../../../../store/api/particip
 import UpdateRecordModal from "./UpdateRecordModal";
 
 const OfflineScores = () => {
+  const dispatch = useDispatch();
   const containerRef = useRef<HTMLDivElement>(null);
   const [selectedCourse, setSelectedCourse] = React.useState("");
   const [selectedRecord, setSelectedRecord] =
@@ -75,9 +77,16 @@ const OfflineScores = () => {
     }
   }, [selectedCourse, refetch]);
 
+  useEffect(() => {
+    if (isFetchingRecords || isFetchingParticipants) {
+      dispatch(setPageLoading(true));
+    } else {
+      dispatch(setPageLoading(false));
+    }
+  }, [isFetchingRecords, isFetchingParticipants, dispatch]);
+
   return (
     <Box ref={containerRef} className="content-container">
-      {(isFetchingRecords || isFetchingParticipants) && <LinearProgress />}
       <Box
         sx={{
           bgcolor: "#fff",
