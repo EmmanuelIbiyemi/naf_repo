@@ -42,6 +42,7 @@ const allowedRoutes = {
     "/grading/results",
     "/settings",
     "/settings/profile",
+    "/settings/contact",
     "/settings/posttype/:resource_type",
     "/settings/posttype/:resource_type/:post_id",
     "/settings/posttype/:resource_type/add",

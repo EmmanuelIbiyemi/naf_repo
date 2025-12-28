@@ -58,6 +58,7 @@ const PostTypeItemsAddPage = lazy(
 );
 const CBTsPage = lazy(() => import("./Pages/admin/cbt/CBT"));
 const ProfileSettings = lazy(() => import("./Pages/admin/settings/Profile"));
+const ContactSettings = lazy(() => import("./Pages/admin/settings/ContactSettings"));
 const Eligibles = lazy(
   () => import("./Pages/admin/grading/eligibles/Eligibles")
 );
@@ -254,6 +255,7 @@ export const router = createBrowserRouter([
         children: [
           { path: "", element: <MediaLibrary /> },
           { path: "profile", element: <ProfileSettings /> },
+          { path: "contact", element: <ContactSettings /> },
           { path: "posttype/:resource_type", element: <PostTypeItemsPage /> },
           {
             path: "posttype/:resource_type/:post_id",

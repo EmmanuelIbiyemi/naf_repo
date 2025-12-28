@@ -19,6 +19,7 @@ import { useLoginMutation } from "../../store/api/auth.api";
 import { UserLoginType } from "../../types/users";
 import { login } from "../../store/auth.slice";
 import { useAppDispatch } from "../../store/hooks";
+import { useAppConfig } from "../../hooks/useAppConfig";
 
 interface LoginError {
   data?: {
@@ -31,6 +32,7 @@ const Login = () => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const [loginUser] = useLoginMutation();
+  const { config } = useAppConfig();
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -124,10 +126,10 @@ const Login = () => {
               textDecoration: "none",
             }}
           >
-            <img src={import.meta.env.VITE_LOGO} alt="logo" height={80} />
+            <img src={config.logo} alt="logo" height={80} />
             <Typography
               dangerouslySetInnerHTML={{
-                __html: import.meta.env.VITE_SCHOOL_NAME_IN_HEADER || '',
+                __html: config.schoolNameInHeader || '',
               }}
             />
           </Link>
@@ -151,7 +153,7 @@ const Login = () => {
             <Form>
               <Box sx={formStyles}>
                 <img
-                  src={import.meta.env.VITE_LOGO}
+                  src={config.logo}
                   alt="College logo"
                   width={50}
                 />
@@ -204,7 +206,7 @@ const Login = () => {
                   <Typography sx={helpTextStyles}>
                     Don't have an account?{" "}
                     <a
-                      href={`mailto:${import.meta.env.VITE_EMAIL}`}
+                      href={`mailto:${config.email}`}
                       style={{
                         color: "rgba(21, 46, 136, 1)",
                         fontWeight: 600,

@@ -12,10 +12,12 @@ import { useAppDispatch, useAppSelector } from "../../../store/hooks";
 import { setPageName } from "../../../store/app.slice";
 import { useEffect } from "react";
 import { selectCurrentUser } from "../../../store/auth.slice";
+import { useAppConfig } from "../../../hooks/useAppConfig";
 
 const Dashboard = () => {
   const dispatch = useAppDispatch();
   const user = useAppSelector(selectCurrentUser);
+  const { config } = useAppConfig();
 
   useEffect(() => {
     dispatch(setPageName("Dashboard"));
@@ -38,7 +40,7 @@ const Dashboard = () => {
     >
       <Box sx={{ textAlign: "center" }}>
         <Typography variant="h1" sx={{ fontSize: "2rem", fontWeight: 500 }}>
-          Welcome to your {import.meta.env.VITE_SCHOOL_ACRONYM} dashboard
+          Welcome to your {config.schoolAcronym} dashboard
         </Typography>
         <Typography
           sx={{ fontSize: "1.3rem", fontWeight: 300, marginTop: ".5rem" }}

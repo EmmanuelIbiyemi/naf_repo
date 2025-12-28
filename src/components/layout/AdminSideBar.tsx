@@ -8,6 +8,7 @@ import ClipBoardIcon from "../../assets/clipboardIcon";
 import SchoolIcon from "../../assets/schoolIcon";
 import { ChevronLeft, ChevronRight, Restore } from "@mui/icons-material";
 import GraduationScroll from "../../assets/graduation-scroll";
+import { useAppConfig } from "../../hooks/useAppConfig";
 
 type NavLink = {
   content: string;
@@ -45,6 +46,7 @@ const navLinks: NavLink[] = [
 
 const SideBar = () => {
   const location = useLocation();
+  const { config } = useAppConfig();
 
   const isCurrentPage = (navLink: NavLink) => {
     const currentPath = location.pathname.toLowerCase();
@@ -77,7 +79,7 @@ const SideBar = () => {
   return (
     <Box className="sidebar" sx={sideBarStyles}>
       <img
-        src={import.meta.env.VITE_LOGO}
+        src={config.logo}
         alt=""
         width={80}
         style={{ display: "block", marginInline: "auto" }}

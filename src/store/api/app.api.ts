@@ -37,6 +37,7 @@ export const appApi = createApi({
     "LiveClasses",
     "Eligibles",
     "ActivityLogs",
+    "AppSettings",
   ],
   endpoints: () => ({}),
 });

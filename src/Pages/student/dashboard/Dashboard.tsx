@@ -14,6 +14,7 @@ import { setPageName, setPageLoading } from "../../../store/app.slice";
 import { useGetParticipantQuery } from "../../../store/api/participants.api";
 import EmptyState from "../../../components/EmptyState";
 import { selectCurrentUser } from "../../../store/auth.slice";
+import { useAppConfig } from "../../../hooks/useAppConfig";
 
 // Types
 interface DashboardCard {
@@ -26,6 +27,7 @@ interface DashboardCard {
 const Dashboard: React.FC = () => {
   const dispatch = useAppDispatch();
   const user = useAppSelector(selectCurrentUser);
+  const { config } = useAppConfig();
   const participantId = user?.id || 0;
   const {
     data: participantData,
@@ -70,7 +72,7 @@ const Dashboard: React.FC = () => {
       {/* Header */}
       <Box sx={{ textAlign: "center", marginBottom: "2rem" }}>
         <Typography variant="h1" sx={{ fontSize: "2rem", fontWeight: 500 }}>
-          Welcome to your {import.meta.env.VITE_SCHOOL_ACRONYM} dashboard
+          Welcome to your {config.schoolAcronym} dashboard
         </Typography>
         <Typography
           sx={{
