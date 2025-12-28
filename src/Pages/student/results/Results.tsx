@@ -180,7 +180,7 @@ export default function Results() {
   return (
     <Box sx={{ padding: "2rem" }}>
       <Box sx={filterContainerStyle}>
-        <Box sx={filterItemStyle}>
+        <Box sx={{ ...filterItemStyle, minWidth: "200px" }}>
           <SessionDropdown
             value={selectedSessionObj}
             onChange={(session) => {
@@ -194,11 +194,13 @@ export default function Results() {
             placeholder="Select session"
           />
         </Box>
-        <Box sx={filterItemStyle}>
+        <Box sx={{ ...filterItemStyle, minWidth: "200px" }}>
           <Select
             value={selectedSemester}
             onChange={handleSemesterChange}
-            sx={{ minWidth: "200px" }}
+            fullWidth
+            size="small"
+            displayEmpty
           >
             {availableSemesters.map((semester) => (
               <MenuItem key={semester.id} value={semester.name}>

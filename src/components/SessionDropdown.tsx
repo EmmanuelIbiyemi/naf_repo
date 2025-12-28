@@ -109,6 +109,7 @@ const SessionDropdown: React.FC<SessionDropdownProps> = ({
         option.id === value.id
       }
       loading={isFetching}
+      fullWidth
       ListboxProps={{
         onScroll: handleScroll,
       }}
