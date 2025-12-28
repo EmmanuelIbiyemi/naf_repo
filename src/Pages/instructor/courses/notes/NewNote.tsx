@@ -40,6 +40,8 @@ const NewNote = () => {
   const [showPreview, setShowPreview] = useState(false);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [lastSavedContent, setLastSavedContent] = useState({ title: "", content: "" });
   const autoSaveTimerRef = useRef<number | null>(null);
 
   const handleOpenModal = () => setOpenModal(true);
@@ -67,6 +69,19 @@ const NewNote = () => {
     }
   }, [isFetchingParticipants, dispatch]);
 
+  // Warn user about unsaved changes when leaving page
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (hasUnsavedChanges) {
+        e.preventDefault();
+        e.returnValue = '';
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [hasUnsavedChanges]);
+
   const formik = useFormik<noteInput>({
     initialValues: {
       title: "Untitled Document",
@@ -80,29 +95,23 @@ const NewNote = () => {
       content: yup.string().required("Required"),
       course_id: yup.number().required(),
     }),
-    onSubmit: async (values: noteInput) => {
-      try {
-        // If note already exists (from auto-save), update it and mark as not draft
-        if (noteId) {
-          await updateNote({
-            body: { ...values, is_draft: false },
-            id: noteId,
-          }).unwrap();
-        } else {
-          // Create new note and mark as not draft
-          const response = await createNote({ ...values, is_draft: false }).unwrap();
-          setNoteId(response?.data?.id);
-        }
-        setSnackbarMessage("Note created successfully!");
-        setSnackbarOpen(true);
+    onSubmit: async () => {
+      // This will be used for the Share button
+      await handleSave();
+      if (noteId || formik.values.title || formik.values.content) {
         handleOpenModal();
-      } catch (error) {
-        console.error(error);
-        setSnackbarMessage("Failed to create note. Please try again.");
-        setSnackbarOpen(true);
       }
     },
   });
+
+  // Track unsaved changes
+  useEffect(() => {
+    const contentChanged = 
+      formik.values.title !== lastSavedContent.title ||
+      formik.values.content !== lastSavedContent.content;
+    
+    setHasUnsavedChanges(contentChanged && (formik.values.title !== "Untitled Document" || formik.values.content !== ""));
+  }, [formik.values.title, formik.values.content, lastSavedContent]);
 
   // Calculate word count and reading time
   const calculateStats = useCallback((content: string) => {
@@ -113,7 +122,50 @@ const NewNote = () => {
 
   const stats = calculateStats(formik.values.content);
 
-  // Auto-save functionality
+  // Manual save handler
+  const handleSave = async () => {
+    if (!formik.values.title || !formik.values.content || !courseId) {
+      setSnackbarMessage("Please add a title and content before saving.");
+      setSnackbarOpen(true);
+      return;
+    }
+
+    try {
+      setAutoSaveStatus("saving");
+      
+      if (noteId) {
+        // Update existing note
+        await updateNote({
+          body: { ...formik.values, is_draft: false },
+          id: noteId,
+        }).unwrap();
+      } else {
+        // Create new note
+        const response = await createNote({
+          ...formik.values,
+          is_draft: false,
+        }).unwrap();
+        setNoteId(response?.data?.id);
+      }
+      
+      setLastSavedContent({
+        title: formik.values.title,
+        content: formik.values.content,
+      });
+      setHasUnsavedChanges(false);
+      setAutoSaveStatus("saved");
+      setSnackbarMessage("Note saved successfully!");
+      setSnackbarOpen(true);
+      setTimeout(() => setAutoSaveStatus(null), 3000);
+    } catch (error) {
+      setAutoSaveStatus("error");
+      console.error("Save failed:", error);
+      setSnackbarMessage("Failed to save note. Please try again.");
+      setSnackbarOpen(true);
+    }
+  };
+
+  // Auto-save functionality (saves as draft)
   const autoSave = useCallback(async () => {
     if (!formik.values.title || !formik.values.content || !courseId) return;
     
@@ -135,6 +187,11 @@ const NewNote = () => {
         setNoteId(response?.data?.id);
       }
       
+      setLastSavedContent({
+        title: formik.values.title,
+        content: formik.values.content,
+      });
+      setHasUnsavedChanges(false);
       setAutoSaveStatus("saved");
       setTimeout(() => setAutoSaveStatus(null), 3000);
     } catch (error) {
@@ -161,6 +218,16 @@ const NewNote = () => {
       }
     };
   }, [formik.values.content, formik.values.title, autoSave]);
+
+  const handleBack = () => {
+    if (hasUnsavedChanges) {
+      const confirmLeave = window.confirm(
+        "You have unsaved changes. Are you sure you want to leave? Your changes will be lost."
+      );
+      if (!confirmLeave) return;
+    }
+    navigate(-1);
+  };
 
   const handleImageUpload = async (file: File) => {
     try {
@@ -206,7 +273,7 @@ const NewNote = () => {
         >
           <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
             <Tooltip title="Go Back">
-              <IconButton onClick={() => navigate(-1)} size="small">
+              <IconButton onClick={handleBack} size="small">
                 <ArrowBackIcon />
               </IconButton>
             </Tooltip>
@@ -222,9 +289,9 @@ const NewNote = () => {
                 size="small"
                 label={
                   autoSaveStatus === "saving"
-                    ? "Saving..."
+                    ? "Saving draft..."
                     : autoSaveStatus === "saved"
-                    ? "All changes saved"
+                    ? "Draft saved"
                     : "Save failed"
                 }
                 color={
@@ -235,6 +302,16 @@ const NewNote = () => {
                     : "error"
                 }
                 icon={<SaveIcon fontSize="small" />}
+              />
+            )}
+
+            {/* Unsaved changes indicator */}
+            {hasUnsavedChanges && !autoSaveStatus && (
+              <Chip
+                size="small"
+                label="Unsaved changes"
+                color="warning"
+                variant="outlined"
               />
             )}
 
@@ -250,22 +327,35 @@ const NewNote = () => {
             <Button
               variant="outlined"
               startIcon={<ArrowBackIcon />}
-              onClick={() => navigate(-1)}
+              onClick={handleBack}
               sx={{ borderRadius: "8px" }}
             >
               Cancel
             </Button>
             <Button
               variant="contained"
-              startIcon={<ShareIcon />}
-              onClick={formik.handleSubmit as () => void}
+              startIcon={<SaveIcon />}
+              onClick={handleSave}
               disabled={isFetchingParticipants || isCreatingNote || !formik.values.content}
               sx={{
                 borderRadius: "8px",
                 paddingX: 3,
               }}
             >
-              {isCreatingNote ? "Creating..." : "Save & Share"}
+              {isCreatingNote ? "Saving..." : "Save"}
+            </Button>
+            <Button
+              variant="contained"
+              color="secondary"
+              startIcon={<ShareIcon />}
+              onClick={formik.handleSubmit as () => void}
+              disabled={isFetchingParticipants || !noteId}
+              sx={{
+                borderRadius: "8px",
+                paddingX: 3,
+              }}
+            >
+              Share
             </Button>
           </Box>
         </Box>
