@@ -62,11 +62,12 @@ const LiveClasses = () => {
       per_page: 10, // Adjust this value based on your needs
     },
     {
-      // Skip the query if we don't have semester, session, or participant data yet
+      // Skip the query if we don't have semester, session, participant data, or selected course
       skip:
         !currentSemester?.data?.name ||
         !currentSession?.data?.name ||
-        !participantData?.data,
+        !participantData?.data ||
+        !selectedCourse,
     }
   );
 
