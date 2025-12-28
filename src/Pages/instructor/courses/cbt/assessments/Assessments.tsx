@@ -4,7 +4,7 @@ import AssessmentList from "./AssessmentList";
 import AssessmentsForm from "./components/AssessmentsForm";
 import FormModal from "../../../../../components/FormModal";
 import SuccessModal from "../../../../../components/SuccessModal";
-import PageHeader from "../../../../../components/PageHeader";
+import InstructorPageHeader from "../../../../../components/layout/InstructorPageHeader";
 import { useAppDispatch } from "../../../../../store/hooks";
 import { setPageName } from "../../../../../store/app.slice";
 import { useNavigate, useParams } from "react-router-dom";
@@ -70,14 +70,16 @@ const AssessmentsPage = () => {
         title="Updates Successful"
       />
 
-      <PageHeader
+      <InstructorPageHeader
+        heading="Assessments"
+        subHeading="Manage assessments for this quiz"
         button={{
-          action: () => handleOpenModal("add"),
-          text: "Add Assessment",
-        }}
-        secondaryButton={{
           action: () => navigate("participants"),
           text: "View Participants",
+        }}
+        additionalButton={{
+          action: () => handleOpenModal("add"),
+          text: "Add Assessment",
         }}
       />
       <Box

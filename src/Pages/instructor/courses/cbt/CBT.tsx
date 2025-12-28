@@ -5,7 +5,7 @@ import { useAppDispatch } from "../../../../store/hooks";
 import { setPageName } from "../../../../store/app.slice";
 import FormModal from "../../../../components/FormModal";
 import SuccessModal from "../../../../components/SuccessModal";
-import PageHeader from "../../../../components/PageHeader";
+import InstructorPageHeader from "../../../../components/layout/InstructorPageHeader";
 import { Box } from "@mui/material";
 import InstructorCourseSelector from "../../../../components/layout/InstructorCourseSelector";
 import { useLocation } from "react-router-dom";
@@ -74,11 +74,13 @@ const CBTsPage = () => {
         title="Updates Successful"
       />
 
-      <PageHeader
-        button={{
+      <InstructorPageHeader
+        heading="Quizzes"
+        subHeading="List of quizzes for your courses"
+        additionalButton={{
           action: () => handleOpenModal("add"),
           text: "Add Quiz",
-          disabled: !selectedCourseId,
+          isLoading: !selectedCourseId,
         }}
       />
 

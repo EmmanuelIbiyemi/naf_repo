@@ -6,7 +6,7 @@ import { useAppDispatch } from "../../../../../store/hooks";
 import { setPageName } from "../../../../../store/app.slice";
 import FormModal from "../../../../../components/FormModal";
 import SuccessModal from "../../../../../components/SuccessModal";
-import PageHeader from "../../../../../components/PageHeader";
+import InstructorPageHeader from "../../../../../components/layout/InstructorPageHeader";
 
 const QuestionsPage = () => {
   const [openModal, setOpenModal] = useState({
@@ -54,8 +54,10 @@ const QuestionsPage = () => {
         title="Updates Successful"
       />
 
-      <PageHeader
-        button={{
+      <InstructorPageHeader
+        heading="Questions"
+        subHeading="Manage questions for your quizzes"
+        additionalButton={{
           action: () => handleOpenModal("add"),
           text: "Upload Questions",
         }}

@@ -1,4 +1,4 @@
-import { Box, Button, Typography } from "@mui/material";
+import { Box } from "@mui/material";
 import React, { useEffect, useRef } from "react";
 import { useDispatch } from "react-redux";
 import { setPageLoading } from "../../../../../store/app.slice";
@@ -11,6 +11,7 @@ import { useGetCourseParticipantsQuery } from "../../../../../store/api/particip
 import UpdateRecordModal from "./UpdateRecordModal";
 import InstructorCourseSelector from "../../../../../components/layout/InstructorCourseSelector";
 import { useLocation } from "react-router-dom";
+import InstructorPageHeader from "../../../../../components/layout/InstructorPageHeader";
 
 const OfflineScores = () => {
   const dispatch = useDispatch();
@@ -88,72 +89,21 @@ const OfflineScores = () => {
 
   return (
     <Box ref={containerRef} className="content-container">
-      <Box
-        sx={{
-          bgcolor: "#fff",
-          borderRadius: "var(--border-radius)",
-          marginInline: "var(--padding)",
-          padding: "var(--padding)",
-          margin: "1em",
+      <InstructorPageHeader
+        heading="Manage Scores"
+        subHeading="Easily add, edit, and track scores for offline activities, ensuring accurate performance records."
+        button={{
+          text: "Update Record",
+          action: handleOpenRecordModal,
         }}
-      >
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "start",
-            marginBottom: "1.5em",
-          }}
-        >
-          <Box>
-            <Typography
-              variant="h4"
-              sx={{
-                fontWeight: 500,
-                fontSize: "1.5rem",
-                lineHeight: "40.32px",
-                marginBottom: ".2em",
-              }}
-            >
-              Manage Scores
-            </Typography>
-            <Typography
-              variant="body2"
-              sx={{
-                fontSize: "1rem",
-                color: "#9A9A9A",
-                lineHeight: "20.16px",
-                fontWeight: 300,
-              }}
-            >
-              Easily add, edit, and track scores for offline activities,
-              ensuring accurate performance records.
-            </Typography>
-          </Box>
-          <Box
-            sx={{
-              display: "flex",
-              gap: 2,
-            }}
-          >
-            <Button
-              onClick={handleOpen}
-              variant="contained"
-              disabled={!selectedCourse}
-            >
-              Add New Record
-            </Button>
-            <Button
-              onClick={handleOpenRecordModal}
-              variant="contained"
-              disabled={!selectedCourse}
-            >
-              Update Record
-            </Button>
-          </Box>
-        </Box>
+        additionalButton={{
+          text: "Add New Record",
+          action: handleOpen,
+          isLoading: !selectedCourse,
+        }}
+      />
 
-        <InstructorCourseSelector
+      <InstructorCourseSelector
           selectedCourseId={selectedCourse}
           onCourseChange={handleCourseChange}
           emptyStateTitle="Please select a course"
@@ -167,7 +117,6 @@ const OfflineScores = () => {
             />
           </Box>
         </InstructorCourseSelector>
-      </Box>
       
       <AddRecordModal
         open={openAddModal}
