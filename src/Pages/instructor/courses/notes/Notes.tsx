@@ -5,7 +5,7 @@ import {
   Select,
   MenuItem,
 } from "@mui/material";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import InstructorPageHeader from "../../../../components/layout/InstructorPageHeader";
 import { useAppDispatch } from "../../../../store/hooks";
 import { setPageName, setPageLoading } from "../../../../store/app.slice";
@@ -25,7 +25,6 @@ import CustomPreviewModal from "../../../../components/CustomPreviewModal";
 import { note } from "../../../../types/notes";
 
 const Notes = () => {
-  const containerRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
 
@@ -148,7 +147,7 @@ const Notes = () => {
   };
 
   return (
-    <Box ref={containerRef} className="content-container">
+    <Box className="content-container">
       <InstructorPageHeader
         heading="Notes"
         subHeading="List of notes for your courses"
@@ -166,6 +165,9 @@ const Notes = () => {
           marginInline: "var(--padding)",
           padding: "var(--padding)",
           margin: "1em",
+          position: "sticky",
+          top: 0,
+          zIndex: 1,
         }}
       >
         <Box sx={{ marginBottom: 3 }}>

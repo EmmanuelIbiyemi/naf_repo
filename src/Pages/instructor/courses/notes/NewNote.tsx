@@ -15,7 +15,7 @@ import { useEffect, useRef, useState, useCallback } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { setPageLoading } from "../../../../store/app.slice";
-import CustomMarkdownEditor from "../../../../components/layout/CustomMarkdownEditor";
+import GoogleDocsEditor from "../../../../components/layout/GoogleDocsEditor";
 import * as yup from "yup";
 import { useFormik } from "formik";
 import { useAddNoteMutation, useUpdateNoteMutation } from "../../../../store/api/notes.api";
@@ -26,18 +26,15 @@ import ShareWithList from "../../../../components/ShareWithList";
 import SaveIcon from "@mui/icons-material/Save";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import ShareIcon from "@mui/icons-material/Share";
-import VisibilityIcon from "@mui/icons-material/Visibility";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 
 const NewNote = () => {
-  const containerRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
   const [openModal, setOpenModal] = useState(false);
   const [noteId, setNoteId] = useState<number | null>(null);
   const [autoSaveStatus, setAutoSaveStatus] = useState<
     "saved" | "saving" | "error" | null
   >(null);
-  const [showPreview, setShowPreview] = useState(false);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
@@ -50,7 +47,7 @@ const NewNote = () => {
   const { courseId } = useParams();
 
   const [createNote, { isLoading: isCreatingNote }] = useAddNoteMutation();
-  const [uploadFile, { isLoading: isUploadingFile }] = useAddMediaMutation();
+  const [uploadFile] = useAddMediaMutation();
   const [updateNote] = useUpdateNoteMutation();
 
   const dispatch = useDispatch();
@@ -229,27 +226,55 @@ const NewNote = () => {
     navigate(-1);
   };
 
-  const handleImageUpload = async (file: File) => {
+  // Upload handler for images and files
+  const handleUpload = async (file: File): Promise<{ url: string; id: number }> => {
     try {
       const formData = new FormData();
       formData.append("file", file);
-
       const response = await uploadFile(formData).unwrap();
-      const imageUrl = response.media[0].url;
-      const imageName = file.name;
+      const mediaItem = response.media[0];
+      
+      // Add to formik media array
       formik.setFieldValue("media", [
         ...formik.values.media,
-        ...response.media.map((resource) => ({ id: resource.id })),
+        { id: mediaItem.id },
       ]);
-
-      return [imageName, imageUrl];
+      
+      return { url: mediaItem.url, id: mediaItem.id };
     } catch (error) {
       console.error("Error uploading file:", error);
+      throw error;
+    }
+  };
+
+  const handleImageUpload = async (file: File) => {
+    try {
+      const { url } = await handleUpload(file);
+      // Return the URL so the toolbar can insert it
+      return url;
+    } catch (error) {
+      console.error("Image upload failed:", error);
+      setSnackbarMessage("Failed to upload image. Please try again.");
+      setSnackbarOpen(true);
+      throw error;
+    }
+  };
+
+  const handleFileUpload = async (file: File) => {
+    try {
+      const { url } = await handleUpload(file);
+      // Return the URL and filename so the toolbar can insert it as a link
+      return { url, name: file.name };
+    } catch (error) {
+      console.error("File upload failed:", error);
+      setSnackbarMessage("Failed to upload file. Please try again.");
+      setSnackbarOpen(true);
+      throw error;
     }
   };
 
   return (
-    <Box ref={containerRef} className="content-container">
+    <Box className="content-container">
       <Paper
         elevation={0}
         sx={{
@@ -269,6 +294,9 @@ const NewNote = () => {
             padding: "1.5rem",
             borderBottom: "1px solid #E5E5EA",
             backgroundColor: "#F9FAFB",
+            position: "sticky",
+            top: 0,
+            zIndex: 100,
           }}
         >
           <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
@@ -315,23 +343,6 @@ const NewNote = () => {
               />
             )}
 
-            <Tooltip title="Toggle Preview">
-              <IconButton
-                onClick={() => setShowPreview(!showPreview)}
-                color={showPreview ? "primary" : "default"}
-              >
-                <VisibilityIcon />
-              </IconButton>
-            </Tooltip>
-
-            <Button
-              variant="outlined"
-              startIcon={<ArrowBackIcon />}
-              onClick={handleBack}
-              sx={{ borderRadius: "8px" }}
-            >
-              Cancel
-            </Button>
             <Button
               variant="contained"
               startIcon={<SaveIcon />}
@@ -393,12 +404,14 @@ const NewNote = () => {
           component="form"
           onSubmit={formik.handleSubmit}
           sx={{
-            height: "calc(75vh - 140px)",
-            overflow: "auto",
+            height: "calc(100vh - 250px)",
+            overflow: "hidden",
+            display: "flex",
+            flexDirection: "column",
           }}
         >
           {/* Title Input */}
-          <Box sx={{ padding: "2rem 2rem 1rem 2rem" }}>
+          <Box sx={{ padding: "2rem 2rem 1rem 2rem", flexShrink: 0 }}>
             <TextField
               name="title"
               id="title"
@@ -425,40 +438,17 @@ const NewNote = () => {
           </Box>
 
           {/* Content Editor */}
-          <Box sx={{ padding: "0 2rem 2rem 2rem" }}>
-            {showPreview ? (
-              <Paper
-                elevation={0}
-                sx={{
-                  padding: 3,
-                  backgroundColor: "#F9FAFB",
-                  minHeight: "400px",
-                  borderRadius: "8px",
-                }}
-              >
-                <Typography variant="h6" sx={{ marginBottom: 2 }}>
-                  Preview
-                </Typography>
-                <div
-                  dangerouslySetInnerHTML={{ __html: formik.values.content }}
-                  style={{
-                    lineHeight: 1.8,
-                    fontSize: "1rem",
-                    color: "#1D1D1F",
-                  }}
-                />
-              </Paper>
-            ) : (
-              <CustomMarkdownEditor
-                placeholder="Start writing something amazing here... You can use markdown, add images, and format your text."
-                value={formik.values.content}
-                onChange={(markdown) =>
-                  formik.setFieldValue("content", markdown)
-                }
-                handleImageUpload={handleImageUpload}
-                isLoading={isUploadingFile}
-              />
-            )}
+          <Box sx={{ height: "calc(100vh - 400px)", minHeight: "600px" }}>
+            <GoogleDocsEditor
+              placeholder="Start writing your note..."
+              onChange={(content) => {
+                formik.setFieldValue("content", content);
+              }}
+              initialContent={formik.values.content}
+              onImageUpload={handleImageUpload}
+              onFileUpload={handleFileUpload}
+              onUpload={handleUpload}
+            />
             {formik.touched.content && formik.errors.content && (
               <Typography color="error" variant="caption" sx={{ marginTop: 1 }}>
                 {formik.errors.content}
