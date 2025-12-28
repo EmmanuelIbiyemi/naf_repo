@@ -167,6 +167,15 @@ const EditNote = () => {
   const autoSave = useCallback(async () => {
     if (!formik.values.title || !formik.values.content) return;
     
+    // Check if there are actual changes
+    const hasChanges = 
+      formik.values.title !== lastSavedContent.title ||
+      formik.values.content !== lastSavedContent.content;
+    
+    if (!hasChanges) {
+      return; // No changes to save
+    }
+    
     try {
       setAutoSaveStatus("saving");
       
@@ -194,10 +203,18 @@ const EditNote = () => {
       clearTimeout(autoSaveTimerRef.current);
     }
 
-    if (formik.values.content || formik.values.title) {
+    // Check if there are actual changes
+    const hasChanges = 
+      formik.values.title !== lastSavedContent.title ||
+      formik.values.content !== lastSavedContent.content;
+
+    if (hasChanges && (formik.values.content || formik.values.title)) {
+      setHasUnsavedChanges(true);
       autoSaveTimerRef.current = setTimeout(() => {
         autoSave();
       }, 3000); // Auto-save after 3 seconds of inactivity
+    } else if (!hasChanges) {
+      setHasUnsavedChanges(false);
     }
 
     return () => {
@@ -205,7 +222,7 @@ const EditNote = () => {
         clearTimeout(autoSaveTimerRef.current);
       }
     };
-  }, [formik.values.content, formik.values.title, autoSave]);
+  }, [formik.values.content, formik.values.title, lastSavedContent, autoSave]);
 
   const handleBack = () => {
     if (hasUnsavedChanges) {
