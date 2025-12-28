@@ -2,83 +2,27 @@ import { useEffect, useState } from "react";
 import CBTForm from "./components/QuizzesForm";
 import QuizList from "./CBTsList";
 import { useAppDispatch } from "../../../../store/hooks";
-import { setPageName, setPageLoading } from "../../../../store/app.slice";
+import { setPageName } from "../../../../store/app.slice";
 import FormModal from "../../../../components/FormModal";
 import SuccessModal from "../../../../components/SuccessModal";
 import PageHeader from "../../../../components/PageHeader";
-import {
-  Box,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-} from "@mui/material";
-import { useGetInstructorCoursesQuery } from "../../../../store/api/courses.api";
-import EmptyState from "../../../../components/EmptyState";
-
-const CourseQuizSelector = ({
-  selectedCourseId,
-  onCourseChange,
-}: {
-  selectedCourseId: string;
-  onCourseChange: (courseId: string) => void;
-}) => {
-  const dispatch = useAppDispatch();
-  // Fetch instructor courses
-  const { data: instructorCourses, isLoading: isLoadingCourses } =
-    useGetInstructorCoursesQuery({
-      page: 1,
-      per_page: 1000,
-    });
-
-  useEffect(() => {
-    if (isLoadingCourses) {
-      dispatch(setPageLoading(true));
-    } else {
-      dispatch(setPageLoading(false));
-    }
-  }, [isLoadingCourses, dispatch]);
-
-  // Event handler for course selection
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const handleCourseChange = (event: any) => {
-    const courseId = event.target.value as string;
-    onCourseChange(courseId);
-  };
-
-  return (
-    <Box>
-      <FormControl fullWidth sx={{ marginBottom: 2 }}>
-        <InputLabel id="course-select-label">Select Course</InputLabel>
-        <Select
-          labelId="course-select-label"
-          id="course-select"
-          value={selectedCourseId}
-          label="Select Course"
-          onChange={handleCourseChange}
-        >
-          {instructorCourses?.data.map((course) => (
-            <MenuItem key={course.id} value={course.id}>
-              {course.name} ({course.code})
-            </MenuItem>
-          ))}
-        </Select>
-      </FormControl>
-
-      {!selectedCourseId ? (
-        <EmptyState
-          title="Please select a course"
-          subTitle="Choose a course from the dropdown to view its quizzes"
-        />
-      ) : (
-        <QuizList courseId={selectedCourseId} />
-      )}
-    </Box>
-  );
-};
+import { Box } from "@mui/material";
+import InstructorCourseSelector from "../../../../components/layout/InstructorCourseSelector";
+import { useLocation } from "react-router-dom";
 
 const CBTsPage = () => {
-  const [selectedCourseId, setSelectedCourseId] = useState<string>("");
+  const location = useLocation();
+
+  // Get persisted course ID from localStorage or location state
+  const getInitialCourseId = () => {
+    const locationState = location.state as { selectedCourseId?: string } | null;
+    if (locationState?.selectedCourseId) {
+      return locationState.selectedCourseId;
+    }
+    return localStorage.getItem("lastSelectedCourseId") || "";
+  };
+
+  const [selectedCourseId, setSelectedCourseId] = useState<string>(getInitialCourseId);
   const [openModal, setOpenModal] = useState({
     add: false,
     edit: false,
@@ -138,19 +82,14 @@ const CBTsPage = () => {
         }}
       />
 
-      <Box
-        sx={{
-          bgcolor: "#fff",
-          borderRadius: "var(--border-radius)",
-          marginInline: "var(--padding)",
-          padding: "var(--padding)",
-        }}
+      <InstructorCourseSelector
+        selectedCourseId={selectedCourseId}
+        onCourseChange={handleCourseChange}
+        emptyStateTitle="Please select a course"
+        emptyStateSubtitle="Choose a course from the dropdown to view its quizzes"
       >
-        <CourseQuizSelector
-          selectedCourseId={selectedCourseId}
-          onCourseChange={handleCourseChange}
-        />
-      </Box>
+        <QuizList courseId={selectedCourseId} />
+      </InstructorCourseSelector>
     </Box>
   );
 };

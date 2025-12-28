@@ -1,16 +1,9 @@
-import {
-  Box,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-} from "@mui/material";
+import { Box } from "@mui/material";
 import { useEffect, useState } from "react";
 import InstructorPageHeader from "../../../../components/layout/InstructorPageHeader";
 import { useAppDispatch } from "../../../../store/hooks";
 import { setPageName, setPageLoading } from "../../../../store/app.slice";
 import { useNavigate, useLocation } from "react-router-dom";
-import { useGetInstructorCoursesQuery } from "../../../../store/api/courses.api";
 import {
   useDeleteNoteMutation,
   useGetCourseNotesQuery,
@@ -22,6 +15,7 @@ import NotesUploadModal from "./NotesUploadModal";
 import CustomSuccessModal from "../../../../components/CustomSuccessModal";
 import DeleteConfirmationModal from "../../../../components/DeleteConfirmationModal";
 import { note } from "../../../../types/notes";
+import InstructorCourseSelector from "../../../../components/layout/InstructorCourseSelector";
 
 const Notes = () => {
   const navigate = useNavigate();
@@ -51,10 +45,6 @@ const Notes = () => {
   });
   const [selectedNotes, setSelectedNotes] = useState<note | undefined>();
 
-  // Fetch instructor courses
-  const { data: instructorCourses, isLoading: isLoadingCourses } =
-    useGetInstructorCoursesQuery({ page: 1, per_page: 1000 });
-
   const [deleteNote] = useDeleteNoteMutation();
 
   // Fetch notes for selected course
@@ -78,19 +68,16 @@ const Notes = () => {
   }, [dispatch]);
 
   useEffect(() => {
-    if (isLoadingCourses || isGettingNotes) {
+    if (isGettingNotes) {
       dispatch(setPageLoading(true));
     } else {
       dispatch(setPageLoading(false));
     }
-  }, [isLoadingCourses, isGettingNotes, dispatch]);
+  }, [isGettingNotes, dispatch]);
 
   // Event handlers
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const handleCourseChange = (event: any) => {
-    const courseId = event.target.value as string;
+  const handleCourseChange = (courseId: string) => {
     setSelectedCourseId(courseId);
-    localStorage.setItem('lastSelectedCourseId', courseId);
     setCurrentPage(1); // Reset to first page when changing course
   };
 
@@ -154,72 +141,38 @@ const Notes = () => {
         }}
       />
 
-      <Box
-        sx={{
-          bgcolor: "#fff",
-          borderRadius: "var(--border-radius)",
-          marginInline: "var(--padding)",
-          padding: "var(--padding)",
-          margin: "1em",
-          position: "sticky",
-          top: 0,
-          zIndex: 1,
-        }}
+      <InstructorCourseSelector
+        selectedCourseId={selectedCourseId}
+        onCourseChange={handleCourseChange}
+        emptyStateTitle="Please select a course"
+        emptyStateSubtitle="Choose a course from the dropdown to view its notes"
       >
-        <Box sx={{ marginBottom: 3 }}>
-          <FormControl fullWidth>
-            <InputLabel id="course-select-label">Select Course</InputLabel>
-            <Select
-              labelId="course-select-label"
-              id="course-select"
-              value={selectedCourseId}
-              label="Select Course"
-              onChange={handleCourseChange}
-            >
-              {instructorCourses?.data.map((course) => (
-                <MenuItem key={course.id} value={course.id}>
-                  {course.name} ({course.code})
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
+        <Box>
+          <CoursesItemList
+            lists={note?.data || []}
+            handleOpenActionsModal={handleOpenActionsModal}
+            deleteIcon={true}
+            edit={true}
+            courseId={parseInt(selectedCourseId)}
+          />
         </Box>
 
-        {selectedCourseId ? (
-          <>
-            <Box>
-              <CoursesItemList
-                lists={note?.data || []}
-                handleOpenActionsModal={handleOpenActionsModal}
-                deleteIcon={true}
-                edit={true}
-                courseId={parseInt(selectedCourseId)}
-              />
-            </Box>
-
-            {note?.data.length ? (
-              <CustomPagination
-                startIndex={startIndex + 1}
-                endIndex={endIndex}
-                totalNumber={totalItems}
-                count={Math.ceil(totalItems / itemsPerPage)}
-                page={currentPage}
-                handleChangePage={handleChangePage}
-              />
-            ) : (
-              <EmptyState
-                title="No notes found"
-                subTitle="This course does not have any notes yet"
-              />
-            )}
-          </>
+        {note?.data.length ? (
+          <CustomPagination
+            startIndex={startIndex + 1}
+            endIndex={endIndex}
+            totalNumber={totalItems}
+            count={Math.ceil(totalItems / itemsPerPage)}
+            page={currentPage}
+            handleChangePage={handleChangePage}
+          />
         ) : (
           <EmptyState
-            title="Please select a course"
-            subTitle="Choose a course from the dropdown to view its notes"
+            title="No notes found"
+            subTitle="This course does not have any notes yet"
           />
         )}
-      </Box>
+      </InstructorCourseSelector>
 
       <NotesUploadModal
         open={openModal}

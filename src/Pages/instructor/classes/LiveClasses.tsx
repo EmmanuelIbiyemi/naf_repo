@@ -1,11 +1,6 @@
 import {
   Box,
-  FormControl,
   Grid2,
-  InputLabel,
-  MenuItem,
-  Select,
-  // SxProps,
 } from "@mui/material";
 import EmptyState from "../../../components/EmptyState";
 import { useEffect, useRef, useState } from "react";
@@ -17,19 +12,29 @@ import CreateClassModal from "./CreateClassModal";
 import { useGetLiveClassesQuery } from "../../../store/api/classes.api";
 import { useGetCurrentSessionQuery } from "../../../store/api/sessions.api";
 import { useGetCurrentSemesterQuery } from "../../../store/api/semesters.api";
-import { useGetInstructorCoursesQuery } from "../../../store/api/courses.api";
 import dayjs from "dayjs";
 import CustomPagination from "../../../components/CustomPagination";
 import { setPageLoading } from "../../../store/app.slice";
+import InstructorCourseSelector from "../../../components/layout/InstructorCourseSelector";
+import { useLocation } from "react-router-dom";
 
 const LiveClasses = () => {
   const containerRef = useRef<HTMLDivElement>(null);
+  const location = useLocation();
   const [openModal, setOpenModal] = useState(false);
-  const [selectedCourseId, setSelectedCourseId] = useState("");
+
+  // Get persisted course ID from localStorage or location state
+  const getInitialCourseId = () => {
+    const locationState = location.state as { selectedCourseId?: string } | null;
+    if (locationState?.selectedCourseId) {
+      return locationState.selectedCourseId;
+    }
+    return localStorage.getItem("lastSelectedCourseId") || "";
+  };
+
+  const [selectedCourseId, setSelectedCourseId] = useState(getInitialCourseId);
   const [currentPage, setCurrentPage] = useState(1);
 
-  const { data: instructorCourses, isLoading: isLoadingCourses } =
-    useGetInstructorCoursesQuery({ page: 1, per_page: 1000 });
   const handleOpenCreateModal = () => setOpenModal(true);
   const handleCloseCreateModal = () => setOpenModal(false);
 
@@ -74,16 +79,16 @@ const LiveClasses = () => {
   }, [dispatch]);
 
   useEffect(() => {
-    if (isLoading || isGettingSemester || isGettingSession || isLoadingCourses) {
+    if (isLoading || isGettingSemester || isGettingSession) {
       dispatch(setPageLoading(true));
     } else {
       dispatch(setPageLoading(false));
     }
-  }, [isLoading, isGettingSemester, isGettingSession, isLoadingCourses, dispatch]);
+  }, [isLoading, isGettingSemester, isGettingSession, dispatch]);
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const handleCourseChange = (event: any) => {
-    setSelectedCourseId(event.target.value);
+  const handleCourseChange = (courseId: string) => {
+    setSelectedCourseId(courseId);
+    setCurrentPage(1); // Reset to first page when changing course
   };
 
   const getClassStatus = (startTime: string, duration: number) => {
@@ -106,32 +111,13 @@ const LiveClasses = () => {
         heading="Live Classes"
         subHeading="List of classes that have been created and shared in the school"
       />
-      <Box
-        sx={{
-          bgcolor: "#fff",
-          borderRadius: "var(--border-radius)",
-          marginInline: "var(--padding)",
-          padding: "var(--padding)",
-        }}
+      
+      <InstructorCourseSelector
+        selectedCourseId={selectedCourseId}
+        onCourseChange={handleCourseChange}
+        emptyStateTitle="Please select a course to continue!"
+        emptyStateSubtitle="Choose a course from the dropdown above to view its live classes"
       >
-        <Box sx={{ marginBottom: 3 }}>
-          <FormControl fullWidth>
-            <InputLabel id="course-select-label">Select Course</InputLabel>
-            <Select
-              labelId="course-select-label"
-              id="course-select"
-              value={selectedCourseId}
-              label="Select Course"
-              onChange={handleCourseChange}
-            >
-              {instructorCourses?.data.map((course) => (
-                <MenuItem key={course.id} value={course.id}>
-                  {course.name} ({course.code})
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-        </Box>
         <Box sx={{ backgroundColor: "#fff" }}>
           {scheduledClasses?.data.length ? (
             <Box sx={{ width: "100%", height: "100%" }}>
@@ -178,12 +164,13 @@ const LiveClasses = () => {
             </Box>
           ) : (
             <EmptyState
-              title="Please select a course to continue!"
-              subTitle="Choose a course from the dropdown above to view its live classes"
+              title="No live classes found"
+              subTitle="This course doesn't have any scheduled live classes yet"
             />
           )}
         </Box>
-      </Box>
+      </InstructorCourseSelector>
+      
       <CreateClassModal
         open={openModal}
         handleClose={handleCloseCreateModal}
@@ -192,12 +179,5 @@ const LiveClasses = () => {
     </Box>
   );
 };
-
-// const TabStyles: SxProps = {
-//   gap: "1rem",
-//   grid2TemplateColumns: "repeat(4,1fr)",
-//   width: "100%",
-//   backgroundColor: "#fff",
-// };
 
 export default LiveClasses;

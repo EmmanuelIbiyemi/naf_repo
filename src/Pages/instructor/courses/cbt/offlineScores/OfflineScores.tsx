@@ -1,15 +1,7 @@
-import {
-  Box,
-  Button,
-  MenuItem,
-  Select,
-  SelectChangeEvent,
-  Typography,
-} from "@mui/material";
+import { Box, Button, Typography } from "@mui/material";
 import React, { useEffect, useRef } from "react";
 import { useDispatch } from "react-redux";
 import { setPageLoading } from "../../../../../store/app.slice";
-import { useGetInstructorCoursesQuery } from "../../../../../store/api/courses.api";
 import RecordsItemsList from "./RecordItemsList";
 import { useGetRecordQuery } from "../../../../../store/api/records.api";
 import AddRecordModal from "./AddRecordModal";
@@ -17,20 +9,29 @@ import AddScoresModal from "./AddScoresModal";
 import { recordResponse } from "../../../../../types/records";
 import { useGetCourseParticipantsQuery } from "../../../../../store/api/participants.api";
 import UpdateRecordModal from "./UpdateRecordModal";
+import InstructorCourseSelector from "../../../../../components/layout/InstructorCourseSelector";
+import { useLocation } from "react-router-dom";
 
 const OfflineScores = () => {
   const dispatch = useDispatch();
+  const location = useLocation();
   const containerRef = useRef<HTMLDivElement>(null);
-  const [selectedCourse, setSelectedCourse] = React.useState("");
+
+  // Get persisted course ID from localStorage or location state
+  const getInitialCourseId = () => {
+    const locationState = location.state as { selectedCourseId?: string } | null;
+    if (locationState?.selectedCourseId) {
+      return locationState.selectedCourseId;
+    }
+    return localStorage.getItem("lastSelectedCourseId") || "";
+  };
+
+  const [selectedCourse, setSelectedCourse] = React.useState(getInitialCourseId);
   const [selectedRecord, setSelectedRecord] =
     React.useState<recordResponse | null>(null);
   const [openAddModal, setOpenAddModal] = React.useState(false);
   const [openRecordModal, setOpenRecordModal] = React.useState(false);
   const [openScoresModal, setOpenScoresModal] = React.useState(false);
-  const { data: courses, isLoading } = useGetInstructorCoursesQuery({
-    page: 1,
-    per_page: 1000,
-  });
 
   const handleClose = () => setOpenAddModal(false);
   const handleOpen = () => setOpenAddModal(true);
@@ -48,8 +49,8 @@ const OfflineScores = () => {
     setOpenScoresModal(true);
   };
 
-  const handleChange = (event: SelectChangeEvent) => {
-    setSelectedCourse(event.target.value as string);
+  const handleCourseChange = (courseId: string) => {
+    setSelectedCourse(courseId);
   };
 
   const { data: participants, isLoading: isFetchingParticipants } =
@@ -101,6 +102,7 @@ const OfflineScores = () => {
             display: "flex",
             justifyContent: "space-between",
             alignItems: "start",
+            marginBottom: "1.5em",
           }}
         >
           <Box>
@@ -127,34 +129,6 @@ const OfflineScores = () => {
               Easily add, edit, and track scores for offline activities,
               ensuring accurate performance records.
             </Typography>
-            <Box
-              sx={{
-                display: "flex",
-                gap: 1,
-                marginTop: "1em",
-                flexDirection: "column",
-              }}
-            >
-              <Typography variant="body2" sx={{}}>
-                Select Course
-              </Typography>
-              <Select
-                value={selectedCourse}
-                label="course"
-                onChange={handleChange}
-                sx={{ width: "50%" }}
-                disabled={isLoading}
-              >
-                <MenuItem defaultValue="" disabled>
-                  <em>{isLoading ? "Loading" : "None"}</em>
-                </MenuItem>
-                {courses?.data.map((item) => (
-                  <MenuItem key={item.id} value={item.id}>
-                    {item.name} ({item.code})
-                  </MenuItem>
-                ))}
-              </Select>
-            </Box>
           </Box>
           <Box
             sx={{
@@ -163,50 +137,57 @@ const OfflineScores = () => {
             }}
           >
             <Button
-              // sx={{}}
               onClick={handleOpen}
               variant="contained"
-              disabled={isLoading || !selectedCourse}
+              disabled={!selectedCourse}
             >
               Add New Record
             </Button>
             <Button
-              // sx={{}}
               onClick={handleOpenRecordModal}
               variant="contained"
-              disabled={isLoading || !selectedCourse}
+              disabled={!selectedCourse}
             >
               Update Record
             </Button>
           </Box>
         </Box>
-        <Box sx={{ margin: "2em 0" }}>
-          <RecordsItemsList
-            lists={records?.data || []}
-            handleButtonClick={handleOpenScoresModal}
-            refetch={refetch}
-          />
-        </Box>
-        <AddRecordModal
-          open={openAddModal}
-          handleClose={handleClose}
-          courseId={parseInt(selectedCourse)}
-        />
-        <UpdateRecordModal
-          open={openRecordModal}
-          handleClose={handleCloseRecordModal}
-          records={records?.data || []}
-        />
-        <AddScoresModal
-          open={openScoresModal}
-          handleClose={handleCloseScoresModal}
-          recordItem={selectedRecord}
-          recordId={selectedRecord?.id ? selectedRecord?.id : null}
-          courseParticipants={participants?.data || []}
-          refetch={refetch}
-          courseId={parseInt(selectedCourse)}
-        />
+
+        <InstructorCourseSelector
+          selectedCourseId={selectedCourse}
+          onCourseChange={handleCourseChange}
+          emptyStateTitle="Please select a course"
+          emptyStateSubtitle="Choose a course from the dropdown to view and manage scores"
+        >
+          <Box sx={{ margin: "2em 0" }}>
+            <RecordsItemsList
+              lists={records?.data || []}
+              handleButtonClick={handleOpenScoresModal}
+              refetch={refetch}
+            />
+          </Box>
+        </InstructorCourseSelector>
       </Box>
+      
+      <AddRecordModal
+        open={openAddModal}
+        handleClose={handleClose}
+        courseId={parseInt(selectedCourse)}
+      />
+      <UpdateRecordModal
+        open={openRecordModal}
+        handleClose={handleCloseRecordModal}
+        records={records?.data || []}
+      />
+      <AddScoresModal
+        open={openScoresModal}
+        handleClose={handleCloseScoresModal}
+        recordItem={selectedRecord}
+        recordId={selectedRecord?.id ? selectedRecord?.id : null}
+        courseParticipants={participants?.data || []}
+        refetch={refetch}
+        courseId={parseInt(selectedCourse)}
+      />
     </Box>
   );
 };
