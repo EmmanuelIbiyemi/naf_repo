@@ -21,7 +21,7 @@ import {
 } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import { useAppDispatch } from "../../../store/hooks";
-import { setPageLoading } from "../../../store/app.slice";
+import { setPageLoading, setPageName } from "../../../store/app.slice";
 import EmptyState from "../../../components/EmptyState";
 import { useGetParticipantQuery } from "../../../store/api/participants.api";
 import { useAppSelector } from "../../../store/hooks";
@@ -134,6 +134,10 @@ const Overview = () => {
   const { data: transcript } = useGetStudentTranscriptQuery(participantId);
 
   const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    dispatch(setPageName("Overview"));
+  }, [dispatch]);
 
   useEffect(() => {
     if (isLoading) {

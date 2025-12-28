@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Box,
   List,
@@ -21,8 +21,9 @@ import {
 } from "@mui/icons-material";
 import { formatDateShort } from "../../../utils/dateUtils";
 import { Link, useNavigate } from "react-router-dom";
-import { useAppSelector } from "../../../store/hooks";
+import { useAppSelector, useAppDispatch } from "../../../store/hooks";
 import { selectCurrentUser } from "../../../store/auth.slice";
+import { setPageName } from "../../../store/app.slice";
 import { useGetParticipantQuery } from "../../../store/api/participants.api";
 import { useGetCourseQuizzesQuery } from "../../../store/api/quizzes.api";
 import { CourseBaseType } from "../../../types/courses";
@@ -181,6 +182,11 @@ const CourseCBT = () => {
   const [isTransitioning, setIsTransitioning] = useState(false);
   const user = useAppSelector(selectCurrentUser);
   const participantId = user?.id || 0;
+  const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    dispatch(setPageName("CBT"));
+  }, [dispatch]);
 
   const { data: participantData, isLoading: isParticipantLoading } =
     useGetParticipantQuery(participantId);

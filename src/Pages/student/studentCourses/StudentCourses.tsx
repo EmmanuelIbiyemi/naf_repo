@@ -18,7 +18,7 @@ import { styled } from '@mui/material/styles';
 import { useGetParticipantQuery } from '../../../store/api/participants.api';
 import { useAppSelector, useAppDispatch } from '../../../store/hooks';
 import { selectCurrentUser } from '../../../store/auth.slice';
-import { setPageLoading } from '../../../store/app.slice';
+import { setPageLoading, setPageName } from '../../../store/app.slice';
 import CoursesHeader from './CoursesHeader';
 import { CourseBaseType } from '../../../types/courses';
 import { InstructorType } from '../../../types/instructors';
@@ -47,6 +47,10 @@ const StudentCourses: React.FC = () => {
 
   const { data: response, isLoading, error } = useGetParticipantQuery(participantId);
   const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    dispatch(setPageName("Courses"));
+  }, [dispatch]);
 
   useEffect(() => {
     if (isLoading) {
