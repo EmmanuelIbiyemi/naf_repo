@@ -6,6 +6,7 @@ import { useCreateQuestionFromFileMutation } from "../../../../../../store/api/q
 import { useAddMediaMutation } from "../../../../../../store/api/media.api";
 import { useAppDispatch } from "../../../../../../store/hooks";
 import { setPageLoading } from "../../../../../../store/app.slice";
+import { TEMPLATE_FILES } from "../../../../../../config/templates";
 type FileType = { file: File | null };
 
 type Props = {
@@ -110,7 +111,9 @@ const QuestionsForm = ({ actions }: Props) => {
                   marginTop: ".5rem",
                   textDecoration: "underline",
                 }}
-                href={import.meta.env.VITE_SAMPLE_QUESTIONS_FILE}
+                href={TEMPLATE_FILES.SAMPLE_QUESTIONS_FILE}
+                target="_blank"
+                rel="noopener noreferrer"
                 download
               >
                 Download example file

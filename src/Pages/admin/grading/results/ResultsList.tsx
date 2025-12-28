@@ -28,6 +28,7 @@ import {
   Switch,
   Typography,
 } from "@mui/material";
+import { TEMPLATE_FILES } from "../../../../config/templates";
 import {
   MouseEvent,
   useEffect,
@@ -167,8 +168,7 @@ const ResultsList = () => {
   const [waitingTask, setWaitingTask] = useState<typeof pendingTask>(null);
   const [taskStatusNote, setTaskStatusNote] = useState<string | null>(null);
   const [lastTaskId, setLastTaskId] = useState<string | null>(null);
-  const legacyTemplateUrl =
-    import.meta.env.VITE_LEGACY_RESULT_TEMPLATE;
+  const legacyTemplateUrl = TEMPLATE_FILES.LEGACY_RESULT_TEMPLATE;
   const dispatch = useAppDispatch();
 
   //

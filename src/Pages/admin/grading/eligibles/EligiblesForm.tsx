@@ -13,6 +13,7 @@ import { useAddMediaMutation } from "../../../../store/api/media.api";
 import { useAppDispatch } from "../../../../store/hooks";
 import { setPageLoading } from "../../../../store/app.slice";
 import SessionDropdown from "../../../../components/SessionDropdown";
+import { TEMPLATE_FILES } from "../../../../config/templates";
 
 type Props = {
   actions: {
@@ -275,7 +276,9 @@ const EligibleForm = ({ actions }: Props) => {
                 marginTop: ".5rem",
                 textDecoration: "underline",
               }}
-              href={import.meta.env.VITE_SAMPLE_ELIGIBLES_FILE}
+              href={TEMPLATE_FILES.SAMPLE_ELIGIBLES_FILE}
+              target="_blank"
+              rel="noopener noreferrer"
               download
             >
               download example file

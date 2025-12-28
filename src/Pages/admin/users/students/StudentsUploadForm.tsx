@@ -10,6 +10,7 @@ import { useGetDepartmentsMMutation } from "../../../../store/api/departments.ap
 import { useGetProgrammesMMutation } from "../../../../store/api/programmes.api";
 import { useGetLevelsMMutation } from "../../../../store/api/levels.api";
 import { useAddMediaMutation } from "../../../../store/api/media.api";
+import { TEMPLATE_FILES } from "../../../../config/templates";
 
 type Props = {
     data?: StudentsUploadType;
@@ -255,7 +256,9 @@ const StudentUploadForm = ({ actions }: Props) => {
                 marginTop: ".5rem",
                 textDecoration: "underline",
               }}
-              href={import.meta.env.VITE_SAMPLE_STUDENTS_FILE}
+              href={TEMPLATE_FILES.SAMPLE_STUDENTS_FILE}
+              target="_blank"
+              rel="noopener noreferrer"
               download
             >
               download example file
