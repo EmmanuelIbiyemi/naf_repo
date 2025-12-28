@@ -33,56 +33,116 @@ const CourseNotes = () => {
 
   if (!parsedCourseId) {
     return (
-      <Box sx={{ maxWidth: 800, mx: 'auto', p: 3 }}>
-        <Alert severity="error">
-          Invalid Course ID
-        </Alert>
+      <Box className="content-container">
+        <Box
+          sx={{
+            bgcolor: "#fff",
+            borderRadius: "var(--border-radius)",
+            marginInline: "var(--padding)",
+            padding: "var(--padding)",
+          }}
+        >
+          <Alert severity="error">
+            Invalid Course ID
+          </Alert>
+        </Box>
       </Box>
     );
   }
 
   if (isLoading) {
     return (
-      <Box sx={{ maxWidth: 800, mx: 'auto', p: 3 }}>
-        <Button 
-          startIcon={<ArrowBackIcon />}
-          onClick={handleGoBack}
-          sx={{ mb: 3 }}
+      <Box className="content-container">
+        <Box
+          sx={{
+            bgcolor: "#fff",
+            borderRadius: "var(--border-radius)",
+            marginInline: "var(--padding)",
+            padding: "var(--padding)",
+          }}
         >
-          Back to Courses
-        </Button>
-        {[1, 2, 3].map((n) => (
-          <Paper key={n} sx={{ mb: 4, p: 3 }}>
-            <Skeleton variant="text" width="60%" height={32} sx={{ mb: 2 }} />
-            <Skeleton variant="text" width="90%" />
-            <Skeleton variant="text" width="85%" />
-            <Skeleton variant="text" width="70%" />
-          </Paper>
-        ))}
+          <Button 
+            startIcon={<ArrowBackIcon />}
+            onClick={handleGoBack}
+            sx={{ mb: 3 }}
+          >
+            Back to Courses
+          </Button>
+          {[1, 2, 3].map((n) => (
+            <Paper key={n} sx={{ mb: 4, p: 3 }}>
+              <Skeleton variant="text" width="60%" height={32} sx={{ mb: 2 }} />
+              <Skeleton variant="text" width="90%" />
+              <Skeleton variant="text" width="85%" />
+              <Skeleton variant="text" width="70%" />
+            </Paper>
+          ))}
+        </Box>
       </Box>
     );
   }
 
   if (isError) {
     return (
-      <Box sx={{ maxWidth: 800, mx: 'auto', p: 3 }}>
-        <Button 
-          startIcon={<ArrowBackIcon />}
-          onClick={handleGoBack}
-          sx={{ mb: 3 }}
+      <Box className="content-container">
+        <Box
+          sx={{
+            bgcolor: "#fff",
+            borderRadius: "var(--border-radius)",
+            marginInline: "var(--padding)",
+            padding: "var(--padding)",
+          }}
         >
-          Back to Courses
-        </Button>
-        <Alert severity="error">
-          Error loading notes. Please try again later.
-        </Alert>
+          <Button 
+            startIcon={<ArrowBackIcon />}
+            onClick={handleGoBack}
+            sx={{ mb: 3 }}
+          >
+            Back to Courses
+          </Button>
+          <Alert severity="error">
+            Error loading notes. Please try again later.
+          </Alert>
+        </Box>
       </Box>
     );
   }
 
   if (!response?.data || response?.data?.length === 0) {
     return (
-      <Box sx={{ maxWidth: 800, mx: 'auto', p: 3 }}>
+      <Box className="content-container">
+        <Box
+          sx={{
+            bgcolor: "#fff",
+            borderRadius: "var(--border-radius)",
+            marginInline: "var(--padding)",
+            padding: "var(--padding)",
+          }}
+        >
+          <Button 
+            startIcon={<ArrowBackIcon />}
+            onClick={handleGoBack}
+            sx={{ mb: 3 }}
+          >
+            Back to Courses
+          </Button>
+          <Alert severity="info">
+            No notes available for this course yet.
+          </Alert>
+        </Box>
+      </Box>
+    );
+  }
+
+  return (
+    <Box className="content-container">
+      <Box
+        sx={{
+          bgcolor: "#fff",
+          borderRadius: "var(--border-radius)",
+          marginInline: "var(--padding)",
+          padding: "var(--padding)",
+        }}
+      >
         <Button 
           startIcon={<ArrowBackIcon />}
           onClick={handleGoBack}
@@ -90,24 +150,8 @@ const CourseNotes = () => {
         >
           Back to Courses
         </Button>
-        <Alert severity="info">
-          No notes available for this course yet.
-        </Alert>
-      </Box>
-    );
-  }
-
-  return (
-    <Box sx={{ maxWidth: 800, mx: 'auto', p: 3 }}>
-      <Button 
-        startIcon={<ArrowBackIcon />}
-        onClick={handleGoBack}
-        sx={{ mb: 3 }}
-      >
-        Back to Courses
-      </Button>
-      
-      {response?.data?.map((note: note) => (
+        
+        {response?.data?.map((note: note) => (
         <Paper 
           key={note.id} 
           sx={{ 
@@ -171,7 +215,7 @@ const CourseNotes = () => {
           </Box>
         </Paper>
       ))}
-
+      </Box>
     </Box>
   );
 };
