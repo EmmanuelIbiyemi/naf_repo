@@ -155,16 +155,8 @@ const CourseForm = ({ actions, course }: Props) => {
                   setFieldValue("instructor_ids", instructorIds);
                   setFieldValue("instructors", selectedInstructors || []);
                 }}
-                error={Boolean(
-                  (values as any).instructor_ids &&
-                    (values as any).instructor_ids.length === 0
-                )}
-                helperText={
-                  (values as any).instructor_ids &&
-                  (values as any).instructor_ids.length === 0
-                    ? "Please select at least one instructor"
-                    : ""
-                }
+                error={false}
+                helperText=""
                 required
               />
             </Box>
