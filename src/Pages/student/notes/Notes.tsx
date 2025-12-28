@@ -55,6 +55,33 @@ const CourseNotes = () => {
     setSelectedNote(null);
   };
 
+  const extractTextFromContent = (content: string): string => {
+    if (!content) return 'No content available';
+    
+    try {
+      // Try to parse as JSON (Lexical editor format)
+      const parsed = JSON.parse(content);
+      if (parsed.root && parsed.root.children) {
+        // Extract text from Lexical format
+        const extractText = (node: any): string => {
+          if (node.text) return node.text;
+          if (node.children) {
+            return node.children.map(extractText).join(' ');
+          }
+          return '';
+        };
+        const text = parsed.root.children.map(extractText).join(' ').trim();
+        return text || 'No content available';
+      }
+    } catch {
+      // If not JSON, treat as HTML/plain text
+      const strippedHtml = content.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+      return strippedHtml || 'No content available';
+    }
+    
+    return 'No content available';
+  };
+
   if (!parsedCourseId) {
     return (
       <Box className="content-container">
@@ -163,6 +190,18 @@ const CourseNotes = () => {
         sx={{
           bgcolor: "#fff",
           borderRadius: "var(--border-radius)",
+          marginInline: "var(--padding)",
+          padding: "var(--padding)",
+        }}
+      >
+        <Button 
+          startIcon={<ArrowBackIcon />}
+          onClick={handleGoBack}
+          sx={{ mb: 3 }}
+        >
+          Back to Courses
+        </Button>
+        
         <Typography variant="h5" sx={{ mb: 3, fontWeight: 600 }}>
           Course Notes
         </Typography>
@@ -200,7 +239,7 @@ const CourseNotes = () => {
                       WebkitBoxOrient: 'vertical',
                     }}
                   >
-                    {note.content ? note.content.replace(/<[^>]*>/g, '').substring(0, 100) + '...' : 'Click to view content'}
+                    {extractTextFromContent(note.content).substring(0, 150) + (extractTextFromContent(note.content).length > 150 ? '...' : '')}
                   </Typography>
 
                   <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
@@ -284,18 +323,6 @@ const CourseNotes = () => {
             </Button>
           </DialogActions>
         </Dialog>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 2 }}>
-            <Typography variant="caption" color="text.secondary">
-              Created: {formatDateLong(note?.created_at)}
-            </Typography>
-            {note?.updated_at && (
-              <Typography variant="caption" color="text.secondary">
-                Last updated: {formatDateLong(note?.updated_at)}
-              </Typography>
-            )}
-          </Box>
-        </Paper>
-      ))}
       </Box>
     </Box>
   );
