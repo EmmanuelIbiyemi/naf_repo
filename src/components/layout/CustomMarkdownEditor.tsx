@@ -6,6 +6,10 @@ import {
   Tooltip,
   Tabs,
   Tab,
+  Divider,
+  Menu,
+  MenuItem,
+  Typography,
 } from "@mui/material";
 import { useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
@@ -16,6 +20,16 @@ import {
   Code,
   Undo,
   Redo,
+  FormatQuote,
+  FormatListBulleted,
+  FormatListNumbered,
+  Link as LinkIcon,
+  Image as ImageIcon,
+  TableChart,
+  Title,
+  StrikethroughS,
+  CheckBox,
+  HorizontalRule,
 } from "@mui/icons-material";
 
 type Props = {
@@ -109,9 +123,7 @@ const CustomMarkdownEditor = ({
   const [mode, setMode] = useState<"write" | "preview">("write");
   const [history, setHistory] = useState<string[]>([markdownText]);
   const [historyIndex, setHistoryIndex] = useState(0);
-  // const [openLinkDialog, setOpenLinkDialog] = useState(false);
-  // const [linkText, setLinkText] = useState("");
-  // const [linkURL, setLinkURL] = useState("");
+  const [headingAnchorEl, setHeadingAnchorEl] = useState<null | HTMLElement>(null);
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
   const [lastCursorPosition, setLastCursorPosition] = useState<number>(0);
 
@@ -191,8 +203,8 @@ const CustomMarkdownEditor = ({
 
   const insertText = (
     tag: string,
-    placeholder: string = ""
-    // type: "list" | "text" = "text"
+    placeholder: string = "",
+    endTag?: string
   ) => {
     if (!textAreaRef.current) return;
 
@@ -205,25 +217,32 @@ const CustomMarkdownEditor = ({
     let updatedText;
     let newCursorPosition;
 
-    if (selectedText.startsWith(tag) && selectedText.endsWith(tag)) {
+    const closingTag = endTag || tag;
+
+    if (selectedText.startsWith(tag) && selectedText.endsWith(closingTag)) {
       updatedText = `${beforeText}${selectedText.slice(
         tag.length,
-        -tag.length
+        -closingTag.length
       )}${afterText}`;
       newCursorPosition = start;
     } else {
       if (selectedText) {
-        updatedText = `${beforeText}${tag}${selectedText}${tag}${afterText}`;
+        updatedText = `${beforeText}${tag}${selectedText}${closingTag}${afterText}`;
         newCursorPosition =
-          start + tag.length + selectedText.length + tag.length;
+          start + tag.length + selectedText.length + closingTag.length;
       } else {
-        updatedText = `${beforeText}${tag}${placeholder}${tag}${afterText}`;
+        updatedText = `${beforeText}${tag}${placeholder}${closingTag}${afterText}`;
         newCursorPosition = start + tag.length + placeholder.length;
       }
     }
 
     setMarkdownText(updatedText);
     onChange(updatedText);
+
+    // Update history
+    const updatedHistory = history.slice(0, historyIndex + 1);
+    setHistory([...updatedHistory, updatedText]);
+    setHistoryIndex(updatedHistory.length);
 
     setTimeout(() => {
       if (textAreaRef.current) {
@@ -232,6 +251,111 @@ const CustomMarkdownEditor = ({
         textAreaRef.current.focus();
       }
     }, 0);
+  };
+
+  const insertLinePrefix = (prefix: string) => {
+    if (!textAreaRef.current) return;
+
+    const start = textAreaRef.current.selectionStart;
+    const end = textAreaRef.current.selectionEnd;
+    const beforeText = markdownText.substring(0, start);
+    const afterText = markdownText.substring(end);
+    const selectedText = markdownText.substring(start, end);
+
+    // Find the start of the current line
+    const lineStart = beforeText.lastIndexOf("\n") + 1;
+    const lineText = markdownText.substring(lineStart, end);
+
+    let updatedText;
+    let newCursorPosition;
+
+    if (selectedText.includes("\n")) {
+      // Multiple lines selected
+      const lines = selectedText.split("\n");
+      const prefixedLines = lines.map((line) => `${prefix}${line}`).join("\n");
+      updatedText = `${beforeText}${prefixedLines}${afterText}`;
+      newCursorPosition = start + prefixedLines.length;
+    } else if (lineText.startsWith(prefix)) {
+      // Remove prefix if already exists
+      const textBeforeLine = markdownText.substring(0, lineStart);
+      const textAfterSelection = markdownText.substring(end);
+      const unprefixedLine = lineText.substring(prefix.length);
+      updatedText = `${textBeforeLine}${unprefixedLine}${textAfterSelection}`;
+      newCursorPosition = start - prefix.length;
+    } else {
+      // Add prefix
+      const textBeforeLine = markdownText.substring(0, lineStart);
+      const textAfterSelection = markdownText.substring(end);
+      updatedText = `${textBeforeLine}${prefix}${lineText}${textAfterSelection}`;
+      newCursorPosition = start + prefix.length;
+    }
+
+    setMarkdownText(updatedText);
+    onChange(updatedText);
+
+    // Update history
+    const updatedHistory = history.slice(0, historyIndex + 1);
+    setHistory([...updatedHistory, updatedText]);
+    setHistoryIndex(updatedHistory.length);
+
+    setTimeout(() => {
+      if (textAreaRef.current) {
+        textAreaRef.current.selectionStart = newCursorPosition;
+        textAreaRef.current.selectionEnd = newCursorPosition;
+        textAreaRef.current.focus();
+      }
+    }, 0);
+  };
+
+  const insertLink = () => {
+    const linkText = prompt("Enter link text:");
+    if (!linkText) return;
+    
+    const linkUrl = prompt("Enter URL:");
+    if (!linkUrl) return;
+
+    insertText(`[${linkText}](`, "", linkUrl + ")");
+  };
+
+  const insertTable = () => {
+    const rows = prompt("Enter number of rows:", "3");
+    const cols = prompt("Enter number of columns:", "3");
+    
+    if (!rows || !cols) return;
+    
+    const numRows = parseInt(rows);
+    const numCols = parseInt(cols);
+    
+    if (isNaN(numRows) || isNaN(numCols)) return;
+
+    let table = "\n";
+    // Header row
+    table += "| " + Array(numCols).fill("Header").join(" | ") + " |\n";
+    // Separator
+    table += "| " + Array(numCols).fill("---").join(" | ") + " |\n";
+    // Data rows
+    for (let i = 0; i < numRows - 1; i++) {
+      table += "| " + Array(numCols).fill("Cell").join(" | ") + " |\n";
+    }
+    table += "\n";
+
+    if (!textAreaRef.current) return;
+    const start = textAreaRef.current.selectionStart;
+    const updatedText = `${markdownText.substring(0, start)}${table}${markdownText.substring(start)}`;
+    
+    setMarkdownText(updatedText);
+    onChange(updatedText);
+
+    // Update history
+    const updatedHistory = history.slice(0, historyIndex + 1);
+    setHistory([...updatedHistory, updatedText]);
+    setHistoryIndex(updatedHistory.length);
+  };
+
+  const insertHeading = (level: number) => {
+    const prefix = "#".repeat(level) + " ";
+    insertLinePrefix(prefix);
+    setHeadingAnchorEl(null);
   };
 
   const handleImageInsert = async (file: File) => {
@@ -301,58 +425,168 @@ const CustomMarkdownEditor = ({
 
       {mode === "write" && (
         <>
-          <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
-            <Tooltip title="Bold">
-              <IconButton onClick={() => insertText("**", "")}>
+          <Box sx={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 0.5, mb: 2, p: 1, bgcolor: "#F5F5F7", borderRadius: "8px" }}>
+            {/* Heading Dropdown */}
+            <Tooltip title="Headings">
+              <IconButton 
+                onClick={(e) => setHeadingAnchorEl(e.currentTarget)}
+                size="small"
+              >
+                <Title style={{ color: "#02306B" }} />
+              </IconButton>
+            </Tooltip>
+            <Menu
+              anchorEl={headingAnchorEl}
+              open={Boolean(headingAnchorEl)}
+              onClose={() => setHeadingAnchorEl(null)}
+            >
+              <MenuItem onClick={() => insertHeading(1)}>
+                <Typography variant="h4">Heading 1</Typography>
+              </MenuItem>
+              <MenuItem onClick={() => insertHeading(2)}>
+                <Typography variant="h5">Heading 2</Typography>
+              </MenuItem>
+              <MenuItem onClick={() => insertHeading(3)}>
+                <Typography variant="h6">Heading 3</Typography>
+              </MenuItem>
+              <MenuItem onClick={() => insertHeading(4)}>
+                <Typography variant="subtitle1">Heading 4</Typography>
+              </MenuItem>
+              <MenuItem onClick={() => insertHeading(5)}>
+                <Typography variant="subtitle2">Heading 5</Typography>
+              </MenuItem>
+              <MenuItem onClick={() => insertHeading(6)}>
+                <Typography variant="body2">Heading 6</Typography>
+              </MenuItem>
+            </Menu>
+
+            <Divider orientation="vertical" flexItem sx={{ mx: 0.5 }} />
+
+            {/* Text Formatting */}
+            <Tooltip title="Bold (Ctrl+B)">
+              <IconButton onClick={() => insertText("**", "bold text")} size="small">
                 <FormatBold style={{ color: "#02306B" }} />
               </IconButton>
             </Tooltip>
-            <Tooltip title="Italic">
-              <IconButton onClick={() => insertText("_", "")}>
+            <Tooltip title="Italic (Ctrl+I)">
+              <IconButton onClick={() => insertText("_", "italic text")} size="small">
                 <FormatItalic style={{ color: "#02306B" }} />
               </IconButton>
             </Tooltip>
-            <Tooltip title="Code">
-              <IconButton onClick={() => insertText("`", "")}>
+            <Tooltip title="Strikethrough">
+              <IconButton onClick={() => insertText("~~", "strikethrough")} size="small">
+                <StrikethroughS style={{ color: "#02306B" }} />
+              </IconButton>
+            </Tooltip>
+            <Tooltip title="Inline Code">
+              <IconButton onClick={() => insertText("`", "code")} size="small">
                 <Code style={{ color: "#02306B" }} />
               </IconButton>
             </Tooltip>
-            <Button
-              variant="contained"
-              component="label"
-              sx={{
-                mt: 1,
-                color: "#fff",
-                bgcolor: "#02306B",
-                ":hover": { bgcolor: "#666" },
-              }}
-              disabled={isLoading}
-            >
-              {isLoading ? "Uploading..." : "Upload file"}
-              <input
-                type="file"
-                hidden
-                onChange={(e) =>
-                  e.target.files && handleImageInsert(e.target.files[0])
-                }
-              />
-            </Button>
-            <IconButton onClick={handleUndo} disabled={historyIndex === 0}>
-              <Undo
-                style={{ color: historyIndex === 0 ? "#aaa" : "#02306B" }}
-              />
-            </IconButton>
-            <IconButton
-              onClick={handleRedo}
-              disabled={historyIndex === history.length - 1}
-            >
-              <Redo
-                style={{
-                  color:
-                    historyIndex === history.length - 1 ? "#aaa" : "#02306B",
+
+            <Divider orientation="vertical" flexItem sx={{ mx: 0.5 }} />
+
+            {/* Lists */}
+            <Tooltip title="Bullet List">
+              <IconButton onClick={() => insertLinePrefix("- ")} size="small">
+                <FormatListBulleted style={{ color: "#02306B" }} />
+              </IconButton>
+            </Tooltip>
+            <Tooltip title="Numbered List">
+              <IconButton onClick={() => insertLinePrefix("1. ")} size="small">
+                <FormatListNumbered style={{ color: "#02306B" }} />
+              </IconButton>
+            </Tooltip>
+            <Tooltip title="Task List">
+              <IconButton onClick={() => insertLinePrefix("- [ ] ")} size="small">
+                <CheckBox style={{ color: "#02306B" }} />
+              </IconButton>
+            </Tooltip>
+
+            <Divider orientation="vertical" flexItem sx={{ mx: 0.5 }} />
+
+            {/* Insert Elements */}
+            <Tooltip title="Insert Link">
+              <IconButton onClick={insertLink} size="small">
+                <LinkIcon style={{ color: "#02306B" }} />
+              </IconButton>
+            </Tooltip>
+            <Tooltip title="Quote">
+              <IconButton onClick={() => insertLinePrefix("> ")} size="small">
+                <FormatQuote style={{ color: "#02306B" }} />
+              </IconButton>
+            </Tooltip>
+            <Tooltip title="Horizontal Rule">
+              <IconButton onClick={() => insertText("\n---\n", "")} size="small">
+                <HorizontalRule style={{ color: "#02306B" }} />
+              </IconButton>
+            </Tooltip>
+            <Tooltip title="Insert Table">
+              <IconButton onClick={insertTable} size="small">
+                <TableChart style={{ color: "#02306B" }} />
+              </IconButton>
+            </Tooltip>
+
+            <Divider orientation="vertical" flexItem sx={{ mx: 0.5 }} />
+
+            {/* File Upload */}
+            <Tooltip title="Upload Image/File">
+              <Button
+                variant="outlined"
+                component="label"
+                size="small"
+                startIcon={<ImageIcon />}
+                sx={{
+                  color: "#02306B",
+                  borderColor: "#02306B",
+                  ":hover": { 
+                    bgcolor: "#02306B10",
+                    borderColor: "#02306B"
+                  },
+                  textTransform: "none",
                 }}
-              />
-            </IconButton>
+                disabled={isLoading}
+              >
+                {isLoading ? "Uploading..." : "Upload"}
+                <input
+                  type="file"
+                  hidden
+                  onChange={(e) =>
+                    e.target.files && handleImageInsert(e.target.files[0])
+                  }
+                />
+              </Button>
+            </Tooltip>
+
+            <Box sx={{ flexGrow: 1 }} />
+
+            {/* History Controls */}
+            <Divider orientation="vertical" flexItem sx={{ mx: 0.5 }} />
+            <Tooltip title="Undo (Ctrl+Z)">
+              <span>
+                <IconButton onClick={handleUndo} disabled={historyIndex === 0} size="small">
+                  <Undo
+                    style={{ color: historyIndex === 0 ? "#aaa" : "#02306B" }}
+                  />
+                </IconButton>
+              </span>
+            </Tooltip>
+            <Tooltip title="Redo (Ctrl+Y)">
+              <span>
+                <IconButton
+                  onClick={handleRedo}
+                  disabled={historyIndex === history.length - 1}
+                  size="small"
+                >
+                  <Redo
+                    style={{
+                      color:
+                        historyIndex === history.length - 1 ? "#aaa" : "#02306B",
+                    }}
+                  />
+                </IconButton>
+              </span>
+            </Tooltip>
           </Box>
 
           <TextareaAutosize
@@ -363,17 +597,20 @@ const CustomMarkdownEditor = ({
             onKeyUp={handleCursorChange}
             onClick={handleCursorChange}
             disabled={disabled}
-            minRows={5}
+            minRows={15}
             style={{
               width: "100%",
-              padding: "10px",
+              padding: "16px",
               borderRadius: "8px",
               backgroundColor: "#fff",
               color: "#000",
-              border: "1px solid #555",
+              border: "1px solid #D1D1D6",
               outline: "none",
               resize: "vertical",
-              minHeight: minHeight || "15px",
+              minHeight: minHeight || "400px",
+              fontFamily: "'SF Mono', 'Monaco', 'Courier New', monospace",
+              fontSize: "14px",
+              lineHeight: "1.6",
             }}
           />
         </>
@@ -382,15 +619,73 @@ const CustomMarkdownEditor = ({
       {mode === "preview" && (
         <Box
           sx={{
-            p: 2,
-            border: "1px solid #555",
+            p: 3,
+            border: "1px solid #D1D1D6",
             borderRadius: "8px",
-            minHeight: minHeight || "150px",
+            minHeight: minHeight || "400px",
             color: "#000",
+            bgcolor: "#FAFAFA",
+            "& h1, & h2, & h3, & h4, & h5, & h6": {
+              marginTop: "1.5em",
+              marginBottom: "0.5em",
+              fontWeight: 600,
+            },
+            "& p": {
+              marginBottom: "1em",
+              lineHeight: 1.7,
+            },
+            "& ul, & ol": {
+              marginBottom: "1em",
+              paddingLeft: "2em",
+            },
+            "& li": {
+              marginBottom: "0.5em",
+            },
+            "& code": {
+              backgroundColor: "#F5F5F7",
+              padding: "2px 6px",
+              borderRadius: "4px",
+              fontSize: "0.9em",
+              fontFamily: "'SF Mono', 'Monaco', 'Courier New', monospace",
+            },
+            "& pre": {
+              backgroundColor: "#1E1E1E",
+              color: "#D4D4D4",
+              padding: "1em",
+              borderRadius: "8px",
+              overflow: "auto",
+              marginBottom: "1em",
+            },
+            "& blockquote": {
+              borderLeft: "4px solid #02306B",
+              paddingLeft: "1em",
+              marginLeft: 0,
+              color: "#666",
+              fontStyle: "italic",
+            },
+            "& table": {
+              borderCollapse: "collapse",
+              width: "100%",
+              marginBottom: "1em",
+            },
+            "& th, & td": {
+              border: "1px solid #D1D1D6",
+              padding: "8px 12px",
+              textAlign: "left",
+            },
+            "& th": {
+              backgroundColor: "#F5F5F7",
+              fontWeight: 600,
+            },
+            "& hr": {
+              border: "none",
+              borderTop: "2px solid #D1D1D6",
+              margin: "2em 0",
+            },
           }}
         >
           <ReactMarkdown remarkPlugins={[remarkGfm]} components={components}>
-            {markdownText}
+            {markdownText || "*No content to preview*"}
           </ReactMarkdown>
         </Box>
       )}
