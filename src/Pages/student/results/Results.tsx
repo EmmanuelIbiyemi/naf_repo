@@ -19,7 +19,7 @@ import {
   Avatar,
 } from "@mui/material";
 import { useAppDispatch, useAppSelector } from "../../../store/hooks";
-import { selectKeyword, setPageName } from "../../../store/app.slice";
+import { selectKeyword, setPageName, setPageLoading } from "../../../store/app.slice";
 import { useStudentResultQuery } from "../../../store/api/result.api";
 import { useGetSessionsQuery } from "../../../store/api/sessions.api";
 import { selectCurrentUser } from "../../../store/auth.slice";
@@ -102,6 +102,14 @@ export default function Results() {
     dispatch(setPageName("Results"));
   }, [dispatch]);
 
+  useEffect(() => {
+    if (isLoadingSessions || isLoadingResults) {
+      dispatch(setPageLoading(true));
+    } else {
+      dispatch(setPageLoading(false));
+    }
+  }, [isLoadingSessions, isLoadingResults, dispatch]);
+
   const handleSemesterChange = (event: SelectChangeEvent) => {
     setSelectedSemester(event.target.value as string);
   };
@@ -139,21 +147,6 @@ export default function Results() {
       alert("Failed to generate PDF. Please try again.");
     }
   };
-
-  if (isLoadingSessions) {
-    return (
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          height: "100vh",
-        }}
-      >
-        <CircularProgress />
-      </Box>
-    );
-  }
 
   if (sessionsError) {
     return (
@@ -211,18 +204,7 @@ export default function Results() {
         </Box>
       </Box>
 
-      {isLoadingResults ? (
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            height: "50vh",
-          }}
-        >
-          <CircularProgress />
-        </Box>
-      ) : resultError ? (
+      {resultError ? (
         <Alert severity={isVisibilityBlocked ? "info" : "error"}>
           {isVisibilityBlocked ? (
             <>
