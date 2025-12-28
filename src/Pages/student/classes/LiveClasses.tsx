@@ -67,7 +67,7 @@ const LiveClasses = () => {
         !currentSemester?.data?.name ||
         !currentSession?.data?.name ||
         !participantData?.data ||
-        !selectedCourse,
+        !selectedCourse?.id,
     }
   );
 
