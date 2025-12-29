@@ -25,6 +25,7 @@ const ContactSettings = () => {
     school_acronym: "",
     school_description: "",
     school_keywords: "",
+    max_student_count: "",
   });
   
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
@@ -49,6 +50,7 @@ const ContactSettings = () => {
         school_acronym: settingsMap.school_acronym || "",
         school_description: settingsMap.school_description || "",
         school_keywords: settingsMap.school_keywords || "",
+        max_student_count: settingsMap.max_student_count || "",
       });
     }
   }, [settings]);
@@ -213,6 +215,15 @@ const ContactSettings = () => {
           helperText="SEO keywords (comma-separated)"
         />
         
+        <TextField
+          label="Max Student Count"
+          type="number"
+          value={formValues.max_student_count}
+          onChange={handleChange("max_student_count")}
+          fullWidth
+          helperText="Maximum number of students for matric number generation (default: 5000)"
+        />
+        
         <Typography variant="h6" sx={{ mt: 2, mb: 1, fontWeight: 600 }}>
           Contact Information
         </Typography>
@@ -294,6 +305,7 @@ const ContactSettings = () => {
                   school_acronym: settingsMap.school_acronym || "",
                   school_description: settingsMap.school_description || "",
                   school_keywords: settingsMap.school_keywords || "",
+                  max_student_count: settingsMap.max_student_count || "",
                 });
               }
               setSuccessMessage(null);
