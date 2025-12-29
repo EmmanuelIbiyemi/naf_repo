@@ -70,7 +70,7 @@ const CourseForm = ({ actions, course }: Props) => {
       onSubmit={handleSubmit}
       enableReinitialize={true}
     >
-      {({ isValid, dirty, values, setFieldValue }) => (
+      {({ isValid, dirty, values, setFieldValue, errors, touched, setFieldTouched }) => (
         <Form className={formStyles.modal_form}>
           <Typography
             variant="h5"
@@ -142,7 +142,7 @@ const CourseForm = ({ actions, course }: Props) => {
             }}
           >
             <Box>
-              <label htmlFor="instructor_ids">Assign Instructor(s)</label>
+              <label htmlFor="instructor_ids">Assign Instructor(s) *</label>
               <InstructorDropdown
                 name="instructor_ids"
                 label=""
@@ -154,10 +154,10 @@ const CourseForm = ({ actions, course }: Props) => {
                     : [];
                   setFieldValue("instructor_ids", instructorIds);
                   setFieldValue("instructors", selectedInstructors || []);
+                  setFieldTouched("instructor_ids", true);
                 }}
-                error={false}
-                helperText=""
-                required
+                error={touched.instructor_ids && Boolean(errors.instructor_ids)}
+                helperText={touched.instructor_ids && errors.instructor_ids ? String(errors.instructor_ids) : ""}
               />
             </Box>
             <Box>
