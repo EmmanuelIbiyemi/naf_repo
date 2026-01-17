@@ -92,7 +92,16 @@ import {
     <MenuItem value={"phone"}>Phone</MenuItem>,
     <MenuItem value={"whatsapp"}>WhatsApp</MenuItem>,
     <MenuItem value={"mail"}>Email</MenuItem>,
-    <MenuItem value={"clock"}>Available Hour</MenuItem>,];
+    <MenuItem value={"clock"}>Available Hour</MenuItem>,
+    <MenuItem value={"facebook"}>Facebook</MenuItem>,
+    <MenuItem value={"linkedin"}>LinkedIn</MenuItem>,
+    <MenuItem value={"twitter"}>Twitter/X</MenuItem>,
+    <MenuItem value={"instagram"}>Instagram</MenuItem>,
+    <MenuItem value={"telegram"}>Telegram</MenuItem>,
+    <MenuItem value={"youtube"}>YouTube</MenuItem>,
+    <MenuItem value={"tiktok"}>TikTok</MenuItem>,
+    <MenuItem value={"discord"}>Discord</MenuItem>,
+    <MenuItem value={"website"}>Website</MenuItem>,];
   
     return (<Box>
       <Box
