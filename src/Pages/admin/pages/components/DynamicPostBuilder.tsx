@@ -553,7 +553,7 @@ const SortableItem = ({ id, children }: SortableItemProps) => {
 
   return (
     <Box ref={setNodeRef} style={style}>
-      {children({ attributes, listeners, isDragging })}
+      {children({ attributes: (attributes as unknown) as Record<string, unknown>, listeners: listeners || {}, isDragging })}
     </Box>
   );
 };

@@ -35,12 +35,12 @@ const PostPage = () => {
   const { resource_type, post_id } = useParams();
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
-  const [getPost, postState] = useGetPostMMutation();
   const { data: postt, isFetching } = useGetPostQuery(+(post_id || 0), {
     skip: !post_id,
   });
   const [addPost] = useAddPostMutation();
   const [updatePost, updateState] = useUpdatePostMutation();
+  const [, postState] = useGetPostMMutation();
   const [post, setPost] = useState<PostType | null>(null);
   const [media, setMedia] = useState({
     url: "",
@@ -621,16 +621,6 @@ const elementListStyles: SxProps = {
   overflowY: "auto",
   paddingRight: "0.5rem",
   scrollbarGutter: "stable",
-};
-
-const settingsPanelStyles: SxProps = {
-  borderTop: "1px solid rgba(0,0,0,0.08)",
-  marginTop: "1.5rem",
-  paddingTop: "1rem",
-  position: "sticky",
-  top: "1rem",
-  backgroundColor: "#fff",
-  zIndex: 1,
 };
 
 const floatingSettingsPanelStyles: SxProps = {
