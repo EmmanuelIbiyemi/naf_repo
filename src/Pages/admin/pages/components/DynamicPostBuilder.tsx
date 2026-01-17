@@ -1,11 +1,17 @@
 import {
   Box,
   Button,
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  IconButton,
   SxProps,
   Typography,
 } from "@mui/material";
+import { Close } from "@mui/icons-material";
 import { BlockType } from "../../../../types/blocks";
 import { PostType } from "../../../../types/posts";
+import { useMemo, useState } from "react";
 import HeadingBlock from "./postblocks/Heading";
 import MediaBlock from "./postblocks/Media";
 import BannerBlock from "./postblocks/Banner";
@@ -20,6 +26,7 @@ import PostCardsBlock from "./postblocks/PostCards";
 import MarginBlock from "./postblocks/Margin";
 import DropdownBlock from "./postblocks/Dropdown";
 import BlockStyleFields from "./postblocks/BlockStyleFields";
+import { ActionButtons } from "./ActionButtons";
 
 
 type Props = {
@@ -28,6 +35,7 @@ type Props = {
 };
 
 const PageBuilder = ({ page, setPage }: Props) => {
+  const [editingRowBlockId, setEditingRowBlockId] = useState<string | null>(null);
   
   const displayEl = (element: BlockType, index: number) => {
     let el;
@@ -90,6 +98,72 @@ const PageBuilder = ({ page, setPage }: Props) => {
       </Box>
     );
   };
+
+  const renderBlockEditor = (element: BlockType, index: number) => {
+    let el;
+    switch (element.type) {
+      case "heading":
+      case "subheading":
+      case "link":
+        el = <HeadingBlock page={page} setPage={setPage} element={element} index={index} />;
+        break;
+      case "text":
+        el = <TextBlock page={page} setPage={setPage} element={element} index={index} />;
+        break;
+      case "image":
+      case "video":
+      case "map":
+        el = <MediaBlock page={page} setPage={setPage} element={element} index={index} />;
+        break;
+      case "banner":
+        el = <BannerBlock page={page} setPage={setPage} element={element} index={index} />;
+        break;
+      case "link page":
+        el = <LinkPageBlock page={page} setPage={setPage} element={element} index={index} />;
+        break;
+      case "link url":
+      case "button link":
+        el = <LinkUrlBlock page={page} setPage={setPage} element={element} index={index} />;
+        break;
+      case "link social":
+        el = <LinkSocialBlock page={page} setPage={setPage} element={element} index={index} />;
+        break;
+      case "dropdown":
+        el = <DropdownBlock page={page} setPage={setPage} element={element} index={index} />;
+        break;
+      case "contacts":
+        el = <ContactsBlock page={page} setPage={setPage} element={element} index={index} />;
+        break;
+      case "left card":
+      case "right card":
+        el = <CardBlock page={page} setPage={setPage} element={element} index={index} />;
+        break;
+      case "post carousel":
+        el = <PostCarouselBlock page={page} setPage={setPage} element={element} index={index} />;
+        break;
+      case "post cards":
+        el = <PostCardsBlock page={page} setPage={setPage} element={element} index={index} />;
+        break;
+      case "margin":
+        el = <MarginBlock page={page} setPage={setPage} element={element} index={index} />;
+        break;
+      default:
+        el = null;
+    }
+
+    return (
+      <Box sx={{ display: "grid", gap: "1rem" }}>
+        {el}
+        <BlockStyleFields block={element} blocks={page.blocks} setPage={setPage} />
+      </Box>
+    );
+  };
+
+  const rowEditBlockData = useMemo(() => {
+    if (!editingRowBlockId) return { block: null, index: -1 };
+    const index = page.blocks.findIndex((block) => block.randomId === editingRowBlockId);
+    return { block: index >= 0 ? page.blocks[index] : null, index };
+  }, [editingRowBlockId, page.blocks]);
   const getColumnWidthPercent = (value?: string) => {
     switch (value) {
       case "1/3":
@@ -169,8 +243,12 @@ const PageBuilder = ({ page, setPage }: Props) => {
           </Box>
           <Box
             sx={{
-              display: { xs: "grid", md: "flex" },
+              display: "grid",
               gap: "1rem",
+              gridAutoFlow: { xs: "row", md: "column" },
+              gridAutoColumns: { md: "minmax(220px, 1fr)" },
+              overflowX: { md: "auto" },
+              paddingBottom: { md: "0.5rem" },
               alignItems: "stretch",
             }}
           >
@@ -180,11 +258,28 @@ const PageBuilder = ({ page, setPage }: Props) => {
                 <Box
                   key={`row-item-${rowBlock.id || rowIndex}`}
                   sx={{
-                    flex: { xs: "1 1 100%", md: `0 0 ${percent}%` },
+                    minWidth: { md: `${percent}%` },
                     maxWidth: { xs: "100%", md: `${percent}%` },
                   }}
                 >
-                  {displayEl(rowBlock, rowIndex)}
+                  <Box sx={rowCardStyles}>
+                    <Box sx={{ display: "flex", justifyContent: "space-between", gap: "0.5rem" }}>
+                      <Typography variant="subtitle2" sx={{ textTransform: "capitalize" }}>
+                        {rowBlock.type}
+                      </Typography>
+                      <Button
+                        size="small"
+                        variant="text"
+                        onClick={() => setEditingRowBlockId(rowBlock.randomId || null)}
+                      >
+                        Edit
+                      </Button>
+                    </Box>
+                    <Typography variant="caption" color="text.secondary">
+                      Width: {rowBlock.settings?.columnWidth || "1/2"}
+                    </Typography>
+                    <ActionButtons block={rowBlock} setPage={setPage} />
+                  </Box>
                 </Box>
               );
             })}
@@ -199,7 +294,31 @@ const PageBuilder = ({ page, setPage }: Props) => {
     renderedBlocks.push(displayEl(block, i));
   }
 
-  return <Box sx={formBuilderStyles}>{renderedBlocks}</Box>
+  return (
+    <>
+      <Box sx={formBuilderStyles}>{renderedBlocks}</Box>
+      <Dialog
+        open={Boolean(rowEditBlockData.block)}
+        onClose={() => setEditingRowBlockId(null)}
+        maxWidth="md"
+        fullWidth
+      >
+        <DialogTitle sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <Typography variant="subtitle1" sx={{ textTransform: "capitalize" }}>
+            {rowEditBlockData.block?.type} block
+          </Typography>
+          <IconButton onClick={() => setEditingRowBlockId(null)}>
+            <Close />
+          </IconButton>
+        </DialogTitle>
+        <DialogContent>
+          {rowEditBlockData.block
+            ? renderBlockEditor(rowEditBlockData.block, rowEditBlockData.index)
+            : null}
+        </DialogContent>
+      </Dialog>
+    </>
+  );
 }
 
   
@@ -243,4 +362,14 @@ const rowWrapperStyles: SxProps = {
   gap: "0.75rem",
   marginBottom: "1rem",
   padding: "0.75rem",
+};
+
+const rowCardStyles: SxProps = {
+  border: "1px solid rgba(0,0,0,0.08)",
+  borderRadius: "12px",
+  display: "grid",
+  gap: "0.5rem",
+  padding: "0.75rem",
+  backgroundColor: "#fff",
+  boxShadow: "0 1px 2px rgba(15, 23, 42, 0.08)",
 };

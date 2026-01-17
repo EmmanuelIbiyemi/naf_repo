@@ -3,6 +3,7 @@ import {
   Button,
   Dialog,
   IconButton,
+  InputAdornment,
   SxProps,
   TextField,
   Typography,
@@ -21,7 +22,7 @@ import MediaLibraryModal from "../media/MediaLibraryModal";
 import { elements } from "./elements/post-elements";
 import { BlockType, MediaType } from "../../../types/blocks";
 import LoadingScreen from "../../../components/LoadingScreen";
-import { Close, Save as SaveIcon } from "@mui/icons-material";
+import { Close, Save as SaveIcon, Search } from "@mui/icons-material";
 import { setPageLoading } from "../../../store/app.slice";
 import { useAppDispatch } from "../../../store/hooks";
 
@@ -42,6 +43,7 @@ const PostPage = () => {
     modal: false,
   });
   const [categories, setCategories] = useState("");
+  const [blockSearch, setBlockSearch] = useState("");
 
   useEffect(() => {
     if (post?.categories) {
@@ -112,6 +114,9 @@ const PostPage = () => {
   const getSidebar = () => {
     return elements;
   };
+  const filteredElements = getSidebar().filter((el) =>
+    el.name.toLowerCase().includes(blockSearch.toLowerCase())
+  );
 
   const handleOpenModal = (type: string) => {
     setMedia((prev) => ({ ...prev, modal: true, mediaType: type }));
@@ -196,6 +201,19 @@ const PostPage = () => {
       <Box sx={{ paddingBottom: "2rem" }}>
         <Box sx={headerStyles}>
           <Button onClick={handleBack}>Back</Button>
+          <Box sx={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+            <Typography variant="subtitle2" color="text.secondary">
+              Draft
+            </Typography>
+            <Button
+              variant="contained"
+              startIcon={<SaveIcon />}
+              onClick={handleSave}
+              disabled={updateState.isLoading || postState.isLoading}
+            >
+              Save
+            </Button>
+          </Box>
         </Box>
         <Box
           sx={{
@@ -311,13 +329,6 @@ const PostPage = () => {
               }}
             />
           )}
-          <IconButton
-            aria-label="save"
-            onClick={handleSave}
-            sx={floatingButtonStyles}
-          >
-            <SaveIcon titleAccess="Save Changes" />
-          </IconButton>
         </Box>
       </Box>
       <Box sx={sidebarContentStyles}>
@@ -325,8 +336,22 @@ const PostPage = () => {
           <Typography variant="h6" sx={{ marginBottom: "1rem" }}>
             Blocks
           </Typography>
+          <TextField
+            placeholder="Search blocks"
+            size="small"
+            value={blockSearch}
+            onChange={(e) => setBlockSearch(e.target.value)}
+            sx={{ marginBottom: "1rem" }}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <Search fontSize="small" />
+                </InputAdornment>
+              ),
+            }}
+          />
           <Box sx={elementSideBar}>
-            {getSidebar().map((el, i) => (
+            {filteredElements.map((el, i) => (
               <Button key={el.id + "-" + i} onClick={() => addBlock(el.type)}>
                 <el.icon />
                 <span>{el.name}</span>
@@ -387,17 +412,5 @@ const elementSideBar: SxProps = {
     placeContent: "center",
     placeItems: "center",
     fontSize: "0.675rem",
-  },
-};
-
-const floatingButtonStyles: SxProps = {
-  position: "absolute",
-  bottom: "20px",
-  right: "20px",
-  zIndex: 1000,
-  backgroundColor: "primary.main",
-  color: "#fff",
-  "&:hover": {
-    backgroundColor: "primary.dark",
   },
 };
