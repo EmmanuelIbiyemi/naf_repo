@@ -16,6 +16,10 @@ import MarginBlock from "./postblocks/Margin";
 import DropdownBlock from "./postblocks/Dropdown";
 import BlockStyleFields from "./postblocks/BlockStyleFields";
 import BlockTypeSelector from "./BlockTypeSelector";
+import RichTextBlock from "./postblocks/RichText";
+import GalleryBlock from "./postblocks/Gallery";
+import FeatureGridBlock from "./postblocks/FeatureGrid";
+import AccordionBlock from "./postblocks/Accordion";
 
 type Props = {
   block: BlockType;
@@ -71,6 +75,18 @@ const BlockEditorPanel = ({ block, index, page, setPage, showAppearance = true }
       break;
     case "post cards":
       el = <PostCardsBlock page={page} setPage={setPage} element={block} index={index} />;
+      break;
+    case "rich text":
+      el = <RichTextBlock page={page} setPage={setPage} element={block} index={index} />;
+      break;
+    case "gallery":
+      el = <GalleryBlock page={page} setPage={setPage} element={block} index={index} />;
+      break;
+    case "feature grid":
+      el = <FeatureGridBlock page={page} setPage={setPage} element={block} index={index} />;
+      break;
+    case "accordion":
+      el = <AccordionBlock page={page} setPage={setPage} element={block} index={index} />;
       break;
     case "margin":
       el = <MarginBlock page={page} setPage={setPage} element={block} index={index} />;

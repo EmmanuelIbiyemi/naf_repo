@@ -26,6 +26,10 @@ import PostCarouselBlock from "./postblocks/PostCarousel";
 import PostCardsBlock from "./postblocks/PostCards";
 import MarginBlock from "./postblocks/Margin";
 import DropdownBlock from "./postblocks/Dropdown";
+import RichTextBlock from "./postblocks/RichText";
+import GalleryBlock from "./postblocks/Gallery";
+import FeatureGridBlock from "./postblocks/FeatureGrid";
+import AccordionBlock from "./postblocks/Accordion";
 
 type Props = {
   page: PostType;
@@ -84,6 +88,18 @@ const PageBuilder = ({ page, setPage, selectedBlockId, onSelectBlock }: Props) =
         break
       case "post cards":
         el =<PostCardsBlock page={page} setPage={setPage} element={element} index={index}/>
+        break
+      case "rich text":
+        el =<RichTextBlock page={page} setPage={setPage} element={element} index={index}/>
+        break
+      case "gallery":
+        el =<GalleryBlock page={page} setPage={setPage} element={element} index={index}/>
+        break
+      case "feature grid":
+        el =<FeatureGridBlock page={page} setPage={setPage} element={element} index={index}/>
+        break
+      case "accordion":
+        el =<AccordionBlock page={page} setPage={setPage} element={element} index={index}/>
         break
       case "margin":
         el =<MarginBlock page={page} setPage={setPage} element={element} index={index}/>

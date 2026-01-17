@@ -26,6 +26,10 @@ export const BLOCK_TYPES = {
   // Common Elements
   IMAGE: "image",
   VIDEO: "video",
+  RICH_TEXT: "rich text",
+  GALLERY: "gallery",
+  FEATURE_GRID: "feature grid",
+  ACCORDION: "accordion",
   HEADING: "heading",
   SUBHEADING: "subheading",
   TEXT: "text",
@@ -54,6 +58,10 @@ export const elements = [
   // Common Elements
   { id: 7, name: "Image", type: BLOCK_TYPES.IMAGE, icon: Image },
   { id: 8, name: "Video", type: BLOCK_TYPES.VIDEO, icon: SmartDisplay },
+  { id: 23, name: "Rich Text", type: BLOCK_TYPES.RICH_TEXT, icon: TextFields },
+  { id: 24, name: "Gallery", type: BLOCK_TYPES.GALLERY, icon: Image },
+  { id: 25, name: "Feature Grid", type: BLOCK_TYPES.FEATURE_GRID, icon: Article },
+  { id: 26, name: "Accordion", type: BLOCK_TYPES.ACCORDION, icon: Article },
   { id: 9, name: "Heading", type: BLOCK_TYPES.HEADING, icon: HMobiledata },
   { id: 15, name: "Subheading", type: BLOCK_TYPES.SUBHEADING, icon: TextFields },
   { id: 10, name: "Paragraph", type: BLOCK_TYPES.TEXT, icon: LocalParking },

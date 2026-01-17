@@ -8,7 +8,7 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import PageBuilder from "./components/DynamicPostBuilder";
 import { useNavigate, useParams } from "react-router-dom";
 import {
@@ -48,6 +48,8 @@ const PostPage = () => {
   const [categories, setCategories] = useState("");
   const [blockSearch, setBlockSearch] = useState("");
   const [selectedBlockId, setSelectedBlockId] = useState<string | null>(null);
+  const sidebarRef = useRef<HTMLDivElement | null>(null);
+  const settingsPanelRef = useRef<HTMLDivElement | null>(null);
 
   // Wrapper to provide a type-safe setPage for child components that expect PostType
   const handleSetPost: React.Dispatch<React.SetStateAction<PostType>> = (action) => {
@@ -168,6 +170,16 @@ const PostPage = () => {
       setSelectedBlockId(post.blocks[0].randomId || null);
     }
   }, [post, selectedBlockId]);
+
+  useEffect(() => {
+    if (!selectedBlockId) return;
+    if (settingsPanelRef.current) {
+      settingsPanelRef.current.scrollIntoView({
+        behavior: "smooth",
+        block: "nearest",
+      });
+    }
+  }, [selectedBlockId]);
 
   useEffect(() => {
     if (isFetching) dispatch(setPageLoading(true));
@@ -361,7 +373,7 @@ const PostPage = () => {
           )}
         </Box>
       </Box>
-      <Box sx={sidebarContentStyles}>
+      <Box sx={sidebarContentStyles} ref={sidebarRef}>
         <Box>
           <Typography variant="h6" sx={{ marginBottom: "1rem" }}>
             Blocks
@@ -390,7 +402,10 @@ const PostPage = () => {
               ))}
             </Box>
           </Box>
-          <Box sx={settingsPanelStyles}>
+          <Typography variant="caption" color="text.secondary">
+            Scroll to see more blocks.
+          </Typography>
+          <Box sx={settingsPanelStyles} ref={settingsPanelRef}>
             <Typography variant="subtitle2" sx={{ marginBottom: "0.75rem" }}>
               {selectedBlock
                 ? `Editing: ${selectedBlock.type}`
@@ -482,10 +497,15 @@ const elementListStyles: SxProps = {
   maxHeight: "340px",
   overflowY: "auto",
   paddingRight: "0.5rem",
+  scrollbarGutter: "stable",
 };
 
 const settingsPanelStyles: SxProps = {
   borderTop: "1px solid rgba(0,0,0,0.08)",
   marginTop: "1.5rem",
   paddingTop: "1rem",
+  position: "sticky",
+  top: "1rem",
+  backgroundColor: "#fff",
+  zIndex: 1,
 };
