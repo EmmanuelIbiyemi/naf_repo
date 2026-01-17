@@ -502,25 +502,25 @@ const settingsPanelStyles: SxProps = {
 
 const floatingSettingsPanelStyles: SxProps = {
   position: "fixed",
-  bottom: "2rem",
-  right: "2rem",
-  width: "320px",
-  maxHeight: "70vh",
+  top: "26rem",
+  right: "0",
+  width: "300px",
+  maxHeight: "calc(100vh - 26rem)",
   bgcolor: "#fff",
   border: "1px solid rgba(204, 204, 204, 0.5)",
-  borderRadius: "var(--border-radius)",
-  boxShadow: "0 8px 32px rgba(0, 0, 0, 0.12)",
+  borderLeft: "1px solid rgba(204, 204, 204, 0.5)",
+  boxShadow: "-2px 0 8px rgba(0, 0, 0, 0.08)",
   zIndex: 999,
   overflowY: "auto",
-  animation: "slideIn 0.2s ease-out",
-  "@keyframes slideIn": {
+  animation: "slideInRight 0.2s ease-out",
+  "@keyframes slideInRight": {
     from: {
       opacity: 0,
-      transform: "translateY(20px)",
+      transform: "translateX(20px)",
     },
     to: {
       opacity: 1,
-      transform: "translateY(0)",
+      transform: "translateX(0)",
     },
   },
 };
