@@ -1,4 +1,4 @@
-export type MediaCreateType = { id: number };
+export type MediaCreateType = { id: number; caption?: string };
 export type MediaType = {
   id: number;
   created_at: string;
@@ -6,6 +6,7 @@ export type MediaType = {
   type: string;
   updated_at: string;
   url: string;
+  caption?: string;
 };
 
 export type BlockSettings = {
@@ -31,4 +32,5 @@ export type BlockType = {
   settings?: BlockSettings;
   title: string;
   type: string;
+  description?: string;
 };

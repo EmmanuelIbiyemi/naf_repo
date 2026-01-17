@@ -5,6 +5,7 @@ import {
   IconButton,
   SxProps,
   Typography,
+  TextField,
 } from "@mui/material";
 import { BlockType } from "../../../../../types/blocks";
 import { useEffect, useState } from "react";
@@ -64,6 +65,21 @@ const GalleryBlock = ({ page, setPage, element, index }: Props) => {
     updateBlock({ ...element, media: nextMedia });
   };
 
+  const handleUpdateMediaCaption = (mediaId: number, caption: string) => {
+    const updated = (element.media || []).map((item) =>
+      item.id === mediaId ? { ...item, caption } : item
+    );
+    updateBlock({ ...element, media: updated });
+  };
+
+  const handleTitleChange = (title: string) => {
+    updateBlock({ ...element, title });
+  };
+
+  const handleDescriptionChange = (description: string) => {
+    updateBlock({ ...element, description });
+  };
+
   return (
     <>
       <Dialog
@@ -98,6 +114,24 @@ const GalleryBlock = ({ page, setPage, element, index }: Props) => {
           <ActionButtons block={element} setPage={setPage} />
         </Box>
         <Box sx={{ display: "grid", gap: "1rem" }}>
+          <TextField
+            label="Gallery Title"
+            placeholder="Enter gallery title (optional)"
+            value={element.title || ""}
+            onChange={(e) => handleTitleChange(e.target.value)}
+            fullWidth
+            size="small"
+          />
+          <TextField
+            label="Gallery Description"
+            placeholder="Enter gallery description (optional)"
+            value={element.description || ""}
+            onChange={(e) => handleDescriptionChange(e.target.value)}
+            fullWidth
+            multiline
+            rows={2}
+            size="small"
+          />
           <Button variant="outlined" onClick={() => setMediaModalOpen(true)}>
             Add Images
           </Button>
@@ -105,10 +139,20 @@ const GalleryBlock = ({ page, setPage, element, index }: Props) => {
             {(element.media as MediaType[] | undefined)?.map((item) => (
               <Box key={`gallery-item-${item.id}`} sx={galleryItemStyles}>
                 <img src={item.url} alt={item.name} />
+                <TextField
+                  label="Caption"
+                  placeholder="Image caption (optional)"
+                  value={item.caption || ""}
+                  onChange={(e) => handleUpdateMediaCaption(item.id, e.target.value)}
+                  size="small"
+                  fullWidth
+                  sx={{ mt: 0.5 }}
+                />
                 <Button
                   size="small"
                   color="error"
                   onClick={() => handleRemoveMedia(item.id)}
+                  sx={{ mt: 0.5 }}
                 >
                   Remove
                 </Button>
@@ -139,6 +183,7 @@ const galleryItemStyles: SxProps = {
     height: "100px",
     objectFit: "cover",
   },
+  gridTemplateRows: "auto 1fr auto",
 };
 
 export default GalleryBlock;
