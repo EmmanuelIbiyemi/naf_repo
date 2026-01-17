@@ -13,13 +13,12 @@ const SettingsSideBar = () => {
   const [navLinks] = useState<NavLink[]>([
     { content: "Media Library", link: "/settings" },
     { content: "Profile", link: "/settings/profile" },
-    { content: "Contact Info", link: "/settings/contact" },
+    { content: "Site Settings", link: "/settings/contact" },
     // { content: "Commandants", link: "/settings/posttype/commandants" },
     // { content: "Staff", link: "/settings/posttype/staffs" },
     { content: "Posts", link: "/settings/posttype/posts" },
     { content: "Pages", link: "/settings/posttype/page" },
-    { content: "Navigation", link: "/settings/posttype/navigation" },
-    { content: "Footer", link: "/settings/posttype/footer" },
+    { content: "Menu", link: "/settings/posttype/navigation" },
     { content: "Announcements", link: "/settings/posttype/announcement" },
   ]);
 
