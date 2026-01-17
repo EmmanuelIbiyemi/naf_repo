@@ -171,15 +171,7 @@ const PostPage = () => {
     }
   }, [post, selectedBlockId]);
 
-  useEffect(() => {
-    if (!selectedBlockId) return;
-    if (settingsPanelRef.current) {
-      settingsPanelRef.current.scrollIntoView({
-        behavior: "smooth",
-        block: "nearest",
-      });
-    }
-  }, [selectedBlockId]);
+
 
   useEffect(() => {
     if (isFetching) dispatch(setPageLoading(true));
@@ -405,13 +397,15 @@ const PostPage = () => {
           <Typography variant="caption" color="text.secondary">
             Scroll to see more blocks.
           </Typography>
-          <Box sx={settingsPanelStyles} ref={settingsPanelRef}>
+        </Box>
+      </Box>
+      {selectedBlock && (
+        <Box sx={floatingSettingsPanelStyles} ref={settingsPanelRef}>
+          <Box sx={{ padding: "1rem", backgroundColor: "#fff", height: "100%" }}>
             <Typography variant="subtitle2" sx={{ marginBottom: "0.75rem" }}>
-              {selectedBlock
-                ? `Editing: ${selectedBlock.type}`
-                : "Select a block to edit"}
+              Editing: {selectedBlock.type}
             </Typography>
-            {selectedBlock && post ? (
+            {post ? (
               isRowBlock ? (
                 <BlockEditorPanel
                   block={selectedBlock}
@@ -430,14 +424,10 @@ const PostPage = () => {
                   />
                 </Box>
               )
-            ) : (
-              <Typography variant="body2" color="text.secondary">
-                Click a block in the editor to manage its settings.
-              </Typography>
-            )}
+            ) : null}
           </Box>
         </Box>
-      </Box>
+      )}
     </Box>
   );
 };
@@ -508,4 +498,29 @@ const settingsPanelStyles: SxProps = {
   top: "1rem",
   backgroundColor: "#fff",
   zIndex: 1,
+};
+
+const floatingSettingsPanelStyles: SxProps = {
+  position: "fixed",
+  bottom: "2rem",
+  right: "2rem",
+  width: "320px",
+  maxHeight: "70vh",
+  bgcolor: "#fff",
+  border: "1px solid rgba(204, 204, 204, 0.5)",
+  borderRadius: "var(--border-radius)",
+  boxShadow: "0 8px 32px rgba(0, 0, 0, 0.12)",
+  zIndex: 999,
+  overflowY: "auto",
+  animation: "slideIn 0.2s ease-out",
+  "@keyframes slideIn": {
+    from: {
+      opacity: 0,
+      transform: "translateY(20px)",
+    },
+    to: {
+      opacity: 1,
+      transform: "translateY(0)",
+    },
+  },
 };
