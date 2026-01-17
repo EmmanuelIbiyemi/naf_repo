@@ -30,6 +30,7 @@ import RichTextBlock from "./postblocks/RichText";
 import GalleryBlock from "./postblocks/Gallery";
 import FeatureGridBlock from "./postblocks/FeatureGrid";
 import AccordionBlock from "./postblocks/Accordion";
+import MapBlock from "./postblocks/MapBlock";
 
 type Props = {
   page: PostType;
@@ -57,8 +58,10 @@ const PageBuilder = ({ page, setPage, selectedBlockId, onSelectBlock }: Props) =
         break
       case "image":
       case "video":
-      case "map":
         el =<MediaBlock page={page} setPage={setPage} element={element} index={index}/>
+        break
+      case "map":
+        el =<MapBlock page={page} setPage={setPage} element={element} index={index}/>
         break
       case "banner":
         el =<BannerBlock page={page} setPage={setPage} element={element} index={index}/>

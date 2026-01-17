@@ -7,6 +7,8 @@ import {
   SxProps,
   TextField,
   Typography,
+  FormControlLabel,
+  Checkbox,
 } from "@mui/material";
 import { useCallback, useEffect, useRef, useState } from "react";
 import PageBuilder from "./components/DynamicPostBuilder";
@@ -48,6 +50,11 @@ const PostPage = () => {
   const [categories, setCategories] = useState("");
   const [blockSearch, setBlockSearch] = useState("");
   const [selectedBlockId, setSelectedBlockId] = useState<string | null>(null);
+  const [menuLocations, setMenuLocations] = useState({
+    header: false,
+    footer: false,
+    mobile: false,
+  });
   const sidebarRef = useRef<HTMLDivElement | null>(null);
   const settingsPanelRef = useRef<HTMLDivElement | null>(null);
 
@@ -74,6 +81,16 @@ const PostPage = () => {
       setCategories(post.categories.map((category) => category.name.toLowerCase()).join(', '));
     }
   }, [post]);
+
+  useEffect(() => {
+    if (resource_type !== "navigation" || !post?.categories) return;
+    const postCategories = post.categories.map((category) => category.name.toLowerCase());
+    setMenuLocations({
+      header: postCategories.includes("header"),
+      footer: postCategories.includes("footer"),
+      mobile: postCategories.includes("mobile"),
+    });
+  }, [post, resource_type]);
 
   const addBlock = useCallback((type: string) => {
     setPost((prev) => {
@@ -103,11 +120,24 @@ const PostPage = () => {
   const handleSave = useCallback(async () => {
     if (!post || !post?.title) return;
     const initialCategories = categories.split(',').map(cat => cat.trim().toLowerCase()).filter(Boolean);
-    const additionalCategories = [
-      ...(resource_type === "page" ? [post.title.toLowerCase()] : []),
-      ...(resource_type ? [resource_type.toLowerCase()] : [])
-    ];
-    const categoriesArray = [...new Set([...initialCategories, ...additionalCategories])];
+    const resourceTag = resource_type?.toLowerCase();
+    let categoriesArray = [];
+
+    if (resourceTag === "navigation") {
+      const nonMenuCategories = initialCategories.filter(
+        (cat) => !["header", "footer", "mobile", "navigation"].includes(cat)
+      );
+      const checkedLocations = Object.entries(menuLocations)
+        .filter(([, checked]) => checked)
+        .map(([category]) => category);
+      categoriesArray = [...new Set([...nonMenuCategories, ...checkedLocations, "navigation"])];
+    } else {
+      const additionalCategories = [
+        ...(resource_type === "page" ? [post.title.toLowerCase()] : []),
+        ...(resource_type ? [resource_type.toLowerCase()] : []),
+      ];
+      categoriesArray = [...new Set([...initialCategories, ...additionalCategories])];
+    }
 
     const payload: PostCreateType = {
       ...post,
@@ -129,7 +159,7 @@ const PostPage = () => {
     } catch (error) {
       console.error("Failed to save post:", error);
     }
-  }, [post, updatePost, addPost, getPost, categories]);
+  }, [post, updatePost, addPost, getPost, categories, menuLocations, resource_type]);
 
   const handleBack = useCallback(() => {
     navigate(`/settings/posttype/${resource_type}`);
@@ -267,6 +297,63 @@ const PostPage = () => {
               )
             }
           />
+          {resource_type === "navigation" && (
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                gap: "1rem",
+                marginBottom: "1rem",
+                bgcolor: "background.paper",
+                padding: "1rem",
+                borderRadius: 1,
+              }}
+            >
+              <Typography variant="subtitle1">Menu Location</Typography>
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={menuLocations.header}
+                    onChange={(e) =>
+                      setMenuLocations((prev) => ({
+                        ...prev,
+                        header: e.target.checked,
+                      }))
+                    }
+                  />
+                }
+                label="Header Menu"
+              />
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={menuLocations.footer}
+                    onChange={(e) =>
+                      setMenuLocations((prev) => ({
+                        ...prev,
+                        footer: e.target.checked,
+                      }))
+                    }
+                  />
+                }
+                label="Footer Menu"
+              />
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={menuLocations.mobile}
+                    onChange={(e) =>
+                      setMenuLocations((prev) => ({
+                        ...prev,
+                        mobile: e.target.checked,
+                      }))
+                    }
+                  />
+                }
+                label="Mobile Menu"
+              />
+            </Box>
+          )}
           {post?.categories?.find((cat) => cat.name == "posts") ? (
             <>
               <Box
