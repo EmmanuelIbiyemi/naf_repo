@@ -8,6 +8,18 @@ export type MediaType = {
   url: string;
 };
 
+export type BlockSettings = {
+  backgroundColor?: string;
+  contentWidth?: "narrow" | "default" | "wide" | "full";
+  layout?: "stack" | "row";
+  paddingBottom?: number;
+  paddingTop?: number;
+  rowId?: string;
+  columnWidth?: "1/2" | "1/3" | "2/3" | "1/4" | "3/4";
+  textAlign?: "left" | "center" | "right";
+  textColor?: string;
+};
+
 export type BlockType = {
   caption: string;
   content: string;
@@ -16,6 +28,7 @@ export type BlockType = {
   link: string;
   media: MediaCreateType[] | MediaType[] | null;
   position: number;
+  settings?: BlockSettings;
   title: string;
   type: string;
 };

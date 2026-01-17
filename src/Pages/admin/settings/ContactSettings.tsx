@@ -1,4 +1,4 @@
-import { Box, Button, Typography, TextField, Alert, CircularProgress } from "@mui/material";
+import { Box, Button, Typography, TextField, Alert, CircularProgress, MenuItem, Select, FormControl, SelectChangeEvent } from "@mui/material";
 import { Upload } from "@mui/icons-material";
 import { useState, useEffect } from "react";
 import {
@@ -8,6 +8,7 @@ import {
 } from "../../../store/api/appSettings.api";
 import { useAddMediaMutation } from "../../../store/api/media.api";
 import EmptyState from "../../../components/EmptyState";
+import { LANDING_THEMES } from "../../../config/themes";
 
 const ContactSettings = () => {
   const { data: settings, isLoading } = useGetAdminSettingsQuery();
@@ -27,6 +28,7 @@ const ContactSettings = () => {
     school_description: "",
     school_keywords: "",
     max_student_count: "",
+    site_theme: "navy-gold",
   });
   
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
@@ -52,6 +54,7 @@ const ContactSettings = () => {
         school_description: settingsMap.school_description || "",
         school_keywords: settingsMap.school_keywords || "",
         max_student_count: settingsMap.max_student_count || "",
+        site_theme: settingsMap.site_theme || "navy-gold",
       });
     }
   }, [settings]);
@@ -81,7 +84,13 @@ const ContactSettings = () => {
     }
   };
 
-  const handleChange = (field: string) => (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange =
+    (field: string) =>
+    (
+      event:
+        | React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+        | SelectChangeEvent
+    ) => {
     setFormValues((prev) => ({
       ...prev,
       [field]: event.target.value,
@@ -127,6 +136,7 @@ const ContactSettings = () => {
         school_description: settingsMap.school_description || "",
         school_keywords: settingsMap.school_keywords || "",
         max_student_count: settingsMap.max_student_count || "",
+        site_theme: settingsMap.site_theme || "navy-gold",
       });
     }
     setSuccessMessage(null);
@@ -350,6 +360,53 @@ const ContactSettings = () => {
         />
       </Box>
 
+      {/* Website Appearance */}
+      <Typography variant="h2" sx={{ ...sectionTitleStyle, mt: 4 }}>
+        Website Appearance
+      </Typography>
+      <Box sx={themeSectionStyle}>
+        <FormControl fullWidth>
+          <Typography variant="subtitle2" sx={{ mb: 1 }}>
+            Landing Page Theme
+          </Typography>
+          <Select
+            value={formValues.site_theme}
+            onChange={handleChange("site_theme")}
+          >
+            {LANDING_THEMES.map((theme) => (
+              <MenuItem key={theme.id} value={theme.id}>
+                {theme.label}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+        <Box sx={themePreviewGridStyle}>
+          {LANDING_THEMES.map((theme) => (
+            <Box
+              key={theme.id}
+              sx={{
+                ...themePreviewCardStyle,
+                borderColor:
+                  formValues.site_theme === theme.id ? "primary.main" : "divider",
+              }}
+              onClick={() =>
+                setFormValues((prev) => ({ ...prev, site_theme: theme.id }))
+              }
+            >
+              <Box sx={{ display: "flex", gap: "0.35rem", mb: 1 }}>
+                <Box sx={{ ...themeSwatchStyle, bgcolor: theme.preview.primary }} />
+                <Box sx={{ ...themeSwatchStyle, bgcolor: theme.preview.secondary }} />
+                <Box sx={{ ...themeSwatchStyle, bgcolor: theme.preview.accent }} />
+              </Box>
+              <Typography variant="subtitle2">{theme.label}</Typography>
+              <Typography variant="caption" color="text.secondary">
+                {theme.description}
+              </Typography>
+            </Box>
+          ))}
+        </Box>
+      </Box>
+
       {/* Action Buttons */}
       <Box sx={actionButtonsStyle}>
         <Button
@@ -471,6 +528,38 @@ const socialSectionStyle = {
   borderRadius: "var(--border-radius)",
   padding: "2rem",
   boxShadow: 1,
+};
+
+const themeSectionStyle = {
+  display: "grid",
+  gap: "1.5rem",
+  bgcolor: "#fff",
+  borderRadius: "var(--border-radius)",
+  padding: "2rem",
+  boxShadow: 1,
+};
+
+const themePreviewGridStyle = {
+  display: "grid",
+  gap: "1rem",
+  gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
+};
+
+const themePreviewCardStyle = {
+  border: "1px solid",
+  borderRadius: "12px",
+  cursor: "pointer",
+  padding: "1rem",
+  transition: "border-color 0.2s ease",
+  "&:hover": {
+    borderColor: "primary.main",
+  },
+};
+
+const themeSwatchStyle = {
+  borderRadius: "6px",
+  height: "26px",
+  width: "26px",
 };
 
 const actionButtonsStyle = {

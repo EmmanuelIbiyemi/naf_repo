@@ -62,6 +62,7 @@ const PostPage = () => {
         link: "",
         media: [],
         position: blocks.length + 1,
+        settings: {},
         title: "",
       };
 

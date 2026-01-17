@@ -12,6 +12,7 @@ export interface AppSettings {
   school_acronym?: string;
   school_description?: string;
   school_keywords?: string;
+  site_theme?: string;
   [key: string]: string | undefined;
 }
 
