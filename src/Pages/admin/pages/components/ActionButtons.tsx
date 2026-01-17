@@ -34,7 +34,17 @@ export const ActionButtons = ({ block, setPage }: ActionProp) => {
   const moveBlock = (direction: 'up' | 'down') => {
     setPage((prev) => {
       const blocks = [...prev.blocks];
-      const index = blocks.indexOf(block);
+      const index = blocks.findIndex((item) => {
+        if (block.randomId && item.randomId) {
+          return item.randomId === block.randomId;
+        }
+        if (block.id && item.id) {
+          return item.id === block.id;
+        }
+        return false;
+      });
+
+      if (index < 0) return prev;
 
       if (direction === 'up' && index > 0) {
         [blocks[index - 1], blocks[index]] = [blocks[index], blocks[index - 1]];
@@ -42,9 +52,14 @@ export const ActionButtons = ({ block, setPage }: ActionProp) => {
         [blocks[index + 1], blocks[index]] = [blocks[index], blocks[index + 1]];
       }
 
+      const updatedBlocks = blocks.map((item, positionIndex) => ({
+        ...item,
+        position: positionIndex + 1,
+      }));
+
       return {
         ...prev,
-        blocks,
+        blocks: updatedBlocks,
       };
     });
   };

@@ -50,6 +50,7 @@ const PostPage = () => {
   const [categories, setCategories] = useState("");
   const [blockSearch, setBlockSearch] = useState("");
   const [selectedBlockId, setSelectedBlockId] = useState<string | null>(null);
+  const [isAutoSaving, setIsAutoSaving] = useState(false);
   const [menuLocations, setMenuLocations] = useState({
     header: false,
     footer: false,
@@ -117,38 +118,58 @@ const PostPage = () => {
     });
   }, []);
 
-  const handleSave = useCallback(async () => {
-    if (!post || !post?.title) return;
-    const initialCategories = categories.split(',').map(cat => cat.trim().toLowerCase()).filter(Boolean);
-    const resourceTag = resource_type?.toLowerCase();
-    let categoriesArray = [];
+  const buildPayload = useCallback(
+    (nextBlocks?: BlockType[]): PostCreateType | null => {
+      if (!post || !post?.title) return null;
+      const initialCategories = categories
+        .split(',')
+        .map((cat) => cat.trim().toLowerCase())
+        .filter(Boolean);
+      const resourceTag = resource_type?.toLowerCase();
+      let categoriesArray = [];
 
-    if (resourceTag === "navigation") {
-      const nonMenuCategories = initialCategories.filter(
-        (cat) => !["header", "footer", "mobile", "navigation"].includes(cat)
+      if (resourceTag === "navigation") {
+        const nonMenuCategories = initialCategories.filter(
+          (cat) => !["header", "footer", "mobile", "navigation"].includes(cat)
+        );
+        const checkedLocations = Object.entries(menuLocations)
+          .filter(([, checked]) => checked)
+          .map(([category]) => category);
+        categoriesArray = [
+          ...new Set([...nonMenuCategories, ...checkedLocations, "navigation"]),
+        ];
+      } else {
+        const additionalCategories = [
+          ...(resource_type === "page" ? [post.title.toLowerCase()] : []),
+          ...(resource_type ? [resource_type.toLowerCase()] : []),
+        ];
+        categoriesArray = [...new Set([...initialCategories, ...additionalCategories])];
+      }
+
+      const normalizedBlocks = (nextBlocks || post?.blocks || []).map(
+        (block, index) => ({
+          ...block,
+          position: index + 1,
+        })
       );
-      const checkedLocations = Object.entries(menuLocations)
-        .filter(([, checked]) => checked)
-        .map(([category]) => category);
-      categoriesArray = [...new Set([...nonMenuCategories, ...checkedLocations, "navigation"])];
-    } else {
-      const additionalCategories = [
-        ...(resource_type === "page" ? [post.title.toLowerCase()] : []),
-        ...(resource_type ? [resource_type.toLowerCase()] : []),
-      ];
-      categoriesArray = [...new Set([...initialCategories, ...additionalCategories])];
-    }
 
-    const payload: PostCreateType = {
-      ...post,
-      blocks: post?.blocks || [],
-      featured_image: post.featured_image || media.url,
-      categories: categoriesArray,
-      tags: categoriesArray,
-    };
+      return {
+        ...post,
+        blocks: normalizedBlocks,
+        featured_image: post.featured_image || media.url,
+        categories: categoriesArray,
+        tags: categoriesArray,
+      };
+    },
+    [post, categories, menuLocations, resource_type, media.url]
+  );
+
+  const handleSave = useCallback(async () => {
+    const payload = buildPayload();
+    if (!payload) return;
 
     try {
-      if (post.id) {
+      if (post?.id) {
         const response = await updatePost(payload).unwrap();
         setPost(response.post);
       } else {
@@ -159,7 +180,27 @@ const PostPage = () => {
     } catch (error) {
       console.error("Failed to save post:", error);
     }
-  }, [post, updatePost, addPost, getPost, categories, menuLocations, resource_type]);
+  }, [post, updatePost, addPost, buildPayload, resource_type, navigate]);
+
+  const handleAutoSaveBlocks = useCallback(
+    async (nextBlocks: BlockType[]) => {
+      if (!post?.id) return;
+      const payload = buildPayload(nextBlocks);
+      if (!payload) return;
+
+      setIsAutoSaving(true);
+      dispatch(setPageLoading(true));
+      try {
+        await updatePost(payload).unwrap();
+      } catch (error) {
+        console.error("Failed to auto-save block order:", error);
+      } finally {
+        dispatch(setPageLoading(false));
+        setIsAutoSaving(false);
+      }
+    },
+    [post?.id, buildPayload, updatePost, dispatch]
+  );
 
   const handleBack = useCallback(() => {
     navigate(`/settings/posttype/${resource_type}`);
@@ -259,7 +300,11 @@ const PostPage = () => {
           />
         </Box>
       </Dialog>
-      {updateState.isLoading || postState.isLoading ? <LoadingScreen /> : null}
+      {updateState.isLoading || postState.isLoading ? (
+        isAutoSaving ? null : (
+          <LoadingScreen />
+        )
+      ) : null}
       <Box sx={{ paddingBottom: "2rem" }}>
         <Box sx={headerStyles}>
           <Button onClick={handleBack}>Back</Button>
@@ -438,6 +483,7 @@ const PostPage = () => {
               page={post}
               selectedBlockId={selectedBlockId}
               onSelectBlock={(block) => setSelectedBlockId(block.randomId || null)}
+              onReorder={handleAutoSaveBlocks}
               setPage={(newPost) => {
                 if (typeof newPost === "function") {
                   setPost((prev) => {

@@ -5,10 +5,10 @@ import {
   SxProps,
   Typography,
 } from "@mui/material";
-import { ArrowDownward, ArrowUpward } from "@mui/icons-material";
+import { ArrowDownward, ArrowUpward, DragIndicator } from "@mui/icons-material";
 import { BlockType } from "../../../../types/blocks";
 import { PostType } from "../../../../types/posts";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useDeletePostBlockMutation } from "../../../../store/api/posts.api";
 import { useAppDispatch } from "../../../../store/hooks";
 import { setBuilderLoading } from "../../../../store/app.slice";
@@ -31,20 +31,53 @@ import GalleryBlock from "./postblocks/Gallery";
 import FeatureGridBlock from "./postblocks/FeatureGrid";
 import AccordionBlock from "./postblocks/Accordion";
 import MapBlock from "./postblocks/MapBlock";
+import {
+  DndContext,
+  DragEndEvent,
+  KeyboardSensor,
+  PointerSensor,
+  closestCenter,
+  useSensor,
+  useSensors,
+} from "@dnd-kit/core";
+import {
+  SortableContext,
+  arrayMove,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 
 type Props = {
   page: PostType;
   setPage: React.Dispatch<React.SetStateAction<PostType>>;
   selectedBlockId?: string | null;
   onSelectBlock?: (block: BlockType) => void;
+  onReorder?: (blocks: BlockType[]) => void;
 };
 
-const PageBuilder = ({ page, setPage, selectedBlockId, onSelectBlock }: Props) => {
+const PageBuilder = ({
+  page,
+  setPage,
+  selectedBlockId,
+  onSelectBlock,
+  onReorder,
+}: Props) => {
   const [draggedBlockId, setDraggedBlockId] = useState<string | null>(null);
   const dispatch = useAppDispatch();
   const [deleteBlock] = useDeletePostBlockMutation();
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+  );
   
-  const displayEl = (element: BlockType, index: number) => {
+  const displayEl = (
+    element: BlockType,
+    index: number,
+    dragHandleProps?: React.HTMLAttributes<HTMLDivElement>
+  ) => {
     let el;
 
     switch (element.type) {
@@ -111,11 +144,14 @@ const PageBuilder = ({ page, setPage, selectedBlockId, onSelectBlock }: Props) =
 
     return (
       <Box
-        key={`element-${element.id + index}`}
+        key={`element-${element.randomId || element.id || index}`}
         className="element"
         sx={element.randomId === selectedBlockId ? selectedBlockStyles : undefined}
         onClick={() => onSelectBlock?.(element)}
       >
+        <Box sx={dragHandleStyles} {...dragHandleProps}>
+          <DragIndicator fontSize="small" />
+        </Box>
         {el}
       </Box>
     );
@@ -299,131 +335,228 @@ const PageBuilder = ({ page, setPage, selectedBlockId, onSelectBlock }: Props) =
     });
   };
 
-  const renderedBlocks: React.ReactNode[] = [];
-  for (let i = 0; i < page.blocks.length; i += 1) {
-    const block = page.blocks[i];
-    const layout = block?.settings?.layout;
-    const rowId = block?.settings?.rowId;
+  const blockGroups = useMemo(() => {
+    const groups: {
+      id: string;
+      type: "row" | "block";
+      blocks: BlockType[];
+      startIndex: number;
+      endIndex: number;
+      rowId?: string;
+    }[] = [];
 
-    if (layout === "row" && rowId) {
-      const rowBlocks = [block];
-      let j = i + 1;
-      while (
-        j < page.blocks.length &&
-        page.blocks[j]?.settings?.layout === "row" &&
-        page.blocks[j]?.settings?.rowId === rowId
-      ) {
-        rowBlocks.push(page.blocks[j]);
-        j += 1;
+    for (let i = 0; i < page.blocks.length; i += 1) {
+      const block = page.blocks[i];
+      const layout = block?.settings?.layout;
+      const rowId = block?.settings?.rowId;
+
+      if (layout === "row" && rowId) {
+        const rowBlocks = [block];
+        let j = i + 1;
+        while (
+          j < page.blocks.length &&
+          page.blocks[j]?.settings?.layout === "row" &&
+          page.blocks[j]?.settings?.rowId === rowId
+        ) {
+          rowBlocks.push(page.blocks[j]);
+          j += 1;
+        }
+
+        groups.push({
+          id: `row-${rowId}`,
+          type: "row",
+          blocks: rowBlocks,
+          startIndex: i,
+          endIndex: j - 1,
+          rowId,
+        });
+
+        i = j - 1;
+        continue;
       }
 
-      renderedBlocks.push(
-        <Box key={`row-${rowId}-${i}`} sx={rowWrapperStyles}>
-          <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            <Typography variant="caption" sx={{ color: "text.secondary" }}>
-              Row: {rowId}
-            </Typography>
-            <Box sx={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-              <IconButton
-                size="small"
-                onClick={() => moveRowGroup(rowId, "up")}
-                aria-label="Move row up"
-              >
-                <ArrowUpward fontSize="small" />
-              </IconButton>
-              <IconButton
-                size="small"
-                onClick={() => moveRowGroup(rowId, "down")}
-                aria-label="Move row down"
-              >
-                <ArrowDownward fontSize="small" />
-              </IconButton>
-              <Button
-                size="small"
-                variant="outlined"
-                onClick={() => handleAddBlockToRow(rowId, j)}
-              >
-                Add Block
-              </Button>
-            </Box>
-          </Box>
-          <Box
-            sx={{
-              display: "grid",
-              gap: "1rem",
-              gridAutoFlow: { xs: "row", md: "column" },
-              gridAutoColumns: { md: "minmax(220px, 1fr)" },
-              overflowX: { md: "auto" },
-              paddingBottom: { md: "0.5rem" },
-              alignItems: "stretch",
-            }}
-            onDragOver={(event) => event.preventDefault()}
-            onDrop={() => handleRowDrop(rowId)}
-          >
-            {rowBlocks.map((rowBlock, rowIndex) => {
-              const percent = getColumnWidthPercent(rowBlock.settings?.columnWidth);
-              return (
-                <Box
-                  key={`row-item-${rowBlock.id || rowIndex}`}
-                  sx={{
-                    minWidth: { md: `${percent}%` },
-                    maxWidth: { xs: "100%", md: `${percent}%` },
-                  }}
-                >
-                  <Box
-                    sx={{
-                      ...rowCardStyles,
-                      ...(rowBlock.randomId === selectedBlockId ? rowCardSelectedStyles : {}),
-                    } as SxProps}
-                    draggable
-                    onDragStart={() => handleRowDragStart(rowBlock.randomId)}
-                    onDragEnd={() => setDraggedBlockId(null)}
-                    onDragOver={(event) => event.preventDefault()}
-                    onDrop={() => handleRowDrop(rowId, rowBlock.randomId || undefined)}
-                    onClick={() => onSelectBlock?.(rowBlock)}
-                  >
-                    <Box sx={{ display: "flex", alignItems: "flex-start", gap: "0.5rem" }}>
-                      <Typography
-                        variant="subtitle2"
-                        sx={{ textTransform: "capitalize", flex: 1, minWidth: 0 }}
-                      >
-                        {rowBlock.type}
-                      </Typography>
-                      <IconButton
-                        size="small"
-                        className="delete_btn"
-                        sx={{ alignSelf: "flex-start" }}
-                        onClick={(event) => {
-                          event.stopPropagation();
-                          handleDeleteRowBlock(rowBlock);
-                        }}
-                      >
-                        <DeleteIcon />
-                      </IconButton>
-                    </Box>
-                    <Typography variant="caption" color="text.secondary">
-                      Width: {rowBlock.settings?.columnWidth || "1/2"}
-                    </Typography>
-                  </Box>
-                </Box>
-              );
-            })}
-          </Box>
-        </Box>
-      );
-
-      i = j - 1;
-      continue;
+      const blockId = block.randomId || (block.id ? `id-${block.id}` : `index-${i}`);
+      groups.push({
+        id: `block-${blockId}`,
+        type: "block",
+        blocks: [block],
+        startIndex: i,
+        endIndex: i,
+      });
     }
 
-    renderedBlocks.push(displayEl(block, i));
-  }
+    return groups;
+  }, [page.blocks]);
 
-  return <Box sx={formBuilderStyles}>{renderedBlocks}</Box>;
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+
+    const oldIndex = blockGroups.findIndex((group) => group.id === active.id);
+    const newIndex = blockGroups.findIndex((group) => group.id === over.id);
+
+    if (oldIndex < 0 || newIndex < 0) return;
+
+    const reorderedGroups = arrayMove(blockGroups, oldIndex, newIndex);
+    const reorderedBlocks = reorderedGroups.flatMap((group) => group.blocks);
+    const normalizedBlocks = reorderedBlocks.map((block, index) => ({
+      ...block,
+      position: index + 1,
+    }));
+
+    setPage((prev) => ({ ...prev, blocks: normalizedBlocks }));
+    onReorder?.(normalizedBlocks);
+  };
+
+  const renderedBlocks = blockGroups.map((group) => (
+    <SortableItem key={group.id} id={group.id}>
+      {({ attributes, listeners }) => {
+        if (group.type === "row" && group.rowId) {
+          const rowId = group.rowId;
+          return (
+            <Box sx={rowWrapperStyles}>
+              <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <Box sx={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                  <Box sx={dragHandleStyles} {...attributes} {...listeners}>
+                    <DragIndicator fontSize="small" />
+                  </Box>
+                  <Typography variant="caption" sx={{ color: "text.secondary" }}>
+                    Row: {rowId}
+                  </Typography>
+                </Box>
+                <Box sx={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                  <IconButton
+                    size="small"
+                    onClick={() => moveRowGroup(rowId, "up")}
+                    aria-label="Move row up"
+                  >
+                    <ArrowUpward fontSize="small" />
+                  </IconButton>
+                  <IconButton
+                    size="small"
+                    onClick={() => moveRowGroup(rowId, "down")}
+                    aria-label="Move row down"
+                  >
+                    <ArrowDownward fontSize="small" />
+                  </IconButton>
+                  <Button
+                    size="small"
+                    variant="outlined"
+                    onClick={() => handleAddBlockToRow(rowId, group.endIndex + 1)}
+                  >
+                    Add Block
+                  </Button>
+                </Box>
+              </Box>
+              <Box
+                sx={{
+                  display: "grid",
+                  gap: "1rem",
+                  gridAutoFlow: { xs: "row", md: "column" },
+                  gridAutoColumns: { md: "minmax(220px, 1fr)" },
+                  overflowX: { md: "auto" },
+                  paddingBottom: { md: "0.5rem" },
+                  alignItems: "stretch",
+                }}
+                onDragOver={(event) => event.preventDefault()}
+                onDrop={() => handleRowDrop(rowId)}
+              >
+                {group.blocks.map((rowBlock, rowIndex) => {
+                  const percent = getColumnWidthPercent(rowBlock.settings?.columnWidth);
+                  return (
+                    <Box
+                      key={`row-item-${rowBlock.randomId || rowBlock.id || rowIndex}`}
+                      sx={{
+                        minWidth: { md: `${percent}%` },
+                        maxWidth: { xs: "100%", md: `${percent}%` },
+                      }}
+                    >
+                      <Box
+                        sx={{
+                          ...rowCardStyles,
+                          ...(rowBlock.randomId === selectedBlockId ? rowCardSelectedStyles : {}),
+                        } as SxProps}
+                        draggable
+                        onDragStart={() => handleRowDragStart(rowBlock.randomId)}
+                        onDragEnd={() => setDraggedBlockId(null)}
+                        onDragOver={(event) => event.preventDefault()}
+                        onDrop={() => handleRowDrop(rowId, rowBlock.randomId || undefined)}
+                        onClick={() => onSelectBlock?.(rowBlock)}
+                      >
+                        <Box sx={{ display: "flex", alignItems: "flex-start", gap: "0.5rem" }}>
+                          <Typography
+                            variant="subtitle2"
+                            sx={{ textTransform: "capitalize", flex: 1, minWidth: 0 }}
+                          >
+                            {rowBlock.type}
+                          </Typography>
+                          <IconButton
+                            size="small"
+                            className="delete_btn"
+                            sx={{ alignSelf: "flex-start" }}
+                            onClick={(event) => {
+                              event.stopPropagation();
+                              handleDeleteRowBlock(rowBlock);
+                            }}
+                          >
+                            <DeleteIcon />
+                          </IconButton>
+                        </Box>
+                        <Typography variant="caption" color="text.secondary">
+                          Width: {rowBlock.settings?.columnWidth || "1/2"}
+                        </Typography>
+                      </Box>
+                    </Box>
+                  );
+                })}
+              </Box>
+            </Box>
+          );
+        }
+
+        const block = group.blocks[0];
+        return displayEl(block, group.startIndex, { ...attributes, ...listeners });
+      }}
+    </SortableItem>
+  ));
+
+  return (
+    <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+      <SortableContext items={blockGroups.map((group) => group.id)} strategy={verticalListSortingStrategy}>
+        <Box sx={formBuilderStyles}>{renderedBlocks}</Box>
+      </SortableContext>
+    </DndContext>
+  );
 }
 
   
 export default PageBuilder;
+
+type SortableItemProps = {
+  id: string;
+  children: (props: {
+    attributes: Record<string, unknown>;
+    listeners: Record<string, unknown>;
+    isDragging: boolean;
+  }) => React.ReactNode;
+};
+
+const SortableItem = ({ id, children }: SortableItemProps) => {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id,
+  });
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.7 : 1,
+  };
+
+  return (
+    <Box ref={setNodeRef} style={style}>
+      {children({ attributes, listeners, isDragging })}
+    </Box>
+  );
+};
 
 const formBuilderStyles: SxProps = {
   padding: "1.5rem 1rem",
@@ -484,4 +617,13 @@ const selectedBlockStyles: SxProps = {
 const rowCardSelectedStyles: SxProps = {
   borderColor: "rgba(43, 135, 251, 1)",
   boxShadow: "0 0 0 1px rgba(43, 135, 251, 0.35)",
+};
+
+const dragHandleStyles: SxProps = {
+  alignItems: "center",
+  color: "rgba(148, 163, 184, 1)",
+  cursor: "grab",
+  display: "flex",
+  paddingRight: "0.25rem",
+  "&:active": { cursor: "grabbing" },
 };
