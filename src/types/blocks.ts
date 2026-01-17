@@ -1,10 +1,10 @@
 export type MediaCreateType = { id: number; caption?: string };
 export type MediaType = {
   id: number;
-  created_at: string;
+  created_at?: string;
   name: string;
   type: string;
-  updated_at: string;
+  updated_at?: string;
   url: string;
   caption?: string;
 };
