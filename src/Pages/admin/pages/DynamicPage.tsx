@@ -23,7 +23,6 @@ import { PostType, PostCreateType } from "../../../types/posts";
 import MediaLibraryModal from "../media/MediaLibraryModal";
 import { elements } from "./elements/post-elements";
 import { BlockType, MediaType } from "../../../types/blocks";
-import LoadingScreen from "../../../components/LoadingScreen";
 import { Close, Save as SaveIcon, Search } from "@mui/icons-material";
 import { setPageLoading } from "../../../store/app.slice";
 import { useAppDispatch } from "../../../store/hooks";
@@ -50,7 +49,6 @@ const PostPage = () => {
   const [categories, setCategories] = useState("");
   const [blockSearch, setBlockSearch] = useState("");
   const [selectedBlockId, setSelectedBlockId] = useState<string | null>(null);
-  const [isAutoSaving, setIsAutoSaving] = useState(false);
   const [menuLocations, setMenuLocations] = useState({
     header: false,
     footer: false,
@@ -58,6 +56,47 @@ const PostPage = () => {
   });
   const sidebarRef = useRef<HTMLDivElement | null>(null);
   const settingsPanelRef = useRef<HTMLDivElement | null>(null);
+
+  const normalizeBlocks = useCallback(
+    (blocks: BlockType[], prevBlocks?: BlockType[]) => {
+      const prevById = new Map<number, BlockType>();
+      const prevByRandomId = new Map<string, BlockType>();
+
+      if (prevBlocks) {
+        prevBlocks.forEach((block) => {
+          if (block.id) prevById.set(block.id, block);
+          if (block.randomId) prevByRandomId.set(block.randomId, block);
+        });
+      }
+
+      const seen = new Set<string>();
+      return blocks.reduce<BlockType[]>((acc, block, index) => {
+        let randomId = block.randomId;
+
+        if (!randomId && block.id) {
+          const prev = prevById.get(block.id);
+          if (prev?.randomId) randomId = prev.randomId;
+        }
+
+        if (!randomId) {
+          randomId = Math.random().toString(36).substring(2, 15);
+        }
+
+        const key = block.id ? `id-${block.id}` : `rid-${randomId}`;
+        if (seen.has(key)) return acc;
+        seen.add(key);
+
+        acc.push({
+          ...block,
+          randomId,
+          position: block.position ?? index + 1,
+        });
+
+        return acc;
+      }, []);
+    },
+    []
+  );
 
   // Wrapper to provide a type-safe setPage for child components that expect PostType
   const handleSetPost: React.Dispatch<React.SetStateAction<PostType>> = (action) => {
@@ -168,19 +207,37 @@ const PostPage = () => {
     const payload = buildPayload();
     if (!payload) return;
 
+    dispatch(setPageLoading(true));
     try {
       if (post?.id) {
         const response = await updatePost(payload).unwrap();
-        setPost(response.post);
+        setPost((prev) => ({
+          ...response.post,
+          blocks: normalizeBlocks(response.post.blocks || [], prev?.blocks),
+        }));
       } else {
         const response = await addPost(payload).unwrap();
-        setPost(response.post);
+        setPost((prev) => ({
+          ...response.post,
+          blocks: normalizeBlocks(response.post.blocks || [], prev?.blocks),
+        }));
         navigate(`/settings/posttype/${resource_type}/${response.post.id}`);
       }
     } catch (error) {
       console.error("Failed to save post:", error);
+    } finally {
+      dispatch(setPageLoading(false));
     }
-  }, [post, updatePost, addPost, buildPayload, resource_type, navigate]);
+  }, [
+    post,
+    updatePost,
+    addPost,
+    buildPayload,
+    resource_type,
+    navigate,
+    dispatch,
+    normalizeBlocks,
+  ]);
 
   const handleAutoSaveBlocks = useCallback(
     async (nextBlocks: BlockType[]) => {
@@ -188,7 +245,6 @@ const PostPage = () => {
       const payload = buildPayload(nextBlocks);
       if (!payload) return;
 
-      setIsAutoSaving(true);
       dispatch(setPageLoading(true));
       try {
         await updatePost(payload).unwrap();
@@ -196,7 +252,6 @@ const PostPage = () => {
         console.error("Failed to auto-save block order:", error);
       } finally {
         dispatch(setPageLoading(false));
-        setIsAutoSaving(false);
       }
     },
     [post?.id, buildPayload, updatePost, dispatch]
@@ -228,13 +283,12 @@ const PostPage = () => {
 
   useEffect(() => {
     if (postt?.post) {
-      const updatedBlocks = postt.post.blocks.map((block) => ({
-        ...block,
-        randomId: block.randomId || Math.random().toString(36).substring(2, 15),
+      setPost((prev) => ({
+        ...postt.post,
+        blocks: normalizeBlocks(postt.post.blocks || [], prev?.blocks),
       }));
-      setPost({ ...postt.post, blocks: updatedBlocks });
     }
-  }, [postt]);
+  }, [postt, normalizeBlocks]);
 
   useEffect(() => {
     if (!selectedBlockId && post?.blocks?.length) {
@@ -300,11 +354,6 @@ const PostPage = () => {
           />
         </Box>
       </Dialog>
-      {updateState.isLoading || postState.isLoading ? (
-        isAutoSaving ? null : (
-          <LoadingScreen />
-        )
-      ) : null}
       <Box sx={{ paddingBottom: "2rem" }}>
         <Box sx={headerStyles}>
           <Button onClick={handleBack}>Back</Button>
