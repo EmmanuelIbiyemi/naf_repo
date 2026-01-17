@@ -25,6 +25,9 @@ import LoadingScreen from "../../../components/LoadingScreen";
 import { Close, Save as SaveIcon, Search } from "@mui/icons-material";
 import { setPageLoading } from "../../../store/app.slice";
 import { useAppDispatch } from "../../../store/hooks";
+import BlockStyleFields from "./components/postblocks/BlockStyleFields";
+import BlockEditorPanel from "./components/BlockEditorPanel";
+import BlockTypeSelector from "./components/BlockTypeSelector";
 
 const PostPage = () => {
   const { resource_type, post_id } = useParams();
@@ -44,6 +47,25 @@ const PostPage = () => {
   });
   const [categories, setCategories] = useState("");
   const [blockSearch, setBlockSearch] = useState("");
+  const [selectedBlockId, setSelectedBlockId] = useState<string | null>(null);
+
+  // Wrapper to provide a type-safe setPage for child components that expect PostType
+  const handleSetPost: React.Dispatch<React.SetStateAction<PostType>> = (action) => {
+    setPost((prev) => {
+      if (prev === null) return prev;
+      return typeof action === 'function' ? action(prev) : action;
+    });
+  };
+
+  const selectedBlockIndex = post?.blocks.findIndex(
+    (block) => block.randomId === selectedBlockId
+  );
+  const selectedBlock =
+    selectedBlockIndex !== undefined && selectedBlockIndex >= 0
+      ? post?.blocks[selectedBlockIndex]
+      : null;
+  const isRowBlock =
+    selectedBlock?.settings?.layout === "row" && selectedBlock?.settings?.rowId;
 
   useEffect(() => {
     if (post?.categories) {
@@ -140,6 +162,12 @@ const PostPage = () => {
       setPost({ ...postt.post, blocks: updatedBlocks });
     }
   }, [postt]);
+
+  useEffect(() => {
+    if (!selectedBlockId && post?.blocks?.length) {
+      setSelectedBlockId(post.blocks[0].randomId || null);
+    }
+  }, [post, selectedBlockId]);
 
   useEffect(() => {
     if (isFetching) dispatch(setPageLoading(true));
@@ -317,6 +345,8 @@ const PostPage = () => {
           {post && (
             <PageBuilder
               page={post}
+              selectedBlockId={selectedBlockId}
+              onSelectBlock={(block) => setSelectedBlockId(block.randomId || null)}
               setPage={(newPost) => {
                 if (typeof newPost === "function") {
                   setPost((prev) => {
@@ -350,13 +380,46 @@ const PostPage = () => {
               ),
             }}
           />
-          <Box sx={elementSideBar}>
-            {filteredElements.map((el, i) => (
-              <Button key={el.id + "-" + i} onClick={() => addBlock(el.type)}>
-                <el.icon />
-                <span>{el.name}</span>
-              </Button>
-            ))}
+          <Box sx={elementListStyles}>
+            <Box sx={elementSideBar}>
+              {filteredElements.map((el, i) => (
+                <Button key={el.id + "-" + i} onClick={() => addBlock(el.type)}>
+                  <el.icon />
+                  <span>{el.name}</span>
+                </Button>
+              ))}
+            </Box>
+          </Box>
+          <Box sx={settingsPanelStyles}>
+            <Typography variant="subtitle2" sx={{ marginBottom: "0.75rem" }}>
+              {selectedBlock
+                ? `Editing: ${selectedBlock.type}`
+                : "Select a block to edit"}
+            </Typography>
+            {selectedBlock && post ? (
+              isRowBlock ? (
+                <BlockEditorPanel
+                  block={selectedBlock}
+                  index={selectedBlockIndex ?? 0}
+                  page={post}
+                  setPage={handleSetPost}
+                  showAppearance
+                />
+              ) : (
+                <Box sx={{ display: "grid", gap: "1rem" }}>
+                  <BlockTypeSelector block={selectedBlock} setPage={handleSetPost} />
+                  <BlockStyleFields
+                    block={selectedBlock}
+                    blocks={post.blocks}
+                    setPage={handleSetPost}
+                  />
+                </Box>
+              )
+            ) : (
+              <Typography variant="body2" color="text.secondary">
+                Click a block in the editor to manage its settings.
+              </Typography>
+            )}
           </Box>
         </Box>
       </Box>
@@ -413,4 +476,16 @@ const elementSideBar: SxProps = {
     placeItems: "center",
     fontSize: "0.675rem",
   },
+};
+
+const elementListStyles: SxProps = {
+  maxHeight: "340px",
+  overflowY: "auto",
+  paddingRight: "0.5rem",
+};
+
+const settingsPanelStyles: SxProps = {
+  borderTop: "1px solid rgba(0,0,0,0.08)",
+  marginTop: "1.5rem",
+  paddingTop: "1rem",
 };

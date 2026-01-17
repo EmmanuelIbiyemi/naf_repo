@@ -1,4 +1,4 @@
-import { Box, IconButton, Select, MenuItem, SelectChangeEvent } from "@mui/material";
+import { Box, IconButton } from "@mui/material";
 import { useDeletePostBlockMutation } from "../../../../store/api/posts.api";
 import { useAppDispatch } from "../../../../store/hooks";
 import { BlockType } from "../../../../types/blocks";
@@ -7,7 +7,6 @@ import DeleteIcon from "../../../../assets/deleteIcon";
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import { setBuilderLoading } from "../../../../store/app.slice";
-import { elements } from "../elements/post-elements";
 
 type ActionProp = {
   block: BlockType;
@@ -50,34 +49,8 @@ export const ActionButtons = ({ block, setPage }: ActionProp) => {
     });
   };
 
-  const handleTypeChange = (e: SelectChangeEvent) => {
-    const newType = e.target.value;
-    setPage((prev) => {
-      const updatedBlocks = prev.blocks.map((b) =>
-        b.randomId === block.randomId ? { ...b, type: newType } : b
-      );
-      return {
-        ...prev,
-        blocks: updatedBlocks,
-      };
-    });
-  };
-
   return (
     <Box sx={{ display: "flex", gap: ".3rem", alignItems: "center" }}>
-      <Select
-        value={block.type}
-        onChange={handleTypeChange}
-        displayEmpty
-        sx={{ minWidth: 120 }}
-      >
-        {elements.map((e) => (
-          <MenuItem key={e.id} value={e.type}>
-            {e.name}
-          </MenuItem>
-        ))}
-       
-      </Select>
       <IconButton onClick={() => moveBlock('up')} className="move_up_btn">
         <ArrowUpwardIcon />
       </IconButton>

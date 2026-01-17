@@ -1,17 +1,14 @@
 import {
   Box,
   Button,
-  Dialog,
-  DialogContent,
-  DialogTitle,
   IconButton,
   SxProps,
   Typography,
 } from "@mui/material";
-import { Close } from "@mui/icons-material";
+import { ArrowDownward, ArrowUpward } from "@mui/icons-material";
 import { BlockType } from "../../../../types/blocks";
 import { PostType } from "../../../../types/posts";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import HeadingBlock from "./postblocks/Heading";
 import MediaBlock from "./postblocks/Media";
 import BannerBlock from "./postblocks/Banner";
@@ -25,21 +22,19 @@ import PostCarouselBlock from "./postblocks/PostCarousel";
 import PostCardsBlock from "./postblocks/PostCards";
 import MarginBlock from "./postblocks/Margin";
 import DropdownBlock from "./postblocks/Dropdown";
-import BlockStyleFields from "./postblocks/BlockStyleFields";
-import { ActionButtons } from "./ActionButtons";
-
 
 type Props = {
   page: PostType;
   setPage: React.Dispatch<React.SetStateAction<PostType>>;
+  selectedBlockId?: string | null;
+  onSelectBlock?: (block: BlockType) => void;
 };
 
-const PageBuilder = ({ page, setPage }: Props) => {
-  const [editingRowBlockId, setEditingRowBlockId] = useState<string | null>(null);
+const PageBuilder = ({ page, setPage, selectedBlockId, onSelectBlock }: Props) => {
+  const [draggedBlockId, setDraggedBlockId] = useState<string | null>(null);
   
   const displayEl = (element: BlockType, index: number) => {
     let el;
-    const showStyleFields = element.type !== "margin";
 
     switch (element.type) {
       case "heading":
@@ -90,80 +85,16 @@ const PageBuilder = ({ page, setPage }: Props) => {
     }
 
     return (
-      <Box key={`element-${element.id + index}`} className="element">
+      <Box
+        key={`element-${element.id + index}`}
+        className="element"
+        sx={element.randomId === selectedBlockId ? selectedBlockStyles : undefined}
+        onClick={() => onSelectBlock?.(element)}
+      >
         {el}
-        {showStyleFields ? (
-          <BlockStyleFields block={element} blocks={page.blocks} setPage={setPage} />
-        ) : null}
       </Box>
     );
   };
-
-  const renderBlockEditor = (element: BlockType, index: number) => {
-    let el;
-    switch (element.type) {
-      case "heading":
-      case "subheading":
-      case "link":
-        el = <HeadingBlock page={page} setPage={setPage} element={element} index={index} />;
-        break;
-      case "text":
-        el = <TextBlock page={page} setPage={setPage} element={element} index={index} />;
-        break;
-      case "image":
-      case "video":
-      case "map":
-        el = <MediaBlock page={page} setPage={setPage} element={element} index={index} />;
-        break;
-      case "banner":
-        el = <BannerBlock page={page} setPage={setPage} element={element} index={index} />;
-        break;
-      case "link page":
-        el = <LinkPageBlock page={page} setPage={setPage} element={element} index={index} />;
-        break;
-      case "link url":
-      case "button link":
-        el = <LinkUrlBlock page={page} setPage={setPage} element={element} index={index} />;
-        break;
-      case "link social":
-        el = <LinkSocialBlock page={page} setPage={setPage} element={element} index={index} />;
-        break;
-      case "dropdown":
-        el = <DropdownBlock page={page} setPage={setPage} element={element} index={index} />;
-        break;
-      case "contacts":
-        el = <ContactsBlock page={page} setPage={setPage} element={element} index={index} />;
-        break;
-      case "left card":
-      case "right card":
-        el = <CardBlock page={page} setPage={setPage} element={element} index={index} />;
-        break;
-      case "post carousel":
-        el = <PostCarouselBlock page={page} setPage={setPage} element={element} index={index} />;
-        break;
-      case "post cards":
-        el = <PostCardsBlock page={page} setPage={setPage} element={element} index={index} />;
-        break;
-      case "margin":
-        el = <MarginBlock page={page} setPage={setPage} element={element} index={index} />;
-        break;
-      default:
-        el = null;
-    }
-
-    return (
-      <Box sx={{ display: "grid", gap: "1rem" }}>
-        {el}
-        <BlockStyleFields block={element} blocks={page.blocks} setPage={setPage} />
-      </Box>
-    );
-  };
-
-  const rowEditBlockData = useMemo(() => {
-    if (!editingRowBlockId) return { block: null, index: -1 };
-    const index = page.blocks.findIndex((block) => block.randomId === editingRowBlockId);
-    return { block: index >= 0 ? page.blocks[index] : null, index };
-  }, [editingRowBlockId, page.blocks]);
   const getColumnWidthPercent = (value?: string) => {
     switch (value) {
       case "1/3":
@@ -209,6 +140,122 @@ const PageBuilder = ({ page, setPage }: Props) => {
     });
   };
 
+  const handleRowDragStart = (blockId?: string | null) => {
+    if (!blockId) return;
+    setDraggedBlockId(blockId);
+  };
+
+  const handleRowDrop = (targetRowId: string, targetBlockId?: string) => {
+    if (!draggedBlockId) return;
+    if (targetBlockId && targetBlockId === draggedBlockId) return;
+    setPage((prev) => {
+      if (!prev) return prev;
+      const blocks = [...prev.blocks];
+      const sourceIndex = blocks.findIndex((block) => block.randomId === draggedBlockId);
+      if (sourceIndex === -1) return prev;
+      const sourceBlock = blocks[sourceIndex];
+
+      const updatedBlock: BlockType = {
+        ...sourceBlock,
+        settings: {
+          ...(sourceBlock.settings || {}),
+          layout: "row",
+          rowId: targetRowId,
+        },
+      };
+
+      blocks.splice(sourceIndex, 1);
+
+      let insertIndex = blocks.length;
+      if (targetBlockId) {
+        const targetIndex = blocks.findIndex((block) => block.randomId === targetBlockId);
+        if (targetIndex >= 0) {
+          insertIndex = targetIndex;
+        }
+      } else {
+        let lastIndex = -1;
+        blocks.forEach((block, index) => {
+          if (block.settings?.layout === "row" && block.settings?.rowId === targetRowId) {
+            lastIndex = index;
+          }
+        });
+        insertIndex = lastIndex >= 0 ? lastIndex + 1 : blocks.length;
+      }
+
+      blocks.splice(insertIndex, 0, updatedBlock);
+
+      return { ...prev, blocks };
+    });
+    setDraggedBlockId(null);
+  };
+
+  const moveRowGroup = (rowId: string, direction: "up" | "down") => {
+    setPage((prev) => {
+      if (!prev) return prev;
+      const blocks = [...prev.blocks];
+      const startIndex = blocks.findIndex(
+        (block) => block.settings?.layout === "row" && block.settings?.rowId === rowId
+      );
+      if (startIndex === -1) return prev;
+
+      let endIndex = startIndex;
+      while (
+        endIndex + 1 < blocks.length &&
+        blocks[endIndex + 1]?.settings?.layout === "row" &&
+        blocks[endIndex + 1]?.settings?.rowId === rowId
+      ) {
+        endIndex += 1;
+      }
+
+      if (direction === "up" && startIndex === 0) return prev;
+      if (direction === "down" && endIndex === blocks.length - 1) return prev;
+
+      const beforeIndex = startIndex - 1;
+      const afterIndex = endIndex + 1;
+
+      if (direction === "up") {
+        const prevRowId = blocks[beforeIndex]?.settings?.rowId;
+        if (blocks[beforeIndex]?.settings?.layout === "row" && prevRowId) {
+          let prevStart = beforeIndex;
+          while (
+            prevStart - 1 >= 0 &&
+            blocks[prevStart - 1]?.settings?.layout === "row" &&
+            blocks[prevStart - 1]?.settings?.rowId === prevRowId
+          ) {
+            prevStart -= 1;
+          }
+          const prevGroup = blocks.splice(prevStart, beforeIndex - prevStart + 1);
+          const currentGroup = blocks.splice(startIndex - (beforeIndex - prevStart + 1), endIndex - startIndex + 1);
+          blocks.splice(prevStart, 0, ...currentGroup, ...prevGroup);
+        } else {
+          const currentGroup = blocks.splice(startIndex, endIndex - startIndex + 1);
+          blocks.splice(beforeIndex, 0, ...currentGroup);
+        }
+      }
+
+      if (direction === "down") {
+        const nextRowId = blocks[afterIndex]?.settings?.rowId;
+        if (blocks[afterIndex]?.settings?.layout === "row" && nextRowId) {
+          let nextEnd = afterIndex;
+          while (
+            nextEnd + 1 < blocks.length &&
+            blocks[nextEnd + 1]?.settings?.layout === "row" &&
+            blocks[nextEnd + 1]?.settings?.rowId === nextRowId
+          ) {
+            nextEnd += 1;
+          }
+          const currentGroup = blocks.splice(startIndex, endIndex - startIndex + 1);
+          blocks.splice(nextEnd - (endIndex - startIndex + 1) + 1, 0, ...currentGroup);
+        } else {
+          const currentGroup = blocks.splice(startIndex, endIndex - startIndex + 1);
+          blocks.splice(afterIndex - (endIndex - startIndex + 1) + 1, 0, ...currentGroup);
+        }
+      }
+
+      return { ...prev, blocks };
+    });
+  };
+
   const renderedBlocks: React.ReactNode[] = [];
   for (let i = 0; i < page.blocks.length; i += 1) {
     const block = page.blocks[i];
@@ -233,13 +280,29 @@ const PageBuilder = ({ page, setPage }: Props) => {
             <Typography variant="caption" sx={{ color: "text.secondary" }}>
               Row: {rowId}
             </Typography>
-            <Button
-              size="small"
-              variant="outlined"
-              onClick={() => handleAddBlockToRow(rowId, j)}
-            >
-              Add Block to Row
-            </Button>
+            <Box sx={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+              <IconButton
+                size="small"
+                onClick={() => moveRowGroup(rowId, "up")}
+                aria-label="Move row up"
+              >
+                <ArrowUpward fontSize="small" />
+              </IconButton>
+              <IconButton
+                size="small"
+                onClick={() => moveRowGroup(rowId, "down")}
+                aria-label="Move row down"
+              >
+                <ArrowDownward fontSize="small" />
+              </IconButton>
+              <Button
+                size="small"
+                variant="outlined"
+                onClick={() => handleAddBlockToRow(rowId, j)}
+              >
+                Add Block
+              </Button>
+            </Box>
           </Box>
           <Box
             sx={{
@@ -251,6 +314,8 @@ const PageBuilder = ({ page, setPage }: Props) => {
               paddingBottom: { md: "0.5rem" },
               alignItems: "stretch",
             }}
+            onDragOver={(event) => event.preventDefault()}
+            onDrop={() => handleRowDrop(rowId)}
           >
             {rowBlocks.map((rowBlock, rowIndex) => {
               const percent = getColumnWidthPercent(rowBlock.settings?.columnWidth);
@@ -262,23 +327,26 @@ const PageBuilder = ({ page, setPage }: Props) => {
                     maxWidth: { xs: "100%", md: `${percent}%` },
                   }}
                 >
-                  <Box sx={rowCardStyles}>
+                  <Box
+                    sx={{
+                      ...rowCardStyles,
+                      ...(rowBlock.randomId === selectedBlockId ? rowCardSelectedStyles : {}),
+                    } as SxProps}
+                    draggable
+                    onDragStart={() => handleRowDragStart(rowBlock.randomId)}
+                    onDragEnd={() => setDraggedBlockId(null)}
+                    onDragOver={(event) => event.preventDefault()}
+                    onDrop={() => handleRowDrop(rowId, rowBlock.randomId || undefined)}
+                    onClick={() => onSelectBlock?.(rowBlock)}
+                  >
                     <Box sx={{ display: "flex", justifyContent: "space-between", gap: "0.5rem" }}>
                       <Typography variant="subtitle2" sx={{ textTransform: "capitalize" }}>
                         {rowBlock.type}
                       </Typography>
-                      <Button
-                        size="small"
-                        variant="text"
-                        onClick={() => setEditingRowBlockId(rowBlock.randomId || null)}
-                      >
-                        Edit
-                      </Button>
                     </Box>
                     <Typography variant="caption" color="text.secondary">
                       Width: {rowBlock.settings?.columnWidth || "1/2"}
                     </Typography>
-                    <ActionButtons block={rowBlock} setPage={setPage} />
                   </Box>
                 </Box>
               );
@@ -294,31 +362,7 @@ const PageBuilder = ({ page, setPage }: Props) => {
     renderedBlocks.push(displayEl(block, i));
   }
 
-  return (
-    <>
-      <Box sx={formBuilderStyles}>{renderedBlocks}</Box>
-      <Dialog
-        open={Boolean(rowEditBlockData.block)}
-        onClose={() => setEditingRowBlockId(null)}
-        maxWidth="md"
-        fullWidth
-      >
-        <DialogTitle sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <Typography variant="subtitle1" sx={{ textTransform: "capitalize" }}>
-            {rowEditBlockData.block?.type} block
-          </Typography>
-          <IconButton onClick={() => setEditingRowBlockId(null)}>
-            <Close />
-          </IconButton>
-        </DialogTitle>
-        <DialogContent>
-          {rowEditBlockData.block
-            ? renderBlockEditor(rowEditBlockData.block, rowEditBlockData.index)
-            : null}
-        </DialogContent>
-      </Dialog>
-    </>
-  );
+  return <Box sx={formBuilderStyles}>{renderedBlocks}</Box>;
 }
 
   
@@ -372,4 +416,15 @@ const rowCardStyles: SxProps = {
   padding: "0.75rem",
   backgroundColor: "#fff",
   boxShadow: "0 1px 2px rgba(15, 23, 42, 0.08)",
+  cursor: "grab",
+};
+
+const selectedBlockStyles: SxProps = {
+  borderColor: "rgba(43, 135, 251, 1)",
+  backgroundColor: "rgba(43, 135, 251, 0.04)",
+};
+
+const rowCardSelectedStyles: SxProps = {
+  borderColor: "rgba(43, 135, 251, 1)",
+  boxShadow: "0 0 0 1px rgba(43, 135, 251, 0.35)",
 };
