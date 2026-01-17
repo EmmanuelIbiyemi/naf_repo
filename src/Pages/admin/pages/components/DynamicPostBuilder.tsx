@@ -9,6 +9,10 @@ import { ArrowDownward, ArrowUpward } from "@mui/icons-material";
 import { BlockType } from "../../../../types/blocks";
 import { PostType } from "../../../../types/posts";
 import { useState } from "react";
+import { useDeletePostBlockMutation } from "../../../../store/api/posts.api";
+import { useAppDispatch } from "../../../../store/hooks";
+import { setBuilderLoading } from "../../../../store/app.slice";
+import DeleteIcon from "../../../../assets/deleteIcon";
 import HeadingBlock from "./postblocks/Heading";
 import MediaBlock from "./postblocks/Media";
 import BannerBlock from "./postblocks/Banner";
@@ -32,6 +36,8 @@ type Props = {
 
 const PageBuilder = ({ page, setPage, selectedBlockId, onSelectBlock }: Props) => {
   const [draggedBlockId, setDraggedBlockId] = useState<string | null>(null);
+  const dispatch = useAppDispatch();
+  const [deleteBlock] = useDeletePostBlockMutation();
   
   const displayEl = (element: BlockType, index: number) => {
     let el;
@@ -189,6 +195,24 @@ const PageBuilder = ({ page, setPage, selectedBlockId, onSelectBlock }: Props) =
     setDraggedBlockId(null);
   };
 
+  const handleDeleteRowBlock = async (block: BlockType) => {
+    dispatch(setBuilderLoading(true));
+    try {
+      if (block.id) {
+        await deleteBlock(block.id).unwrap();
+      }
+      setPage((prev) => ({
+        ...prev,
+        blocks: prev.blocks.filter((b) =>
+          block.id ? b.id !== block.id : b.randomId !== block.randomId
+        ),
+      }));
+    } catch (error) {
+      console.log(error);
+    }
+    dispatch(setBuilderLoading(false));
+  };
+
   const moveRowGroup = (rowId: string, direction: "up" | "down") => {
     setPage((prev) => {
       if (!prev) return prev;
@@ -339,10 +363,24 @@ const PageBuilder = ({ page, setPage, selectedBlockId, onSelectBlock }: Props) =
                     onDrop={() => handleRowDrop(rowId, rowBlock.randomId || undefined)}
                     onClick={() => onSelectBlock?.(rowBlock)}
                   >
-                    <Box sx={{ display: "flex", justifyContent: "space-between", gap: "0.5rem" }}>
-                      <Typography variant="subtitle2" sx={{ textTransform: "capitalize" }}>
+                    <Box sx={{ display: "flex", alignItems: "flex-start", gap: "0.5rem" }}>
+                      <Typography
+                        variant="subtitle2"
+                        sx={{ textTransform: "capitalize", flex: 1, minWidth: 0 }}
+                      >
                         {rowBlock.type}
                       </Typography>
+                      <IconButton
+                        size="small"
+                        className="delete_btn"
+                        sx={{ alignSelf: "flex-start" }}
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          handleDeleteRowBlock(rowBlock);
+                        }}
+                      >
+                        <DeleteIcon />
+                      </IconButton>
                     </Box>
                     <Typography variant="caption" color="text.secondary">
                       Width: {rowBlock.settings?.columnWidth || "1/2"}
