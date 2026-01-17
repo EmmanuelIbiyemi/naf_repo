@@ -89,6 +89,14 @@ const postsApi = appApi.injectEndpoints({
       }),
       invalidatesTags: ["Posts"],
     }),
+    reorderPost: builder.mutation<PostResponse, { id: number; date: string }>({
+      query: ({ id, date }) => ({
+        url: `/post/${id}`,
+        method: "PUT",
+        body: { date },
+      }),
+      invalidatesTags: ["Posts"],
+    }),
   }),
   overrideExisting: false,
 });
@@ -98,6 +106,7 @@ export const {
   useAddPostMutation,
   useUpdatePostMutation,
   useDeletePostMutation,
+  useReorderPostMutation,
   useDeletePostBlockMutation,
   useGetPostQuery,
   useGetPostMMutation,

@@ -1,10 +1,12 @@
 import { Box, Checkbox, IconButton, SxProps, Typography } from "@mui/material";
 import DeleteIcon from "../../../../assets/deleteIcon";
 import { PostType } from "../../../../types/posts";
-import { Edit, ContentCopy } from "@mui/icons-material";
+import { Edit, ContentCopy, DragIndicator } from "@mui/icons-material";
 import { useNavigate, useParams } from "react-router-dom";
 import { ChangeEvent } from "react";
-import { useAddPostMutation } from "../../../../store/api/posts.api"; // Import the mutation hook
+import { useAddPostMutation } from "../../../../store/api/posts.api";
+import { useSortable } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 
 type Props = {
   post: PostType;
@@ -16,7 +18,16 @@ type Props = {
 const PostItem = ({ post, deleteItem, handleSelect, deleteIds }: Props) => {
   const navigate = useNavigate();
   const { resource_type } = useParams();
-  const [addPost] = useAddPostMutation(); // Initialize the mutation hook
+  const [addPost] = useAddPostMutation();
+  
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: post.id as number });
 
   const handleDuplicate = async () => {
     if (!post) return;
@@ -37,8 +48,14 @@ const PostItem = ({ post, deleteItem, handleSelect, deleteIds }: Props) => {
     }
   };
 
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+
   return (
-    <Box sx={postItemStyles}>
+    <Box ref={setNodeRef} style={style} sx={postItemStyles}>
       <Box
         sx={{
           alignItems: "center",
@@ -47,6 +64,18 @@ const PostItem = ({ post, deleteItem, handleSelect, deleteIds }: Props) => {
           height: "3em",
         }}
       >
+        <Box
+          {...attributes}
+          {...listeners}
+          sx={{
+            cursor: "grab",
+            display: "flex",
+            alignItems: "center",
+            "&:active": { cursor: "grabbing" },
+          }}
+        >
+          <DragIndicator sx={{ color: "rgba(170, 170, 170, 1)" }} />
+        </Box>
         <Checkbox
           onChange={(event) => handleSelect(event, post.id as number)}
           checked={deleteIds.includes(post.id as number)}
