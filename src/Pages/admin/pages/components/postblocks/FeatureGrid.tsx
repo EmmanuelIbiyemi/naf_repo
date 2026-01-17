@@ -130,6 +130,8 @@ const FeatureGridBlock = ({ page, setPage, element, index }: {
                 onChange={(e) => handleItemChange(itemIndex, "title", e.target.value)}
                 fullWidth
                 sx={{ mt: 1 }}
+                inputProps={{ maxLength: 60 }}
+                helperText={`${item.title.length}/60 characters`}
               />
               <TextField
                 label="Description"
@@ -139,6 +141,8 @@ const FeatureGridBlock = ({ page, setPage, element, index }: {
                 multiline
                 rows={2}
                 sx={{ mt: 1 }}
+                inputProps={{ maxLength: 150 }}
+                helperText={`${item.description.length}/150 characters (approximately 3 lines)`}
               />
             </Box>
           ))}
