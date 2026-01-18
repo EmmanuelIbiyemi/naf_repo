@@ -12,10 +12,12 @@ import {
   EmojiPeople,
   FmdGood,
   ContactPhone,
+  ViewColumn,
 } from "@mui/icons-material";
 
 export const BLOCK_TYPES = {
   // Page Elements
+  ROW: "row",
   BANNER: "banner",
   LEFTCARD: "left card",
   RIGHTCARD: "right card",
@@ -49,6 +51,7 @@ export const BLOCK_TYPES = {
 
 export const elements = [
   // Page Elements
+  { id: 0, name: "Row", type: BLOCK_TYPES.ROW, icon: ViewColumn },
   { id: 1, name: "Banner", type: BLOCK_TYPES.BANNER, icon: ViewCarousel },
   { id: 2, name: "Left Card", type: BLOCK_TYPES.LEFTCARD, icon: Newspaper },
   { id: 3, name: "Right Card", type: BLOCK_TYPES.RIGHTCARD, icon: Newspaper },

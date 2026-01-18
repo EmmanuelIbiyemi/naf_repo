@@ -13,9 +13,21 @@ const BlockTypeSelector = ({ block, setPage }: Props) => {
     const newType = event.target.value;
     setPage((prev) => {
       if (!prev) return prev;
-      const updatedBlocks = prev.blocks.map((b) =>
-        b.randomId === block.randomId ? { ...b, type: newType } : b
-      );
+      const updatedBlocks = prev.blocks.map((b) => {
+        if (b.randomId === block.randomId) {
+          const updated = { ...b, type: newType };
+          if (newType === "row" && b.settings?.layout !== "row") {
+            updated.settings = {
+              ...(b.settings || {}),
+              layout: "row",
+              rowId: b.settings?.rowId || `row-${Math.random().toString(36).slice(2, 8)}`,
+              columnWidth: b.settings?.columnWidth || "1/2",
+            };
+          }
+          return updated;
+        }
+        return b;
+      });
       return {
         ...prev,
         blocks: updatedBlocks,

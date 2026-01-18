@@ -140,6 +140,13 @@ const PageBuilder = ({
       case "margin":
         el =<MarginBlock page={page} setPage={setPage} element={element} index={index}/>
         break
+      case "row":
+        el = (
+          <Box sx={{ p: 2, border: '1px dashed #ccc', borderRadius: '4px', textAlign: 'center', bgcolor: 'rgba(0,0,0,0.02)' }}>
+            <Typography variant="caption" color="text.secondary">Empty Row Block</Typography>
+          </Box>
+        )
+        break
     }
 
     return (
@@ -534,7 +541,7 @@ const PageBuilder = ({
                             variant="subtitle2"
                             sx={{ textTransform: "capitalize", flex: 1, minWidth: 0 }}
                           >
-                            {rowBlock.type}
+                            {rowBlock.type === "row" ? "Empty Column" : rowBlock.type}
                           </Typography>
                           <IconButton
                             size="small"

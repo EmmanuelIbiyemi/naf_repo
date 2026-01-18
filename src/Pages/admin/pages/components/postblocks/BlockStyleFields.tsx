@@ -73,9 +73,14 @@ const BlockStyleFields = ({ block, blocks, setPage }: Props) => {
       <FormControl fullWidth>
         <Select
           value={settings.layout || "stack"}
-          onChange={(event) =>
-            updateSettings({ layout: event.target.value as BlockSettings["layout"] })
-          }
+          onChange={(event) => {
+            const newLayout = event.target.value as BlockSettings["layout"];
+            const patch: Partial<BlockSettings> = { layout: newLayout };
+            if (newLayout === "row" && !settings.rowId) {
+              patch.rowId = `row-${Math.random().toString(36).slice(2, 8)}`;
+            }
+            updateSettings(patch);
+          }}
           size="small"
         >
           <MenuItem value="stack">Stacked</MenuItem>
