@@ -6,7 +6,7 @@ import {
   Typography,
 } from "@mui/material";
 import { ArrowDownward, ArrowUpward, DragIndicator } from "@mui/icons-material";
-import { BlockType } from "../../../../types/blocks";
+import { BlockSettings, BlockType } from "../../../../types/blocks";
 import { PostType } from "../../../../types/posts";
 import { useMemo, useState } from "react";
 import { useDeletePostBlockMutation } from "../../../../store/api/posts.api";
@@ -172,6 +172,38 @@ const PageBuilder = ({
     }
   };
 
+  const getColumnWidthFraction = (value?: BlockSettings["columnWidth"]) => {
+    switch (value) {
+      case "1/3":
+        return 1 / 3;
+      case "2/3":
+        return 2 / 3;
+      case "1/4":
+        return 1 / 4;
+      case "3/4":
+        return 3 / 4;
+      case "1/2":
+      default:
+        return 1 / 2;
+    }
+  };
+
+  const getRowWidthUsed = (blocks: BlockType[], rowId: string, excludeId?: string | null) =>
+    blocks.reduce((total, block) => {
+      if (block.settings?.layout !== "row" || block.settings?.rowId !== rowId) return total;
+      if (excludeId && block.randomId === excludeId) return total;
+      return total + getColumnWidthFraction(block.settings?.columnWidth);
+    }, 0);
+
+  const canAddRowBlock = (
+    blocks: BlockType[],
+    rowId: string,
+    columnWidth: BlockSettings["columnWidth"]
+  ) => {
+    const used = getRowWidthUsed(blocks, rowId);
+    return used + getColumnWidthFraction(columnWidth) <= 1;
+  };
+
   const createRowBlock = (rowId: string): BlockType => ({
     id: 0,
     randomId: Math.random().toString(36).substring(2, 15),
@@ -192,6 +224,7 @@ const PageBuilder = ({
   const handleAddBlockToRow = (rowId: string, insertIndex: number) => {
     setPage((prev) => {
       if (!prev) return prev;
+      if (!canAddRowBlock(prev.blocks, rowId, "1/2")) return prev;
       const nextBlocks = [...prev.blocks];
       nextBlocks.splice(insertIndex, 0, createRowBlock(rowId));
       return {
@@ -215,6 +248,16 @@ const PageBuilder = ({
       const sourceIndex = blocks.findIndex((block) => block.randomId === draggedBlockId);
       if (sourceIndex === -1) return prev;
       const sourceBlock = blocks[sourceIndex];
+      const sourceRowId = sourceBlock.settings?.rowId;
+      const sourceIsInTargetRow =
+        sourceBlock.settings?.layout === "row" && sourceRowId === targetRowId;
+      if (!sourceIsInTargetRow) {
+        const used = getRowWidthUsed(blocks, targetRowId);
+        const incoming = getColumnWidthFraction(sourceBlock.settings?.columnWidth);
+        if (used + incoming > 1) {
+          return prev;
+        }
+      }
 
       const updatedBlock: BlockType = {
         ...sourceBlock,
@@ -413,6 +456,7 @@ const PageBuilder = ({
       {({ attributes, listeners }) => {
         if (group.type === "row" && group.rowId) {
           const rowId = group.rowId;
+          const canAdd = canAddRowBlock(group.blocks, rowId, "1/2");
           return (
             <Box sx={rowWrapperStyles}>
               <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
@@ -442,6 +486,8 @@ const PageBuilder = ({
                   <Button
                     size="small"
                     variant="outlined"
+                    disabled={!canAdd}
+                    title={canAdd ? "Add block" : "Row is full"}
                     onClick={() => handleAddBlockToRow(rowId, group.endIndex + 1)}
                   >
                     Add Block
