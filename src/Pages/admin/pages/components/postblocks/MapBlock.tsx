@@ -56,15 +56,32 @@ import {
         }
     };
 
+    const extractMapUrl = (input: string): string => {
+        // If it's already a clean URL, return it
+        if (input.startsWith('http') && !input.includes('<iframe')) {
+            return input;
+        }
+        
+        // Try to extract URL from iframe embed code
+        const srcMatch = input.match(/src=["']([^"']+)["']/);
+        if (srcMatch && srcMatch[1]) {
+            return srcMatch[1];
+        }
+        
+        // Return original input if no pattern matches
+        return input;
+    };
+
     const handleMapUrlChange = (
         e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
         randomId: string | null | undefined
     ) => {
         const foundBlock = page.blocks.find((block) => block.randomId === randomId);
         if (foundBlock) {
+            const extractedUrl = extractMapUrl(e.target.value);
             const newBlock: BlockType = {
                 ...foundBlock,
-                link: e.target.value,
+                link: extractedUrl,
             };
             updateBlock(newBlock);
         }
@@ -104,8 +121,10 @@ import {
                 <TextField
                     label="Map Embed URL"
                     defaultValue={element.link}
+                    multiline
+                    rows={3}
                     onBlur={(e) => handleMapUrlChange(e, element.randomId)}
-                    helperText="Enter Google Maps or any map embed URL"
+                    helperText="Paste the entire Google Maps embed code (from Share → Embed a map) or just the URL"
                 />
                 <Box sx={mapPreview}>
                     {element.link ? (
