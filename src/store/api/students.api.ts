@@ -63,6 +63,23 @@ const studentsApi = appApi.injectEndpoints({
       }),
       invalidatesTags: ["Students"],
     }),
+    bulkDeleteStudents: builder.mutation<
+      {
+        message: string;
+        status: string;
+        deleted_ids: number[];
+        not_found_ids: number[];
+        invalid_ids: (number | string)[];
+      },
+      { participant_ids: number[] }
+    >({
+      query: ({ participant_ids }) => ({
+        url: `/participant/bulk`,
+        method: "DELETE",
+        body: { participant_ids },
+      }),
+      invalidatesTags: ["Students"],
+    }),
   }),
   overrideExisting: false,
 });
@@ -73,6 +90,7 @@ export const {
   useUploadStudentsMutation,
   useUpdateStudentMutation,
   useDeleteStudentMutation,
+  useBulkDeleteStudentsMutation,
   useGetStudentQuery,
   usePromoteAllMutation,
 } = studentsApi;

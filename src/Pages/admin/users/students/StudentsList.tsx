@@ -9,6 +9,7 @@ import { Delete, Edit, LockReset } from "@mui/icons-material"; // <-- added Lock
 import DeleteConfirmationModal from "../../../../components/DeleteConfirmationModal";
 import { ChangeEvent, useEffect, useState } from "react";
 import {
+  useBulkDeleteStudentsMutation,
   useDeleteStudentMutation,
   useGetStudentsQuery,
   useUpdateStudentMutation,
@@ -47,6 +48,7 @@ const StudentsList = () => {
   } = useGetStudentsQuery({ ...pagination, search_term: keyword });
   const [students, setStudents] = useState(stds?.data);
   const [deleteStudent, deleteState] = useDeleteStudentMutation();
+  const [bulkDeleteStudents, bulkDeleteState] = useBulkDeleteStudentsMutation();
   const [updateStudent, updateState] = useUpdateStudentMutation();
   const [resetUserPassword, resetUserPasswordState] = useResetUserPasswordMutation(); // <-- add reset password mutation
   const [deleteIds, setDeleteIds] = useState<number[]>([]);
@@ -66,12 +68,21 @@ const StudentsList = () => {
     if (
       isFetching ||
       deleteState.isLoading ||
+      bulkDeleteState.isLoading ||
       updateState.isLoading ||
       resetUserPasswordState.isLoading
     )
       dispatch(setPageLoading(true));
     else dispatch(setPageLoading(false));
-  }, [isFetching, isError, stds, deleteState, updateState, resetUserPasswordState]);
+  }, [
+    isFetching,
+    isError,
+    stds,
+    deleteState,
+    bulkDeleteState,
+    updateState,
+    resetUserPasswordState,
+  ]);
 
   const handleOpenModal = (student: StudentType, type: string) => {
     setSelectedStudent(student);
@@ -109,9 +120,7 @@ const StudentsList = () => {
 
   const handleBulkDelete = async () => {
     try {
-      for (const id of deleteIds) {
-        await deleteStudent(id).unwrap();
-      }
+      await bulkDeleteStudents({ participant_ids: deleteIds }).unwrap();
       setDeleteIds([]);
       handleCloseModal("bulkDelete");
     } catch (error) {
