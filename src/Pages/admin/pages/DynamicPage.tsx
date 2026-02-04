@@ -53,6 +53,7 @@ const PostPage = () => {
     header: false,
     footer: false,
     mobile: false,
+    social: false,
   });
   const sidebarRef = useRef<HTMLDivElement | null>(null);
   const settingsPanelRef = useRef<HTMLDivElement | null>(null);
@@ -129,6 +130,7 @@ const PostPage = () => {
       header: postCategories.includes("header"),
       footer: postCategories.includes("footer"),
       mobile: postCategories.includes("mobile"),
+      social: postCategories.includes("social"),
     });
   }, [post, resource_type]);
 
@@ -173,7 +175,7 @@ const PostPage = () => {
 
       if (resourceTag === "navigation") {
         const nonMenuCategories = initialCategories.filter(
-          (cat) => !["header", "footer", "mobile", "navigation"].includes(cat)
+          (cat) => !["header", "footer", "mobile", "social", "navigation"].includes(cat)
         );
         const checkedLocations = Object.entries(menuLocations)
           .filter(([, checked]) => checked)
@@ -449,6 +451,20 @@ const PostPage = () => {
                   />
                 }
                 label="Mobile Menu"
+              />
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={menuLocations.social}
+                    onChange={(e) =>
+                      setMenuLocations((prev) => ({
+                        ...prev,
+                        social: e.target.checked,
+                      }))
+                    }
+                  />
+                }
+                label="Social Menu"
               />
             </Box>
           )}
