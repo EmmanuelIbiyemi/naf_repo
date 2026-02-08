@@ -50,10 +50,18 @@ const formatScopeLabel = (scope: ResultSearchScope) => {
   return `${parts.join(" • ")}${countText}`;
 };
 
+const summaryLabelMap: Record<string, string> = {
+  cumulative_grade_point_average: "CGPA",
+  cumulative_total_credit_units: "CTCU",
+  cumulative_total_grade_points: "CTGP",
+  grade_point_average: "GPA",
+  total_credit_units: "TCU",
+  total_grade_points: "TGP",
+};
+
 const formatSummaryLabel = (value: string) =>
-  value
-    .replace(/_/g, " ")
-    .replace(/\b\w/g, (char) => char.toUpperCase());
+  summaryLabelMap[value] ||
+  value.replace(/_/g, " ").replace(/\b\w/g, (char) => char.toUpperCase());
 
 type Props = {
   page: PostType;
