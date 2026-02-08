@@ -21,6 +21,20 @@ const defaultShowFields = {
   summary: true,
   participant: true,
 };
+const defaultParticipantFields = {
+  name: true,
+  email: true,
+  matricNumber: true,
+  photo: true,
+};
+const defaultSummaryFields = {
+  cumulative_grade_point_average: true,
+  cumulative_total_credit_units: true,
+  cumulative_total_grade_points: true,
+  grade_point_average: true,
+  total_credit_units: true,
+  total_grade_points: true,
+};
 
 const getScopeKey = (scope: ResultSearchScope) =>
   `${scope.department_id}-${scope.level_id}-${scope.semester}-${scope.session}`;
@@ -35,6 +49,11 @@ const formatScopeLabel = (scope: ResultSearchScope) => {
   const countText = typeof scope.count === "number" ? ` (${scope.count})` : "";
   return `${parts.join(" • ")}${countText}`;
 };
+
+const formatSummaryLabel = (value: string) =>
+  value
+    .replace(/_/g, " ")
+    .replace(/\b\w/g, (char) => char.toUpperCase());
 
 type Props = {
   page: PostType;
@@ -89,6 +108,14 @@ const ResultSearchBlock = ({ page, setPage, element, index }: Props) => {
             ...defaultShowFields,
             ...(currentSettings.showFields || {}),
           },
+          participantFields: {
+            ...defaultParticipantFields,
+            ...(currentSettings.participantFields || {}),
+          },
+          summaryFields: {
+            ...defaultSummaryFields,
+            ...(currentSettings.summaryFields || {}),
+          },
           ...patch,
         },
       },
@@ -123,6 +150,14 @@ const ResultSearchBlock = ({ page, setPage, element, index }: Props) => {
   const showFields = {
     ...defaultShowFields,
     ...(resultSettings.showFields || {}),
+  };
+  const participantFields = {
+    ...defaultParticipantFields,
+    ...(resultSettings.participantFields || {}),
+  };
+  const summaryFields = {
+    ...defaultSummaryFields,
+    ...(resultSettings.summaryFields || {}),
   };
 
   return (
@@ -265,6 +300,99 @@ const ResultSearchBlock = ({ page, setPage, element, index }: Props) => {
             label="Summary"
           />
         </Box>
+        {showFields.participant ? (
+          <Box sx={{ display: "grid", gap: "0.5rem" }}>
+            <Typography variant="subtitle2">Participant fields</Typography>
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={Boolean(participantFields.name)}
+                  onChange={(event) =>
+                    updateResultSettings({
+                      participantFields: {
+                        ...participantFields,
+                        name: event.target.checked,
+                      },
+                    })
+                  }
+                />
+              }
+              label="Name"
+            />
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={Boolean(participantFields.matricNumber)}
+                  onChange={(event) =>
+                    updateResultSettings({
+                      participantFields: {
+                        ...participantFields,
+                        matricNumber: event.target.checked,
+                      },
+                    })
+                  }
+                />
+              }
+              label="Matric number"
+            />
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={Boolean(participantFields.email)}
+                  onChange={(event) =>
+                    updateResultSettings({
+                      participantFields: {
+                        ...participantFields,
+                        email: event.target.checked,
+                      },
+                    })
+                  }
+                />
+              }
+              label="Email"
+            />
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={Boolean(participantFields.photo)}
+                  onChange={(event) =>
+                    updateResultSettings({
+                      participantFields: {
+                        ...participantFields,
+                        photo: event.target.checked,
+                      },
+                    })
+                  }
+                />
+              }
+              label="Photo"
+            />
+          </Box>
+        ) : null}
+        {showFields.summary ? (
+          <Box sx={{ display: "grid", gap: "0.5rem" }}>
+            <Typography variant="subtitle2">Summary fields</Typography>
+            {Object.entries(defaultSummaryFields).map(([key]) => (
+              <FormControlLabel
+                key={key}
+                control={
+                  <Checkbox
+                    checked={Boolean((summaryFields as Record<string, boolean>)[key])}
+                    onChange={(event) =>
+                      updateResultSettings({
+                        summaryFields: {
+                          ...summaryFields,
+                          [key]: event.target.checked,
+                        },
+                      })
+                    }
+                  />
+                }
+                label={formatSummaryLabel(key)}
+              />
+            ))}
+          </Box>
+        ) : null}
         <Box sx={{ display: "grid", gap: "0.75rem", gridTemplateColumns: "1fr 1fr" }}>
           <TextField
             label="Input label"

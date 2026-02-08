@@ -39,6 +39,20 @@ export type ResultSearchSettings = {
     summary?: boolean;
     participant?: boolean;
   };
+  participantFields?: {
+    name?: boolean;
+    email?: boolean;
+    matricNumber?: boolean;
+    photo?: boolean;
+  };
+  summaryFields?: {
+    cumulative_grade_point_average?: boolean;
+    cumulative_total_credit_units?: boolean;
+    cumulative_total_grade_points?: boolean;
+    grade_point_average?: boolean;
+    total_credit_units?: boolean;
+    total_grade_points?: boolean;
+  };
   inputLabel?: string;
   inputPlaceholder?: string;
   buttonLabel?: string;
