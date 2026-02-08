@@ -20,12 +20,20 @@ const PostItem = ({ post, deleteItem, handleSelect, deleteIds }: Props) => {
   const { resource_type } = useParams();
   const [addPost] = useAddPostMutation();
 
+  const categoryTags = post.categories?.map((category) => category.name) || [];
+  const preferredTag =
+    categoryTags.find(
+      (tag) =>
+        !["page", "navigation", "header", "footer", "mobile", "social"].includes(
+          tag.toLowerCase()
+        )
+    ) || "";
   const landingBaseUrl =
     (import.meta.env.VITE_LANDING_URL as string | undefined)?.replace(/\/+$/, "") ||
     window.location.origin;
-  const landingSlug = (post.slug || post.title || "").trim();
-  const landingUrl = landingSlug
-    ? `${landingBaseUrl}/${encodeURIComponent(landingSlug)}`
+  const landingTag = preferredTag.trim();
+  const landingUrl = landingTag
+    ? `${landingBaseUrl}/${encodeURIComponent(landingTag)}`
     : landingBaseUrl;
   
   const {
@@ -63,7 +71,7 @@ const PostItem = ({ post, deleteItem, handleSelect, deleteIds }: Props) => {
   };
 
   const handlePreview = () => {
-    if (!landingSlug) return;
+    if (!landingTag) return;
     window.open(landingUrl, "_blank", "noopener,noreferrer");
   };
 
