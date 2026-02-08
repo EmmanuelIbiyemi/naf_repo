@@ -1,7 +1,7 @@
 import { Box, Checkbox, IconButton, SxProps, Typography } from "@mui/material";
 import DeleteIcon from "../../../../assets/deleteIcon";
 import { PostType } from "../../../../types/posts";
-import { Edit, ContentCopy, DragIndicator } from "@mui/icons-material";
+import { Edit, ContentCopy, DragIndicator, OpenInNew } from "@mui/icons-material";
 import { useNavigate, useParams } from "react-router-dom";
 import { ChangeEvent } from "react";
 import { useAddPostMutation } from "../../../../store/api/posts.api";
@@ -19,6 +19,14 @@ const PostItem = ({ post, deleteItem, handleSelect, deleteIds }: Props) => {
   const navigate = useNavigate();
   const { resource_type } = useParams();
   const [addPost] = useAddPostMutation();
+
+  const landingBaseUrl =
+    (import.meta.env.VITE_LANDING_URL as string | undefined)?.replace(/\/+$/, "") ||
+    window.location.origin;
+  const landingSlug = (post.slug || post.title || "").trim();
+  const landingUrl = landingSlug
+    ? `${landingBaseUrl}/${encodeURIComponent(landingSlug)}`
+    : landingBaseUrl;
   
   const {
     attributes,
@@ -54,6 +62,11 @@ const PostItem = ({ post, deleteItem, handleSelect, deleteIds }: Props) => {
     opacity: isDragging ? 0.5 : 1,
   };
 
+  const handlePreview = () => {
+    if (!landingSlug) return;
+    window.open(landingUrl, "_blank", "noopener,noreferrer");
+  };
+
   return (
     <Box ref={setNodeRef} style={style} sx={postItemStyles}>
       <Box
@@ -87,6 +100,11 @@ const PostItem = ({ post, deleteItem, handleSelect, deleteIds }: Props) => {
         </Typography>
       </Box>
       <Box sx={{ display: "flex", justifySelf: "end" }}>
+        {resource_type === "page" ? (
+          <IconButton onClick={handlePreview} title="View on landing page">
+            <OpenInNew sx={{ color: "rgba(170, 170, 170, 1)" }} />
+          </IconButton>
+        ) : null}
         <IconButton
           onClick={() =>
             navigate(`/settings/posttype/${resource_type}/${post.id}`)

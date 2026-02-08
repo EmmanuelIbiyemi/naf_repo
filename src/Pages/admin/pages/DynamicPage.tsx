@@ -23,7 +23,7 @@ import { PostType, PostCreateType } from "../../../types/posts";
 import MediaLibraryModal from "../media/MediaLibraryModal";
 import { elements } from "./elements/post-elements";
 import { BlockType, MediaType } from "../../../types/blocks";
-import { Close, Save as SaveIcon, Search } from "@mui/icons-material";
+import { Close, OpenInNew, Save as SaveIcon, Search } from "@mui/icons-material";
 import { setPageLoading } from "../../../store/app.slice";
 import { useAppDispatch } from "../../../store/hooks";
 import BlockStyleFields from "./components/postblocks/BlockStyleFields";
@@ -106,6 +106,14 @@ const PostPage = () => {
       return typeof action === 'function' ? action(prev) : action;
     });
   };
+
+  const landingBaseUrl =
+    (import.meta.env.VITE_LANDING_URL as string | undefined)?.replace(/\/+$/, "") ||
+    window.location.origin;
+  const landingSlug = (post?.slug || post?.title || "").trim();
+  const landingUrl = landingSlug
+    ? `${landingBaseUrl}/${encodeURIComponent(landingSlug)}`
+    : landingBaseUrl;
 
   const selectedBlockIndex = post?.blocks.findIndex(
     (block) => block.randomId === selectedBlockId
@@ -346,6 +354,11 @@ const PostPage = () => {
     setPost((prev) => (prev ? { ...prev, date: value } : prev));
   }
 
+  const handlePreview = () => {
+    if (!landingSlug) return;
+    window.open(landingUrl, "_blank", "noopener,noreferrer");
+  };
+
   return (
     <Box sx={contentStyles}>
       <Dialog
@@ -381,6 +394,16 @@ const PostPage = () => {
             <Typography variant="subtitle2" color="text.secondary">
               Draft
             </Typography>
+            {resource_type === "page" ? (
+              <Button
+                variant="outlined"
+                startIcon={<OpenInNew />}
+                onClick={handlePreview}
+                disabled={!post?.id || !landingSlug}
+              >
+                Preview
+              </Button>
+            ) : null}
             <Button
               variant="contained"
               startIcon={<SaveIcon />}
