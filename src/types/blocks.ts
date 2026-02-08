@@ -19,6 +19,34 @@ export type BlockSettings = {
   columnWidth?: "1/2" | "1/3" | "2/3" | "1/4" | "3/4";
   textAlign?: "left" | "center" | "right";
   textColor?: string;
+  resultSearch?: ResultSearchSettings;
+};
+
+export type ResultSearchScope = {
+  department_id: number;
+  level_id: number;
+  semester: string;
+  session: string;
+  department_name?: string;
+  level_name?: string;
+  count?: number;
+};
+
+export type ResultSearchSettings = {
+  scopes?: ResultSearchScope[];
+  showFields?: {
+    session?: boolean;
+    summary?: boolean;
+    participant?: boolean;
+  };
+  inputLabel?: string;
+  inputPlaceholder?: string;
+  buttonLabel?: string;
+  emptyMessage?: string;
+  session?: string;
+  semester?: string;
+  sessionId?: number;
+  semesterId?: number;
 };
 
 export type BlockType = {

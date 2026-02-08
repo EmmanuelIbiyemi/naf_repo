@@ -31,6 +31,7 @@ import GalleryBlock from "./postblocks/Gallery";
 import FeatureGridBlock from "./postblocks/FeatureGrid";
 import AccordionBlock from "./postblocks/Accordion";
 import MapBlock from "./postblocks/MapBlock";
+import ResultSearchBlock from "./postblocks/ResultSearch";
 import {
   DndContext,
   DragEndEvent,
@@ -139,6 +140,9 @@ const PageBuilder = ({
         break
       case "margin":
         el =<MarginBlock page={page} setPage={setPage} element={element} index={index}/>
+        break
+      case "result search":
+        el =<ResultSearchBlock page={page} setPage={setPage} element={element} index={index}/>
         break
       case "row":
         el = (

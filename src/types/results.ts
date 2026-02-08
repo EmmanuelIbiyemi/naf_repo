@@ -130,6 +130,22 @@ export interface ResultResponse {
   status: string;
 }
 
+export type ResultScope = {
+  department_id: number;
+  level_id: number;
+  semester: string;
+  session: string;
+  department_name?: string;
+  level_name?: string;
+  count?: number;
+};
+
+export type ResultScopesResponse = {
+  data: ResultScope[];
+  message: string;
+  status: string;
+};
+
 export type ResultTaskStartResponse = {
   data: { task_id: string };
   message: string;

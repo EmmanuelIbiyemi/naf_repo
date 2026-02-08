@@ -147,11 +147,25 @@ const PostPage = () => {
         link: "",
         media: [],
         position: blocks.length + 1,
-        settings: type === "row" ? {
-          layout: "row",
-          rowId: Math.random().toString(36).substring(2, 15),
-          columnWidth: "1/2",
-        } : {},
+        settings:
+          type === "row"
+            ? {
+                layout: "row",
+                rowId: Math.random().toString(36).substring(2, 15),
+                columnWidth: "1/2",
+              }
+            : type === "result search"
+            ? {
+                resultSearch: {
+                  scopes: [],
+                  showFields: {
+                    session: true,
+                    summary: true,
+                    participant: true,
+                  },
+                },
+              }
+            : {},
         title: "",
       };
 

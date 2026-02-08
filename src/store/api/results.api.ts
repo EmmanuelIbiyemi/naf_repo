@@ -8,6 +8,7 @@ import {
   ResultVisibilityResponse,
   ResultDeletePayload,
   ResultDeleteResponse,
+  ResultScopesResponse,
 } from "../../types/results.ts";
 import { appApi } from "./app.api.ts";
 
@@ -31,6 +32,16 @@ const scoreApi = appApi.injectEndpoints({
           page,
           per_page,
         },
+      }),
+      providesTags: ["Results"],
+    }),
+    getResultScopes: builder.query<
+      ResultScopesResponse,
+      { session?: string; semester?: string } | void
+    >({
+      query: (params) => ({
+        url: `/result/scopes`,
+        params: params || undefined,
       }),
       providesTags: ["Results"],
     }),
@@ -105,6 +116,7 @@ const scoreApi = appApi.injectEndpoints({
 
 export const {
   useGetResultsQuery,
+  useGetResultScopesQuery,
   useGetResultsMMutation,
   useGetResultQuery,
   useGenerateResultMutation,

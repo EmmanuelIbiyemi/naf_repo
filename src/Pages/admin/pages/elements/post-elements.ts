@@ -13,6 +13,7 @@ import {
   FmdGood,
   ContactPhone,
   ViewColumn,
+  Search,
 } from "@mui/icons-material";
 
 export const BLOCK_TYPES = {
@@ -47,6 +48,9 @@ export const BLOCK_TYPES = {
   // Footer Elements
   CONTACTS: "contacts",
   MAP: "map",
+
+  // Utility Elements
+  RESULT_SEARCH: "result search",
 } as const;
 
 export const elements = [
@@ -80,4 +84,7 @@ export const elements = [
   // Footer Elements
   { id: 21, name: "Contacts", type: BLOCK_TYPES.CONTACTS, icon: ContactPhone },
   { id: 20, name: "Map", type: BLOCK_TYPES.MAP, icon: FmdGood },
+
+  // Utility Elements
+  { id: 27, name: "Result Search", type: BLOCK_TYPES.RESULT_SEARCH, icon: Search },
 ] as const;

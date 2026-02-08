@@ -20,6 +20,7 @@ import RichTextBlock from "./postblocks/RichText";
 import GalleryBlock from "./postblocks/Gallery";
 import FeatureGridBlock from "./postblocks/FeatureGrid";
 import AccordionBlock from "./postblocks/Accordion";
+import ResultSearchBlock from "./postblocks/ResultSearch";
 
 type Props = {
   block: BlockType;
@@ -90,6 +91,9 @@ const BlockEditorPanel = ({ block, index, page, setPage, showAppearance = true }
       break;
     case "margin":
       el = <MarginBlock page={page} setPage={setPage} element={block} index={index} />;
+      break;
+    case "result search":
+      el = <ResultSearchBlock page={page} setPage={setPage} element={block} index={index} />;
       break;
     default:
       el = null;
