@@ -7,6 +7,7 @@ import { ActionButtons } from ".././ActionButtons";
 type FeatureItem = {
   title: string;
   description: string;
+  icon?: string;
 };
 
 const parseItems = (content: string): FeatureItem[] => {
@@ -132,6 +133,13 @@ const FeatureGridBlock = ({ page, setPage, element, index }: {
                 sx={{ mt: 1 }}
                 inputProps={{ maxLength: 60 }}
                 helperText={`${item.title.length}/60 characters`}
+              />
+              <TextField
+                label="Icon (emoji or short text)"
+                value={item.icon || ""}
+                onChange={(e) => handleItemChange(itemIndex, "icon", e.target.value)}
+                fullWidth
+                sx={{ mt: 1 }}
               />
               <TextField
                 label="Description"

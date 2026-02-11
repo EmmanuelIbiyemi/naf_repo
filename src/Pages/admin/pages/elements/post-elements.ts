@@ -14,6 +14,9 @@ import {
   ContactPhone,
   ViewColumn,
   Search,
+  Campaign,
+  InfoOutlined,
+  Segment,
 } from "@mui/icons-material";
 
 export const BLOCK_TYPES = {
@@ -25,6 +28,11 @@ export const BLOCK_TYPES = {
   POSTCARDS: "post cards",
   NEWS_SECTION: "news section",
   POSTCAROUSEL: "post carousel",
+  HERO_SPOTLIGHT: "hero spotlight",
+  SECTION_HEADER: "section header",
+  CTA_STRIP: "cta strip",
+  CALLOUT_PANEL: "callout panel",
+  MEDIA_CAROUSEL: "media carousel",
   
   // Common Elements
   IMAGE: "image",
@@ -61,6 +69,11 @@ export const elements = [
   { id: 3, name: "Right Card", type: BLOCK_TYPES.RIGHTCARD, icon: Newspaper },
   { id: 5, name: "Post Cards", type: BLOCK_TYPES.POSTCARDS, icon: Article },
   { id: 22, name: "Post Carousel", type: BLOCK_TYPES.POSTCAROUSEL, icon: ViewCarousel },
+  { id: 28, name: "Hero Spotlight", type: BLOCK_TYPES.HERO_SPOTLIGHT, icon: ViewCarousel },
+  { id: 29, name: "Section Header", type: BLOCK_TYPES.SECTION_HEADER, icon: Segment },
+  { id: 30, name: "CTA Strip", type: BLOCK_TYPES.CTA_STRIP, icon: Campaign },
+  { id: 31, name: "Callout Panel", type: BLOCK_TYPES.CALLOUT_PANEL, icon: InfoOutlined },
+  { id: 32, name: "Media Carousel", type: BLOCK_TYPES.MEDIA_CAROUSEL, icon: ViewCarousel },
 
   // Common Elements
   { id: 7, name: "Image", type: BLOCK_TYPES.IMAGE, icon: Image },

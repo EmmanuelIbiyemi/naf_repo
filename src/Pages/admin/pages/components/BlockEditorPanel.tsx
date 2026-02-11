@@ -21,6 +21,11 @@ import GalleryBlock from "./postblocks/Gallery";
 import FeatureGridBlock from "./postblocks/FeatureGrid";
 import AccordionBlock from "./postblocks/Accordion";
 import ResultSearchBlock from "./postblocks/ResultSearch";
+import HeroSpotlightBlock from "./postblocks/HeroSpotlight";
+import SectionHeaderBlock from "./postblocks/SectionHeader";
+import CtaStripBlock from "./postblocks/CtaStrip";
+import CalloutPanelBlock from "./postblocks/CalloutPanel";
+import MediaCarouselBlock from "./postblocks/MediaCarousel";
 
 type Props = {
   block: BlockType;
@@ -94,6 +99,21 @@ const BlockEditorPanel = ({ block, index, page, setPage, showAppearance = true }
       break;
     case "result search":
       el = <ResultSearchBlock page={page} setPage={setPage} element={block} index={index} />;
+      break;
+    case "hero spotlight":
+      el = <HeroSpotlightBlock page={page} setPage={setPage} element={block} index={index} />;
+      break;
+    case "section header":
+      el = <SectionHeaderBlock page={page} setPage={setPage} element={block} index={index} />;
+      break;
+    case "cta strip":
+      el = <CtaStripBlock page={page} setPage={setPage} element={block} index={index} />;
+      break;
+    case "callout panel":
+      el = <CalloutPanelBlock page={page} setPage={setPage} element={block} index={index} />;
+      break;
+    case "media carousel":
+      el = <MediaCarouselBlock page={page} setPage={setPage} element={block} index={index} />;
       break;
     default:
       el = null;

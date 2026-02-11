@@ -32,6 +32,11 @@ import FeatureGridBlock from "./postblocks/FeatureGrid";
 import AccordionBlock from "./postblocks/Accordion";
 import MapBlock from "./postblocks/MapBlock";
 import ResultSearchBlock from "./postblocks/ResultSearch";
+import HeroSpotlightBlock from "./postblocks/HeroSpotlight";
+import SectionHeaderBlock from "./postblocks/SectionHeader";
+import CtaStripBlock from "./postblocks/CtaStrip";
+import CalloutPanelBlock from "./postblocks/CalloutPanel";
+import MediaCarouselBlock from "./postblocks/MediaCarousel";
 import {
   DndContext,
   DragEndEvent,
@@ -143,6 +148,21 @@ const PageBuilder = ({
         break
       case "result search":
         el =<ResultSearchBlock page={page} setPage={setPage} element={element} index={index}/>
+        break
+      case "hero spotlight":
+        el =<HeroSpotlightBlock page={page} setPage={setPage} element={element} index={index}/>
+        break
+      case "section header":
+        el =<SectionHeaderBlock page={page} setPage={setPage} element={element} index={index}/>
+        break
+      case "cta strip":
+        el =<CtaStripBlock page={page} setPage={setPage} element={element} index={index}/>
+        break
+      case "callout panel":
+        el =<CalloutPanelBlock page={page} setPage={setPage} element={element} index={index}/>
+        break
+      case "media carousel":
+        el =<MediaCarouselBlock page={page} setPage={setPage} element={element} index={index}/>
         break
       case "row":
         el = (

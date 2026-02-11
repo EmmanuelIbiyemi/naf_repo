@@ -40,4 +40,14 @@ export const LANDING_THEMES: LandingThemeOption[] = [
       accent: "#34d399",
     },
   },
+  {
+    id: "naflms-classic",
+    label: "NAF Classic",
+    description: "Clean light theme with navy accents and soft neutral surfaces.",
+    preview: {
+      primary: "#0b1f38",
+      secondary: "#ffffff",
+      accent: "#1d4ed8",
+    },
+  },
 ];
