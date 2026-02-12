@@ -164,7 +164,11 @@ const PostPage = () => {
         media: [],
         position: blocks.length + 1,
         settings:
-          type === "row"
+          type === "grid"
+            ? {
+                gridColumns: 2,
+              }
+            : type === "row"
             ? {
                 layout: "row",
                 rowId: Math.random().toString(36).substring(2, 15),
@@ -183,6 +187,7 @@ const PostPage = () => {
               }
             : {},
         title: "",
+        columns: type === "grid" ? [{ blocks: [] }, { blocks: [] }] : undefined,
       };
 
       return {

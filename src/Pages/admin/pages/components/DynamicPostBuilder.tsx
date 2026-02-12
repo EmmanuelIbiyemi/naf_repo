@@ -45,6 +45,7 @@ import SectionHeaderBlock from "./postblocks/SectionHeader";
 import CtaStripBlock from "./postblocks/CtaStrip";
 import CalloutPanelBlock from "./postblocks/CalloutPanel";
 import MediaCarouselBlock from "./postblocks/MediaCarousel";
+import GridBlock from "./postblocks/GridBlock";
 import {
   DndContext,
   DragEndEvent,
@@ -172,6 +173,9 @@ const PageBuilder = ({
         break
       case "media carousel":
         el =<MediaCarouselBlock page={page} setPage={setPage} element={element} index={index}/>
+        break
+      case "grid":
+        el =<GridBlock page={page} setPage={setPage} element={element} index={index} onSelectBlock={onSelectBlock}/>
         break
       case "row":
         el = (

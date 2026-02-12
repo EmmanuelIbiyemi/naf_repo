@@ -20,6 +20,13 @@ export type BlockSettings = {
   textAlign?: "left" | "center" | "right";
   textColor?: string;
   resultSearch?: ResultSearchSettings;
+  // Grid settings
+  gridColumns?: 1 | 2;
+  columnIndex?: number; // Which column this block belongs to within its parent grid
+};
+
+export type GridColumn = {
+  blocks: BlockType[];
 };
 
 export type ResultSearchScope = {
@@ -77,4 +84,6 @@ export type BlockType = {
   title: string;
   type: string;
   description?: string;
+  // For grid blocks: contains columns with nested blocks
+  columns?: GridColumn[];
 };
