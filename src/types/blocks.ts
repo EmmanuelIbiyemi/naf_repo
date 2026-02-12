@@ -19,6 +19,7 @@ export type BlockSettings = {
   columnWidth?: "1/2" | "1/3" | "2/3" | "1/4" | "3/4";
   textAlign?: "left" | "center" | "right";
   textColor?: string;
+  containerStyle?: "normal" | "card";
   resultSearch?: ResultSearchSettings;
   // Grid settings
   gridColumns?: 1 | 2;

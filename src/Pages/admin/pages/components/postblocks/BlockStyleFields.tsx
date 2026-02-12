@@ -1,4 +1,4 @@
-import { Box, Button, FormControl, MenuItem, Select, TextField, Typography } from "@mui/material";
+import { Box, FormControl, MenuItem, Select, TextField, Typography } from "@mui/material";
 import { BlockSettings, BlockType } from "../../../../../types/blocks";
 import { PostType } from "../../../../../types/posts";
 
@@ -17,23 +17,8 @@ const widthOptions: Array<{ label: string; value: BlockSettings["contentWidth"] 
 
 const backgroundPalette = ["#0b1f38", "#0f172a", "#111827", "#f8fafc", "#ffffff", "#d8a92a"];
 const textPalette = ["#ffffff", "#e2e8f0", "#f8fafc", "#0f172a", "#0b1f38", "#111827"];
-const columnWidthOptions: Array<{ label: string; value: BlockSettings["columnWidth"] }> = [
-  { label: "1/2", value: "1/2" },
-  { label: "1/3", value: "1/3" },
-  { label: "2/3", value: "2/3" },
-  { label: "1/4", value: "1/4" },
-  { label: "3/4", value: "3/4" },
-];
-
 const BlockStyleFields = ({ block, blocks, setPage }: Props) => {
   const settings = block.settings || {};
-  const rowOptions = Array.from(
-    new Set(
-      blocks
-        .map((b) => b.settings?.rowId)
-        .filter((rowId): rowId is string => Boolean(rowId))
-    )
-  );
 
   const updateSettings = (patch: Partial<BlockSettings>) => {
     setPage((prev) => {
@@ -54,11 +39,6 @@ const BlockStyleFields = ({ block, blocks, setPage }: Props) => {
     updateSettings({ [key]: Number.isFinite(parsed) ? parsed : undefined } as Partial<BlockSettings>);
   };
 
-  const handleCreateRow = () => {
-    const newRowId = `row-${Math.random().toString(36).slice(2, 8)}`;
-    updateSettings({ layout: "row", rowId: newRowId });
-  };
-
   return (
     <Box
       sx={{
@@ -72,62 +52,17 @@ const BlockStyleFields = ({ block, blocks, setPage }: Props) => {
       <Typography variant="subtitle2">Appearance</Typography>
       <FormControl fullWidth>
         <Select
-          value={settings.layout || "stack"}
+          value={settings.containerStyle || "normal"}
           onChange={(event) => {
-            const newLayout = event.target.value as BlockSettings["layout"];
-            const patch: Partial<BlockSettings> = { layout: newLayout };
-            if (newLayout === "row" && !settings.rowId) {
-              patch.rowId = `row-${Math.random().toString(36).slice(2, 8)}`;
-            }
-            updateSettings(patch);
+            const nextStyle = event.target.value as BlockSettings["containerStyle"];
+            updateSettings({ containerStyle: nextStyle });
           }}
           size="small"
         >
-          <MenuItem value="stack">Stacked</MenuItem>
-          <MenuItem value="row">Row (horizontal)</MenuItem>
+          <MenuItem value="normal">Normal</MenuItem>
+          <MenuItem value="card">Card</MenuItem>
         </Select>
       </FormControl>
-      {settings.layout === "row" ? (
-        <Box sx={{ display: "grid", gap: "0.75rem" }}>
-          <Box sx={{ display: "grid", gap: "0.5rem", gridTemplateColumns: "1fr auto" }}>
-            <FormControl fullWidth>
-              <Select
-                displayEmpty
-                value={settings.rowId || ""}
-                onChange={(event) => updateSettings({ rowId: event.target.value })}
-                size="small"
-              >
-                <MenuItem value="">Select a row</MenuItem>
-                {rowOptions.map((rowId) => (
-                  <MenuItem key={rowId} value={rowId}>
-                    {rowId}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-            <Button variant="outlined" size="small" onClick={handleCreateRow}>
-              New Row
-            </Button>
-          </Box>
-          <FormControl fullWidth>
-            <Select
-              value={settings.columnWidth || "1/2"}
-              onChange={(event) =>
-                updateSettings({
-                  columnWidth: event.target.value as BlockSettings["columnWidth"],
-                })
-              }
-              size="small"
-            >
-              {columnWidthOptions.map((option) => (
-                <MenuItem key={option.value} value={option.value}>
-                  {option.label}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-        </Box>
-      ) : null}
       <FormControl fullWidth>
         <Select
           value={settings.contentWidth || "default"}

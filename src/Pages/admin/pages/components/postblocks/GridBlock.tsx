@@ -1,6 +1,7 @@
 import {
   Box,
   Dialog,
+  DialogContent,
   FormControl,
   IconButton,
   MenuItem,
@@ -470,10 +471,16 @@ const GridBlock = ({ page, setPage, element, onSelectBlock }: Props) => {
         onClose={handleCloseEditor}
         fullWidth
         maxWidth="md"
+        scroll="paper"
+        PaperProps={{
+          sx: {
+            maxHeight: "90vh",
+          },
+        }}
       >
-        <Box
+        <DialogContent
+          dividers
           sx={{
-            padding: "1.5rem",
             display: "grid",
             gap: "1rem",
             ".move_up_btn, .move_down_btn, .delete_btn": { display: "none" },
@@ -493,11 +500,11 @@ const GridBlock = ({ page, setPage, element, onSelectBlock }: Props) => {
               index={activePath?.blockIndex ?? 0}
               page={gridPage}
               setPage={setGridPage}
-              showAppearance={false}
+              showAppearance
               disableApiSync
             />
           ) : null}
-        </Box>
+        </DialogContent>
       </Dialog>
     </Box>
   );
