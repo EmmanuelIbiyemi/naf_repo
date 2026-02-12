@@ -1,15 +1,15 @@
 import {
-    Box,
-    FormControl,
-    MenuItem,
-    SelectChangeEvent,
-    TextField,
-    Typography,
-  } from "@mui/material";
-  import { BlockType } from "../../../../../types/blocks";
-  import { useEffect } from "react";
-  import { PostType } from "../../../../../types/posts";
-  import { ActionButtons } from ".././ActionButtons";
+  Box,
+  FormControl,
+  MenuItem,
+  SelectChangeEvent,
+  TextField,
+  Typography,
+} from "@mui/material";
+import { BlockType } from "../../../../../types/blocks";
+import { useEffect } from "react";
+import { PostType } from "../../../../../types/posts";
+import { ActionButtons } from ".././ActionButtons";
 import { useGetPostCategoriesQuery } from "../../../../../store/api/posts.api";
   
   const capitalizeText = (text: string) => {
@@ -31,8 +31,6 @@ import { useGetPostCategoriesQuery } from "../../../../../store/api/posts.api";
       page: 1,
       per_page: 1000
     })
-
-    console.log('CATs: ', categories);
 
     const categoryElements =
     categories?.categories.map((category) => (
@@ -69,6 +67,21 @@ import { useGetPostCategoriesQuery } from "../../../../../store/api/posts.api";
         const newBlock: BlockType = {
           ...foundBlock,
           content: e.target.value
+        };
+        updateBlock(newBlock);
+      }
+    };
+
+    const handleTextChange = (
+      field: keyof BlockType,
+      value: string,
+      randomId: string | null | undefined
+    ) => {
+      const foundBlock = page.blocks.find((block) => block.randomId === randomId);
+      if (foundBlock) {
+        const newBlock: BlockType = {
+          ...foundBlock,
+          [field]: value,
         };
         updateBlock(newBlock);
       }
@@ -118,6 +131,30 @@ import { useGetPostCategoriesQuery } from "../../../../../store/api/posts.api";
                 >
                 {categoryElements}
                 </TextField>
+                <TextField
+                  label="Section title"
+                  value={element.title || ""}
+                  onChange={(e) => handleTextChange("title", e.target.value, element.randomId)}
+                />
+                <TextField
+                  label="Section description"
+                  value={element.description || ""}
+                  onChange={(e) => handleTextChange("description", e.target.value, element.randomId)}
+                  multiline
+                  minRows={3}
+                />
+                <TextField
+                  label="View all label"
+                  value={element.caption || ""}
+                  onChange={(e) => handleTextChange("caption", e.target.value, element.randomId)}
+                  placeholder="View all"
+                />
+                <TextField
+                  label="View all link"
+                  value={element.link || ""}
+                  onChange={(e) => handleTextChange("link", e.target.value, element.randomId)}
+                  placeholder="Leave empty to link to the category page"
+                />
               </FormControl>
             </Box>
           );
