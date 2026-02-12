@@ -123,6 +123,14 @@ const BlockStyleFields = ({ block, blocks, setPage }: Props) => {
           onChange={handleNumberChange("paddingBottom")}
         />
       </Box>
+      <TextField
+        label="Border radius (px)"
+        size="small"
+        type="number"
+        inputProps={{ min: 0 }}
+        value={settings.borderRadius ?? ""}
+        onChange={handleNumberChange("borderRadius")}
+      />
     </Box>
   );
 };
