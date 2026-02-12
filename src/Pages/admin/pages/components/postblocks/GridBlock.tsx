@@ -8,6 +8,7 @@ import {
   Typography,
 } from "@mui/material";
 import { useMemo, useState, useEffect } from "react";
+import { useDroppable } from "@dnd-kit/core";
 import { BlockType } from "../../../../../types/blocks";
 import { PostType } from "../../../../../types/posts";
 import { ActionButtons } from "../ActionButtons";
@@ -26,6 +27,37 @@ type Props = {
 type ActiveGridPath = {
   columnIndex: number;
   blockIndex: number;
+};
+
+type GridColumnSlotProps = {
+  id: string;
+  onDrop: (event: React.DragEvent<HTMLDivElement>) => void;
+  children: React.ReactNode;
+};
+
+const GridColumnSlot = ({ id, onDrop, children }: GridColumnSlotProps) => {
+  const { setNodeRef, isOver } = useDroppable({ id });
+
+  return (
+    <Box
+      ref={setNodeRef}
+      sx={{
+        border: "2px dashed rgba(0,0,0,0.1)",
+        borderRadius: "8px",
+        padding: "1rem",
+        minHeight: "150px",
+        backgroundColor: isOver ? "rgba(43, 135, 251, 0.08)" : "rgba(0,0,0,0.01)",
+        borderColor: isOver ? "rgba(43, 135, 251, 1)" : "rgba(0,0,0,0.1)",
+      }}
+      onDragOver={(event) => {
+        event.preventDefault();
+        event.dataTransfer.dropEffect = "move";
+      }}
+      onDrop={onDrop}
+    >
+      {children}
+    </Box>
+  );
 };
 
 const GridBlock = ({ page, setPage, element, onSelectBlock }: Props) => {
@@ -90,6 +122,63 @@ const GridBlock = ({ page, setPage, element, onSelectBlock }: Props) => {
       const updatedBlocks = prev.blocks.map((block) =>
         block.randomId === element.randomId ? updatedBlock : block
       );
+      return { ...prev, blocks: updatedBlocks };
+    });
+  };
+
+  const handleDropBlock = (event: React.DragEvent<HTMLDivElement>, columnIndex: number) => {
+    event.preventDefault();
+    const draggedId =
+      event.dataTransfer.getData("application/x-naf-block-id") ||
+      event.dataTransfer.getData("text/plain");
+    if (!draggedId) return;
+
+    setPage((prev) => {
+      if (!prev) return prev;
+      const gridIndex = prev.blocks.findIndex((block) => block.randomId === element.randomId);
+      if (gridIndex === -1) return prev;
+      const draggedIndex = prev.blocks.findIndex((block) => {
+        const id = block.randomId ?? (block.id ? String(block.id) : null);
+        return id === draggedId;
+      });
+      if (draggedIndex === -1) return prev;
+
+      const draggedBlock = prev.blocks[draggedIndex];
+      if (draggedBlock.randomId === element.randomId) return prev;
+
+      const currentGrid = prev.blocks[gridIndex];
+      const updatedColumns = [...(currentGrid.columns || [])];
+      if (!updatedColumns[columnIndex]) {
+        updatedColumns[columnIndex] = { blocks: [] };
+      }
+
+      const nextSettings = { ...(draggedBlock.settings || {}) };
+      if (nextSettings.layout === "row") {
+        delete nextSettings.layout;
+        delete nextSettings.rowId;
+        delete nextSettings.columnWidth;
+      }
+      nextSettings.columnIndex = columnIndex;
+
+      const nestedBlock: BlockType = {
+        ...draggedBlock,
+        settings: nextSettings,
+      };
+
+      updatedColumns[columnIndex] = {
+        blocks: [...updatedColumns[columnIndex].blocks, nestedBlock],
+      };
+
+      const updatedGrid: BlockType = {
+        ...currentGrid,
+        columns: updatedColumns,
+      };
+
+      const remainingBlocks = prev.blocks.filter((_, idx) => idx !== draggedIndex);
+      const updatedBlocks = remainingBlocks.map((block) =>
+        block.randomId === updatedGrid.randomId ? updatedGrid : block
+      );
+
       return { ...prev, blocks: updatedBlocks };
     });
   };
@@ -222,16 +311,12 @@ const GridBlock = ({ page, setPage, element, onSelectBlock }: Props) => {
       >
         {Array.from({ length: columnCount }, (_, columnIndex) => {
           const columnBlocks = element.columns?.[columnIndex]?.blocks || [];
+          const gridId = element.randomId ?? (element.id ? String(element.id) : "grid");
           return (
-            <Box
+            <GridColumnSlot
               key={columnIndex}
-              sx={{
-                border: "2px dashed rgba(0,0,0,0.1)",
-                borderRadius: "8px",
-                padding: "1rem",
-                minHeight: "150px",
-                backgroundColor: "rgba(0,0,0,0.01)",
-              }}
+              id={`grid-column:${gridId}:${columnIndex}`}
+              onDrop={(event) => handleDropBlock(event, columnIndex)}
             >
               <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 1 }}>
                 <Typography variant="caption" sx={{ fontWeight: 600, color: "text.secondary" }}>
@@ -295,7 +380,7 @@ const GridBlock = ({ page, setPage, element, onSelectBlock }: Props) => {
                   <Typography variant="caption">Empty column - click "Add Block" to add content</Typography>
                 </Box>
               )}
-            </Box>
+            </GridColumnSlot>
           );
         })}
       </Box>

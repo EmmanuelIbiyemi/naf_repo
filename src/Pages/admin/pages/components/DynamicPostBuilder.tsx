@@ -95,6 +95,13 @@ const PageBuilder = ({
     dragHandleProps?: React.HTMLAttributes<HTMLDivElement>
   ) => {
     let el;
+    const blockDragId = element.randomId ?? (element.id ? String(element.id) : null);
+    const handleBlockDragStart = (event: React.DragEvent<HTMLDivElement>) => {
+      if (!blockDragId) return;
+      event.dataTransfer.setData("application/x-naf-block-id", blockDragId);
+      event.dataTransfer.setData("text/plain", blockDragId);
+      event.dataTransfer.effectAllowed = "move";
+    };
 
     switch (element.type) {
       case "heading":
@@ -192,8 +199,15 @@ const PageBuilder = ({
         className="element"
         sx={element.randomId === selectedBlockId ? selectedBlockStyles : undefined}
         onClick={() => onSelectBlock?.(element)}
+        draggable={Boolean(blockDragId) && element.type !== "grid"}
+        onDragStart={handleBlockDragStart}
       >
-        <Box sx={dragHandleStyles} {...dragHandleProps}>
+        <Box
+          sx={dragHandleStyles}
+          {...dragHandleProps}
+          draggable={Boolean(blockDragId) && element.type !== "grid"}
+          onDragStart={handleBlockDragStart}
+        >
           <DragIndicator fontSize="small" />
         </Box>
         {el}
@@ -509,7 +523,66 @@ const PageBuilder = ({
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
-    if (!over || active.id === over.id) return;
+    if (!over) return;
+
+    if (typeof over.id === "string" && over.id.startsWith("grid-column:")) {
+      const [, gridId, columnIndexStr] = over.id.split(":");
+      const columnIndex = Number(columnIndexStr);
+      const group = blockGroups.find((item) => item.id === active.id);
+      if (!group || group.type !== "block") return;
+      const draggedBlock = group.blocks[0];
+      if (draggedBlock.type === "grid") return;
+
+      setPage((prev) => {
+        if (!prev) return prev;
+        const gridIndex = prev.blocks.findIndex((block) => {
+          const id = block.randomId ?? (block.id ? String(block.id) : null);
+          return id === gridId;
+        });
+        if (gridIndex === -1) return prev;
+
+        const draggedIndex = prev.blocks.findIndex((block) => {
+          const id = block.randomId ?? (block.id ? String(block.id) : null);
+          const draggedId = draggedBlock.randomId ?? (draggedBlock.id ? String(draggedBlock.id) : null);
+          return id === draggedId;
+        });
+        if (draggedIndex === -1) return prev;
+
+        const currentGrid = prev.blocks[gridIndex];
+        const updatedColumns = [...(currentGrid.columns || [])];
+        if (!updatedColumns[columnIndex]) {
+          updatedColumns[columnIndex] = { blocks: [] };
+        }
+
+        const nextSettings = { ...(draggedBlock.settings || {}) };
+        if (nextSettings.layout === "row") {
+          delete nextSettings.layout;
+          delete nextSettings.rowId;
+          delete nextSettings.columnWidth;
+        }
+        nextSettings.columnIndex = columnIndex;
+
+        updatedColumns[columnIndex] = {
+          blocks: [...updatedColumns[columnIndex].blocks, { ...draggedBlock, settings: nextSettings }],
+        };
+
+        const updatedGrid: BlockType = { ...currentGrid, columns: updatedColumns };
+        const remainingBlocks = prev.blocks.filter((_, idx) => idx !== draggedIndex);
+        const replacedBlocks = remainingBlocks.map((block) =>
+          block.randomId === updatedGrid.randomId ? updatedGrid : block
+        );
+        const normalizedBlocks = replacedBlocks.map((block, index) => ({
+          ...block,
+          position: index + 1,
+        }));
+
+        return { ...prev, blocks: normalizedBlocks };
+      });
+
+      return;
+    }
+
+    if (active.id === over.id) return;
 
     const oldIndex = blockGroups.findIndex((group) => group.id === active.id);
     const newIndex = blockGroups.findIndex((group) => group.id === over.id);
