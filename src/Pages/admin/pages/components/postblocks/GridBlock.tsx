@@ -133,7 +133,11 @@ const GridBlock = ({ page, setPage, element, onSelectBlock }: Props) => {
     });
   };
 
-  const handleDropBlock = (event: React.DragEvent<HTMLDivElement>, columnIndex: number) => {
+  const handleDropBlock = (
+    event: React.DragEvent<HTMLDivElement>,
+    columnIndex: number,
+    targetBlockIndex?: number
+  ) => {
     event.preventDefault();
     const draggedId =
       event.dataTransfer.getData("application/x-naf-block-id") ||
@@ -155,8 +159,6 @@ const GridBlock = ({ page, setPage, element, onSelectBlock }: Props) => {
         const movingBlock = sourceColumn.blocks[gridPayload.blockIndex];
         if (!movingBlock) return prev;
 
-        if (gridPayload.columnIndex === columnIndex) return prev;
-
         updatedColumns[gridPayload.columnIndex] = {
           blocks: sourceColumn.blocks.filter((_, idx) => idx !== gridPayload.blockIndex),
         };
@@ -165,9 +167,14 @@ const GridBlock = ({ page, setPage, element, onSelectBlock }: Props) => {
           updatedColumns[columnIndex] = { blocks: [] };
         }
 
-        updatedColumns[columnIndex] = {
-          blocks: [...updatedColumns[columnIndex].blocks, movingBlock],
-        };
+        const targetBlocks = [...updatedColumns[columnIndex].blocks];
+        let insertIndex =
+          typeof targetBlockIndex === "number" ? targetBlockIndex : targetBlocks.length;
+        if (gridPayload.columnIndex === columnIndex && gridPayload.blockIndex < insertIndex) {
+          insertIndex -= 1;
+        }
+        targetBlocks.splice(insertIndex, 0, movingBlock);
+        updatedColumns[columnIndex] = { blocks: targetBlocks };
 
         const updatedGrid: BlockType = {
           ...currentGrid,
@@ -408,6 +415,15 @@ const GridBlock = ({ page, setPage, element, onSelectBlock }: Props) => {
                       );
                       event.dataTransfer.setData("text/plain", `grid:${gridId}`);
                       event.dataTransfer.effectAllowed = "move";
+                    }}
+                    onDragOver={(event) => {
+                      event.preventDefault();
+                      event.dataTransfer.dropEffect = "move";
+                    }}
+                    onDrop={(event) => {
+                      event.preventDefault();
+                      event.stopPropagation();
+                      handleDropBlock(event, columnIndex, blockIndex);
                     }}
                     onClick={() => handleOpenEditor(columnIndex, blockIndex)}
                   >
