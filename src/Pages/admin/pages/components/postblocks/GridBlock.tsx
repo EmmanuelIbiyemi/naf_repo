@@ -1,16 +1,18 @@
 import {
   Box,
-  Button,
+  Dialog,
   FormControl,
   IconButton,
   MenuItem,
   Select,
   Typography,
 } from "@mui/material";
+import { useMemo, useState, useEffect } from "react";
 import { BlockType } from "../../../../../types/blocks";
 import { PostType } from "../../../../../types/posts";
 import { ActionButtons } from "../ActionButtons";
-import { Add, Delete } from "@mui/icons-material";
+import { Add, Delete, Close } from "@mui/icons-material";
+import BlockEditorPanel from "../BlockEditorPanel";
 
 type Props = {
   page: PostType;
@@ -21,7 +23,13 @@ type Props = {
   renderBlock?: (block: BlockType, columnIndex: number, blockIndex: number) => React.ReactNode;
 };
 
-const GridBlock = ({ setPage, element, onSelectBlock }: Props) => {
+type ActiveGridPath = {
+  columnIndex: number;
+  blockIndex: number;
+};
+
+const GridBlock = ({ page, setPage, element, onSelectBlock }: Props) => {
+  const [activePath, setActivePath] = useState<ActiveGridPath | null>(null);
 
   // Initialize columns if they don't exist
   if (!element.columns || element.columns.length === 0) {
@@ -107,6 +115,77 @@ const GridBlock = ({ setPage, element, onSelectBlock }: Props) => {
   };
 
   const columnCount = element.settings?.gridColumns || 1;
+  const gridBlocks = useMemo(
+    () => element.columns?.flatMap((column) => column.blocks) || [],
+    [element.columns]
+  );
+
+  const activeBlock = useMemo(() => {
+    if (!activePath) return null;
+    return element.columns?.[activePath.columnIndex]?.blocks?.[activePath.blockIndex] || null;
+  }, [activePath, element.columns]);
+
+  useEffect(() => {
+    if (activePath && !activeBlock) {
+      setActivePath(null);
+    }
+  }, [activePath, activeBlock]);
+
+  const handleOpenEditor = (columnIndex: number, blockIndex: number) => {
+    setActivePath({ columnIndex, blockIndex });
+    onSelectBlock?.(element);
+  };
+
+  const handleCloseEditor = () => setActivePath(null);
+
+  const gridPage: PostType = useMemo(
+    () => ({
+      ...page,
+      blocks: gridBlocks,
+    }),
+    [page, gridBlocks]
+  );
+
+  const setGridPage: React.Dispatch<React.SetStateAction<PostType>> = (nextState) => {
+    setPage((prev) => {
+      if (!prev) return prev;
+      const currentGridBlock =
+        prev.blocks.find((block) => block.randomId === element.randomId) || element;
+      const currentGridBlocks =
+        currentGridBlock?.columns?.flatMap((column) => column.blocks) || [];
+      const baseGridPage: PostType = { ...prev, blocks: currentGridBlocks };
+      const resolvedNext =
+        typeof nextState === "function" ? nextState(baseGridPage) : nextState;
+      const updatedBlocks = resolvedNext?.blocks || [];
+      const updatedById = new Map<string, BlockType>();
+      updatedBlocks.forEach((block) => {
+        const key = block.randomId ?? block.id;
+        if (key !== null && key !== undefined) {
+          updatedById.set(String(key), block);
+        }
+      });
+
+      const updatedColumns = (currentGridBlock.columns || []).map((column) => ({
+        ...column,
+        blocks: column.blocks.map((block) => {
+          const key = block.randomId ?? block.id;
+          const updated = key !== null && key !== undefined ? updatedById.get(String(key)) : null;
+          return updated || block;
+        }),
+      }));
+
+      const updatedBlock: BlockType = {
+        ...currentGridBlock,
+        columns: updatedColumns,
+      };
+
+      const updatedPageBlocks = prev.blocks.map((block) =>
+        block.randomId === element.randomId ? updatedBlock : block
+      );
+
+      return { ...prev, blocks: updatedPageBlocks };
+    });
+  };
 
   return (
     <Box sx={{ width: "100%" }} className="element">
@@ -180,7 +259,7 @@ const GridBlock = ({ setPage, element, onSelectBlock }: Props) => {
                         borderColor: "rgba(43, 135, 251, 1)",
                       },
                     }}
-                    onClick={() => onSelectBlock?.(block)}
+                    onClick={() => handleOpenEditor(columnIndex, blockIndex)}
                   >
                     <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                       <Typography variant="body2" sx={{ textTransform: "capitalize", fontWeight: 500 }}>
@@ -220,6 +299,40 @@ const GridBlock = ({ setPage, element, onSelectBlock }: Props) => {
           );
         })}
       </Box>
+      <Dialog
+        open={Boolean(activePath && activeBlock)}
+        onClose={handleCloseEditor}
+        fullWidth
+        maxWidth="md"
+      >
+        <Box
+          sx={{
+            padding: "1.5rem",
+            display: "grid",
+            gap: "1rem",
+            ".move_up_btn, .move_down_btn, .delete_btn": { display: "none" },
+          }}
+        >
+          <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+            <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
+              Edit Grid Block: {activeBlock?.type}
+            </Typography>
+            <IconButton onClick={handleCloseEditor} size="small">
+              <Close fontSize="small" />
+            </IconButton>
+          </Box>
+          {activeBlock ? (
+            <BlockEditorPanel
+              block={activeBlock}
+              index={activePath?.blockIndex ?? 0}
+              page={gridPage}
+              setPage={setGridPage}
+              showAppearance={false}
+              disableApiSync
+            />
+          ) : null}
+        </Box>
+      </Dialog>
     </Box>
   );
 };

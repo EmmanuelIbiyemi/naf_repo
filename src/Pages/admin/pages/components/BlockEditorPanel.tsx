@@ -33,9 +33,17 @@ type Props = {
   page: PostType;
   setPage: React.Dispatch<React.SetStateAction<PostType>>;
   showAppearance?: boolean;
+  disableApiSync?: boolean;
 };
 
-const BlockEditorPanel = ({ block, index, page, setPage, showAppearance = true }: Props) => {
+const BlockEditorPanel = ({
+  block,
+  index,
+  page,
+  setPage,
+  showAppearance = true,
+  disableApiSync = false,
+}: Props) => {
   let el: React.ReactNode = null;
   const isRowBlock = block.settings?.layout === "row" && block.settings?.rowId;
 
@@ -51,10 +59,26 @@ const BlockEditorPanel = ({ block, index, page, setPage, showAppearance = true }
     case "image":
     case "video":
     case "map":
-      el = <MediaBlock page={page} setPage={setPage} element={block} index={index} />;
+      el = (
+        <MediaBlock
+          page={page}
+          setPage={setPage}
+          element={block}
+          index={index}
+          disableApiSync={disableApiSync}
+        />
+      );
       break;
     case "banner":
-      el = <BannerBlock page={page} setPage={setPage} element={block} index={index} />;
+      el = (
+        <BannerBlock
+          page={page}
+          setPage={setPage}
+          element={block}
+          index={index}
+          disableApiSync={disableApiSync}
+        />
+      );
       break;
     case "link page":
       el = <LinkPageBlock page={page} setPage={setPage} element={block} index={index} />;
@@ -74,7 +98,15 @@ const BlockEditorPanel = ({ block, index, page, setPage, showAppearance = true }
       break;
     case "left card":
     case "right card":
-      el = <CardBlock page={page} setPage={setPage} element={block} index={index} />;
+      el = (
+        <CardBlock
+          page={page}
+          setPage={setPage}
+          element={block}
+          index={index}
+          disableApiSync={disableApiSync}
+        />
+      );
       break;
     case "post carousel":
       el = <PostCarouselBlock page={page} setPage={setPage} element={block} index={index} />;
@@ -101,7 +133,15 @@ const BlockEditorPanel = ({ block, index, page, setPage, showAppearance = true }
       el = <ResultSearchBlock page={page} setPage={setPage} element={block} index={index} />;
       break;
     case "hero spotlight":
-      el = <HeroSpotlightBlock page={page} setPage={setPage} element={block} index={index} />;
+      el = (
+        <HeroSpotlightBlock
+          page={page}
+          setPage={setPage}
+          element={block}
+          index={index}
+          disableApiSync={disableApiSync}
+        />
+      );
       break;
     case "section header":
       el = <SectionHeaderBlock page={page} setPage={setPage} element={block} index={index} />;

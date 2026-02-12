@@ -24,7 +24,8 @@ import { useUpdatePostMutation } from "../../../../../store/api/posts.api";
     page: PostType;
     setPage: React.Dispatch<React.SetStateAction<PostType>>;
     element: BlockType,
-    index: number
+    index: number;
+    disableApiSync?: boolean;
   };
 
   type Media = {
@@ -33,7 +34,7 @@ import { useUpdatePostMutation } from "../../../../../store/api/posts.api";
       modal: boolean;
     };
   
-  const MediaBlock = ({ page, setPage, element, index }: Props) => {
+  const MediaBlock = ({ page, setPage, element, index, disableApiSync = false }: Props) => {
 
     const [updatePost] = useUpdatePostMutation();
 
@@ -100,15 +101,27 @@ import { useUpdatePostMutation } from "../../../../../store/api/posts.api";
                     };
                   return b;
                 });
-        
-                const payload: PostCreateType = {
-                  ...page,
-                  blocks: blocks,
-                  categories: page.categories?.map((cat) => cat.name),
-                  tags: page.tags?.map((cat) => cat.name),
-                };
-        
-                updatePost(payload).unwrap();
+
+                setPage((prev) => {
+                  if (!prev) return prev;
+                  return {
+                    ...prev,
+                    blocks: prev.blocks.map((b) =>
+                      b.id === blockId ? { ...b, media: [media] } : b
+                    ),
+                  };
+                });
+
+                if (!disableApiSync) {
+                  const payload: PostCreateType = {
+                    ...page,
+                    blocks: blocks,
+                    categories: page.categories?.map((cat) => cat.name),
+                    tags: page.tags?.map((cat) => cat.name),
+                  };
+
+                  updatePost(payload).unwrap();
+                }
               } catch (error) {
                 console.log(error);
               }

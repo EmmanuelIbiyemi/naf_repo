@@ -85,11 +85,13 @@ const HeroSpotlightBlock = ({
   setPage,
   element,
   index,
+  disableApiSync = false,
 }: {
   page: PostType;
   setPage: React.Dispatch<React.SetStateAction<PostType>>;
   element: BlockType;
   index: number;
+  disableApiSync?: boolean;
 }) => {
   const [updatePost] = useUpdatePostMutation();
   const [config, setConfig] = useState<HeroConfig>({});
@@ -149,14 +151,26 @@ const HeroSpotlightBlock = ({
           return b;
         });
 
-        const payload: PostCreateType = {
-          ...page,
-          blocks: blocks,
-          categories: page.categories?.map((cat) => cat.name),
-          tags: page.tags?.map((cat) => cat.name),
-        };
+        setPage((prev) => {
+          if (!prev) return prev;
+          return {
+            ...prev,
+            blocks: prev.blocks.map((b) =>
+              b.id === blockId ? { ...b, media: [media] } : b
+            ),
+          };
+        });
 
-        updatePost(payload).unwrap();
+        if (!disableApiSync) {
+          const payload: PostCreateType = {
+            ...page,
+            blocks: blocks,
+            categories: page.categories?.map((cat) => cat.name),
+            tags: page.tags?.map((cat) => cat.name),
+          };
+
+          updatePost(payload).unwrap();
+        }
       } catch (error) {
         console.log(error);
       }
