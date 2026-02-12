@@ -3,16 +3,24 @@ import {
   Button,
   IconButton,
   SxProps,
+  Theme,
   Typography,
 } from "@mui/material";
-import { ArrowDownward, ArrowUpward, DragIndicator } from "@mui/icons-material";
+import {
+  ArrowDownward,
+  ArrowUpward,
+  DragIndicator,
+  ExpandLess,
+  ExpandMore,
+} from "@mui/icons-material";
 import { BlockSettings, BlockType } from "../../../../types/blocks";
 import { PostType } from "../../../../types/posts";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useDeletePostBlockMutation } from "../../../../store/api/posts.api";
 import { useAppDispatch } from "../../../../store/hooks";
 import { setBuilderLoading } from "../../../../store/app.slice";
 import DeleteIcon from "../../../../assets/deleteIcon";
+import { ActionButtons } from "./ActionButtons";
 import HeadingBlock from "./postblocks/Heading";
 import MediaBlock from "./postblocks/Media";
 import BannerBlock from "./postblocks/Banner";
@@ -71,6 +79,7 @@ const PageBuilder = ({
   onReorder,
 }: Props) => {
   const [draggedBlockId, setDraggedBlockId] = useState<string | null>(null);
+  const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set());
   const dispatch = useAppDispatch();
   const [deleteBlock] = useDeletePostBlockMutation();
 
@@ -462,6 +471,38 @@ const PageBuilder = ({
     return groups;
   }, [page.blocks]);
 
+  useEffect(() => {
+    setExpandedGroups((prev) => {
+      const next = new Set<string>();
+      const groupIds = new Set(blockGroups.map((group) => group.id));
+      for (const id of prev) {
+        if (groupIds.has(id)) next.add(id);
+      }
+      return next;
+    });
+  }, [blockGroups]);
+
+  const toggleGroup = (id: string, forceExpanded?: boolean) => {
+    setExpandedGroups((prev) => {
+      const next = new Set(prev);
+      const shouldExpand = forceExpanded ?? !next.has(id);
+      if (shouldExpand) {
+        next.add(id);
+      } else {
+        next.delete(id);
+      }
+      return next;
+    });
+  };
+
+  const formatBlockLabel = (value?: string) => {
+    if (!value) return "Block";
+    return value
+      .split(" ")
+      .map((part) => (part ? part[0].toUpperCase() + part.slice(1) : part))
+      .join(" ");
+  };
+
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
     if (!over || active.id === over.id) return;
@@ -485,12 +526,13 @@ const PageBuilder = ({
   const renderedBlocks = blockGroups.map((group) => (
     <SortableItem key={group.id} id={group.id}>
       {({ attributes, listeners }) => {
+        const isExpanded = expandedGroups.has(group.id);
         if (group.type === "row" && group.rowId) {
           const rowId = group.rowId;
           const canAdd = canAddRowBlock(group.blocks, rowId, "1/2");
           return (
             <Box sx={rowWrapperStyles}>
-              <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <Box sx={rowHeaderStyles}>
                 <Box sx={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
                   <Box sx={dragHandleStyles} {...attributes} {...listeners}>
                     <DragIndicator fontSize="small" />
@@ -498,18 +540,37 @@ const PageBuilder = ({
                   <Typography variant="caption" sx={{ color: "text.secondary" }}>
                     Row: {rowId}
                   </Typography>
+                  <Typography variant="caption" sx={{ color: "text.secondary" }}>
+                    • {group.blocks.length} block{group.blocks.length === 1 ? "" : "s"}
+                  </Typography>
                 </Box>
                 <Box sx={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
                   <IconButton
                     size="small"
-                    onClick={() => moveRowGroup(rowId, "up")}
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      toggleGroup(group.id);
+                    }}
+                    aria-label={isExpanded ? "Collapse row" : "Expand row"}
+                  >
+                    {isExpanded ? <ExpandLess fontSize="small" /> : <ExpandMore fontSize="small" />}
+                  </IconButton>
+                  <IconButton
+                    size="small"
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      moveRowGroup(rowId, "up");
+                    }}
                     aria-label="Move row up"
                   >
                     <ArrowUpward fontSize="small" />
                   </IconButton>
                   <IconButton
                     size="small"
-                    onClick={() => moveRowGroup(rowId, "down")}
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      moveRowGroup(rowId, "down");
+                    }}
                     aria-label="Move row down"
                   >
                     <ArrowDownward fontSize="small" />
@@ -519,80 +580,149 @@ const PageBuilder = ({
                     variant="outlined"
                     disabled={!canAdd}
                     title={canAdd ? "Add block" : "Row is full"}
-                    onClick={() => handleAddBlockToRow(rowId, group.endIndex + 1)}
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      handleAddBlockToRow(rowId, group.endIndex + 1);
+                    }}
                   >
                     Add Block
                   </Button>
                 </Box>
               </Box>
-              <Box
-                sx={{
-                  display: "grid",
-                  gap: "1rem",
-                  gridAutoFlow: { xs: "row", md: "column" },
-                  gridAutoColumns: { md: "minmax(220px, 1fr)" },
-                  overflowX: { md: "auto" },
-                  paddingBottom: { md: "0.5rem" },
-                  alignItems: "stretch",
-                }}
-                onDragOver={(event) => event.preventDefault()}
-                onDrop={() => handleRowDrop(rowId)}
-              >
-                {group.blocks.map((rowBlock, rowIndex) => {
-                  const percent = getColumnWidthPercent(rowBlock.settings?.columnWidth);
-                  return (
-                    <Box
-                      key={`row-item-${rowBlock.randomId || rowBlock.id || rowIndex}`}
-                      sx={{
-                        minWidth: { md: `${percent}%` },
-                        maxWidth: { xs: "100%", md: `${percent}%` },
-                      }}
-                    >
+              {isExpanded ? (
+                <Box
+                  sx={{
+                    display: "grid",
+                    gap: "1rem",
+                    gridAutoFlow: { xs: "row", md: "column" },
+                    gridAutoColumns: { md: "minmax(220px, 1fr)" },
+                    overflowX: { md: "auto" },
+                    paddingBottom: { md: "0.5rem" },
+                    alignItems: "stretch",
+                  }}
+                  onDragOver={(event) => event.preventDefault()}
+                  onDrop={() => handleRowDrop(rowId)}
+                >
+                  {group.blocks.map((rowBlock, rowIndex) => {
+                    const percent = getColumnWidthPercent(rowBlock.settings?.columnWidth);
+                    return (
                       <Box
+                        key={`row-item-${rowBlock.randomId || rowBlock.id || rowIndex}`}
                         sx={{
-                          ...rowCardStyles,
-                          ...(rowBlock.randomId === selectedBlockId ? rowCardSelectedStyles : {}),
-                        } as SxProps}
-                        draggable
-                        onDragStart={() => handleRowDragStart(rowBlock.randomId)}
-                        onDragEnd={() => setDraggedBlockId(null)}
-                        onDragOver={(event) => event.preventDefault()}
-                        onDrop={() => handleRowDrop(rowId, rowBlock.randomId || undefined)}
-                        onClick={() => onSelectBlock?.(rowBlock)}
+                          minWidth: { md: `${percent}%` },
+                          maxWidth: { xs: "100%", md: `${percent}%` },
+                        }}
                       >
-                        <Box sx={{ display: "flex", alignItems: "flex-start", gap: "0.5rem" }}>
-                          <Typography
-                            variant="subtitle2"
-                            sx={{ textTransform: "capitalize", flex: 1, minWidth: 0 }}
-                          >
-                            {rowBlock.type === "row" ? "Empty Column" : rowBlock.type}
+                        <Box
+                          sx={{
+                            ...rowCardStyles,
+                            ...(rowBlock.randomId === selectedBlockId ? rowCardSelectedStyles : {}),
+                          } as SxProps}
+                          draggable
+                          onDragStart={() => handleRowDragStart(rowBlock.randomId)}
+                          onDragEnd={() => setDraggedBlockId(null)}
+                          onDragOver={(event) => event.preventDefault()}
+                          onDrop={() => handleRowDrop(rowId, rowBlock.randomId || undefined)}
+                          onClick={() => onSelectBlock?.(rowBlock)}
+                        >
+                          <Box sx={{ display: "flex", alignItems: "flex-start", gap: "0.5rem" }}>
+                            <Typography
+                              variant="subtitle2"
+                              sx={{ textTransform: "capitalize", flex: 1, minWidth: 0 }}
+                            >
+                              {rowBlock.type === "row" ? "Empty Column" : rowBlock.type}
+                            </Typography>
+                            <IconButton
+                              size="small"
+                              className="delete_btn"
+                              sx={{ alignSelf: "flex-start" }}
+                              onClick={(event) => {
+                                event.stopPropagation();
+                                handleDeleteRowBlock(rowBlock);
+                              }}
+                            >
+                              <DeleteIcon />
+                            </IconButton>
+                          </Box>
+                          <Typography variant="caption" color="text.secondary">
+                            Width: {rowBlock.settings?.columnWidth || "1/2"}
                           </Typography>
-                          <IconButton
-                            size="small"
-                            className="delete_btn"
-                            sx={{ alignSelf: "flex-start" }}
-                            onClick={(event) => {
-                              event.stopPropagation();
-                              handleDeleteRowBlock(rowBlock);
-                            }}
-                          >
-                            <DeleteIcon />
-                          </IconButton>
                         </Box>
-                        <Typography variant="caption" color="text.secondary">
-                          Width: {rowBlock.settings?.columnWidth || "1/2"}
-                        </Typography>
                       </Box>
-                    </Box>
-                  );
-                })}
-              </Box>
+                    );
+                  })}
+                </Box>
+              ) : null}
             </Box>
           );
         }
 
         const block = group.blocks[0];
-        return displayEl(block, group.startIndex, { ...attributes, ...listeners });
+        if (!isExpanded) {
+          const isSelected = block.randomId === selectedBlockId;
+          return (
+            <Box
+              sx={{
+                border: "1px solid rgba(0,0,0,0.08)",
+                borderRadius: "12px",
+                padding: "0.75rem 1rem",
+                display: "flex",
+                alignItems: "center",
+                gap: "0.75rem",
+                backgroundColor: isSelected ? "rgba(43, 135, 251, 0.04)" : "#fff",
+                boxShadow: "0 1px 2px rgba(15, 23, 42, 0.08)",
+                cursor: "pointer",
+                marginBottom: "1rem",
+                borderColor: isSelected ? "rgba(43, 135, 251, 1)" : "rgba(0,0,0,0.08)",
+              }}
+              onClick={() => {
+                toggleGroup(group.id, true);
+                onSelectBlock?.(block);
+              }}
+            >
+              <Box sx={dragHandleStyles} {...attributes} {...listeners}>
+                <DragIndicator fontSize="small" />
+              </Box>
+              <Box sx={collapsedBlockContentStyles}>
+                <Typography variant="subtitle2">{formatBlockLabel(block.type)}</Typography>
+                <Typography variant="caption" color="text.secondary">
+                  Click to expand
+                </Typography>
+              </Box>
+              <Box
+                sx={{ display: "flex", alignItems: "center", gap: "0.35rem" }}
+                onClick={(event) => event.stopPropagation()}
+              >
+                <IconButton
+                  size="small"
+                  onClick={() => toggleGroup(group.id, true)}
+                  aria-label="Expand block"
+                >
+                  <ExpandMore fontSize="small" />
+                </IconButton>
+                <ActionButtons block={block} setPage={setPage} />
+              </Box>
+            </Box>
+          );
+        }
+
+        return (
+          <Box sx={expandedBlockWrapperStyles}>
+            <Box sx={collapseButtonWrapperStyles}>
+              <IconButton
+                size="small"
+                onClick={(event) => {
+                  event.stopPropagation();
+                  toggleGroup(group.id, false);
+                }}
+                aria-label="Collapse block"
+              >
+                <ExpandLess fontSize="small" />
+              </IconButton>
+            </Box>
+            {displayEl(block, group.startIndex, { ...attributes, ...listeners })}
+          </Box>
+        );
       }}
     </SortableItem>
   ));
@@ -635,7 +765,7 @@ const SortableItem = ({ id, children }: SortableItemProps) => {
   );
 };
 
-const formBuilderStyles: SxProps = {
+const formBuilderStyles: SxProps<Theme> = {
   padding: "1.5rem 1rem",
 
   ".element": {
@@ -666,7 +796,27 @@ const formBuilderStyles: SxProps = {
   },
 };
 
-const rowWrapperStyles: SxProps = {
+const collapsedBlockContentStyles: SxProps<Theme> = {
+  display: "grid",
+  gap: "0.15rem",
+  flex: 1,
+};
+
+const expandedBlockWrapperStyles: SxProps<Theme> = {
+  position: "relative",
+};
+
+const collapseButtonWrapperStyles: SxProps<Theme> = {
+  position: "absolute",
+  right: "0.75rem",
+  top: "0.75rem",
+  zIndex: 2,
+  backgroundColor: "#fff",
+  borderRadius: "999px",
+  boxShadow: "0 1px 2px rgba(15, 23, 42, 0.12)",
+};
+
+const rowWrapperStyles: SxProps<Theme> = {
   border: "1px dashed rgba(43, 135, 251, 0.6)",
   borderRadius: "var(--border-radius)",
   display: "grid",
@@ -675,7 +825,14 @@ const rowWrapperStyles: SxProps = {
   padding: "0.75rem",
 };
 
-const rowCardStyles: SxProps = {
+const rowHeaderStyles: SxProps<Theme> = {
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "center",
+  gap: "0.5rem",
+};
+
+const rowCardStyles: SxProps<Theme> = {
   border: "1px solid rgba(0,0,0,0.08)",
   borderRadius: "12px",
   display: "grid",
@@ -686,17 +843,17 @@ const rowCardStyles: SxProps = {
   cursor: "grab",
 };
 
-const selectedBlockStyles: SxProps = {
+const selectedBlockStyles: SxProps<Theme> = {
   borderColor: "rgba(43, 135, 251, 1)",
   backgroundColor: "rgba(43, 135, 251, 0.04)",
 };
 
-const rowCardSelectedStyles: SxProps = {
+const rowCardSelectedStyles: SxProps<Theme> = {
   borderColor: "rgba(43, 135, 251, 1)",
   boxShadow: "0 0 0 1px rgba(43, 135, 251, 0.35)",
 };
 
-const dragHandleStyles: SxProps = {
+const dragHandleStyles: SxProps<Theme> = {
   alignItems: "center",
   color: "rgba(148, 163, 184, 1)",
   cursor: "grab",
