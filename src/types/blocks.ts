@@ -34,6 +34,7 @@ export type ResultSearchScope = {
 
 export type ResultSearchSettings = {
   scopes?: ResultSearchScope[];
+  responseStyle?: "simple" | "detailed";
   showFields?: {
     session?: boolean;
     summary?: boolean;
@@ -44,6 +45,7 @@ export type ResultSearchSettings = {
     email?: boolean;
     matricNumber?: boolean;
     photo?: boolean;
+    courseInfo?: boolean;
   };
   summaryFields?: {
     cumulative_grade_point_average?: boolean;

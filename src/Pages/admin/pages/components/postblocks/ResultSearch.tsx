@@ -26,6 +26,7 @@ const defaultParticipantFields = {
   email: true,
   matricNumber: true,
   photo: true,
+  courseInfo: false,
 };
 const defaultSummaryFields = {
   cumulative_grade_point_average: true,
@@ -181,6 +182,24 @@ const ResultSearchBlock = ({ page, setPage, element, index }: Props) => {
             defaultValue={element.title}
             onBlur={(e) => handleTitleChange(e.target.value)}
           />
+        </FormControl>
+        <FormControl fullWidth>
+          <Typography variant="subtitle2" sx={{ marginBottom: "0.25rem" }}>
+            Response style
+          </Typography>
+          <Select
+            displayEmpty
+            value={resultSettings.responseStyle || "simple"}
+            onChange={(event) =>
+              updateResultSettings({
+                responseStyle: event.target.value as "simple" | "detailed",
+              })
+            }
+            size="small"
+          >
+            <MenuItem value="simple">Simple response</MenuItem>
+            <MenuItem value="detailed">Detailed response</MenuItem>
+          </Select>
         </FormControl>
         <Box sx={{ display: "grid", gap: "0.75rem", gridTemplateColumns: "1fr 1fr" }}>
           <FormControl fullWidth>
@@ -374,6 +393,22 @@ const ResultSearchBlock = ({ page, setPage, element, index }: Props) => {
                 />
               }
               label="Photo"
+            />
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={Boolean(participantFields.courseInfo)}
+                  onChange={(event) =>
+                    updateResultSettings({
+                      participantFields: {
+                        ...participantFields,
+                        courseInfo: event.target.checked,
+                      },
+                    })
+                  }
+                />
+              }
+              label="Program information"
             />
           </Box>
         ) : null}
