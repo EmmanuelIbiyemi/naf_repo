@@ -1,9 +1,6 @@
 import {
     Box,
     FormControl,
-    MenuItem,
-    Select,
-    SelectChangeEvent,
     TextField,
     Typography,
   } from "@mui/material";
@@ -11,6 +8,7 @@ import {
   import { ChangeEvent, useEffect } from "react";
   import { PostType } from "../../../../../types/posts";
   import { ActionButtons } from ".././ActionButtons";
+  import IconPicker from "../../../../../components/IconPicker";
   
   const capitalizeText = (text: string) => {
     const allTexts = text.split(" ");
@@ -60,7 +58,7 @@ import {
     };
   
     const handleIconChange = (
-      e: SelectChangeEvent<string>, 
+      value: string, 
       randomId: string | null | undefined
     ) => {
       const foundBlock = page.blocks.find((block) => block.randomId === randomId);
@@ -68,7 +66,7 @@ import {
   
         const newBlock: BlockType = {
           ...foundBlock,
-          title: e.target.value
+          title: value
         };
         updateBlock(newBlock);
       }
@@ -88,11 +86,6 @@ import {
         }
       };
 
-    const socialElements = [
-    <MenuItem value={"x"}>X(Twitter)</MenuItem>,
-    <MenuItem value={"youtube"}>Youtube</MenuItem>,
-    <MenuItem value={"facebook"}>Facebook</MenuItem>,];
-  
     return (<Box>
       <Box
         sx={{
@@ -107,15 +100,12 @@ import {
         <ActionButtons block={element} setPage={setPage} />
       </Box>
       <Box sx={{ display: "flex", gap: "1rem" }}>
-      <FormControl fullWidth>
-          <label style={{ marginBottom: ".4rem" }}>Icon</label>
-          <Select
-            value={element.title}
-            onChange={(e) => handleIconChange(e, element.randomId)}
-          >
-            {socialElements}
-          </Select>
-        </FormControl>
+        <IconPicker
+          label="Icon"
+          value={element.title || ""}
+          onChange={(value) => handleIconChange(value, element.randomId)}
+          fullWidth
+        />
         <FormControl fullWidth>
           <label style={{ marginBottom: ".4rem" }}>Link</label>
           <TextField

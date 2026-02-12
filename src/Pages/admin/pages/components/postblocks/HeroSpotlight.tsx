@@ -18,6 +18,7 @@ import { ActionButtons } from ".././ActionButtons";
 import { MediaType } from "../../../../../types/media";
 import MediaLibraryModal from "../../../media/MediaLibraryModal";
 import { useUpdatePostMutation } from "../../../../../store/api/posts.api";
+import IconPicker from "../../../../../components/IconPicker";
 
 type HeroAction = {
   label: string;
@@ -468,12 +469,11 @@ const HeroSpotlightBlock = ({
                   sx={{ mt: 1 }}
                 />
                 <Box sx={{ display: "grid", gap: "0.75rem", gridTemplateColumns: "1fr 1fr" }}>
-                  <TextField
-                    label="Icon (emoji or short text)"
+                  <IconPicker
+                    label="Icon"
                     value={action.icon || ""}
-                    onChange={(e) => updateQuickAction(actionIndex, "icon", e.target.value)}
+                    onChange={(value) => updateQuickAction(actionIndex, "icon", value)}
                     fullWidth
-                    sx={{ mt: 1 }}
                   />
                   <FormControl fullWidth sx={{ mt: 1 }}>
                     <Select

@@ -3,6 +3,7 @@ import { BlockType } from "../../../../../types/blocks";
 import { useEffect, useMemo, useState } from "react";
 import { PostType } from "../../../../../types/posts";
 import { ActionButtons } from ".././ActionButtons";
+import IconPicker from "../../../../../components/IconPicker";
 
 type FeatureItem = {
   title: string;
@@ -134,12 +135,11 @@ const FeatureGridBlock = ({ page, setPage, element, index }: {
                 inputProps={{ maxLength: 60 }}
                 helperText={`${item.title.length}/60 characters`}
               />
-              <TextField
-                label="Icon (emoji or short text)"
+              <IconPicker
+                label="Icon"
                 value={item.icon || ""}
-                onChange={(e) => handleItemChange(itemIndex, "icon", e.target.value)}
+                onChange={(value) => handleItemChange(itemIndex, "icon", value)}
                 fullWidth
-                sx={{ mt: 1 }}
               />
               <TextField
                 label="Description"

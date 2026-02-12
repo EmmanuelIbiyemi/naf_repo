@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import { BlockType } from "../../../../../types/blocks";
 import { PostType } from "../../../../../types/posts";
 import { ActionButtons } from ".././ActionButtons";
+import IconPicker from "../../../../../components/IconPicker";
 
 type CalloutItem = {
   label: string;
@@ -166,12 +167,11 @@ const CalloutPanelBlock = ({
                   sx={{ mt: 1 }}
                 />
               </Box>
-              <TextField
-                label="Icon (emoji or short text)"
+              <IconPicker
+                label="Icon"
                 value={item.icon || ""}
-                onChange={(e) => updateItem(itemIndex, "icon", e.target.value)}
+                onChange={(value) => updateItem(itemIndex, "icon", value)}
                 fullWidth
-                sx={{ mt: 1 }}
               />
             </Box>
           ))}
