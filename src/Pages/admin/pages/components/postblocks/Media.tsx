@@ -6,13 +6,32 @@ import {
     Typography,
   } from "@mui/material";
   import { BlockType } from "../../../../../types/blocks";
-  import { useEffect, useState } from "react";
+  import { useCallback, useEffect, useState } from "react";
   import { PostCreateType, PostType } from "../../../../../types/posts";
   import { ActionButtons } from ".././ActionButtons";
 import { MediaType } from "../../../../../types/media";
 import { Close, CloudUploadOutlined } from "@mui/icons-material";
 import MediaLibraryModal from "../../../media/MediaLibraryModal";
 import { useUpdatePostMutation } from "../../../../../store/api/posts.api";
+import { LexicalComposer } from "@lexical/react/LexicalComposer";
+import { RichTextPlugin } from "@lexical/react/LexicalRichTextPlugin";
+import { ContentEditable } from "@lexical/react/LexicalContentEditable";
+import { HistoryPlugin } from "@lexical/react/LexicalHistoryPlugin";
+import { LexicalErrorBoundary } from "@lexical/react/LexicalErrorBoundary";
+import { OnChangePlugin } from "@lexical/react/LexicalOnChangePlugin";
+import { ListPlugin } from "@lexical/react/LexicalListPlugin";
+import { LinkPlugin } from "@lexical/react/LexicalLinkPlugin";
+import { HeadingNode, QuoteNode } from "@lexical/rich-text";
+import { ListItemNode, ListNode } from "@lexical/list";
+import { AutoLinkNode, LinkNode } from "@lexical/link";
+import { EditorState, FORMAT_TEXT_COMMAND } from "lexical";
+import FormatBoldIcon from "@mui/icons-material/FormatBold";
+import FormatItalicIcon from "@mui/icons-material/FormatItalic";
+import FormatUnderlinedIcon from "@mui/icons-material/FormatUnderlined";
+import FormatListBulletedIcon from "@mui/icons-material/FormatListBulleted";
+import FormatListNumberedIcon from "@mui/icons-material/FormatListNumbered";
+import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
+import { INSERT_UNORDERED_LIST_COMMAND, INSERT_ORDERED_LIST_COMMAND } from "@lexical/list";
   
   const capitalizeText = (text: string) => {
     const allTexts = text.split(" ");
@@ -33,6 +52,27 @@ import { useUpdatePostMutation } from "../../../../../store/api/posts.api";
       type: string;
       modal: boolean;
     };
+
+  const editorTheme = {
+    paragraph: "editor-paragraph",
+    quote: "editor-quote",
+    heading: {
+      h1: "editor-heading-h1",
+      h2: "editor-heading-h2",
+      h3: "editor-heading-h3",
+    },
+    list: {
+      ol: "editor-list-ol",
+      ul: "editor-list-ul",
+      listitem: "editor-listitem",
+    },
+    text: {
+      bold: "editor-text-bold",
+      italic: "editor-text-italic",
+      underline: "editor-text-underline",
+    },
+    link: "editor-link",
+  };
   
   const MediaBlock = ({ page, setPage, element, index, disableApiSync = false }: Props) => {
 
@@ -75,6 +115,32 @@ import { useUpdatePostMutation } from "../../../../../store/api/posts.api";
             position: position
           };
           updateBlock(newBlock);
+        }
+      };
+
+      const handleCaptionChange = useCallback(
+        (_editorState: EditorState, randomId: string | null | undefined) => {
+          const json = JSON.stringify(_editorState.toJSON());
+          const foundBlock = page.blocks.find((block) => block.randomId === randomId);
+          if (foundBlock) {
+            const newBlock: BlockType = {
+              ...foundBlock,
+              caption: json,
+            };
+            updateBlock(newBlock);
+          }
+        },
+        [page, updateBlock]
+      );
+
+      const getInitialCaptionState = () => {
+        if (!element.caption || element.caption.trim() === "") {
+          return undefined;
+        }
+        try {
+          return JSON.parse(element.caption);
+        } catch {
+          return undefined;
         }
       };
 
@@ -226,10 +292,79 @@ import { useUpdatePostMutation } from "../../../../../store/api/posts.api";
                 </Box>
               )}
             </Box>
+            {element.type === "image" ? (
+              <Box sx={{ marginTop: "1rem" }}>
+                <Typography variant="subtitle2" sx={{ marginBottom: "0.5rem" }}>
+                  Caption
+                </Typography>
+                <Box
+                  sx={{
+                    border: "1px solid rgba(0,0,0,0.08)",
+                    borderRadius: "8px",
+                    padding: "0.75rem",
+                    backgroundColor: "#fff",
+                  }}
+                >
+                  <LexicalComposer
+                    initialConfig={{
+                      namespace: "ImageCaptionEditor",
+                      theme: editorTheme,
+                      onError: (error: Error) => console.error(error),
+                      nodes: [HeadingNode, QuoteNode, ListItemNode, ListNode, AutoLinkNode, LinkNode],
+                      editorState: getInitialCaptionState(),
+                    }}
+                  >
+                    <CaptionToolbar />
+                    <RichTextPlugin
+                      contentEditable={
+                        <ContentEditable className="editor-input" />
+                      }
+                      placeholder={
+                        <Typography variant="body2" color="text.secondary">
+                          Write a caption...
+                        </Typography>
+                      }
+                      ErrorBoundary={LexicalErrorBoundary}
+                    />
+                    <HistoryPlugin />
+                    <ListPlugin />
+                    <LinkPlugin />
+                    <OnChangePlugin
+                      onChange={(editorState) =>
+                        handleCaptionChange(editorState, element.randomId)
+                      }
+                    />
+                  </LexicalComposer>
+                </Box>
+              </Box>
+            ) : null}
           </Box>
           </>
           );
     };
+
+  const CaptionToolbar = () => {
+    const [editor] = useLexicalComposerContext();
+    return (
+      <Box sx={{ display: "flex", gap: "0.25rem", marginBottom: "0.5rem" }}>
+        <IconButton size="small" onClick={() => editor.dispatchCommand(FORMAT_TEXT_COMMAND, "bold")}>
+          <FormatBoldIcon fontSize="small" />
+        </IconButton>
+        <IconButton size="small" onClick={() => editor.dispatchCommand(FORMAT_TEXT_COMMAND, "italic")}>
+          <FormatItalicIcon fontSize="small" />
+        </IconButton>
+        <IconButton size="small" onClick={() => editor.dispatchCommand(FORMAT_TEXT_COMMAND, "underline")}>
+          <FormatUnderlinedIcon fontSize="small" />
+        </IconButton>
+        <IconButton size="small" onClick={() => editor.dispatchCommand(INSERT_UNORDERED_LIST_COMMAND, undefined)}>
+          <FormatListBulletedIcon fontSize="small" />
+        </IconButton>
+        <IconButton size="small" onClick={() => editor.dispatchCommand(INSERT_ORDERED_LIST_COMMAND, undefined)}>
+          <FormatListNumberedIcon fontSize="small" />
+        </IconButton>
+      </Box>
+    );
+  };
 
     const imageEl: SxProps = {
       alignItems: "center",
