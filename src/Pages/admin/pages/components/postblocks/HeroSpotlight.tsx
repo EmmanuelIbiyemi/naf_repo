@@ -29,6 +29,7 @@ type HeroQuickLink = {
   title: string;
   description?: string;
   link?: string;
+  icon?: string;
 };
 
 type HeroQuickAction = {
@@ -156,7 +157,7 @@ const HeroSpotlightBlock = ({
 
   const addBadge = () => syncConfig({ ...config, badges: [...badges, ""] });
   const addQuickLink = () =>
-    syncConfig({ ...config, quickLinks: [...quickLinks, { title: "", description: "", link: "" }] });
+    syncConfig({ ...config, quickLinks: [...quickLinks, { title: "", description: "", link: "", icon: "" }] });
   const addQuickAction = () =>
     syncConfig({
       ...config,
@@ -413,6 +414,13 @@ const HeroSpotlightBlock = ({
                   label="Link URL"
                   value={link.link || ""}
                   onChange={(e) => updateQuickLink(linkIndex, "link", e.target.value)}
+                  fullWidth
+                  sx={{ mt: 1 }}
+                />
+                <IconPicker
+                  label="Icon"
+                  value={link.icon || ""}
+                  onChange={(value) => updateQuickLink(linkIndex, "icon", value)}
                   fullWidth
                   sx={{ mt: 1 }}
                 />
