@@ -138,7 +138,8 @@ import { INSERT_UNORDERED_LIST_COMMAND, INSERT_ORDERED_LIST_COMMAND } from "@lex
           return undefined;
         }
         try {
-          return JSON.parse(element.caption);
+          JSON.parse(element.caption);
+          return element.caption;
         } catch {
           return undefined;
         }
