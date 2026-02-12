@@ -158,14 +158,12 @@ const GridBlock = ({ setPage, element, onSelectBlock }: Props) => {
                 <Typography variant="caption" sx={{ fontWeight: 600, color: "text.secondary" }}>
                   Column {columnIndex + 1}
                 </Typography>
-                <Button
+                <IconButton
                   size="small"
-                  variant="outlined"
-                  startIcon={<Add />}
                   onClick={() => handleAddBlock(columnIndex)}
                 >
-                  Add Block
-                </Button>
+                  <Add fontSize="small" />
+                </IconButton>
               </Box>
 
               <Box sx={{ display: "flex", flexDirection: "column", gap: "0.75rem", mt: 2 }}>
