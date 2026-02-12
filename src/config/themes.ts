@@ -41,8 +41,8 @@ export const LANDING_THEMES: LandingThemeOption[] = [
     },
   },
   {
-    id: "naflms-classic",
-    label: "NAF Classic",
+    id: "classic",
+    label: "Classic",
     description: "Clean light theme with navy accents and soft neutral surfaces.",
     preview: {
       primary: "#0b1f38",
