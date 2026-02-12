@@ -20,6 +20,18 @@ import MediaLibraryModal from "../../../media/MediaLibraryModal";
 import { useUpdatePostMutation } from "../../../../../store/api/posts.api";
 import IconPicker from "../../../../../components/IconPicker";
 
+const panelColorOptions = [
+  { label: "Dark Navy", value: "#0b1f38" },
+  { label: "Dark Slate", value: "#0f172a" },
+  { label: "Dark Gray", value: "#111827" },
+  { label: "Light Gray", value: "#f8fafc" },
+  { label: "White", value: "#ffffff" },
+  { label: "Light Blue", value: "#e3f2fd" },
+  { label: "Light Green", value: "#f0fdf4" },
+  { label: "Light Yellow", value: "#fefce8" },
+  { label: "Light Purple", value: "#faf5ff" },
+];
+
 type HeroAction = {
   label: string;
   link: string;
@@ -48,6 +60,7 @@ type HeroConfig = {
   quickActions?: {
     title?: string;
     subtitle?: string;
+    backgroundColor?: string;
     items?: HeroQuickAction[];
   };
 };
@@ -191,7 +204,7 @@ const HeroSpotlightBlock = ({
     });
   };
 
-  const updateQuickActionsMeta = (field: "title" | "subtitle", value: string) => {
+  const updateQuickActionsMeta = (field: "title" | "subtitle" | "backgroundColor", value: string) => {
     syncConfig({
       ...config,
       quickActions: {
@@ -417,13 +430,14 @@ const HeroSpotlightBlock = ({
                   fullWidth
                   sx={{ mt: 1 }}
                 />
-                <IconPicker
-                  label="Icon"
-                  value={link.icon || ""}
-                  onChange={(value) => updateQuickLink(linkIndex, "icon", value)}
-                  fullWidth
-                  sx={{ mt: 1 }}
-                />
+                <Box sx={{ mt: 1 }}>
+                  <IconPicker
+                    label="Icon"
+                    value={link.icon || ""}
+                    onChange={(value) => updateQuickLink(linkIndex, "icon", value)}
+                    fullWidth
+                  />
+                </Box>
               </Box>
             ))}
             <Button variant="outlined" onClick={addQuickLink}>
@@ -447,6 +461,35 @@ const HeroSpotlightBlock = ({
                 fullWidth
               />
             </Box>
+            <FormControl fullWidth>
+              <Typography variant="caption" color="text.secondary" sx={{ mb: 0.5 }}>
+                Panel background color
+              </Typography>
+              <Select
+                value={config.quickActions?.backgroundColor || ""}
+                onChange={(e) => updateQuickActionsMeta("backgroundColor", e.target.value)}
+                size="small"
+                displayEmpty
+              >
+                <MenuItem value="">Default</MenuItem>
+                {panelColorOptions.map((option) => (
+                  <MenuItem key={option.value} value={option.value}>
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                      <Box
+                        sx={{
+                          width: 20,
+                          height: 20,
+                          backgroundColor: option.value,
+                          border: "1px solid rgba(0,0,0,0.12)",
+                          borderRadius: "4px",
+                        }}
+                      />
+                      {option.label}
+                    </Box>
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
             {quickActions.map((action, actionIndex) => (
               <Box key={`quick-action-${actionIndex}`} sx={{ border: "1px solid rgba(0,0,0,0.08)", borderRadius: "8px", padding: "0.75rem" }}>
                 <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
