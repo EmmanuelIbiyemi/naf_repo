@@ -64,6 +64,12 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 
+type GridDragPayload = {
+  gridId: string;
+  columnIndex: number;
+  blockIndex: number;
+};
+
 type Props = {
   page: PostType;
   setPage: React.Dispatch<React.SetStateAction<PostType>>;
@@ -807,7 +813,65 @@ const PageBuilder = ({
   return (
     <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
       <SortableContext items={blockGroups.map((group) => group.id)} strategy={verticalListSortingStrategy}>
-        <Box sx={formBuilderStyles}>{renderedBlocks}</Box>
+        <Box
+          sx={formBuilderStyles}
+          onDragOver={(event) => {
+            event.preventDefault();
+            event.dataTransfer.dropEffect = "move";
+          }}
+          onDrop={(event) => {
+            const raw = event.dataTransfer.getData("application/x-naf-grid-block");
+            if (!raw) return;
+            event.preventDefault();
+            const payload = JSON.parse(raw) as GridDragPayload;
+            setPage((prev) => {
+              if (!prev) return prev;
+              const gridIndex = prev.blocks.findIndex((block) => {
+                const id = block.randomId ?? (block.id ? String(block.id) : null);
+                return id === payload.gridId;
+              });
+              if (gridIndex === -1) return prev;
+
+              const currentGrid = prev.blocks[gridIndex];
+              const updatedColumns = [...(currentGrid.columns || [])];
+              const sourceColumn = updatedColumns[payload.columnIndex];
+              if (!sourceColumn) return prev;
+              const movingBlock = sourceColumn.blocks[payload.blockIndex];
+              if (!movingBlock) return prev;
+
+              updatedColumns[payload.columnIndex] = {
+                blocks: sourceColumn.blocks.filter((_, idx) => idx !== payload.blockIndex),
+              };
+
+              const nextSettings = { ...(movingBlock.settings || {}) };
+              if (nextSettings.columnIndex !== undefined) {
+                delete nextSettings.columnIndex;
+              }
+
+              const independentBlock: BlockType = {
+                ...movingBlock,
+                settings: nextSettings,
+              };
+
+              const updatedGrid: BlockType = { ...currentGrid, columns: updatedColumns };
+
+              const remainingBlocks = prev.blocks.map((block) =>
+                block.randomId === updatedGrid.randomId ? updatedGrid : block
+              );
+              const insertIndex = Math.min(gridIndex + 1, remainingBlocks.length);
+              const nextBlocks = [...remainingBlocks];
+              nextBlocks.splice(insertIndex, 0, independentBlock);
+              const normalizedBlocks = nextBlocks.map((block, index) => ({
+                ...block,
+                position: index + 1,
+              }));
+
+              return { ...prev, blocks: normalizedBlocks };
+            });
+          }}
+        >
+          {renderedBlocks}
+        </Box>
       </SortableContext>
     </DndContext>
   );

@@ -29,6 +29,12 @@ type ActiveGridPath = {
   blockIndex: number;
 };
 
+type GridDragPayload = {
+  gridId: string;
+  columnIndex: number;
+  blockIndex: number;
+};
+
 type GridColumnSlotProps = {
   id: string;
   onDrop: (event: React.DragEvent<HTMLDivElement>) => void;
@@ -62,6 +68,7 @@ const GridColumnSlot = ({ id, onDrop, children }: GridColumnSlotProps) => {
 
 const GridBlock = ({ page, setPage, element, onSelectBlock }: Props) => {
   const [activePath, setActivePath] = useState<ActiveGridPath | null>(null);
+  const gridId = element.randomId ?? (element.id ? String(element.id) : "grid");
 
   // Initialize columns if they don't exist
   if (!element.columns || element.columns.length === 0) {
@@ -131,6 +138,51 @@ const GridBlock = ({ page, setPage, element, onSelectBlock }: Props) => {
     const draggedId =
       event.dataTransfer.getData("application/x-naf-block-id") ||
       event.dataTransfer.getData("text/plain");
+    const gridPayloadRaw = event.dataTransfer.getData("application/x-naf-grid-block");
+    const gridPayload: GridDragPayload | null = gridPayloadRaw
+      ? JSON.parse(gridPayloadRaw)
+      : null;
+
+    if (gridPayload && gridPayload.gridId === gridId) {
+      setPage((prev) => {
+        if (!prev) return prev;
+        const gridIndex = prev.blocks.findIndex((block) => block.randomId === element.randomId);
+        if (gridIndex === -1) return prev;
+        const currentGrid = prev.blocks[gridIndex];
+        const updatedColumns = [...(currentGrid.columns || [])];
+        const sourceColumn = updatedColumns[gridPayload.columnIndex];
+        if (!sourceColumn) return prev;
+        const movingBlock = sourceColumn.blocks[gridPayload.blockIndex];
+        if (!movingBlock) return prev;
+
+        if (gridPayload.columnIndex === columnIndex) return prev;
+
+        updatedColumns[gridPayload.columnIndex] = {
+          blocks: sourceColumn.blocks.filter((_, idx) => idx !== gridPayload.blockIndex),
+        };
+
+        if (!updatedColumns[columnIndex]) {
+          updatedColumns[columnIndex] = { blocks: [] };
+        }
+
+        updatedColumns[columnIndex] = {
+          blocks: [...updatedColumns[columnIndex].blocks, movingBlock],
+        };
+
+        const updatedGrid: BlockType = {
+          ...currentGrid,
+          columns: updatedColumns,
+        };
+
+        const updatedBlocks = prev.blocks.map((block) =>
+          block.randomId === updatedGrid.randomId ? updatedGrid : block
+        );
+
+        return { ...prev, blocks: updatedBlocks };
+      });
+      return;
+    }
+
     if (!draggedId) return;
 
     setPage((prev) => {
@@ -311,7 +363,6 @@ const GridBlock = ({ page, setPage, element, onSelectBlock }: Props) => {
       >
         {Array.from({ length: columnCount }, (_, columnIndex) => {
           const columnBlocks = element.columns?.[columnIndex]?.blocks || [];
-          const gridId = element.randomId ?? (element.id ? String(element.id) : "grid");
           return (
             <GridColumnSlot
               key={columnIndex}
@@ -343,6 +394,20 @@ const GridBlock = ({ page, setPage, element, onSelectBlock }: Props) => {
                       "&:hover": {
                         borderColor: "rgba(43, 135, 251, 1)",
                       },
+                    }}
+                    draggable
+                    onDragStart={(event) => {
+                      const payload: GridDragPayload = {
+                        gridId,
+                        columnIndex,
+                        blockIndex,
+                      };
+                      event.dataTransfer.setData(
+                        "application/x-naf-grid-block",
+                        JSON.stringify(payload)
+                      );
+                      event.dataTransfer.setData("text/plain", `grid:${gridId}`);
+                      event.dataTransfer.effectAllowed = "move";
                     }}
                     onClick={() => handleOpenEditor(columnIndex, blockIndex)}
                   >
