@@ -28,6 +28,9 @@ export type BlockSettings = {
 
 export type GridColumn = {
   blocks: BlockType[];
+  settings?: {
+    containerStyle?: "normal" | "card";
+  };
 };
 
 export type ResultSearchScope = {

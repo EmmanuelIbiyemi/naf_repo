@@ -6,6 +6,7 @@ import {
   IconButton,
   MenuItem,
   Select,
+  Switch,
   Typography,
 } from "@mui/material";
 import { useMemo, useState, useEffect } from "react";
@@ -263,6 +264,33 @@ const GridBlock = ({ page, setPage, element, onSelectBlock }: Props) => {
     });
   };
 
+  const handleToggleColumnCard = (columnIndex: number, isCard: boolean) => {
+    const updatedColumns = [...(element.columns || [])];
+    if (!updatedColumns[columnIndex]) {
+      updatedColumns[columnIndex] = { blocks: [] };
+    }
+    updatedColumns[columnIndex] = {
+      ...updatedColumns[columnIndex],
+      settings: {
+        ...(updatedColumns[columnIndex].settings || {}),
+        containerStyle: isCard ? "card" : "normal",
+      },
+    };
+
+    const updatedBlock: BlockType = {
+      ...element,
+      columns: updatedColumns,
+    };
+
+    setPage((prev) => {
+      if (!prev) return prev;
+      const updatedBlocks = prev.blocks.map((block) =>
+        block.randomId === element.randomId ? updatedBlock : block
+      );
+      return { ...prev, blocks: updatedBlocks };
+    });
+  };
+
   const columnCount = element.settings?.gridColumns || 1;
   const gridBlocks = useMemo(
     () => element.columns?.flatMap((column) => column.blocks) || [],
@@ -371,6 +399,7 @@ const GridBlock = ({ page, setPage, element, onSelectBlock }: Props) => {
       >
         {Array.from({ length: columnCount }, (_, columnIndex) => {
           const columnBlocks = element.columns?.[columnIndex]?.blocks || [];
+          const columnIsCard = element.columns?.[columnIndex]?.settings?.containerStyle === "card";
           return (
             <GridColumnSlot
               key={columnIndex}
@@ -381,12 +410,24 @@ const GridBlock = ({ page, setPage, element, onSelectBlock }: Props) => {
                 <Typography variant="caption" sx={{ fontWeight: 600, color: "text.secondary" }}>
                   Column {columnIndex + 1}
                 </Typography>
-                <IconButton
-                  size="small"
-                  onClick={() => handleAddBlock(columnIndex)}
-                >
-                  <Add fontSize="small" />
-                </IconButton>
+                <Box sx={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                  <Box sx={{ display: "flex", alignItems: "center", gap: "0.35rem" }}>
+                    <Typography variant="caption" color="text.secondary">
+                      Card
+                    </Typography>
+                    <Switch
+                      size="small"
+                      checked={columnIsCard}
+                      onChange={(event) => handleToggleColumnCard(columnIndex, event.target.checked)}
+                    />
+                  </Box>
+                  <IconButton
+                    size="small"
+                    onClick={() => handleAddBlock(columnIndex)}
+                  >
+                    <Add fontSize="small" />
+                  </IconButton>
+                </Box>
               </Box>
 
               <Box sx={{ display: "flex", flexDirection: "column", gap: "0.75rem", mt: 2 }}>
