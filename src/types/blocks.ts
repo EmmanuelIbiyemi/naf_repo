@@ -22,6 +22,7 @@ export type BlockSettings = {
   textColor?: string;
   containerStyle?: "normal" | "card";
   postsToShow?: number;
+  showExcerpts?: boolean;
   resultSearch?: ResultSearchSettings;
   // Grid settings
   gridColumns?: 1 | 2;

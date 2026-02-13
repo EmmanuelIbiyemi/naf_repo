@@ -1,6 +1,8 @@
 import {
   Box,
+  Checkbox,
   FormControl,
+  FormControlLabel,
   MenuItem,
   SelectChangeEvent,
   TextField,
@@ -176,6 +178,19 @@ import { useGetPostCategoriesQuery } from "../../../../../store/api/posts.api";
                     });
                   }}
                   helperText="Leave empty to show all posts"
+                />
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={Boolean(element.settings?.showExcerpts)}
+                      onChange={(event) =>
+                        updateSettings({
+                          showExcerpts: event.target.checked,
+                        })
+                      }
+                    />
+                  }
+                  label="Show excerpts"
                 />
               </FormControl>
             </Box>

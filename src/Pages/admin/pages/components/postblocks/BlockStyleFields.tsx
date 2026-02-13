@@ -17,7 +17,7 @@ const widthOptions: Array<{ label: string; value: BlockSettings["contentWidth"] 
 
 const backgroundPalette = ["#0b1f38", "#0f172a", "#111827", "#f8fafc", "#ffffff", "#d8a92a"];
 const textPalette = ["#ffffff", "#e2e8f0", "#f8fafc", "#0f172a", "#0b1f38", "#111827"];
-const BlockStyleFields = ({ block, blocks, setPage }: Props) => {
+const BlockStyleFields = ({ block, setPage }: Props) => {
   const settings = block.settings || {};
 
   const updateSettings = (patch: Partial<BlockSettings>) => {
