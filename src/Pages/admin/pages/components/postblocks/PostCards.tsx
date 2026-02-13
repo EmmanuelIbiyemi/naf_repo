@@ -164,12 +164,6 @@ import { useGetPostCategoriesQuery } from "../../../../../store/api/posts.api";
                   placeholder="View all"
                 />
                 <TextField
-                  label="View all link"
-                  value={element.link || ""}
-                  onChange={(e) => handleTextChange("link", e.target.value, element.randomId)}
-                  placeholder="Leave empty to link to the category page"
-                />
-                <TextField
                   label="Posts to show"
                   type="number"
                   inputProps={{ min: 1 }}
