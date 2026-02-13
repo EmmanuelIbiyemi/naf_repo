@@ -43,9 +43,9 @@ import { useGetPostCategoriesQuery } from "../../../../../store/api/posts.api";
         handlePositionChange(index+1, element.randomId)
     }, [index])
   
-    const updateBlock = (newBlock: BlockType) => {
-      setPage((prev) => {
-        if (!prev) return prev;
+  const updateBlock = (newBlock: BlockType) => {
+    setPage((prev) => {
+      if (!prev) return prev;
   
         const updatedBlocks = prev.blocks.map((block) =>
           block.randomId === newBlock.randomId ? newBlock : block
@@ -54,9 +54,23 @@ import { useGetPostCategoriesQuery } from "../../../../../store/api/posts.api";
         return {
           ...prev,
           blocks: updatedBlocks,
-        };
-      });
-    };
+      };
+    });
+  };
+
+  const updateSettings = (patch: Partial<BlockType["settings"]>) => {
+    const foundBlock = page.blocks.find((block) => block.randomId === element.randomId);
+    if (foundBlock) {
+      const newBlock: BlockType = {
+        ...foundBlock,
+        settings: {
+          ...(foundBlock.settings || {}),
+          ...patch,
+        },
+      };
+      updateBlock(newBlock);
+    }
+  };
   
     const handleContentChange = (
       e: SelectChangeEvent<string>,
@@ -154,6 +168,20 @@ import { useGetPostCategoriesQuery } from "../../../../../store/api/posts.api";
                   value={element.link || ""}
                   onChange={(e) => handleTextChange("link", e.target.value, element.randomId)}
                   placeholder="Leave empty to link to the category page"
+                />
+                <TextField
+                  label="Posts to show"
+                  type="number"
+                  inputProps={{ min: 1 }}
+                  value={element.settings?.postsToShow ?? ""}
+                  onChange={(event) => {
+                    const value = event.target.value;
+                    const parsed = value === "" ? undefined : Number(value);
+                    updateSettings({
+                      postsToShow: Number.isFinite(parsed) ? parsed : undefined,
+                    });
+                  }}
+                  helperText="Leave empty to show all posts"
                 />
               </FormControl>
             </Box>

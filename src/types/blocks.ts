@@ -21,6 +21,7 @@ export type BlockSettings = {
   textAlign?: "left" | "center" | "right";
   textColor?: string;
   containerStyle?: "normal" | "card";
+  postsToShow?: number;
   resultSearch?: ResultSearchSettings;
   // Grid settings
   gridColumns?: 1 | 2;
