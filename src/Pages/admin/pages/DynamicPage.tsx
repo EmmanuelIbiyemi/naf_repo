@@ -18,12 +18,14 @@ import {
   useGetPostMMutation,
   useGetPostQuery,
   useUpdatePostMutation,
+  useExportPostContentMutation,
+  useImportPostContentMutation,
 } from "../../../store/api/posts.api";
 import { PostType, PostCreateType } from "../../../types/posts";
 import MediaLibraryModal from "../media/MediaLibraryModal";
 import { elements } from "./elements/post-elements";
 import { BlockType, MediaType } from "../../../types/blocks";
-import { Close, OpenInNew, Save as SaveIcon, Search } from "@mui/icons-material";
+import { Close, OpenInNew, Save as SaveIcon, Search, FileDownload, FileUpload } from "@mui/icons-material";
 import { setPageLoading } from "../../../store/app.slice";
 import { useAppDispatch } from "../../../store/hooks";
 import BlockStyleFields from "./components/postblocks/BlockStyleFields";
@@ -40,6 +42,8 @@ const PostPage = () => {
   const [addPost] = useAddPostMutation();
   const [updatePost, updateState] = useUpdatePostMutation();
   const [, postState] = useGetPostMMutation();
+  const [exportPostContent] = useExportPostContentMutation();
+  const [importPostContent] = useImportPostContentMutation();
   const [post, setPost] = useState<PostType | null>(null);
   const [media, setMedia] = useState({
     url: "",
@@ -57,6 +61,7 @@ const PostPage = () => {
   });
   const sidebarRef = useRef<HTMLDivElement | null>(null);
   const settingsPanelRef = useRef<HTMLDivElement | null>(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const normalizeBlocks = useCallback(
     (blocks: BlockType[], prevBlocks?: BlockType[]) => {
@@ -302,6 +307,71 @@ const PostPage = () => {
     navigate(`/settings/posttype/${resource_type}`);
   }, [navigate]);
 
+  const handleExport = useCallback(async () => {
+    if (!post?.id) return;
+    
+    dispatch(setPageLoading(true));
+    try {
+      const blob = await exportPostContent(post.id).unwrap();
+      
+      // Create download link
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `post_${post.id}_blocks_${new Date().toISOString().replace(/[:.]/g, '-')}.json`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Failed to export post content:", error);
+      alert("Failed to export post content. Please try again.");
+    } finally {
+      dispatch(setPageLoading(false));
+    }
+  }, [post?.id, exportPostContent, dispatch]);
+
+  const handleImport = useCallback(async (file: File) => {
+    if (!post?.id) return;
+    
+    dispatch(setPageLoading(true));
+    try {
+      const response = await importPostContent({ post_id: post.id, file }).unwrap();
+      
+      // Refresh the post data
+      const updatedPost = await updatePost({ ...buildPayload(), id: post.id } as PostCreateType).unwrap();
+      setPost((prev) => ({
+        ...updatedPost.post,
+        blocks: normalizeBlocks(updatedPost.post.blocks || [], prev?.blocks),
+      }));
+      
+      alert(`Successfully imported ${response.blocks_imported} blocks!`);
+    } catch (error: any) {
+      console.error("Failed to import post content:", error);
+      const errorMessage = error?.data?.message || "Failed to import post content. Please try again.";
+      alert(errorMessage);
+    } finally {
+      dispatch(setPageLoading(false));
+    }
+  }, [post?.id, importPostContent, updatePost, buildPayload, normalizeBlocks, dispatch]);
+
+  const handleImportClick = useCallback(() => {
+    fileInputRef.current?.click();
+  }, []);
+
+  const handleFileChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      if (!file.name.endsWith('.json')) {
+        alert('Please select a JSON file');
+        return;
+      }
+      handleImport(file);
+      // Reset input
+      event.target.value = '';
+    }
+  }, [handleImport]);
+
   const getSidebar = () => {
     return elements;
   };
@@ -400,6 +470,13 @@ const PostPage = () => {
           />
         </Box>
       </Dialog>
+      <input
+        type="file"
+        ref={fileInputRef}
+        style={{ display: 'none' }}
+        accept=".json"
+        onChange={handleFileChange}
+      />
       <Box sx={{ paddingBottom: "2rem" }}>
         <Box sx={headerStyles}>
           <Button onClick={handleBack}>Back</Button>
@@ -417,6 +494,22 @@ const PostPage = () => {
                 Preview
               </Button>
             ) : null}
+            <Button
+              variant="outlined"
+              startIcon={<FileDownload />}
+              onClick={handleExport}
+              disabled={!post?.id}
+            >
+              Export
+            </Button>
+            <Button
+              variant="outlined"
+              startIcon={<FileUpload />}
+              onClick={handleImportClick}
+              disabled={!post?.id}
+            >
+              Import
+            </Button>
             <Button
               variant="contained"
               startIcon={<SaveIcon />}

@@ -97,6 +97,25 @@ const postsApi = appApi.injectEndpoints({
       }),
       invalidatesTags: ["Posts"],
     }),
+    exportPostContent: builder.mutation<Blob, number>({
+      query: (post_id) => ({
+        url: `/post/${post_id}/export`,
+        method: "GET",
+        responseHandler: (response) => response.blob(),
+      }),
+    }),
+    importPostContent: builder.mutation<{ message: string; blocks_imported: number }, { post_id: number; file: File }>({
+      query: ({ post_id, file }) => {
+        const formData = new FormData();
+        formData.append('file', file);
+        return {
+          url: `/post/${post_id}/import`,
+          method: "POST",
+          body: formData,
+        };
+      },
+      invalidatesTags: ["Posts"],
+    }),
   }),
   overrideExisting: false,
 });
@@ -116,4 +135,6 @@ export const {
   useGetPostByCategoryQuery,
   useGetSingleAnnouncementQuery,
   useGetAnnouncementsQuery,
+  useExportPostContentMutation,
+  useImportPostContentMutation,
 } = postsApi;
