@@ -192,6 +192,19 @@ import { useGetPostCategoriesQuery } from "../../../../../store/api/posts.api";
                   }
                   label="Show excerpts"
                 />
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={element.settings?.showPagination ?? true}
+                      onChange={(event) =>
+                        updateSettings({
+                          showPagination: event.target.checked,
+                        })
+                      }
+                    />
+                  }
+                  label="Show pagination"
+                />
               </FormControl>
             </Box>
           );

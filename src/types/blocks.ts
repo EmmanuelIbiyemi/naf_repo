@@ -23,6 +23,7 @@ export type BlockSettings = {
   containerStyle?: "normal" | "card";
   postsToShow?: number;
   showExcerpts?: boolean;
+  showPagination?: boolean;
   resultSearch?: ResultSearchSettings;
   // Grid settings
   gridColumns?: 1 | 2;
