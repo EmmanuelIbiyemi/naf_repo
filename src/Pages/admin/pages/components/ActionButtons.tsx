@@ -4,8 +4,7 @@ import { useAppDispatch } from "../../../../store/hooks";
 import { BlockType } from "../../../../types/blocks";
 import { PostType } from "../../../../types/posts";
 import DeleteIcon from "../../../../assets/deleteIcon";
-import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
-import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import { setBuilderLoading } from "../../../../store/app.slice";
 
 type ActionProp = {
@@ -31,7 +30,7 @@ export const ActionButtons = ({ block, setPage }: ActionProp) => {
     dispatch(setBuilderLoading(false));
   };
 
-  const moveBlock = (direction: 'up' | 'down') => {
+  const handleDuplicate = () => {
     setPage((prev) => {
       const blocks = [...prev.blocks];
       const index = blocks.findIndex((item) => {
@@ -46,12 +45,18 @@ export const ActionButtons = ({ block, setPage }: ActionProp) => {
 
       if (index < 0) return prev;
 
-      if (direction === 'up' && index > 0) {
-        [blocks[index - 1], blocks[index]] = [blocks[index], blocks[index - 1]];
-      } else if (direction === 'down' && index < blocks.length - 1) {
-        [blocks[index + 1], blocks[index]] = [blocks[index], blocks[index + 1]];
-      }
+      // Create a duplicate of the block
+      const duplicatedBlock: BlockType = {
+        ...block,
+        id: 0, // Will be assigned by the backend when saved
+        randomId: `temp_${Date.now()}_${Math.random()}`, // Generate unique temporary ID
+        position: index + 2, // Position after the current block
+      };
 
+      // Insert the duplicated block after the current block
+      blocks.splice(index + 1, 0, duplicatedBlock);
+
+      // Update positions for all blocks
       const updatedBlocks = blocks.map((item, positionIndex) => ({
         ...item,
         position: positionIndex + 1,
@@ -66,13 +71,10 @@ export const ActionButtons = ({ block, setPage }: ActionProp) => {
 
   return (
     <Box sx={{ display: "flex", gap: ".3rem", alignItems: "center" }}>
-      <IconButton onClick={() => moveBlock('up')} className="move_up_btn">
-        <ArrowUpwardIcon />
+      <IconButton onClick={handleDuplicate} className="duplicate_btn" title="Duplicate block">
+        <ContentCopyIcon />
       </IconButton>
-      <IconButton onClick={() => moveBlock('down')} className="move_down_btn">
-        <ArrowDownwardIcon />
-      </IconButton>
-      <IconButton onClick={() => handleDelete(block.id)} className="delete_btn">
+      <IconButton onClick={() => handleDelete(block.id)} className="delete_btn" title="Delete block">
         <DeleteIcon />
       </IconButton>
     </Box>

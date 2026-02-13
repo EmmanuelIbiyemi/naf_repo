@@ -166,7 +166,7 @@ const BlockEditorPanel = ({
         gap: "1rem",
         ...(isRowBlock
           ? {
-              ".move_up_btn, .move_down_btn": { display: "none" },
+              ".duplicate_btn": { display: "none" },
               ".delete_btn": { height: "28px", width: "28px", padding: "4px" },
             }
           : {}),

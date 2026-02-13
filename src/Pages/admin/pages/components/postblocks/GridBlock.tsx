@@ -524,7 +524,7 @@ const GridBlock = ({ page, setPage, element, onSelectBlock }: Props) => {
           sx={{
             display: "grid",
             gap: "1rem",
-            ".move_up_btn, .move_down_btn, .delete_btn": { display: "none" },
+            ".duplicate_btn, .delete_btn": { display: "none" },
           }}
         >
           <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>

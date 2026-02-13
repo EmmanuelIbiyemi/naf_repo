@@ -7,8 +7,6 @@ import {
   Typography,
 } from "@mui/material";
 import {
-  ArrowDownward,
-  ArrowUpward,
   DragIndicator,
   ExpandLess,
   ExpandMore,
@@ -375,73 +373,6 @@ const PageBuilder = ({
     dispatch(setBuilderLoading(false));
   };
 
-  const moveRowGroup = (rowId: string, direction: "up" | "down") => {
-    setPage((prev) => {
-      if (!prev) return prev;
-      const blocks = [...prev.blocks];
-      const startIndex = blocks.findIndex(
-        (block) => block.settings?.layout === "row" && block.settings?.rowId === rowId
-      );
-      if (startIndex === -1) return prev;
-
-      let endIndex = startIndex;
-      while (
-        endIndex + 1 < blocks.length &&
-        blocks[endIndex + 1]?.settings?.layout === "row" &&
-        blocks[endIndex + 1]?.settings?.rowId === rowId
-      ) {
-        endIndex += 1;
-      }
-
-      if (direction === "up" && startIndex === 0) return prev;
-      if (direction === "down" && endIndex === blocks.length - 1) return prev;
-
-      const beforeIndex = startIndex - 1;
-      const afterIndex = endIndex + 1;
-
-      if (direction === "up") {
-        const prevRowId = blocks[beforeIndex]?.settings?.rowId;
-        if (blocks[beforeIndex]?.settings?.layout === "row" && prevRowId) {
-          let prevStart = beforeIndex;
-          while (
-            prevStart - 1 >= 0 &&
-            blocks[prevStart - 1]?.settings?.layout === "row" &&
-            blocks[prevStart - 1]?.settings?.rowId === prevRowId
-          ) {
-            prevStart -= 1;
-          }
-          const prevGroup = blocks.splice(prevStart, beforeIndex - prevStart + 1);
-          const currentGroup = blocks.splice(startIndex - (beforeIndex - prevStart + 1), endIndex - startIndex + 1);
-          blocks.splice(prevStart, 0, ...currentGroup, ...prevGroup);
-        } else {
-          const currentGroup = blocks.splice(startIndex, endIndex - startIndex + 1);
-          blocks.splice(beforeIndex, 0, ...currentGroup);
-        }
-      }
-
-      if (direction === "down") {
-        const nextRowId = blocks[afterIndex]?.settings?.rowId;
-        if (blocks[afterIndex]?.settings?.layout === "row" && nextRowId) {
-          let nextEnd = afterIndex;
-          while (
-            nextEnd + 1 < blocks.length &&
-            blocks[nextEnd + 1]?.settings?.layout === "row" &&
-            blocks[nextEnd + 1]?.settings?.rowId === nextRowId
-          ) {
-            nextEnd += 1;
-          }
-          const currentGroup = blocks.splice(startIndex, endIndex - startIndex + 1);
-          blocks.splice(nextEnd - (endIndex - startIndex + 1) + 1, 0, ...currentGroup);
-        } else {
-          const currentGroup = blocks.splice(startIndex, endIndex - startIndex + 1);
-          blocks.splice(afterIndex - (endIndex - startIndex + 1) + 1, 0, ...currentGroup);
-        }
-      }
-
-      return { ...prev, blocks };
-    });
-  };
-
   const blockGroups = useMemo(() => {
     const groups: {
       id: string;
@@ -637,26 +568,6 @@ const PageBuilder = ({
                     aria-label={isExpanded ? "Collapse row" : "Expand row"}
                   >
                     {isExpanded ? <ExpandLess fontSize="small" /> : <ExpandMore fontSize="small" />}
-                  </IconButton>
-                  <IconButton
-                    size="small"
-                    onClick={(event) => {
-                      event.stopPropagation();
-                      moveRowGroup(rowId, "up");
-                    }}
-                    aria-label="Move row up"
-                  >
-                    <ArrowUpward fontSize="small" />
-                  </IconButton>
-                  <IconButton
-                    size="small"
-                    onClick={(event) => {
-                      event.stopPropagation();
-                      moveRowGroup(rowId, "down");
-                    }}
-                    aria-label="Move row down"
-                  >
-                    <ArrowDownward fontSize="small" />
                   </IconButton>
                   <Button
                     size="small"
