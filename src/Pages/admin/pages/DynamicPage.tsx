@@ -36,7 +36,7 @@ const PostPage = () => {
   const { resource_type, post_id } = useParams();
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
-  const { data: postt, isFetching } = useGetPostQuery(+(post_id || 0), {
+  const { data: postt, isFetching, refetch: refetchPost } = useGetPostQuery(+(post_id || 0), {
     skip: !post_id,
   });
   const [addPost] = useAddPostMutation();
@@ -336,14 +336,18 @@ const PostPage = () => {
     
     dispatch(setPageLoading(true));
     try {
+      // Upload the file and import the content
       const response = await importPostContent({ post_id: post.id, file }).unwrap();
       
-      // Refresh the post data
-      const updatedPost = await updatePost({ ...buildPayload(), id: post.id } as PostCreateType).unwrap();
-      setPost((prev) => ({
-        ...updatedPost.post,
-        blocks: normalizeBlocks(updatedPost.post.blocks || [], prev?.blocks),
-      }));
+      // Refetch the post data from the server to get the updated content
+      const { data: updatedData } = await refetchPost();
+      
+      if (updatedData?.post) {
+        setPost((prev) => ({
+          ...updatedData.post,
+          blocks: normalizeBlocks(updatedData.post.blocks || [], prev?.blocks),
+        }));
+      }
       
       alert(`Successfully imported ${response.blocks_imported} blocks!`);
     } catch (error: any) {
@@ -353,7 +357,7 @@ const PostPage = () => {
     } finally {
       dispatch(setPageLoading(false));
     }
-  }, [post?.id, importPostContent, updatePost, buildPayload, normalizeBlocks, dispatch]);
+  }, [post?.id, importPostContent, refetchPost, normalizeBlocks, dispatch]);
 
   const handleImportClick = useCallback(() => {
     fileInputRef.current?.click();
