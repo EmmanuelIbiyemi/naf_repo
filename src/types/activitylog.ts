@@ -5,8 +5,6 @@ export type ActionType =
   | "UPDATE"
   | "DELETE"
   | "VIEW"
-  | "LOGIN"
-  | "LOGOUT"
   | "EXPORT"
   | "UPLOAD"
   | "DOWNLOAD"

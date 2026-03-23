@@ -36,8 +36,6 @@ const ACTION_TYPE_COLORS: Record<ActionType, "success" | "info" | "warning" | "e
   UPDATE: "info",
   DELETE: "error",
   VIEW: "default",
-  LOGIN: "success",
-  LOGOUT: "warning",
   EXPORT: "info",
   UPLOAD: "info",
   DOWNLOAD: "info",
