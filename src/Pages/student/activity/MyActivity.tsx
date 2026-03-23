@@ -33,8 +33,6 @@ const ACTION_TYPE_COLORS: Record<ActionType, "success" | "info" | "warning" | "e
   UPDATE: "info",
   DELETE: "error",
   VIEW: "default",
-  LOGIN: "success",
-  LOGOUT: "warning",
   EXPORT: "info",
   UPLOAD: "info",
   DOWNLOAD: "info",
@@ -89,7 +87,7 @@ const MyActivity = () => {
   };
 
   const actionTypes: ActionType[] = [
-    "CREATE", "UPDATE", "DELETE", "VIEW", "LOGIN", "LOGOUT", "EXPORT", "UPLOAD", "DOWNLOAD", "OTHER"
+    "CREATE", "UPDATE", "DELETE", "VIEW", "EXPORT", "UPLOAD", "DOWNLOAD", "OTHER"
   ];
 
   return (
