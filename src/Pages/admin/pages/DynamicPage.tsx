@@ -112,21 +112,19 @@ const PostPage = () => {
     });
   };
 
-  const categoryTags = post?.categories?.map((category) => category.name) || [];
-  const preferredTag =
-    categoryTags.find(
-      (tag) =>
-        !["page", "navigation", "header", "footer", "mobile", "social"].includes(
-          tag.toLowerCase()
-        )
-    ) || "";
   const landingBaseUrl =
     (import.meta.env.VITE_LANDING_URL as string | undefined)?.replace(/\/+$/, "") ||
     window.location.origin;
-  const landingTag = preferredTag.trim();
-  const landingUrl = landingTag
-    ? `${landingBaseUrl}/${encodeURIComponent(landingTag)}`
-    : landingBaseUrl;
+  const slug = post?.slug?.trim() || "";
+  const isPageResource = resource_type === "page";
+  const isPostResource = resource_type === "posts";
+  const landingUrl = slug
+    ? isPageResource
+      ? `${landingBaseUrl}/${encodeURIComponent(slug)}`
+      : isPostResource
+      ? `${landingBaseUrl}/post/${encodeURIComponent(slug)}`
+      : landingBaseUrl
+    : "";
 
   const selectedBlockIndex = post?.blocks.findIndex(
     (block) => block.randomId === selectedBlockId
@@ -448,7 +446,7 @@ const PostPage = () => {
   }
 
   const handlePreview = () => {
-    if (!landingTag) return;
+    if (!landingUrl) return;
     window.open(landingUrl, "_blank", "noopener,noreferrer");
   };
 
@@ -494,12 +492,12 @@ const PostPage = () => {
             <Typography variant="subtitle2" color="text.secondary">
               Draft
             </Typography>
-            {resource_type === "page" ? (
+            {isPageResource || isPostResource ? (
               <Button
                 variant="outlined"
                 startIcon={<OpenInNew />}
                 onClick={handlePreview}
-                disabled={!post?.id || !landingTag}
+                disabled={!post?.id || !landingUrl}
               >
                 Preview
               </Button>

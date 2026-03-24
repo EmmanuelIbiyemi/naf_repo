@@ -19,22 +19,19 @@ const PostItem = ({ post, deleteItem, handleSelect, deleteIds }: Props) => {
   const navigate = useNavigate();
   const { resource_type } = useParams();
   const [addPost] = useAddPostMutation();
-
-  const categoryTags = post.categories?.map((category) => category.name) || [];
-  const preferredTag =
-    categoryTags.find(
-      (tag) =>
-        !["page", "navigation", "header", "footer", "mobile", "social"].includes(
-          tag.toLowerCase()
-        )
-    ) || "";
   const landingBaseUrl =
     (import.meta.env.VITE_LANDING_URL as string | undefined)?.replace(/\/+$/, "") ||
     window.location.origin;
-  const landingTag = preferredTag.trim();
-  const landingUrl = landingTag
-    ? `${landingBaseUrl}/${encodeURIComponent(landingTag)}`
-    : landingBaseUrl;
+  const slug = post.slug?.trim() || "";
+  const isPageResource = resource_type === "page";
+  const isPostResource = resource_type === "posts";
+  const landingUrl = slug
+    ? isPageResource
+      ? `${landingBaseUrl}/${encodeURIComponent(slug)}`
+      : isPostResource
+      ? `${landingBaseUrl}/post/${encodeURIComponent(slug)}`
+      : landingBaseUrl
+    : "";
   
   const {
     attributes,
@@ -71,7 +68,7 @@ const PostItem = ({ post, deleteItem, handleSelect, deleteIds }: Props) => {
   };
 
   const handlePreview = () => {
-    if (!landingTag) return;
+    if (!landingUrl) return;
     window.open(landingUrl, "_blank", "noopener,noreferrer");
   };
 
@@ -108,8 +105,12 @@ const PostItem = ({ post, deleteItem, handleSelect, deleteIds }: Props) => {
         </Typography>
       </Box>
       <Box sx={{ display: "flex", justifySelf: "end" }}>
-        {resource_type === "page" ? (
-          <IconButton onClick={handlePreview} title="View on landing page">
+        {isPageResource || isPostResource ? (
+          <IconButton
+            onClick={handlePreview}
+            title="View on landing page"
+            disabled={!landingUrl}
+          >
             <OpenInNew sx={{ color: "rgba(170, 170, 170, 1)" }} />
           </IconButton>
         ) : null}
