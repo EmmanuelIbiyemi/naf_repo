@@ -1,6 +1,8 @@
 import {
+  Autocomplete,
   Box,
   Button,
+  Chip,
   Dialog,
   IconButton,
   InputAdornment,
@@ -16,7 +18,9 @@ import { useNavigate, useParams } from "react-router-dom";
 import {
   useAddPostMutation,
   useGetPostMMutation,
+  useGetPostCategoriesQuery,
   useGetPostQuery,
+  useGetPostTagsQuery,
   useUpdatePostMutation,
   useExportPostContentMutation,
   useImportPostContentMutation,
@@ -33,6 +37,7 @@ import BlockEditorPanel from "./components/BlockEditorPanel";
 import BlockTypeSelector from "./components/BlockTypeSelector";
 
 const PostPage = () => {
+  const RESERVED_POST_CATEGORIES = new Set(["posts"]);
   const { resource_type, post_id } = useParams();
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
@@ -50,7 +55,8 @@ const PostPage = () => {
     type: "image",
     modal: false,
   });
-  const [categories, setCategories] = useState("");
+  const [categories, setCategories] = useState<string[]>([]);
+  const [tags, setTags] = useState<string[]>([]);
   const [blockSearch, setBlockSearch] = useState("");
   const [selectedBlockId, setSelectedBlockId] = useState<string | null>(null);
   const [menuLocations, setMenuLocations] = useState({
@@ -62,6 +68,24 @@ const PostPage = () => {
   const sidebarRef = useRef<HTMLDivElement | null>(null);
   const settingsPanelRef = useRef<HTMLDivElement | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const { data: availableCategories } = useGetPostCategoriesQuery(
+    { page: 1, per_page: 1000 },
+    { skip: resource_type !== "posts" }
+  );
+  const { data: availableTags } = useGetPostTagsQuery(undefined, {
+    skip: resource_type !== "posts",
+  });
+
+  const normalizeTerms = useCallback((values: string[]) => {
+    const seen = new Set<string>();
+    return values.reduce<string[]>((acc, value) => {
+      const normalized = value.trim().toLowerCase();
+      if (!normalized || seen.has(normalized)) return acc;
+      seen.add(normalized);
+      acc.push(normalized);
+      return acc;
+    }, []);
+  }, []);
 
   const normalizeBlocks = useCallback(
     (blocks: BlockType[], prevBlocks?: BlockType[]) => {
@@ -138,9 +162,16 @@ const PostPage = () => {
 
   useEffect(() => {
     if (post?.categories) {
-      setCategories(post.categories.map((category) => category.name.toLowerCase()).join(', '));
+      setCategories(
+        normalizeTerms(
+          post.categories
+            .map((category) => category.name)
+            .filter((name) => !RESERVED_POST_CATEGORIES.has(name.toLowerCase()))
+        )
+      );
+      setTags(normalizeTerms(post.tags?.map((tag) => tag.name) || []));
     }
-  }, [post]);
+  }, [post, normalizeTerms]);
 
   useEffect(() => {
     if (resource_type !== "navigation" || !post?.categories) return;
@@ -204,12 +235,10 @@ const PostPage = () => {
   const buildPayload = useCallback(
     (nextBlocks?: BlockType[]): PostCreateType | null => {
       if (!post || !post?.title) return null;
-      const initialCategories = categories
-        .split(',')
-        .map((cat) => cat.trim().toLowerCase())
-        .filter(Boolean);
+      const initialCategories = normalizeTerms(categories);
       const resourceTag = resource_type?.toLowerCase();
       let categoriesArray = [];
+      let tagsArray = normalizeTerms(tags);
 
       if (resourceTag === "navigation") {
         const nonMenuCategories = initialCategories.filter(
@@ -227,6 +256,11 @@ const PostPage = () => {
           ...(resource_type ? [resource_type.toLowerCase()] : []),
         ];
         categoriesArray = [...new Set([...initialCategories, ...additionalCategories])];
+        if (resourceTag !== "posts") tagsArray = categoriesArray;
+      }
+
+      if (resourceTag === "posts") {
+        categoriesArray = [...new Set([...initialCategories, "posts"])];
       }
 
       const normalizedBlocks = (nextBlocks || post?.blocks || []).map(
@@ -241,10 +275,10 @@ const PostPage = () => {
         blocks: normalizedBlocks,
         featured_image: post.featured_image || media.url,
         categories: categoriesArray,
-        tags: categoriesArray,
+        tags: tagsArray,
       };
     },
-    [post, categories, menuLocations, resource_type, media.url]
+    [post, categories, tags, menuLocations, resource_type, media.url, normalizeTerms]
   );
 
   const handleSave = useCallback(async () => {
@@ -449,6 +483,15 @@ const PostPage = () => {
     if (!landingUrl) return;
     window.open(landingUrl, "_blank", "noopener,noreferrer");
   };
+
+  const categoryOptions = normalizeTerms(
+    (availableCategories?.categories || [])
+      .map((category) => category.name)
+      .filter((name) => !RESERVED_POST_CATEGORIES.has(name.toLowerCase()))
+  );
+  const tagOptions = normalizeTerms(
+    (availableTags?.tags || []).map((tag) => tag.name)
+  );
 
   return (
     <Box sx={contentStyles}>
@@ -704,10 +747,73 @@ const PostPage = () => {
               }}
             >
               <label htmlFor="">Categories</label>
-              <TextField
-                variant="outlined"
+              <Autocomplete
+                multiple
+                freeSolo
+                filterSelectedOptions
+                options={categoryOptions}
                 value={categories}
-                onChange={(e) => setCategories(e.target.value)}
+                onChange={(_event, newValue) =>
+                  setCategories(normalizeTerms(newValue.map((value) => String(value))))
+                }
+                renderTags={(value, getTagProps) =>
+                  value.map((option, index) => (
+                    <Chip
+                      {...getTagProps({ index })}
+                      key={option}
+                      label={option}
+                      size="small"
+                    />
+                  ))
+                }
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    variant="outlined"
+                    placeholder="Add categories"
+                    helperText="Type to find existing categories or create a new one."
+                  />
+                )}
+              />
+            </Box>
+          )}
+          {resource_type === "posts" && (
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                gap: "1rem",
+                marginBottom: "1rem",
+              }}
+            >
+              <label htmlFor="">Tags</label>
+              <Autocomplete
+                multiple
+                freeSolo
+                filterSelectedOptions
+                options={tagOptions}
+                value={tags}
+                onChange={(_event, newValue) =>
+                  setTags(normalizeTerms(newValue.map((value) => String(value))))
+                }
+                renderTags={(value, getTagProps) =>
+                  value.map((option, index) => (
+                    <Chip
+                      {...getTagProps({ index })}
+                      key={option}
+                      label={option}
+                      size="small"
+                    />
+                  ))
+                }
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    variant="outlined"
+                    placeholder="Add tags"
+                    helperText="Type to find existing tags or create a new one."
+                  />
+                )}
               />
             </Box>
           )}

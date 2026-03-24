@@ -44,3 +44,6 @@ export type CategoryResponse = { category: CategoryType };
 export type CategoriesResponse = {
   categories: CategoryType[];
 };
+export type TagsResponse = {
+  tags: CategoryType[];
+};

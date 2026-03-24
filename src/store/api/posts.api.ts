@@ -1,7 +1,7 @@
 import { AnnouncementResponse } from "../../Pages/student/announcements/SingleAnnouncement";
 import { PostsResponseAnnouncement } from "../../types/announcements";
 import { Pagination } from "../../types/pagination";
-import { CategoriesResponse, PostCreateType, PostResponse, PostsResponse } from "../../types/posts";
+import { CategoriesResponse, PostCreateType, PostResponse, PostsResponse, TagsResponse } from "../../types/posts";
 import { appApi } from "./app.api";
 
 const postsApi = appApi.injectEndpoints({
@@ -35,6 +35,10 @@ const postsApi = appApi.injectEndpoints({
         `/post/categories?page=${page}&per_page=${per_page}${
           search_term ? "&search_term=" + search_term : ""
         }`,
+      providesTags: ["Posts"],
+    }),
+    getPostTags: builder.query<TagsResponse, void>({
+      query: () => `/post/tags`,
       providesTags: ["Posts"],
     }),
     getPostByCategory: builder.query<
@@ -130,6 +134,7 @@ export const {
   useGetPostQuery,
   useGetPostMMutation,
   useGetPostCategoriesQuery,
+  useGetPostTagsQuery,
   useGetPostCategoriesByTagQuery,
   useGetPostBySlugQuery,
   useGetPostByCategoryQuery,
