@@ -10,6 +10,10 @@ import { logout, setAccessToken, setRefreshToken } from "./auth.slice";
 export const myBaseQuery = fetchBaseQuery({
   baseUrl: import.meta.env.VITE_API_URL,
   prepareHeaders: (headers, { getState }) => {
+    if (headers.has("authorization")) {
+      return headers;
+    }
+
     const token =
       (getState() as RootState).auth.access_token ||
       localStorage.getItem("access_token");
