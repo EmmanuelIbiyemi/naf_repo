@@ -9,9 +9,15 @@ import {
 import { useAddMediaMutation } from "../../../store/api/media.api";
 import EmptyState from "../../../components/EmptyState";
 import { LANDING_THEMES } from "../../../config/themes";
+import { useGetPostByCategoryQuery } from "../../../store/api/posts.api";
 
 const ContactSettings = () => {
   const { data: settings, isLoading } = useGetAdminSettingsQuery();
+  const { data: pagesResponse } = useGetPostByCategoryQuery({
+    tag: "page",
+    page: 1,
+    per_page: 1000,
+  });
   const [bulkUpdate, { isLoading: isUpdating }] = useBulkUpdateSettingsMutation();
   const [addMedia, { isLoading: isUploading }] = useAddMediaMutation();
   
@@ -29,6 +35,7 @@ const ContactSettings = () => {
     school_keywords: "",
     max_student_count: "",
     site_theme: "navy-gold",
+    home_page_slug: "",
   });
   
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
@@ -55,6 +62,7 @@ const ContactSettings = () => {
         school_keywords: settingsMap.school_keywords || "",
         max_student_count: settingsMap.max_student_count || "",
         site_theme: settingsMap.site_theme || "navy-gold",
+        home_page_slug: settingsMap.home_page_slug || "",
       });
     }
   }, [settings]);
@@ -137,6 +145,7 @@ const ContactSettings = () => {
         school_keywords: settingsMap.school_keywords || "",
         max_student_count: settingsMap.max_student_count || "",
         site_theme: settingsMap.site_theme || "navy-gold",
+        home_page_slug: settingsMap.home_page_slug || "",
       });
     }
     setSuccessMessage(null);
@@ -358,6 +367,37 @@ const ContactSettings = () => {
           sx={textFieldStyle}
           helperText="Full URL to your YouTube channel"
         />
+      </Box>
+
+      <Typography variant="h2" sx={{ ...sectionTitleStyle, mt: 4 }}>
+        Homepage
+      </Typography>
+      <Box sx={themeSectionStyle}>
+        <FormControl fullWidth>
+          <Typography variant="subtitle2" sx={{ mb: 1 }}>
+            Homepage Page
+          </Typography>
+          <Select
+            value={formValues.home_page_slug}
+            onChange={handleChange("home_page_slug")}
+            displayEmpty
+          >
+            <MenuItem value="">
+              Default slug: home
+            </MenuItem>
+            {(pagesResponse?.post || [])
+              .slice()
+              .sort((a, b) => a.title.localeCompare(b.title))
+              .map((page) => (
+                <MenuItem key={page.id} value={page.slug || ""}>
+                  {page.title} {page.slug ? `(${page.slug})` : ""}
+                </MenuItem>
+              ))}
+          </Select>
+        </FormControl>
+        <Typography variant="body2" color="text.secondary">
+          Choose which page opens at the landing page root. If left empty, the landing page will open the slug `home`.
+        </Typography>
       </Box>
 
       {/* Website Appearance */}

@@ -13,6 +13,7 @@ export interface AppSettings {
   school_description?: string;
   school_keywords?: string;
   site_theme?: string;
+  home_page_slug?: string;
   [key: string]: string | undefined;
 }
 
