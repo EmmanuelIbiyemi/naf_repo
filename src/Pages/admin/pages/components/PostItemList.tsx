@@ -167,8 +167,10 @@ const PostTypeItemList = () => {
   };
 
   const handleSearch = async (event: KeyboardEvent) => {
-    if (event.key == "Enter")
+    if (event.key == "Enter") {
+      setPagination((prev) => ({ ...prev, page: 1 }));
       dispatch(setKeyword((event.target as HTMLInputElement).value));
+    }
   };
 
   useEffect(() => {
@@ -182,6 +184,10 @@ const PostTypeItemList = () => {
       setLocalPosts(posts.post);
     }
   }, [posts]);
+
+  useEffect(() => {
+    setPagination((prev) => ({ ...prev, page: 1 }));
+  }, [keyword]);
 
   useEffect(() => {
     // clear search field on page change
