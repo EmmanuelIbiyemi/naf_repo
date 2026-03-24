@@ -2,6 +2,7 @@ import { Pagination } from "../../types/pagination";
 import {
   SingleStudentResponse,
   StudentCreateType,
+  StudentPhotoUploadResponse,
   StudentsResponse,
   StudentsUploadType,
   StudentType,
@@ -41,6 +42,17 @@ const studentsApi = appApi.injectEndpoints({
           }),
           invalidatesTags: ["Students"],
         }),
+    bulkUploadStudentPhotos: builder.mutation<
+      StudentPhotoUploadResponse,
+      FormData
+    >({
+      query: (data) => ({
+        url: `/participant/photo-upload`,
+        method: "POST",
+        body: data,
+      }),
+      invalidatesTags: ["Students"],
+    }),
     promoteAll: builder.mutation<StudentsResponse, null>({
       query: () => ({
         url: `/participant/promote`,
@@ -88,6 +100,7 @@ export const {
   useGetStudentsQuery,
   useAddStudentMutation,
   useUploadStudentsMutation,
+  useBulkUploadStudentPhotosMutation,
   useUpdateStudentMutation,
   useDeleteStudentMutation,
   useBulkDeleteStudentsMutation,

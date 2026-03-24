@@ -38,6 +38,20 @@ export type StudentsResponse = {
 export type StudentUploadResponse = {
 }
 
+export type StudentPhotoUploadFailure = {
+  filename: string;
+  matric_number?: string;
+  reason: string;
+};
+
+export type StudentPhotoUploadResponse = {
+  message: string;
+  status: string;
+  updated: number;
+  failed: number;
+  failures: StudentPhotoUploadFailure[];
+};
+
 export type SingleStudentResponse = { data: StudentType };
 
 export type StudentCombinedType = StudentCreateType | StudentType;
