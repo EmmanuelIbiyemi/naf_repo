@@ -305,7 +305,7 @@ const PostPage = () => {
 
   const handleBack = useCallback(() => {
     navigate(`/settings/posttype/${resource_type}`);
-  }, [navigate]);
+  }, [navigate, resource_type]);
 
   const handleExport = useCallback(async () => {
     if (!post?.id) return;
@@ -350,9 +350,15 @@ const PostPage = () => {
       }
       
       alert(`Successfully imported ${response.blocks_imported} blocks!`);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Failed to import post content:", error);
-      const errorMessage = error?.data?.message || "Failed to import post content. Please try again.";
+      const errorMessage =
+        typeof error === "object" &&
+        error !== null &&
+        "data" in error &&
+        typeof (error as { data?: { message?: string } }).data?.message === "string"
+          ? (error as { data?: { message?: string } }).data?.message
+          : "Failed to import post content. Please try again.";
       alert(errorMessage);
     } finally {
       dispatch(setPageLoading(false));
@@ -416,7 +422,7 @@ const PostPage = () => {
   useEffect(() => {
     if (isFetching) dispatch(setPageLoading(true));
     else dispatch(setPageLoading(false));
-  }, [isFetching]);
+  }, [isFetching, dispatch]);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -540,10 +546,43 @@ const PostPage = () => {
               setPost((prev) =>
                 prev
                   ? { ...prev, title: e.target.value }
-                  : { title: e.target.value, blocks: [] }
+                  : { title: e.target.value, blocks: [], view_as_page: false }
               )
             }
           />
+          {resource_type === "posts" && (
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                gap: "0.5rem",
+                marginBottom: "1rem",
+              }}
+            >
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={Boolean(post?.view_as_page)}
+                    onChange={(e) =>
+                      setPost((prev) =>
+                        prev
+                          ? { ...prev, view_as_page: e.target.checked }
+                          : {
+                              title: "",
+                              blocks: [],
+                              view_as_page: e.target.checked,
+                            }
+                      )
+                    }
+                  />
+                }
+                label="View this post as a page"
+              />
+              <Typography variant="caption" color="text.secondary">
+                Hides the featured image and related posts on the landing page.
+              </Typography>
+            </Box>
+          )}
           {resource_type === "navigation" && (
             <Box
               sx={{

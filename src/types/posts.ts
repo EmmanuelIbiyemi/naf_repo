@@ -15,6 +15,7 @@ export type PostBaseType = {
   featured_image?: string;
   slug?: string;
   title: string;
+  view_as_page?: boolean;
 };
 
 export type PostCreateType = PostBaseType & {
