@@ -56,7 +56,6 @@ const PostPage = () => {
     modal: false,
   });
   const [categories, setCategories] = useState<string[]>([]);
-  const [tags, setTags] = useState<string[]>([]);
   const [blockSearch, setBlockSearch] = useState("");
   const [selectedBlockId, setSelectedBlockId] = useState<string | null>(null);
   const [menuLocations, setMenuLocations] = useState({
@@ -164,12 +163,12 @@ const PostPage = () => {
     if (post?.categories) {
       setCategories(
         normalizeTerms(
-          post.categories
-            .map((category) => category.name)
-            .filter((name) => !RESERVED_POST_CATEGORIES.has(name.toLowerCase()))
+          [
+            ...(post.categories || []).map((category) => category.name),
+            ...(post.tags || []).map((tag) => tag.name),
+          ].filter((name) => !RESERVED_POST_CATEGORIES.has(name.toLowerCase()))
         )
       );
-      setTags(normalizeTerms(post.tags?.map((tag) => tag.name) || []));
     }
   }, [post, normalizeTerms]);
 
@@ -238,7 +237,7 @@ const PostPage = () => {
       const initialCategories = normalizeTerms(categories);
       const resourceTag = resource_type?.toLowerCase();
       let categoriesArray = [];
-      let tagsArray = normalizeTerms(tags);
+      let tagsArray = [...initialCategories];
 
       if (resourceTag === "navigation") {
         const nonMenuCategories = initialCategories.filter(
@@ -261,6 +260,7 @@ const PostPage = () => {
 
       if (resourceTag === "posts") {
         categoriesArray = [...new Set([...initialCategories, "posts"])];
+        tagsArray = [...initialCategories];
       }
 
       const normalizedBlocks = (nextBlocks || post?.blocks || []).map(
@@ -278,7 +278,7 @@ const PostPage = () => {
         tags: tagsArray,
       };
     },
-    [post, categories, tags, menuLocations, resource_type, media.url, normalizeTerms]
+    [post, categories, menuLocations, resource_type, media.url, normalizeTerms]
   );
 
   const handleSave = useCallback(async () => {
@@ -492,6 +492,7 @@ const PostPage = () => {
   const tagOptions = normalizeTerms(
     (availableTags?.tags || []).map((tag) => tag.name)
   );
+  const taxonomyOptions = normalizeTerms([...categoryOptions, ...tagOptions]);
 
   return (
     <Box sx={contentStyles}>
@@ -746,12 +747,12 @@ const PostPage = () => {
                 marginBottom: "1rem",
               }}
             >
-              <label htmlFor="">Categories</label>
+              <label htmlFor="">Categories / Tags</label>
               <Autocomplete
                 multiple
                 freeSolo
                 filterSelectedOptions
-                options={categoryOptions}
+                options={taxonomyOptions}
                 value={categories}
                 onChange={(_event, newValue) =>
                   setCategories(normalizeTerms(newValue.map((value) => String(value))))
@@ -770,48 +771,8 @@ const PostPage = () => {
                   <TextField
                     {...params}
                     variant="outlined"
-                    placeholder="Add categories"
-                    helperText="Type to find existing categories or create a new one."
-                  />
-                )}
-              />
-            </Box>
-          )}
-          {resource_type === "posts" && (
-            <Box
-              sx={{
-                display: "flex",
-                flexDirection: "column",
-                gap: "1rem",
-                marginBottom: "1rem",
-              }}
-            >
-              <label htmlFor="">Tags</label>
-              <Autocomplete
-                multiple
-                freeSolo
-                filterSelectedOptions
-                options={tagOptions}
-                value={tags}
-                onChange={(_event, newValue) =>
-                  setTags(normalizeTerms(newValue.map((value) => String(value))))
-                }
-                renderTags={(value, getTagProps) =>
-                  value.map((option, index) => (
-                    <Chip
-                      {...getTagProps({ index })}
-                      key={option}
-                      label={option}
-                      size="small"
-                    />
-                  ))
-                }
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    variant="outlined"
-                    placeholder="Add tags"
-                    helperText="Type to find existing tags or create a new one."
+                    placeholder="Add categories or tags"
+                    helperText="Type to find existing categories or tags, or create a new one."
                   />
                 )}
               />
