@@ -15,8 +15,6 @@ import { BlockSettings, BlockType } from "../../../../types/blocks";
 import { PostType } from "../../../../types/posts";
 import { useEffect, useMemo, useState } from "react";
 import { useDeletePostBlockMutation } from "../../../../store/api/posts.api";
-import { useAppDispatch } from "../../../../store/hooks";
-import { setBuilderLoading } from "../../../../store/app.slice";
 import DeleteIcon from "../../../../assets/deleteIcon";
 import { ActionButtons } from "./ActionButtons";
 import HeadingBlock from "./postblocks/Heading";
@@ -85,7 +83,6 @@ const PageBuilder = ({
 }: Props) => {
   const [draggedBlockId, setDraggedBlockId] = useState<string | null>(null);
   const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set());
-  const dispatch = useAppDispatch();
   const [deleteBlock] = useDeletePostBlockMutation();
 
   const sensors = useSensors(
@@ -356,21 +353,45 @@ const PageBuilder = ({
   };
 
   const handleDeleteRowBlock = async (block: BlockType) => {
-    dispatch(setBuilderLoading(true));
+    const matchesBlock = (candidate: BlockType) =>
+      block.id ? candidate.id === block.id : candidate.randomId === block.randomId;
+
+    setPage((prev) => ({
+      ...prev,
+      blocks: prev.blocks
+        .filter((candidate) => !matchesBlock(candidate))
+        .map((candidate, index) => ({
+          ...candidate,
+          position: index + 1,
+        })),
+    }));
+
     try {
       if (block.id) {
         await deleteBlock(block.id).unwrap();
       }
-      setPage((prev) => ({
-        ...prev,
-        blocks: prev.blocks.filter((b) =>
-          block.id ? b.id !== block.id : b.randomId !== block.randomId
-        ),
-      }));
     } catch (error) {
-      console.log(error);
+      console.error(error);
+      setPage((prev) => {
+        if (prev.blocks.some(matchesBlock)) return prev;
+
+        const nextBlocks = [...prev.blocks];
+        const insertIndex = Math.max(
+          0,
+          Math.min(nextBlocks.length, (block.position || 1) - 1)
+        );
+
+        nextBlocks.splice(insertIndex, 0, block);
+
+        return {
+          ...prev,
+          blocks: nextBlocks.map((candidate, index) => ({
+            ...candidate,
+            position: index + 1,
+          })),
+        };
+      });
     }
-    dispatch(setBuilderLoading(false));
   };
 
   const blockGroups = useMemo(() => {

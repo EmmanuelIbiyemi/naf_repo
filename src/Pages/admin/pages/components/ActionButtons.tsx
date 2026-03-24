@@ -1,11 +1,9 @@
 import { Box, IconButton } from "@mui/material";
 import { useDeletePostBlockMutation } from "../../../../store/api/posts.api";
-import { useAppDispatch } from "../../../../store/hooks";
 import { BlockType } from "../../../../types/blocks";
 import { PostType } from "../../../../types/posts";
 import DeleteIcon from "../../../../assets/deleteIcon";
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
-import { setBuilderLoading } from "../../../../store/app.slice";
 
 type ActionProp = {
   block: BlockType;
@@ -13,21 +11,43 @@ type ActionProp = {
 };
 
 export const ActionButtons = ({ block, setPage }: ActionProp) => {
-  const dispatch = useAppDispatch();
   const [deleteBlock] = useDeletePostBlockMutation();
 
   const handleDelete = async (block_id: number) => {
-    dispatch(setBuilderLoading(true));
+    setPage((prev) => ({
+      ...prev,
+      blocks: prev.blocks
+        .filter((item) => item.id !== block_id)
+        .map((item, index) => ({
+          ...item,
+          position: index + 1,
+        })),
+    }));
+
     try {
       await deleteBlock(block_id).unwrap();
-      setPage((prev) => ({
-        ...prev,
-        blocks: prev.blocks.filter((block) => block.id !== block_id),
-      }));
     } catch (error) {
-      console.log(error);
+      console.error(error);
+      setPage((prev) => {
+        if (prev.blocks.some((item) => item.id === block_id)) return prev;
+
+        const nextBlocks = [...prev.blocks];
+        const insertIndex = Math.max(
+          0,
+          Math.min(nextBlocks.length, (block.position || 1) - 1)
+        );
+
+        nextBlocks.splice(insertIndex, 0, block);
+
+        return {
+          ...prev,
+          blocks: nextBlocks.map((item, index) => ({
+            ...item,
+            position: index + 1,
+          })),
+        };
+      });
     }
-    dispatch(setBuilderLoading(false));
   };
 
   const handleDuplicate = () => {
