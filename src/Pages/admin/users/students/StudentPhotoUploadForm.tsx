@@ -10,11 +10,14 @@ type Props = {
 };
 
 const allowedFileTypes = "image/png,image/jpeg,image/jpg,image/webp,image/gif";
+const MAX_FILES = 10;
+const MAX_FILE_SIZE_BYTES = 2 * 1024 * 1024;
 
 const StudentPhotoUploadForm = ({ close }: Props) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [result, setResult] = useState<StudentPhotoUploadResponse | null>(null);
+  const [validationError, setValidationError] = useState("");
   const [isDragging, setIsDragging] = useState(false);
   const [bulkUploadStudentPhotos, uploadState] =
     useBulkUploadStudentPhotosMutation();
@@ -26,7 +29,29 @@ const StudentPhotoUploadForm = ({ close }: Props) => {
 
   const handleFiles = (files: FileList | null) => {
     if (!files?.length) return;
-    setSelectedFiles(Array.from(files));
+    const nextFiles = Array.from(files);
+
+    if (nextFiles.length > MAX_FILES) {
+      setValidationError(`You can upload up to ${MAX_FILES} photos at a time.`);
+      setSelectedFiles([]);
+      setResult(null);
+      return;
+    }
+
+    const oversizedFile = nextFiles.find(
+      (file) => file.size > MAX_FILE_SIZE_BYTES
+    );
+    if (oversizedFile) {
+      setValidationError(
+        `${oversizedFile.name} exceeds the 5 MB size limit.`
+      );
+      setSelectedFiles([]);
+      setResult(null);
+      return;
+    }
+
+    setValidationError("");
+    setSelectedFiles(nextFiles);
     setResult(null);
   };
 
@@ -95,7 +120,7 @@ const StudentPhotoUploadForm = ({ close }: Props) => {
           Drag your photo files here or browse
         </Typography>
         <Typography sx={{ color: "text.secondary", mb: 2 }}>
-          Accepted formats: JPG, PNG, WEBP, GIF
+          Accepted formats: JPG, PNG, WEBP, GIF. Maximum {MAX_FILES} files, {MAX_FILE_SIZE_BYTES / (1024 * 1024)} MB each.
         </Typography>
         <input
           ref={inputRef}
@@ -132,6 +157,12 @@ const StudentPhotoUploadForm = ({ close }: Props) => {
             </List>
           </Paper>
         </Box>
+      ) : null}
+
+      {validationError ? (
+        <Alert severity="error" sx={{ mt: 3 }}>
+          {validationError}
+        </Alert>
       ) : null}
 
       {result ? (
@@ -171,7 +202,7 @@ const StudentPhotoUploadForm = ({ close }: Props) => {
           variant="contained"
           onClick={handleSubmit}
           loading={uploadState.isLoading}
-          disabled={!selectedFiles.length}
+          disabled={!selectedFiles.length || Boolean(validationError)}
         >
           Upload Photos
         </LoadingButton>
