@@ -47,7 +47,7 @@ const studentsApi = appApi.injectEndpoints({
       FormData
     >({
       query: (data) => ({
-        url: `/participant/photo-upload`,
+        url: `/media/student-photos`,
         method: "POST",
         body: data,
       }),
