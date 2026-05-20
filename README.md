@@ -1,50 +1,28 @@
-# React + TypeScript + Vite
+# NAF LMS Dashboard
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## ENVIRONMENT VARIABLES EXAMPLE
 
-Currently, two official plugins are available:
+```bash
+VITE_API_URL=""
+VITE_LOGO="optional"
+VITE_SCHOOL_NAME_IN_HEADER="optional"
+VITE_SCHOOL_NAME="optional"
+VITE_SCHOOL_ACRONYM="optional"
+VITE_SCHOOL_DESCRIPTION="optional"
+VITE_SCHOOL_KEYWORDS="optional"
+VITE_EMAIL="optional"
+VITE_PHONE_NUMBER="optional"
+VITE_X="optional"
+VITE_FACEBOOK="optional"
+VITE_YOUTUBE="optional"
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+VITE_SAMPLE_QUESTIONS_FILE=https://dhfspace.fra1.digitaloceanspaces.com/dhfspace/0cdrzll7ht_myecgoxag1.docx
+VITE_SAMPLE_ELIGIBLES_FILE=https://dhfspace.fra1.digitaloceanspaces.com/dhfspace/sample-reg-nums_2brd1xidyh.xlsx
+VITE_SAMPLE_STUDENTS_FILE=https://dhfspace.fra1.digitaloceanspaces.com/dhfspace/stdentslist_h3dr2js9sd.xlsx
+VITE_LEGACY_RESULT_TEMPLATE=https://dhfspace.fra1.digitaloceanspaces.com/dhfspace/result-test-temp_27g7jtmjz4.xlsx
 
-## Expanding the ESLint configuration
+VITE_IMAGE_KIT_ID=mrteey
+VITE_SPACE_FOLDER=dhfspace
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
-
-- Configure the top-level `parserOptions` property like this:
-
-```js
-export default tseslint.config({
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
-```
-
-- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
-- Optionally add `...tseslint.configs.stylisticTypeChecked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
-
-```js
-// eslint.config.js
-import react from 'eslint-plugin-react'
-
-export default tseslint.config({
-  // Set the react version
-  settings: { react: { version: '18.3' } },
-  plugins: {
-    // Add the react plugin
-    react,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended rules
-    ...react.configs.recommended.rules,
-    ...react.configs['jsx-runtime'].rules,
-  },
-})
+VITE_LANDING_URL=""
 ```
