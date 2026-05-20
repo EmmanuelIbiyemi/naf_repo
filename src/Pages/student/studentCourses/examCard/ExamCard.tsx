@@ -54,7 +54,7 @@ const ExamCard = () => {
 
   // Sample exam data - you would typically get this from another endpoint
   const examRows = participant?.courses?.filter(
-    (course) => course.semester === currentSemester?.data.name
+    (course) => course.semester?.toLowerCase() === currentSemester?.data.name?.toLowerCase()
   );
 
   return (

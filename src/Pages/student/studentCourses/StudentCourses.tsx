@@ -120,7 +120,7 @@ const StudentCourses: React.FC = () => {
                       <Chip
                         label={course.semester}
                         color={
-                          course.semester === "First Semester"
+                          course.semester?.toLowerCase() === "first semester"
                             ? "primary"
                             : "secondary"
                         }

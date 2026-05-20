@@ -66,7 +66,7 @@ export default function Results() {
 
   // Update available semesters when session changes
   const updateAvailableSemesters = (sessionName: string) => {
-    const session = sessionsData?.data.find((s) => s.name === sessionName);
+    const session = sessionsData?.data.find((s) => s.name?.toLowerCase() === sessionName?.toLowerCase());
     if (session?.semesters) {
       setAvailableSemesters(session.semesters);
       setSelectedSemester(session.semesters[0].name);

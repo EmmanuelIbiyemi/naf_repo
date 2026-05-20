@@ -51,7 +51,7 @@ const CourseCard = () => {
   const filteredCourses = useMemo(() => {
     if (!response?.data?.courses) return [];
     if (semesterFilter === "all") return response.data.courses;
-    return response.data.courses.filter((course: { semester: string }) => course.semester === semesterFilter);
+    return response.data.courses.filter((course: { semester: string }) => course.semester?.toLowerCase() === semesterFilter.toLowerCase());
   }, [response?.data?.courses, semesterFilter]);
 
   // Calculate total credit units for filtered courses
