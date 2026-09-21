@@ -1,8 +1,11 @@
-import CustomModal from "./CustomModal";
-import { Alert, Box, IconButton, Typography } from "@mui/material";
-import { LoadingButton } from "@mui/lab";
-import unhappyEmoji from "../assets/unhappy-emoji.svg";
-import { Close, Info } from "@mui/icons-material";
+import {
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+} from "@mui/material";
 
 type Props = {
   open: boolean;
@@ -26,42 +29,30 @@ const DeleteConfirmationModal = ({
   buttonText,
 }: Props) => {
   return (
-    <CustomModal close={close} open={open}>
-      <Box
-        sx={{
-          alignItems: "center",
-          display: "flex",
-          justifyContent: "space-between",
-        }}
-      >
-        <img src={unhappyEmoji} alt="" />
-        <IconButton onClick={close}>
-          <Close />
-        </IconButton>
-      </Box>
-      <Box sx={{ display: "grid", gap: ".8rem" }}>
-        <Typography variant="h4">{title}</Typography>
-        <Typography>{subTitle}</Typography>
-        {infoText ? (
-          <Alert severity="info" icon={<Info />}>
-            {infoText}
-          </Alert>
-        ) : null}
-      </Box>
-      <Box>
-        <LoadingButton
+    <Dialog
+      open={open}
+      onClose={close}
+      aria-describedby="alert-dialog-slide-description"
+    >
+      <DialogTitle>{title}</DialogTitle>
+      <DialogContent>
+        <DialogContentText id="alert-dialog-slide-description">
+          {subTitle}
+          {infoText && <>{infoText}</>}
+        </DialogContentText>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={close}>Cancel</Button>
+        <Button
           onClick={() => {
             actions.proceed();
             close();
           }}
-          sx={{ width: "100%" }}
-          type="submit"
-          variant="contained"
         >
-          {buttonText ? buttonText : "Yes, delete it"}
-        </LoadingButton>
-      </Box>
-    </CustomModal>
+          {buttonText ? buttonText : "Confirm"}
+        </Button>
+      </DialogActions>
+    </Dialog>
   );
 };
 

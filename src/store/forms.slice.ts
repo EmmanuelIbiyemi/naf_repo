@@ -10,6 +10,7 @@ interface AppState {
 const initialState: AppState = {
   current: {
     fee: 0,
+    instructions: "",
     name: "Untitled Form",
     program_id: 13,
     level_id: 13,
@@ -44,6 +45,7 @@ export const formSlice = createSlice({
       state.current = {
         fee: 0,
         name: "",
+        instructions: "",
         program_id: 0,
         level_id: 0,
         sections: [],

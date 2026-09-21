@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Box,
   List,
@@ -18,11 +18,13 @@ import {
   EmojiEvents,
   CalendarToday,
   Assessment,
+  LockOpen,
 } from "@mui/icons-material";
-import { format } from "date-fns";
+import { formatDateShort } from "../../../utils/dateUtils";
 import { Link, useNavigate } from "react-router-dom";
-import { useAppSelector } from "../../../store/hooks";
+import { useAppSelector, useAppDispatch } from "../../../store/hooks";
 import { selectCurrentUser } from "../../../store/auth.slice";
+import { setPageName } from "../../../store/app.slice";
 import { useGetParticipantQuery } from "../../../store/api/participants.api";
 import { useGetCourseQuizzesQuery } from "../../../store/api/quizzes.api";
 import { CourseBaseType } from "../../../types/courses";
@@ -149,8 +151,8 @@ const QuizItem: React.FC<QuizItemProps> = ({ quiz }) => (
         >
           <CalendarToday fontSize="small" />
           <Typography variant="body2">
-            {format(new Date(quiz.start_date), "MMM dd, yyyy")} -{" "}
-            {format(new Date(quiz.expiry_date), "MMM dd, yyyy")}
+            {formatDateShort(quiz.start_date)} -{" "}
+            {formatDateShort(quiz.expiry_date)}
           </Typography>
         </Box>
       </Box>
@@ -181,6 +183,11 @@ const CourseCBT = () => {
   const [isTransitioning, setIsTransitioning] = useState(false);
   const user = useAppSelector(selectCurrentUser);
   const participantId = user?.id || 0;
+  const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    dispatch(setPageName("CBT"));
+  }, [dispatch]);
 
   const { data: participantData, isLoading: isParticipantLoading } =
     useGetParticipantQuery(participantId);
@@ -221,42 +228,75 @@ const CourseCBT = () => {
 
   return (
     <Box className="content-container">
-      <Box
+      <Paper
+        elevation={2}
         sx={{
-          display: "flex",
-          gap: 4,
-          width: "100%",
-          alignItems: "center",
-          justifyContent: "center",
-          p: 1,
+          mx: "var(--padding)",
+          mb: 3,
+          background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+          color: "white",
+          overflow: "hidden",
         }}
       >
         <Box
           sx={{
             display: "flex",
-            gap: 4,
-            width: "100%",
             alignItems: "center",
-            justifyContent: "center",
-            p: 1,
-            background: "white",
+            justifyContent: "space-between",
+            p: 3,
+            flexWrap: { xs: "wrap", md: "nowrap" },
+            gap: 2,
           }}
         >
-          <Typography>Enter CBT code to take test:</Typography>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+            <Box
+              sx={{
+                bgcolor: "rgba(255, 255, 255, 0.2)",
+                borderRadius: "50%",
+                p: 1.5,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <LockOpen sx={{ fontSize: 32 }} />
+            </Box>
+            <Box>
+              <Typography variant="h6" sx={{ fontWeight: 600, mb: 0.5 }}>
+                Have a CBT Access Code?
+              </Typography>
+              <Typography variant="body2" sx={{ opacity: 0.9 }}>
+                Enter your code to start the test immediately
+              </Typography>
+            </Box>
+          </Box>
           <Button
             variant="contained"
-            sx={{ backgroundColor: "#023678" }}
+            size="large"
             onClick={handleOpenModal}
+            sx={{
+              bgcolor: "white",
+              color: "#667eea",
+              px: 4,
+              py: 1.5,
+              fontWeight: 600,
+              "&:hover": {
+                bgcolor: "rgba(255, 255, 255, 0.9)",
+                transform: "translateY(-2px)",
+                boxShadow: "0 6px 20px rgba(0,0,0,0.2)",
+              },
+              transition: "all 0.3s ease",
+            }}
           >
-            Enter CBT Code
+            Enter Code
           </Button>
-          <CBTCodeModal
-            open={isModalOpen}
-            onClose={handleCloseModal}
-            onSubmit={handleSubmitCode}
-          />
         </Box>
-      </Box>
+        <CBTCodeModal
+          open={isModalOpen}
+          onClose={handleCloseModal}
+          onSubmit={handleSubmitCode}
+        />
+      </Paper>
       <Box
         sx={{
           bgcolor: "#fff",
@@ -281,7 +321,7 @@ const CourseCBT = () => {
               {isParticipantLoading ? (
                 <LoadingCoursesSkeleton />
               ) : (
-                participantData?.data?.courses.map((course: CourseBaseType) => (
+                participantData?.data?.courses?.map((course: CourseBaseType) => (
                   <React.Fragment key={course.id}>
                     <ListItem disablePadding>
                       <ListItemButton

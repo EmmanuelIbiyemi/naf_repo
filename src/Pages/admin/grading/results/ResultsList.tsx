@@ -3,42 +3,76 @@ import TableCell from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
 import TableRow from "@mui/material/TableRow";
 import {
+  Alert,
   Avatar,
   Box,
   Button,
+  Chip,
   Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
   FormControl,
-  Grid2,
+  Grid,
   IconButton,
   MenuItem,
   Paper,
   Select,
   SelectChangeEvent,
+  Stack,
   TableBody,
   TableHead,
+  TextField,
+  FormControlLabel,
+  Switch,
   Typography,
 } from "@mui/material";
-import { MouseEvent, useEffect, useRef, useState } from "react";
+import { TEMPLATE_FILES } from "../../../../config/templates";
+import {
+  MouseEvent,
+  useEffect,
+  useRef,
+  useState,
+  ChangeEvent,
+  useCallback,
+} from "react";
 import {
   useGenerateResultMutation,
   useGetResultsMMutation,
+  useUploadLegacyResultsMutation,
+  useSetResultVisibilityMutation,
+  useDeleteResultsMutation,
 } from "../../../../store/api/results.api";
+import { useGetGradesQuery } from "../../../../store/api/grades.api";
+import { useCheckResultTaskQuery } from "../../../../store/api/result.api";
 import { useGetFacultiesQuery } from "../../../../store/api/faculties.api";
 import { useGetDepartmentsMMutation } from "../../../../store/api/departments.api";
 import { useGetProgrammesMMutation } from "../../../../store/api/programmes.api";
 import { useGetLevelsMMutation } from "../../../../store/api/levels.api";
 import { useGetSessionsQuery } from "../../../../store/api/sessions.api";
 import { useGetSemestersQuery } from "../../../../store/api/semesters.api";
+import SessionDropdown from "../../../../components/SessionDropdown";
+import { useAddMediaMutation } from "../../../../store/api/media.api";
 import { selectKeyword, setPageLoading } from "../../../../store/app.slice";
 import { useAppDispatch, useAppSelector } from "../../../../store/hooks";
 import SuccessModal from "../../../../components/SuccessModal";
+import CustomPagination from "../../../../components/CustomPagination";
 import { RemoveRedEye } from "@mui/icons-material";
 import { useGetStudentTranscriptQuery } from "../../../../store/api/result.api";
 import { StudentType } from "../../../../types/students";
+import { Pagination } from "../../../../types/pagination";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 import { chunk } from "lodash";
 import { StudentTranscriptResponse } from "../../../../types/transcript";
+import {
+  LegacyResultUploadPayload,
+  ResultType2,
+} from "../../../../types/results";
+import { downloadFile } from "../../../../utils/downloadFile";
+
+const RESULTS_PER_PAGE = 10;
 
 const ResultsList = () => {
   const { data: faculties } = useGetFacultiesQuery({
@@ -52,7 +86,7 @@ const ResultsList = () => {
     { search_term: "" }
   );
   const { data: semesters, isFetching: semesterIsLoading } =
-    useGetSemestersQuery(null);
+    useGetSemestersQuery({});
   const [filters, setFilters] = useState({
     faculty_id: 0,
     department_id: 0,
@@ -61,14 +95,80 @@ const ResultsList = () => {
     session: "default",
     semester: "default",
   });
+  const [selectedSession, setSelectedSession] = useState<any>(null);
+  const [pagination, setPagination] = useState<Pagination>({
+    page: 1,
+    per_page: RESULTS_PER_PAGE,
+  });
   const [getResults, resultState] = useGetResultsMMutation();
   const [generateResults, generateState] = useGenerateResultMutation();
+  const [uploadLegacyResults, uploadLegacyState] =
+    useUploadLegacyResultsMutation();
+  const [setResultVisibility, setVisibilityState] =
+    useSetResultVisibilityMutation();
+  const [deleteResults, deleteResultsState] = useDeleteResultsMutation();
+  const [uploadFile, uploadFileState] = useAddMediaMutation();
   const [results, setResults] = useState(resultState.data?.data);
+  const filtersComplete =
+    Boolean(
+      filters.faculty_id &&
+        filters.department_id &&
+        filters.program_id &&
+        filters.level_id &&
+        filters.session !== "default" &&
+        filters.semester !== "default"
+    );
   const keyword = useAppSelector(selectKeyword);
   const [openModal, setOpenModal] = useState({
     success: false,
     transcript: false,
+    legacyUpload: false,
   });
+  const [successContent, setSuccessContent] = useState({
+    title: "Updates Successful",
+    subTitle: "Results are being generated in the background.",
+    infoText: "Please check back later",
+  });
+  const [legacyUploadError, setLegacyUploadError] = useState<string | null>(
+    null
+  );
+  const [legacyUploadForm, setLegacyUploadForm] =
+    useState<LegacyResultUploadPayload>({
+      department_id: 0,
+      level_id: 0,
+      session: "",
+      semester: "",
+      file_url: "",
+    });
+  const [generateConfirmOpen, setGenerateConfirmOpen] = useState(false);
+  const { data: gradingBands } = useGetGradesQuery(filters.program_id, {
+    skip: !filters.program_id,
+  });
+  const [visibilityDialogOpen, setVisibilityDialogOpen] = useState(false);
+  const [visibilityFormError, setVisibilityFormError] = useState<string | null>(
+    null
+  );
+  const [visibilityForm, setVisibilityForm] = useState({
+    is_visible: true,
+    visible_after: "",
+  });
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [legacyUploadSelections, setLegacyUploadSelections] = useState({
+    faculty_id: 0,
+    department_id: 0,
+    program_id: 0,
+  });
+  const [pendingTask, setPendingTask] = useState<{
+    taskId: string;
+    type: "generate" | "legacyUpload";
+    description: string;
+  } | null>(null);
+  const [taskPromptOpen, setTaskPromptOpen] = useState(false);
+  const [waitingTask, setWaitingTask] = useState<typeof pendingTask>(null);
+  const [taskStatusNote, setTaskStatusNote] = useState<string | null>(null);
+  const [lastTaskId, setLastTaskId] = useState<string | null>(null);
+  const legacyTemplateUrl = TEMPLATE_FILES.LEGACY_RESULT_TEMPLATE;
   const dispatch = useAppDispatch();
 
   //
@@ -84,12 +184,94 @@ const ResultsList = () => {
       skip: !selectedStudent,
     }
   );
+  const { data: taskStatusData, isFetching: taskStatusLoading } =
+    useCheckResultTaskQuery(waitingTask?.taskId || "", {
+      skip: !waitingTask,
+      pollingInterval: waitingTask ? 4000 : 0,
+    });
   //
 
+  const buildTaskCompletionCopy = (
+    taskType: "generate" | "legacyUpload",
+    result: unknown
+  ) => {
+    if (typeof result === "string") {
+      return { subTitle: result, infoText: undefined };
+    }
+    if (result && typeof result === "object") {
+      const asRecord = result as Record<string, unknown>;
+      const message =
+        typeof asRecord.message === "string"
+          ? asRecord.message
+          : taskType === "legacyUpload"
+          ? "Offline result upload completed."
+          : "Result generation completed.";
+
+      if (taskType === "legacyUpload") {
+        const uploaded =
+          typeof asRecord.uploaded === "number" ? asRecord.uploaded : null;
+        const failed =
+          typeof asRecord.failed === "number" ? asRecord.failed : null;
+        const infoParts = [];
+        if (uploaded !== null) infoParts.push(`Uploaded: ${uploaded}`);
+        if (failed !== null) infoParts.push(`Failed: ${failed}`);
+        return {
+          subTitle: message,
+          infoText: infoParts.length ? infoParts.join(" | ") : undefined,
+        };
+      }
+
+      if (taskType === "generate") {
+        const processed =
+          typeof asRecord.participants_processed === "number"
+            ? asRecord.participants_processed
+            : null;
+        const semesterCopy =
+          typeof asRecord.semester === "string"
+            ? asRecord.semester
+            : filters.semester;
+        const sessionCopy =
+          typeof asRecord.session === "string"
+            ? asRecord.session
+            : filters.session;
+        const infoParts = [];
+        if (processed !== null)
+          infoParts.push(`Participants processed: ${processed}`);
+        if (semesterCopy && semesterCopy !== "default")
+          infoParts.push(`Semester: ${semesterCopy}`);
+        if (sessionCopy && sessionCopy !== "default")
+          infoParts.push(`Session: ${sessionCopy}`);
+        return {
+          subTitle: message,
+          infoText: infoParts.length ? infoParts.join(" | ") : undefined,
+        };
+      }
+    }
+
+    return {
+      subTitle: "Background task completed successfully.",
+      infoText: undefined,
+    };
+  };
+
   useEffect(() => {
-    if (keyword && resultState.data?.data)
+    const fetchedResults = resultState.data?.data;
+    const paginationData = resultState.data?.pagination;
+
+    if (paginationData) {
+      setPagination((prev) => ({
+        ...prev,
+        page: paginationData.page,
+        per_page:
+          paginationData.per_page ||
+          prev.per_page ||
+          RESULTS_PER_PAGE,
+      }));
+    }
+
+    if (keyword && fetchedResults)
       setResults(
-        resultState.data?.data.filter(
+        fetchedResults.filter(
           (f) =>
             f.participant.first_name
               .toLowerCase()
@@ -100,8 +282,8 @@ const ResultsList = () => {
             f.participant.email.toLowerCase().includes(keyword.toLowerCase())
         )
       );
-    else setResults(resultState.data?.data);
-  }, [keyword, resultState]);
+    else setResults(fetchedResults);
+  }, [keyword, resultState.data]);
 
   useEffect(() => {
     if (
@@ -111,7 +293,11 @@ const ResultsList = () => {
       programsState.isLoading ||
       levelsState.isLoading ||
       sessionsIsLoading ||
-      semesterIsLoading
+      semesterIsLoading ||
+      uploadLegacyState.isLoading ||
+      uploadFileState.isLoading ||
+      setVisibilityState.isLoading ||
+      deleteResultsState.isLoading
     )
       dispatch(setPageLoading(true));
     else dispatch(setPageLoading(false));
@@ -123,6 +309,83 @@ const ResultsList = () => {
     levelsState,
     sessions,
     semesters,
+    uploadLegacyState,
+    uploadFileState,
+    setVisibilityState,
+    deleteResultsState,
+  ]);
+
+  const fetchResults = useCallback(
+    async (
+      page = pagination.page || 1,
+      perPage = pagination.per_page || RESULTS_PER_PAGE
+    ) => {
+      if (!filtersComplete) return;
+      try {
+        const response = await getResults({
+          ...filters,
+          page,
+          per_page: perPage,
+        }).unwrap();
+        setPagination((prev) => ({
+          ...prev,
+          page: response?.pagination?.page ?? page,
+          per_page:
+            response?.pagination?.per_page ||
+            prev.per_page ||
+            RESULTS_PER_PAGE,
+        }));
+      } catch (error) {
+        console.log(error);
+      }
+    },
+    [filters, filtersComplete, getResults, pagination.page, pagination.per_page]
+  );
+
+  useEffect(() => {
+    if (!waitingTask || !taskStatusData?.data) return;
+    const taskData = taskStatusData.data;
+
+    if (taskData.ready) {
+      if (taskData.successful) {
+        const copy = buildTaskCompletionCopy(
+          waitingTask.type,
+          taskData.result
+        );
+        setSuccessContent({
+          title:
+            waitingTask.type === "legacyUpload"
+              ? "Offline result upload completed"
+              : "Results generated",
+          subTitle: copy.subTitle,
+          infoText: copy.infoText || "",
+        });
+        setOpenModal((prev) => ({ ...prev, success: true }));
+        setWaitingTask(null);
+        setTaskStatusNote(null);
+        if (filtersComplete) {
+          fetchResults(1, pagination.per_page || RESULTS_PER_PAGE);
+        }
+      } else if (taskData.error) {
+        setSuccessContent({
+          title: "Task failed",
+          subTitle: taskData.error,
+          infoText: `Task ID: ${waitingTask.taskId}`,
+        });
+        setOpenModal((prev) => ({ ...prev, success: true }));
+        setWaitingTask(null);
+        setTaskStatusNote(taskData.error);
+      } else if (taskStatusData.status === "failed") {
+        setTaskStatusNote("Task failed. Please try again.");
+      }
+    }
+  }, [
+    waitingTask,
+    taskStatusData,
+    buildTaskCompletionCopy,
+    filtersComplete,
+    fetchResults,
+    pagination.per_page,
   ]);
 
   const handleChange = async (e: SelectChangeEvent<number | string>) => {
@@ -134,6 +397,7 @@ const ResultsList = () => {
       [target.name]:
         typeof target.value == "number" ? +target.value : target.value,
     }));
+    setPagination((prev) => ({ ...prev, page: 1 }));
     try {
       if (target.name === "faculty_id") {
         await getDepartments({
@@ -157,10 +421,53 @@ const ResultsList = () => {
     }
   };
 
-  const fetchResults = async () => {
-    if (filters.program_id) {
+  const handleUploadFacultySelect = async (value: number) => {
+    setLegacyUploadSelections((prev) => ({
+      ...prev,
+      faculty_id: value,
+      department_id: 0,
+      program_id: 0,
+    }));
+    setLegacyUploadForm((prev) => ({
+      ...prev,
+      department_id: 0,
+      level_id: 0,
+    }));
+    if (value) {
       try {
-        await getResults(filters).unwrap();
+        await getDepartments({ faculty_id: value, page: 1, per_page: 1000 });
+      } catch (error) {
+        console.log(error);
+      }
+    }
+  };
+
+  const handleUploadDepartmentSelect = async (value: number) => {
+    setLegacyUploadSelections((prev) => ({
+      ...prev,
+      department_id: value,
+      program_id: 0,
+    }));
+    setLegacyUploadForm((prev) => ({
+      ...prev,
+      department_id: value,
+      level_id: 0,
+    }));
+    if (value) {
+      try {
+        await getPrograms({ department_id: value, page: 1, per_page: 1000 });
+      } catch (error) {
+        console.log(error);
+      }
+    }
+  };
+
+  const handleUploadProgramSelect = async (value: number) => {
+    setLegacyUploadSelections((prev) => ({ ...prev, program_id: value }));
+    setLegacyUploadForm((prev) => ({ ...prev, level_id: 0 }));
+    if (value) {
+      try {
+        await getLevels({ program_id: value });
       } catch (error) {
         console.log(error);
       }
@@ -168,14 +475,284 @@ const ResultsList = () => {
   };
 
   const generateResult = async () => {
-    if (filters.program_id) {
-      try {
-        await generateResults(filters).unwrap();
-      } catch (error) {
-        console.log(error);
+    if (!filtersComplete) return;
+    try {
+      const res = await generateResults(filters).unwrap();
+      const taskId = res?.data?.task_id;
+      if (taskId) {
+        setPendingTask({
+          taskId,
+          type: "generate",
+          description: "Result generation",
+        });
+        setTaskPromptOpen(true);
+        setLastTaskId(taskId);
+      } else {
+        setSuccessContent({
+          title: "Updates Successful",
+          subTitle: "Results are being generated in the background.",
+          infoText: "You can check back later for the status.",
+        });
+        setOpenModal((prev) => ({ ...prev, success: true }));
       }
+    } catch (error) {
+      console.log(error);
     }
-    setOpenModal((prev) => ({ ...prev, success: true }));
+  };
+
+  const openLegacyUploadModal = () => {
+    setLegacyUploadError(null);
+    setLegacyUploadForm({
+      department_id: filters.department_id || 0,
+      level_id: filters.level_id || 0,
+      session: filters.session !== "default" ? (filters.session as string) : "",
+      semester:
+        filters.semester !== "default" ? (filters.semester as string) : "",
+      file_url: "",
+    });
+    setLegacyUploadSelections({
+      faculty_id: filters.faculty_id || 0,
+      department_id: filters.department_id || 0,
+      program_id: filters.program_id || 0,
+    });
+    setOpenModal((prev) => ({ ...prev, legacyUpload: true }));
+  };
+
+  const handleLegacyUploadField = (
+    field: keyof LegacyResultUploadPayload,
+    value: string | number
+  ) => {
+    setLegacyUploadForm((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const openVisibilityDialog = () => {
+    setVisibilityFormError(null);
+    setVisibilityForm((prev) => ({
+      ...prev,
+      is_visible: true,
+      visible_after: "",
+    }));
+    setVisibilityDialogOpen(true);
+  };
+
+  const handleLegacyUploadFile = async (ev: ChangeEvent<HTMLInputElement>) => {
+    if (!ev.target.files?.[0]) return;
+    try {
+      const form = new FormData();
+      form.append("file", ev.target.files[0]);
+      const response = await uploadFile(form).unwrap();
+      const uploadedUrl = response.media?.[0]?.url || "";
+      setLegacyUploadForm((prev) => ({ ...prev, file_url: uploadedUrl }));
+    } catch (error) {
+      setLegacyUploadError("Unable to upload file. Please try again.");
+    }
+  };
+
+  const handleLegacyUploadSubmit = async () => {
+    setLegacyUploadError(null);
+    const { department_id, level_id, semester, session, file_url } =
+      legacyUploadForm;
+    if (!department_id || !level_id || !semester || !session || !file_url) {
+      setLegacyUploadError(
+        "Department, level, semester, session, and file are required."
+      );
+      return;
+    }
+    try {
+      const res = await uploadLegacyResults(legacyUploadForm).unwrap();
+      const taskId = res?.data?.task_id;
+      if (taskId) {
+        setPendingTask({
+          taskId,
+          type: "legacyUpload",
+          description: "Offline result upload",
+        });
+        setTaskPromptOpen(true);
+        setLastTaskId(taskId);
+      } else {
+        setSuccessContent({
+          title: "Offline result upload started",
+          subTitle: "The file is processing in the background.",
+          infoText: "You can check back later for the status.",
+        });
+        setOpenModal((prev) => ({ ...prev, success: true }));
+      }
+      setOpenModal((prev) => ({
+        ...prev,
+        legacyUpload: false,
+      }));
+      setLegacyUploadForm({
+        department_id: 0,
+        level_id: 0,
+        session: "",
+        semester: "",
+        file_url: "",
+      });
+      if (filtersComplete) {
+        await fetchResults(1);
+      }
+    } catch (error: any) {
+      setLegacyUploadError(
+        error?.data?.message ||
+          "Failed to process CSV upload. Please check the file format."
+      );
+    }
+  };
+
+  const handleVisibilitySubmit = async () => {
+    setVisibilityFormError(null);
+    if (!filtersComplete) {
+      setVisibilityFormError(
+        "Select faculty, department, program, level, session, and semester before updating visibility."
+      );
+      return;
+    }
+    const payload = {
+      department_id: filters.department_id,
+      level_id: filters.level_id,
+      session: filters.session as string,
+      semester: filters.semester as string,
+      is_visible: visibilityForm.is_visible,
+      visible_after:
+        visibilityForm.is_visible && visibilityForm.visible_after
+          ? new Date(visibilityForm.visible_after).toISOString()
+          : null,
+    };
+    try {
+      await setResultVisibility(payload).unwrap();
+      const scheduleCopy =
+        visibilityForm.is_visible && visibilityForm.visible_after
+          ? `Results will be visible after ${new Date(
+              visibilityForm.visible_after
+            ).toLocaleString()}.`
+          : visibilityForm.is_visible
+          ? "Results are now visible to students."
+          : "Students can no longer view these results.";
+      setSuccessContent({
+        title: visibilityForm.is_visible
+          ? "Results published to students"
+          : "Results hidden from students",
+        subTitle: scheduleCopy,
+        infoText: "",
+      });
+      setOpenModal((prev) => ({ ...prev, success: true }));
+      setVisibilityDialogOpen(false);
+      if (filtersComplete) {
+        await fetchResults(1);
+      }
+    } catch (error: any) {
+      setVisibilityFormError(
+        error?.data?.message ||
+          "Unable to update visibility. Please try again."
+      );
+    }
+  };
+
+  const openDeleteDialog = () => {
+    setDeleteError(null);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleDeleteSubmit = async () => {
+    setDeleteError(null);
+    if (!filtersComplete) {
+      setDeleteError(
+        "Select faculty, department, program, level, session, and semester before deleting results."
+      );
+      return;
+    }
+    const payload = {
+      department_id: filters.department_id,
+      level_id: filters.level_id,
+      session: filters.session as string,
+      semester: filters.semester as string,
+    };
+    try {
+      const res = await deleteResults(payload).unwrap();
+      setSuccessContent({
+        title: "Results deleted",
+        subTitle: `Deleted ${res?.data?.deleted ?? 0} records.`,
+        infoText: "",
+      });
+      setOpenModal((prev) => ({ ...prev, success: true }));
+      setDeleteDialogOpen(false);
+      if (filtersComplete) {
+        await fetchResults(1);
+      }
+    } catch (error: any) {
+      setDeleteError(
+        error?.data?.message || "Unable to delete results. Please try again."
+      );
+    }
+  };
+
+  const handleTaskPromptDecision = (shouldWait: boolean) => {
+    if (!pendingTask) return;
+    setTaskStatusNote(null);
+    setLastTaskId(pendingTask.taskId);
+    if (shouldWait) {
+      setWaitingTask(pendingTask);
+    } else {
+      setSuccessContent({
+        title: "Background task started",
+        subTitle: `${pendingTask.description} will continue running.`,
+        infoText: `Task ID: ${pendingTask.taskId}. You can leave and come back later.`,
+      });
+      setOpenModal((prev) => ({ ...prev, success: true }));
+    }
+    setPendingTask(null);
+    setTaskPromptOpen(false);
+  };
+
+  const handleStopWaiting = () => {
+    if (waitingTask) {
+      setSuccessContent({
+        title: "Still processing",
+        subTitle: `${waitingTask.description} is still running in the background.`,
+        infoText: `Task ID: ${waitingTask.taskId}. You can return later to check the status.`,
+      });
+      setOpenModal((prev) => ({ ...prev, success: true }));
+      setLastTaskId(waitingTask.taskId);
+    }
+    setWaitingTask(null);
+    setTaskStatusNote(null);
+  };
+
+  const openGenerateConfirm = () => {
+    if (!filtersComplete) return;
+    setGenerateConfirmOpen(true);
+  };
+
+  const handleConfirmGenerate = () => {
+    setGenerateConfirmOpen(false);
+    generateResult();
+  };
+
+  const getResultRemark = (result: ResultType2["data"][number]) => {
+    const gradeLookup = gradingBands?.data || [];
+
+    const findRemarkByPoint = (point?: number | null) => {
+      if (point === null || point === undefined || !gradeLookup.length)
+        return undefined;
+      const orderedGrades = [...gradeLookup].sort((a, b) => {
+        const aMax = a.max_point ?? a.point ?? Number.NEGATIVE_INFINITY;
+        const bMax = b.max_point ?? b.point ?? Number.NEGATIVE_INFINITY;
+        return bMax - aMax; // descending, so highest range checked first
+      });
+      const grade = orderedGrades.find((g) => {
+        const min = g.min_point ?? g.point ?? Number.NEGATIVE_INFINITY;
+        const max = g.max_point ?? g.point ?? Number.POSITIVE_INFINITY;
+        return Number(point) >= min && Number(point) <= max;
+      });
+      return grade?.remark || grade?.name;
+    };
+
+    const summaryRemark = findRemarkByPoint(
+      result.summary?.cumulative_grade_point_average
+    );
+    if (summaryRemark) return summaryRemark;
+
+    return "N/A";
   };
 
   // To be updated
@@ -238,17 +815,394 @@ const ResultsList = () => {
         close={() => {
           setOpenModal((prev) => ({ ...prev, success: false }));
         }}
-        infoText="Please check back later"
+        infoText={successContent.infoText}
         open={openModal.success}
-        subTitle={`Results are being generated in the background.`}
-        title="Updates Successful"
+        subTitle={successContent.subTitle}
+        title={successContent.title}
       />
-
+      <Dialog
+        open={taskPromptOpen && Boolean(pendingTask)}
+        onClose={() => {
+          if (pendingTask) {
+            handleTaskPromptDecision(false);
+          } else {
+            setTaskPromptOpen(false);
+          }
+        }}
+      >
+        <DialogTitle>Wait for this task?</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            {pendingTask?.description} has started in the background (Task ID:
+            {pendingTask?.taskId ? ` ${pendingTask.taskId}` : " pending"}).
+            Would you like to wait here while we poll for completion, or close
+            this and come back later?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => handleTaskPromptDecision(false)}>
+            Come back later
+          </Button>
+          <Button
+            variant="contained"
+            onClick={() => handleTaskPromptDecision(true)}
+          >
+            Wait here
+          </Button>
+        </DialogActions>
+      </Dialog>
+      <Dialog
+        open={generateConfirmOpen}
+        onClose={() => setGenerateConfirmOpen(false)}
+      >
+        <DialogTitle>Generate results?</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            This will generate results for the selected faculty, department,
+            program, level, session, and semester. Continue?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setGenerateConfirmOpen(false)}>Cancel</Button>
+          <Button
+            variant="contained"
+            onClick={handleConfirmGenerate}
+            disabled={generateState.isLoading}
+          >
+            {generateState.isLoading ? "Generating..." : "Generate"}
+          </Button>
+        </DialogActions>
+      </Dialog>
+      <Dialog
+        open={Boolean(waitingTask)}
+        onClose={handleStopWaiting}
+        fullWidth
+        maxWidth="sm"
+      >
+        <DialogTitle>
+          {waitingTask?.description || "Background task"}
+        </DialogTitle>
+        <DialogContent>
+          <Stack spacing={2}>
+            <DialogContentText>
+              We are checking the task status. You can stop waiting and return
+              later at any time.
+            </DialogContentText>
+            <Alert severity={taskStatusNote ? "error" : "info"}>
+              Status: {taskStatusData?.data?.state || "PENDING"}
+            </Alert>
+            <Typography variant="body2">
+              Task ID: {waitingTask?.taskId || lastTaskId || "Unavailable"}
+            </Typography>
+            {taskStatusLoading ? (
+              <DialogContentText>Checking for updates...</DialogContentText>
+            ) : null}
+            {taskStatusNote ? (
+              <Alert severity="error">{taskStatusNote}</Alert>
+            ) : null}
+          </Stack>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleStopWaiting} color="inherit">
+            Stop waiting
+          </Button>
+        </DialogActions>
+      </Dialog>
+      <Dialog
+        open={visibilityDialogOpen}
+        onClose={() => {
+          setVisibilityFormError(null);
+          setVisibilityDialogOpen(false);
+        }}
+        fullWidth
+        maxWidth="sm"
+      >
+        <Box sx={{ p: 3, display: "flex", flexDirection: "column", gap: 2 }}>
+          <Typography variant="h6">Student visibility</Typography>
+          <Typography variant="body2" color="text.secondary">
+            Control when results for the selected department, level, session, and
+            semester are visible to students.
+          </Typography>
+          {visibilityFormError ? (
+            <Alert severity="error">{visibilityFormError}</Alert>
+          ) : null}
+          <FormControlLabel
+            control={
+              <Switch
+                checked={visibilityForm.is_visible}
+                onChange={(e) =>
+                  setVisibilityForm((prev) => ({
+                    ...prev,
+                    is_visible: e.target.checked,
+                    visible_after: e.target.checked ? prev.visible_after : "",
+                  }))
+                }
+              />
+            }
+            label={
+              visibilityForm.is_visible
+                ? "Visible to students"
+                : "Hidden from students"
+            }
+          />
+          <TextField
+            label="Visible after (optional)"
+            type="datetime-local"
+            disabled={!visibilityForm.is_visible}
+            value={visibilityForm.visible_after}
+            onChange={(e) =>
+              setVisibilityForm((prev) => ({
+                ...prev,
+                visible_after: e.target.value,
+              }))
+            }
+            InputLabelProps={{ shrink: true }}
+            helperText="Pick a future date/time to schedule release. Leave blank to apply immediately."
+          />
+          <Stack direction="row" spacing={2} justifyContent="flex-end">
+            <Button
+              onClick={() => setVisibilityDialogOpen(false)}
+              color="inherit"
+              disabled={setVisibilityState.isLoading}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="contained"
+              onClick={handleVisibilitySubmit}
+              disabled={setVisibilityState.isLoading}
+            >
+              {setVisibilityState.isLoading ? "Saving..." : "Save"}
+            </Button>
+          </Stack>
+        </Box>
+      </Dialog>
+      <Dialog
+        open={deleteDialogOpen}
+        onClose={() => {
+          setDeleteError(null);
+          setDeleteDialogOpen(false);
+        }}
+        fullWidth
+        maxWidth="sm"
+      >
+        <Box sx={{ p: 3, display: "flex", flexDirection: "column", gap: 2 }}>
+          <Typography variant="h6">Delete generated results</Typography>
+          <Typography variant="body2" color="text.secondary">
+            This will remove all generated results for the selected department, level, session, and semester. This action cannot be undone.
+          </Typography>
+          {deleteError ? <Alert severity="error">{deleteError}</Alert> : null}
+          <Alert severity="warning">
+            Please confirm you want to delete these results. Students will no longer see them.
+          </Alert>
+          <Stack direction="row" spacing={2} justifyContent="flex-end">
+            <Button
+              onClick={() => setDeleteDialogOpen(false)}
+              color="inherit"
+              disabled={deleteResultsState.isLoading}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="contained"
+              color="error"
+              onClick={handleDeleteSubmit}
+              disabled={deleteResultsState.isLoading}
+            >
+              {deleteResultsState.isLoading ? "Deleting..." : "Delete"}
+            </Button>
+          </Stack>
+        </Box>
+      </Dialog>
+      <Dialog
+        open={openModal.legacyUpload}
+        onClose={() => {
+          setLegacyUploadError(null);
+          setOpenModal((prev) => ({ ...prev, legacyUpload: false }));
+        }}
+        fullWidth
+        maxWidth="md"
+      >
+        <Box sx={{ p: 3, display: "flex", flexDirection: "column", gap: 2 }}>
+          <Typography variant="h6">Upload Offline Results (CSV/XLSX)</Typography>
+          <Typography variant="body2" color="text.secondary">
+            Upload one Excel file per semester/level. Use the template: one sheet per student, rows per course. Summary/GPA will be computed automatically.
+          </Typography>
+          {legacyUploadError ? (
+            <Alert severity="error">{legacyUploadError}</Alert>
+          ) : null}
+          <Stack spacing={2}>
+            <Stack direction={{ xs: "column", md: "row" }} spacing={2}>
+              <TextField
+                select
+                label="Faculty"
+                value={legacyUploadSelections.faculty_id || ""}
+                onChange={(e) =>
+                  handleUploadFacultySelect(Number(e.target.value))
+                }
+                fullWidth
+                size="small"
+              >
+                <MenuItem value="">Faculty</MenuItem>
+                {faculties?.data.map((fac) => (
+                  <MenuItem key={fac.id} value={fac.id}>
+                    {fac.name}
+                  </MenuItem>
+                ))}
+              </TextField>
+              <TextField
+                select
+                label="Department"
+                value={legacyUploadForm.department_id || ""}
+                onChange={(e) =>
+                  handleUploadDepartmentSelect(Number(e.target.value))
+                }
+                fullWidth
+                size="small"
+              >
+                <MenuItem value="">Department</MenuItem>
+                {departmentsState.data?.data.map((dep) => (
+                  <MenuItem key={dep.id} value={dep.id}>
+                    {dep.name}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </Stack>
+            <Stack direction={{ xs: "column", md: "row" }} spacing={2}>
+              <TextField
+                select
+                label="Program"
+                value={legacyUploadSelections.program_id || ""}
+                onChange={(e) =>
+                  handleUploadProgramSelect(Number(e.target.value))
+                }
+                fullWidth
+                size="small"
+              >
+                <MenuItem value="">Program</MenuItem>
+                {programsState.data?.data.map((prog) => (
+                  <MenuItem key={prog.id} value={prog.id}>
+                    {prog.name}
+                  </MenuItem>
+                ))}
+              </TextField>
+              <TextField
+                select
+                label="Level"
+                value={legacyUploadForm.level_id || ""}
+                onChange={(e) =>
+                  handleLegacyUploadField("level_id", Number(e.target.value))
+                }
+                fullWidth
+                size="small"
+              >
+                <MenuItem value="">Level</MenuItem>
+                {levelsState.data?.data.map((lvl) => (
+                  <MenuItem key={lvl.id} value={lvl.id}>
+                    {lvl.name}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </Stack>
+            <Stack direction={{ xs: "column", md: "row" }} spacing={2}>
+              <TextField
+                select
+                label="Session"
+                value={legacyUploadForm.session}
+                onChange={(e) =>
+                  handleLegacyUploadField("session", e.target.value)
+                }
+                fullWidth
+                size="small"
+              >
+                <MenuItem value="">Session</MenuItem>
+                {sessions?.data.map((session) => (
+                  <MenuItem key={session.name} value={session.name}>
+                    {session.name}
+                  </MenuItem>
+                ))}
+              </TextField>
+              <TextField
+                select
+                label="Semester"
+                value={legacyUploadForm.semester}
+                onChange={(e) =>
+                  handleLegacyUploadField("semester", e.target.value)
+                }
+                fullWidth
+                size="small"
+              >
+                <MenuItem value="">Semester</MenuItem>
+                {semesters?.data.map((semester) => (
+                  <MenuItem key={semester.name} value={semester.name}>
+                    {semester.name}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </Stack>
+            <Stack spacing={1}>
+              <Typography variant="subtitle2">Upload Excel</Typography>
+              <Button
+                variant="outlined"
+                component="label"
+                disabled={uploadFileState.isLoading}
+              >
+                {legacyUploadForm.file_url ? "Replace File" : "Choose File"}
+                <input
+                  type="file"
+                  hidden
+                  accept="application/vnd.ms-excel, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                  onChange={handleLegacyUploadFile}
+                />
+              </Button>
+              <Stack direction="row" spacing={1} alignItems="center">
+                <Button
+                  variant="text"
+                  onClick={() =>
+                    downloadFile(legacyTemplateUrl, "legacy_results_template.xlsx")
+                  }
+                >
+                  Download Template
+                </Button>
+                <Typography variant="body2" color="text.secondary">
+                  Includes per-student sheets; you can duplicate a sheet per student.
+                </Typography>
+              </Stack>
+              {legacyUploadForm.file_url ? (
+                <Typography variant="body2" color="success.main">
+                  File uploaded and ready to process.
+                </Typography>
+              ) : null}
+            </Stack>
+          </Stack>
+          <Stack
+            direction="row"
+            spacing={2}
+            justifyContent="flex-end"
+            sx={{ mt: 2 }}
+          >
+            <Button
+              onClick={() =>
+                setOpenModal((prev) => ({ ...prev, legacyUpload: false }))
+              }
+              color="inherit"
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="contained"
+              onClick={handleLegacyUploadSubmit}
+              disabled={uploadLegacyState.isLoading}
+            >
+              {uploadLegacyState.isLoading ? "Processing..." : "Upload"}
+            </Button>
+          </Stack>
+        </Box>
+      </Dialog>
       <Box
         sx={{
           ".MuiSelect-select": {
             padding: ".5rem",
-            maxWidth: "70px",
           },
           "td.MuiTableCell-body": {
             "&:last-child td, &:last-child th": { border: 0 },
@@ -263,10 +1217,12 @@ const ResultsList = () => {
             justifyContent: "space-between",
             flexWrap: "wrap",
             rowGap: ".5rem",
+            columnGap: "1rem",
+            alignItems: "center",
           }}
         >
-          <Box sx={{ display: "flex", gap: ".5em", flexWrap: "wrap" }}>
-            <FormControl>
+          <Box sx={{ display: "flex", gap: ".75em", flexWrap: "wrap" }}>
+            <FormControl sx={{ minWidth: 150 }}>
               <Select
                 value={filters.faculty_id}
                 onChange={handleChange}
@@ -280,7 +1236,7 @@ const ResultsList = () => {
                 ))}
               </Select>
             </FormControl>
-            <FormControl>
+            <FormControl sx={{ minWidth: 150 }}>
               <Select
                 value={filters.department_id}
                 onChange={handleChange}
@@ -294,7 +1250,7 @@ const ResultsList = () => {
                 ))}
               </Select>
             </FormControl>
-            <FormControl>
+            <FormControl sx={{ minWidth: 150 }}>
               <Select
                 value={filters.program_id}
                 onChange={handleChange}
@@ -308,7 +1264,7 @@ const ResultsList = () => {
                 ))}
               </Select>
             </FormControl>
-            <FormControl>
+            <FormControl sx={{ minWidth: 120 }}>
               <Select
                 value={filters.level_id}
                 onChange={handleChange}
@@ -322,21 +1278,22 @@ const ResultsList = () => {
                 ))}
               </Select>
             </FormControl>
-            <FormControl>
-              <Select
-                value={filters.session}
-                onChange={handleChange}
-                name="session"
-              >
-                <MenuItem value="default">session</MenuItem>
-                {sessions?.data.map((session) => (
-                  <MenuItem key={session.name} value={session.name}>
-                    {session.name}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-            <FormControl>
+            <Box sx={{ minWidth: 200 }}>
+              <SessionDropdown
+                value={selectedSession}
+                onChange={(session) => {
+                  setSelectedSession(session);
+                  setFilters((prev) => ({
+                    ...prev,
+                    session: session ? session.name : "default",
+                  }));
+                  setPagination((prev) => ({ ...prev, page: 1 }));
+                }}
+                label=""
+                placeholder="Select session"
+              />
+            </Box>
+            <FormControl sx={{ minWidth: 150 }}>
               <Select
                 value={filters.semester}
                 onChange={handleChange}
@@ -352,20 +1309,46 @@ const ResultsList = () => {
             </FormControl>
           </Box>
           <Box
-            sx={{
-              display: "flex",
-              gap: ".5em",
+          sx={{
+            display: "flex",
+            gap: ".5em",
 
-              button: {
-                flexShrink: 0,
-              },
-            }}
+            button: {
+              flexShrink: 0,
+            },
+          }}
+        >
+          <Button onClick={openLegacyUploadModal} variant="outlined">
+            Upload Offline Result
+          </Button>
+          <Button
+            onClick={() => fetchResults(1)}
+            variant="contained"
+            disabled={!filtersComplete}
           >
-            <Button onClick={fetchResults} variant="contained">
-              Fetch
-            </Button>
-            <Button onClick={generateResult} variant="contained">
-              Generate
+            Fetch
+          </Button>
+          <Button
+            onClick={openVisibilityDialog}
+            variant="outlined"
+            disabled={!filtersComplete}
+          >
+            Set Visibility
+          </Button>
+          <Button
+            onClick={openDeleteDialog}
+            variant="outlined"
+            color="error"
+            disabled={!filtersComplete}
+          >
+            Delete Results
+          </Button>
+          <Button
+            onClick={openGenerateConfirm}
+            variant="contained"
+            disabled={!filtersComplete}
+          >
+            Generate
             </Button>
           </Box>
         </Box>
@@ -394,6 +1377,9 @@ const ResultsList = () => {
             </TableCell>
             <TableCell component="th" scope="row">
               Remark
+            </TableCell>
+            <TableCell component="th" scope="row">
+              Visibility
             </TableCell>
             <TableCell component="th" scope="row" align="center">
               Transcript
@@ -431,7 +1417,30 @@ const ResultsList = () => {
               <TableCell>
                 {result.summary.cumulative_grade_point_average}
               </TableCell>
-              <TableCell>{result.details?.[0].score_remark}</TableCell>
+              <TableCell>{getResultRemark(result)}</TableCell>
+              <TableCell>
+                <Chip
+                  size="small"
+                  color={
+                    !result.is_visible
+                      ? "default"
+                      : result.visible_after &&
+                        new Date(result.visible_after) > new Date()
+                      ? "warning"
+                      : "success"
+                  }
+                  label={
+                    !result.is_visible
+                      ? "Hidden"
+                      : result.visible_after &&
+                        new Date(result.visible_after) > new Date()
+                      ? `Scheduled (${new Date(
+                          result.visible_after
+                        ).toLocaleString()})`
+                      : "Visible"
+                  }
+                />
+              </TableCell>
               <TableCell align="center">
                 <IconButton
                   color="primary"
@@ -450,6 +1459,31 @@ const ResultsList = () => {
           ))}
         </TableBody>
       </Table>
+      {resultState.data?.pagination ? (
+        <CustomPagination
+          count={Math.ceil(
+            resultState.data.pagination.total /
+              resultState.data.pagination.per_page
+          )}
+          page={resultState.data.pagination.page}
+          handleChangePage={(_, page) =>
+            fetchResults(
+              page,
+              resultState.data?.pagination?.per_page || RESULTS_PER_PAGE
+            )
+          }
+          startIndex={
+            resultState.data.pagination.per_page *
+              (resultState.data.pagination.page - 1) +
+            1
+          }
+          endIndex={
+            resultState.data.pagination.per_page *
+            resultState.data.pagination.page
+          }
+          totalNumber={resultState.data.pagination.total}
+        />
+      ) : null}
 
       {/* RESULT CONTAINER */}
 
@@ -480,6 +1514,22 @@ const ResultsList = () => {
               const courseChunks = tr.details?.length
                 ? chunk(tr.details, 12)
                 : [[]]; // Split courses into chunks or set a single empty chunk
+              const summary = tr.summary;
+              const totalCreditUnits =
+                summary?.total_credit_units ?? "N/A";
+              const cumulativeCreditUnits =
+                summary?.cumulative_total_credit_units ??
+                summary?.total_credit_units ??
+                "N/A";
+              const totalGradePoints =
+                summary?.total_grade_points ?? "N/A";
+              const cumulativeGradePoints =
+                summary?.cumulative_total_grade_points ??
+                summary?.total_grade_points ??
+                "N/A";
+              const gpa = summary?.grade_point_average ?? "N/A";
+              const cgpa =
+                summary?.cumulative_grade_point_average ?? "N/A";
 
               return courseChunks.map(
                 (
@@ -492,7 +1542,7 @@ const ResultsList = () => {
                     sx={{ py: 4, px: 4 }}
                   >
                     {/* Header */}
-                    <Grid2 container spacing={3} sx={{ mb: 3 }}>
+                    <Grid container spacing={3} sx={{ mb: 3 }}>
                       <Box
                         sx={{
                           display: "flex",
@@ -516,12 +1566,12 @@ const ResultsList = () => {
                         </h1>
                         <h2>Student Result</h2>
                       </Box>
-                    </Grid2>
+                    </Grid>
 
                     {/* Student Info */}
                     {pageIndex === 0 && (
                       <Box>
-                        <Grid2 container spacing={3} sx={{ mb: 3 }}>
+                        <Grid container spacing={3} sx={{ mb: 3 }}>
                           <Box
                             sx={{
                               display: "flex",
@@ -580,7 +1630,7 @@ const ResultsList = () => {
                               sx={{ width: 128, height: 128 }}
                             />
                           </Box>
-                        </Grid2>
+                        </Grid>
                       </Box>
                     )}
 
@@ -644,32 +1694,31 @@ const ResultsList = () => {
                         <Box sx={gpaSectionStyle}>
                           <Typography variant="body1" color="textSecondary">
                             Total Credit Units (TCU):{" "}
-                            {tr.summary?.total_credit_units || "N/A"}
+                            {totalCreditUnits}
                           </Typography>
                           <Typography variant="body1" color="textSecondary">
                             Cumulative TCU:{" "}
-                            {tr.summary?.total_credit_units || "N/A"}
+                            {cumulativeCreditUnits}
                           </Typography>
                         </Box>
                         <Box sx={gpaSectionStyle}>
                           <Typography variant="body1" color="textSecondary">
                             Total Credit Points (TCP):{" "}
-                            {tr.summary?.total_grade_points || "N/A"}
+                            {totalGradePoints}
                           </Typography>
                           <Typography variant="body1" color="textSecondary">
                             Cumulative TCP:{" "}
-                            {tr.summary?.total_grade_points || "N/A"}
+                            {cumulativeGradePoints}
                           </Typography>
                         </Box>
                         <Box sx={gpaSectionStyle}>
                           <Typography variant="body1" color="textSecondary">
                             Grade Point Average (GPA):{" "}
-                            {tr.summary?.grade_point_average || "N/A"}
+                            {gpa}
                           </Typography>
                           <Typography variant="body1" color="textSecondary">
                             CGPA:{" "}
-                            {tr.summary?.cumulative_grade_point_average ||
-                              "N/A"}
+                            {cgpa}
                           </Typography>
                         </Box>
                       </Box>

@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import {
   Box,
   Typography,
@@ -14,29 +14,40 @@ interface TimerProps {
 const Timer = ({ duration, onTimeUp, onTick }: TimerProps) => {
   const [timeLeft, setTimeLeft] = useState(duration * 60);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const onTimeUpRef = useRef(onTimeUp);
+  const onTickRef = useRef(onTick);
+
+  // Keep refs updated with latest callbacks
+  useEffect(() => {
+    onTimeUpRef.current = onTimeUp;
+    onTickRef.current = onTick;
+  }, [onTimeUp, onTick]);
+
+  const handleTick = useCallback(() => {
+    setTimeLeft((prevTime) => {
+      const newTime = prevTime - 1;
+      if (newTime <= 0) {
+        onTimeUpRef.current();
+        return 0;
+      }
+      onTickRef.current(newTime);
+      return newTime;
+    });
+  }, []);
 
   useEffect(() => {
     if (timeLeft <= 0) {
-      onTimeUp();
       return;
     }
 
-    timerRef.current = setInterval(() => {
-      setTimeLeft((prevTime) => {
-        const newTime = prevTime - 1;
-        if (newTime >= 0) {
-          onTick(newTime);
-        }
-        return newTime;
-      });
-    }, 1000);
+    timerRef.current = setInterval(handleTick, 1000);
 
     return () => {
       if (timerRef.current) {
         clearInterval(timerRef.current);
       }
     };
-  }, [timeLeft, onTimeUp, onTick]);
+  }, [handleTick]); // Only depend on handleTick, not timeLeft
 
   const minutes = Math.floor(timeLeft / 60);
   const seconds = timeLeft % 60;

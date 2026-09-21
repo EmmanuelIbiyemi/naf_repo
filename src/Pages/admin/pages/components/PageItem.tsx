@@ -1,10 +1,12 @@
 import { Box, Checkbox, IconButton, SxProps, Typography } from "@mui/material";
 import DeleteIcon from "../../../../assets/deleteIcon";
 import { PostType } from "../../../../types/posts";
-import { Edit, ContentCopy } from "@mui/icons-material";
+import { Edit, ContentCopy, DragIndicator, OpenInNew } from "@mui/icons-material";
 import { useNavigate, useParams } from "react-router-dom";
 import { ChangeEvent } from "react";
-import { useAddPostMutation } from "../../../../store/api/posts.api"; // Import the mutation hook
+import { useAddPostMutation } from "../../../../store/api/posts.api";
+import { useSortable } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 
 type Props = {
   post: PostType;
@@ -16,7 +18,29 @@ type Props = {
 const PostItem = ({ post, deleteItem, handleSelect, deleteIds }: Props) => {
   const navigate = useNavigate();
   const { resource_type } = useParams();
-  const [addPost] = useAddPostMutation(); // Initialize the mutation hook
+  const [addPost] = useAddPostMutation();
+  const landingBaseUrl =
+    (import.meta.env.VITE_LANDING_URL as string | undefined)?.replace(/\/+$/, "") ||
+    window.location.origin;
+  const slug = post.slug?.trim() || "";
+  const isPageResource = resource_type === "page";
+  const isPostResource = resource_type === "posts";
+  const landingUrl = slug
+    ? isPageResource
+      ? `${landingBaseUrl}/${encodeURIComponent(slug)}`
+      : isPostResource
+      ? `${landingBaseUrl}/post/${encodeURIComponent(slug)}`
+      : landingBaseUrl
+    : "";
+  
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: post.id as number });
 
   const handleDuplicate = async () => {
     if (!post) return;
@@ -37,8 +61,19 @@ const PostItem = ({ post, deleteItem, handleSelect, deleteIds }: Props) => {
     }
   };
 
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+
+  const handlePreview = () => {
+    if (!landingUrl) return;
+    window.open(landingUrl, "_blank", "noopener,noreferrer");
+  };
+
   return (
-    <Box sx={postItemStyles}>
+    <Box ref={setNodeRef} style={style} sx={postItemStyles}>
       <Box
         sx={{
           alignItems: "center",
@@ -47,6 +82,18 @@ const PostItem = ({ post, deleteItem, handleSelect, deleteIds }: Props) => {
           height: "3em",
         }}
       >
+        <Box
+          {...attributes}
+          {...listeners}
+          sx={{
+            cursor: "grab",
+            display: "flex",
+            alignItems: "center",
+            "&:active": { cursor: "grabbing" },
+          }}
+        >
+          <DragIndicator sx={{ color: "rgba(170, 170, 170, 1)" }} />
+        </Box>
         <Checkbox
           onChange={(event) => handleSelect(event, post.id as number)}
           checked={deleteIds.includes(post.id as number)}
@@ -58,6 +105,15 @@ const PostItem = ({ post, deleteItem, handleSelect, deleteIds }: Props) => {
         </Typography>
       </Box>
       <Box sx={{ display: "flex", justifySelf: "end" }}>
+        {isPageResource || isPostResource ? (
+          <IconButton
+            onClick={handlePreview}
+            title="View on landing page"
+            disabled={!landingUrl}
+          >
+            <OpenInNew sx={{ color: "rgba(170, 170, 170, 1)" }} />
+          </IconButton>
+        ) : null}
         <IconButton
           onClick={() =>
             navigate(`/settings/posttype/${resource_type}/${post.id}`)

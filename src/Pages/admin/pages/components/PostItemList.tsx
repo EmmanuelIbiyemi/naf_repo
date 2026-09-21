@@ -3,7 +3,7 @@ import { ChangeEvent, KeyboardEvent, useEffect, useRef, useState } from "react";
 import PostItem from "./PageItem";
 import SuccessModal from "../../../../components/SuccessModal";
 import DeleteConfirmationModal from "../../../../components/DeleteConfirmationModal";
-import { useDeletePostMutation } from "../../../../store/api/posts.api";
+import { useDeletePostMutation, useReorderPostMutation } from "../../../../store/api/posts.api";
 import { useAppDispatch, useAppSelector } from "../../../../store/hooks";
 import {
   selectKeyword,
@@ -17,6 +17,21 @@ import { PostType } from "../../../../types/posts";
 import CustomPagination from "../../../../components/CustomPagination";
 import { Pagination } from "../../../../types/pagination";
 import { Delete, Search } from "@mui/icons-material";
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
 
 const PostTypeItemList = () => {
   const { resource_type } = useParams();
@@ -36,6 +51,8 @@ const PostTypeItemList = () => {
     search_term: keyword,
   });
   const [deletePost, deleteState] = useDeletePostMutation();
+  const [reorderPost] = useReorderPostMutation();
+  const [localPosts, setLocalPosts] = useState<PostType[]>([]);
   const [openModal, setOpenModal] = useState({
     add: false,
     success: false,
@@ -46,6 +63,60 @@ const PostTypeItemList = () => {
   const navigate = useNavigate();
   const inputRef = useRef<HTMLInputElement>(null);
   const [deleteIds, setDeleteIds] = useState<number[]>([]);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
+  const handleDragEnd = async (event: DragEndEvent) => {
+    const { active, over } = event;
+
+    if (!over || active.id === over.id) {
+      return;
+    }
+
+    const oldIndex = localPosts.findIndex((post) => post.id === active.id);
+    const newIndex = localPosts.findIndex((post) => post.id === over.id);
+
+    const reorderedPosts = arrayMove(localPosts, oldIndex, newIndex);
+    setLocalPosts(reorderedPosts);
+
+    // Update dates based on adjacent posts
+    // Posts are ordered by date descending (latest first)
+    // If post A is above post B: date(A) = date(B) + 10 minutes
+    // If post A is below post B: date(A) = date(B) - 10 minutes
+    try {
+      const movedPost = reorderedPosts[newIndex];
+      let newDate: Date;
+
+      const postAbove = newIndex > 0 ? reorderedPosts[newIndex - 1] : null;
+      const postBelow = newIndex < reorderedPosts.length - 1 ? reorderedPosts[newIndex + 1] : null;
+      
+      if (postBelow?.date) {
+        // Post moved above another post
+        // Set date to 10 minutes after the post below
+        newDate = new Date(new Date(postBelow.date).getTime() + 10 * 60000);
+      } else if (postAbove?.date) {
+        // Post moved below another post (or to last position)
+        // Set date to 10 minutes before the post above
+        newDate = new Date(new Date(postAbove.date).getTime() - 10 * 60000);
+      } else {
+        newDate = new Date();
+      }
+      
+      await reorderPost({
+        id: movedPost.id as number,
+        date: newDate.toISOString(),
+      }).unwrap();
+    } catch (error) {
+      console.error("Failed to reorder post:", error);
+      // Revert on error
+      setLocalPosts(posts?.post || []);
+    }
+  };
 
   const handleOpenModal = (type: string) => {
     setOpenModal((prev) => ({ ...prev, [type]: true }));
@@ -96,14 +167,27 @@ const PostTypeItemList = () => {
   };
 
   const handleSearch = async (event: KeyboardEvent) => {
-    if (event.key == "Enter")
+    if (event.key == "Enter") {
+      setPagination((prev) => ({ ...prev, page: 1 }));
       dispatch(setKeyword((event.target as HTMLInputElement).value));
+    }
   };
 
   useEffect(() => {
     if (isFetching && !allError) dispatch(setPageLoading(true));
     else dispatch(setPageLoading(false));
   }, [isFetching, allError]);
+
+  useEffect(() => {
+    // Sync localPosts with fetched posts
+    if (posts?.post) {
+      setLocalPosts(posts.post);
+    }
+  }, [posts]);
+
+  useEffect(() => {
+    setPagination((prev) => ({ ...prev, page: 1 }));
+  }, [keyword]);
 
   useEffect(() => {
     // clear search field on page change
@@ -205,30 +289,41 @@ const PostTypeItemList = () => {
             </Button>
           ) : null}
         </Box>
-        {posts?.post.length ? (
+        {localPosts.length ? (
           <>
-            {posts?.post?.map((post) => (
-              <PostItem
-                key={`postitem-${post.id}`}
-                post={post}
-                deleteItem={() => handleOpenDeleteModal(post)}
-                handleSelect={handleSelect}
-                deleteIds={deleteIds}
-              />
-            ))}
+            <DndContext
+              sensors={sensors}
+              collisionDetection={closestCenter}
+              onDragEnd={handleDragEnd}
+            >
+              <SortableContext
+                items={localPosts.map((post) => post.id as number)}
+                strategy={verticalListSortingStrategy}
+              >
+                {localPosts.map((post) => (
+                  <PostItem
+                    key={`postitem-${post.id}`}
+                    post={post}
+                    deleteItem={() => handleOpenDeleteModal(post)}
+                    handleSelect={handleSelect}
+                    deleteIds={deleteIds}
+                  />
+                ))}
+              </SortableContext>
+            </DndContext>
             <CustomPagination
               count={Math.ceil(
-                posts?.pagination.total / posts?.pagination.per_page
+                (posts?.pagination.total ?? 0) / (posts?.pagination.per_page ?? 1)
               )}
-              page={posts?.pagination.page}
+              page={posts?.pagination.page ?? 1}
               handleChangePage={(_, page) => {
-                setPagination({ per_page: posts?.pagination.per_page, page });
+                setPagination({ per_page: posts?.pagination.per_page ?? 10, page });
               }}
               startIndex={
-                posts?.pagination.per_page * (posts?.pagination.page - 1) + 1
+                (posts?.pagination.per_page ?? 10) * ((posts?.pagination.page ?? 1) - 1) + 1
               }
-              endIndex={posts?.pagination.per_page * posts?.pagination.page}
-              totalNumber={posts?.pagination.total}
+              endIndex={(posts?.pagination.per_page ?? 10) * (posts?.pagination.page ?? 1)}
+              totalNumber={posts?.pagination.total ?? 0}
             />
           </>
         ) : (

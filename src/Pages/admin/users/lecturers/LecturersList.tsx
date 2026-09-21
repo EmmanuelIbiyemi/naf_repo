@@ -5,7 +5,7 @@ import TableContainer from "@mui/material/TableContainer";
 import TableRow from "@mui/material/TableRow";
 import { LecturerFormAction, Lecturer } from "../../../../types/lecturers";
 import { Box, Button, Checkbox, IconButton, Typography } from "@mui/material";
-import { Delete, Edit } from "@mui/icons-material";
+import { Delete, Edit, LockReset } from "@mui/icons-material"; // <-- added LockReset
 import DeleteConfirmationModal from "../../../../components/DeleteConfirmationModal";
 import { ChangeEvent, useEffect, useState } from "react";
 import {
@@ -13,6 +13,7 @@ import {
   useGetLecturersQuery,
   useUpdateLecturerMutation,
 } from "../../../../store/api/lecturers.api";
+import { useResetUserPasswordMutation } from "../../../../store/api/auth.api"; // <-- imported reset mutation
 import FormModal from "../../../../components/FormModal";
 import LecturerForm from "./LecturersForm";
 import SuccessModal from "../../../../components/SuccessModal";
@@ -30,6 +31,7 @@ const LecturersList = () => {
     delete: false,
     sidebar: false,
     bulkDelete: false,
+    resetPassword: false, // <-- added flag for reset password
   });
   const [selectedLecturer, setSelectedLecturer] = useState<Lecturer>();
   const [pagination, setPagination] = useState<Pagination>({
@@ -46,6 +48,7 @@ const LecturersList = () => {
   const [lecturers, setLecturers] = useState(ltcs?.data);
   const [deleteLecturer, deleteState] = useDeleteLecturerMutation();
   const [updateLecturer, updateState] = useUpdateLecturerMutation();
+  const [resetUserPassword, resetUserPasswordState] = useResetUserPasswordMutation(); // <-- added reset mutation
   const [deleteIds, setDeleteIds] = useState<number[]>([]);
 
   useEffect(() => {
@@ -63,11 +66,12 @@ const LecturersList = () => {
     if (
       isFetching ||
       deleteState.isLoading ||
-      updateState.isLoading
+      updateState.isLoading ||
+      resetUserPasswordState.isLoading // <-- include reset state
     )
       dispatch(setPageLoading(true));
     else dispatch(setPageLoading(false));
-  }, [isFetching, isError, lecturers, deleteState, updateState]);
+  }, [isFetching, isError, ltcs, deleteState, updateState, resetUserPasswordState]);
 
   const handleOpenModal = (lecturer: Lecturer, type: string) => {
     setSelectedLecturer(lecturer);
@@ -119,6 +123,18 @@ const LecturersList = () => {
     }
     handleCloseModal("edit");
     handleOpenModal(lecturer, "success");
+  };
+
+  // New reset password handler for lecturers
+  const handleResetPassword = async (lecturer: Lecturer) => {
+    try {
+      const result = await resetUserPassword(lecturer.user_id as number).unwrap();
+      console.log(result.message);
+      setSelectedLecturer(lecturer);
+      setOpenModal((prev) => ({ ...prev, resetPassword: true }));
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (
@@ -173,8 +189,17 @@ const LecturersList = () => {
         }}
         infoText=""
         open={openModal.success}
-        subTitle={`You have successfully added a new Lecturer ${selectedLecturer?.first_name}”</strong>.`}
+        subTitle={`You have successfully added a new Lecturer ${selectedLecturer?.first_name}.`}
         title="Updates Successful"
+      />
+
+      {/* Reset Password Success */}
+      <SuccessModal
+        close={() => handleCloseModal("resetPassword")}
+        infoText=""
+        open={openModal.resetPassword}
+        subTitle={`You have successfully reset the password for ${selectedLecturer?.first_name}.`}
+        title="Password Reset Successful"
       />
 
       {isError ? (
@@ -194,7 +219,7 @@ const LecturersList = () => {
       <Box sx={{ paddingLeft: "1rem", display: "flex", gap: "1rem" }}>
         <Checkbox
           onChange={handleSelectAll}
-          checked={lecturers?.length == deleteIds.length}
+          checked={lecturers?.length === deleteIds.length}
         />
         {deleteIds.length ? (
           <Button
@@ -241,15 +266,17 @@ const LecturersList = () => {
                     </Typography>
                   </TableCell>
                   <TableCell align="right">
-                    <IconButton
-                      onClick={() => handleOpenModal(lecturer, "edit")}
-                    >
+                    <IconButton onClick={() => handleOpenModal(lecturer, "edit")}>
                       <Edit />
                     </IconButton>
-                    <IconButton
-                      onClick={() => handleOpenModal(lecturer, "delete")}
-                    >
+                    <IconButton onClick={() => handleOpenModal(lecturer, "delete")}>
                       <Delete />
+                    </IconButton>
+                    <IconButton 
+                      onClick={() => lecturer.user_id && handleResetPassword(lecturer)}
+                      disabled={!lecturer.user_id}
+                    >
+                      <LockReset />
                     </IconButton>
                   </TableCell>
                 </TableRow>

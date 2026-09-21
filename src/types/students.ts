@@ -10,9 +10,20 @@ export type StudentType = {
   address: string;
   phone: string;
   photo: string;
-  courses: CourseType[] | any[];
+  matric_number: string;
+  courses?: CourseType[] | any[];
   level_id?: number;
   level?: LevelType;
+  user_id?: number;
+};
+
+export type StudentsUploadType = {
+  faculty_id: number,
+  department_id: number,
+  program_id: number,
+  level_id: number;
+  list_url: string;
+  promotion?: boolean;
 };
 
 export type StudentCreateType = StudentType & {};
@@ -22,6 +33,23 @@ export type StudentFormAction = (lecturer: StudentType) => Promise<void>;
 export type StudentsResponse = {
   data: StudentType[];
   pagination: PaginationResponse;
+};
+
+export type StudentUploadResponse = {
+}
+
+export type StudentPhotoUploadFailure = {
+  filename: string;
+  matric_number?: string;
+  reason: string;
+};
+
+export type StudentPhotoUploadResponse = {
+  message: string;
+  status: string;
+  updated: number;
+  failed: number;
+  failures: StudentPhotoUploadFailure[];
 };
 
 export type SingleStudentResponse = { data: StudentType };

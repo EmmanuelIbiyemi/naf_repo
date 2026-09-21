@@ -10,6 +10,7 @@ import { useDeleteRecordMutation } from "../../../../../store/api/records.api";
 import DeleteConfirmationModal from "../../../../../components/DeleteConfirmationModal";
 import SuccessModal from "../../../../../components/SuccessModal";
 import { useState } from "react";
+import { formatDateTime } from "../../../../../utils/dateUtils";
 
 type ListProps = {
   lists: recordResponse[];
@@ -55,17 +56,6 @@ const RecordsItemsList = ({ lists, handleButtonClick, refetch }: ListProps) => {
     }
   };
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleString("en-US", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: true,
-    });
-  };
-
   return (
     <Box>
       <TableContainer>
@@ -93,7 +83,7 @@ const RecordsItemsList = ({ lists, handleButtonClick, refetch }: ListProps) => {
               >
                 <TableCell>{item?.name}</TableCell>
                 <TableCell>{item?.obtainable_score}</TableCell>
-                <TableCell>{formatDate(item?.updated_at)}</TableCell>
+                <TableCell>{formatDateTime(item?.updated_at)}</TableCell>
                 <TableCell sx={{ display: "flex", gap: 2 }}>
                   <IconButton onClick={() => handleButtonClick(item)}>
                     <Edit />

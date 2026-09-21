@@ -3,7 +3,7 @@ import { Field, Form, Formik } from "formik";
 import { Box, Button, Typography } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
 import formStyles from "../../../../components/form/form.module.scss";
-import { ChangeEvent } from "react";
+import { ChangeEvent, useEffect } from "react";
 import { useGetFacultiesQuery } from "../../../../store/api/faculties.api";
 import { useGetDepartmentsMMutation } from "../../../../store/api/departments.api";
 import { useGetProgrammesMMutation } from "../../../../store/api/programmes.api";
@@ -19,19 +19,27 @@ export type Score = {
 
 type Props = {
   score?: Score;
+  defaults?: {
+    faculty_id: number;
+    department_id: number;
+    program_id: number;
+  };
   actions: {
     submit: (score: Score) => Promise<void>;
     cancel: () => void;
   };
 };
 
-const ScoreForm = ({ actions, score }: Props) => {
+const ScoreForm = ({ actions, score, defaults }: Props) => {
   const { data: faculties } = useGetFacultiesQuery({
     page: 1,
     per_page: 1000,
   });
   const [getDepartments, departmentsState] = useGetDepartmentsMMutation();
   const [getPrograms, programsState] = useGetProgrammesMMutation();
+  const initialFacultyId = defaults?.faculty_id ?? 0;
+  const initialDepartmentId = defaults?.department_id ?? 0;
+  const initialProgramId = score?.program_id ?? defaults?.program_id ?? 0;
 
   const initialValues: Score & { faculty_id: number; department_id: number } = {
     id: score?.id || undefined,
@@ -39,10 +47,40 @@ const ScoreForm = ({ actions, score }: Props) => {
     max_score: score?.max_score || 0,
     name: score?.name || "",
     remark: score?.remark || "",
-    faculty_id: 0,
-    department_id: 0,
-    program_id: score?.program_id || 0,
+    faculty_id: initialFacultyId,
+    department_id: initialDepartmentId,
+    program_id: initialProgramId,
   };
+
+  useEffect(() => {
+    const loadDefaults = async () => {
+      try {
+        if (initialFacultyId) {
+          await getDepartments({
+            faculty_id: initialFacultyId,
+            page: 1,
+            per_page: 1000,
+          }).unwrap();
+        }
+        if (initialDepartmentId) {
+          await getPrograms({
+            department_id: initialDepartmentId,
+            page: 1,
+            per_page: 1000,
+          }).unwrap();
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    loadDefaults();
+  }, [
+    getDepartments,
+    getPrograms,
+    initialDepartmentId,
+    initialFacultyId,
+  ]);
 
   const validationSchema = Yup.object({
     min_score: Yup.number().required("Minimum score is required"),
@@ -95,6 +133,7 @@ const ScoreForm = ({ actions, score }: Props) => {
       initialValues={initialValues}
       validationSchema={validationSchema}
       onSubmit={handleSubmit}
+      enableReinitialize
     >
       {({ isValid, dirty, errors, touched, setFieldValue }) => (
         <Form className={formStyles.modal_form}>
@@ -145,7 +184,7 @@ const ScoreForm = ({ actions, score }: Props) => {
                 handleChange(ev, setFieldValue)
               }
             >
-              <option value="">select faculty</option>
+              <option value={0}>select faculty</option>
               {faculties?.data.map((fac) => (
                 <option key={fac.name} value={fac.id}>
                   {fac.name}
@@ -171,7 +210,7 @@ const ScoreForm = ({ actions, score }: Props) => {
                 handleChange(ev, setFieldValue)
               }
             >
-              <option value="">select department</option>
+              <option value={0}>select department</option>
               {departmentsState.data?.data.map((dep, i) => (
                 <option key={dep.name + i} value={dep.id}>
                   {dep.name}
@@ -197,7 +236,7 @@ const ScoreForm = ({ actions, score }: Props) => {
                 handleChange(ev, setFieldValue)
               }
             >
-              <option value="">select program</option>
+              <option value={0}>select program</option>
               {programsState.data?.data.map((dep, i) => (
                 <option key={dep.name + i} value={dep.id}>
                   {dep.name}

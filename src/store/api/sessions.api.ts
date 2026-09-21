@@ -6,11 +6,22 @@ import {
 } from "../../types/sessions";
 import { appApi } from "./app.api";
 
+interface GetSessionsParams {
+  search_term?: string;
+  page?: number;
+  per_page?: number;
+}
+
 const sessionsApi = appApi.injectEndpoints({
   endpoints: (builder) => ({
-    getSessions: builder.query<SessionsResponse, { search_term?: string }>({
-      query: ({ search_term }) =>
-        `/session${search_term ? "?search_term=" + search_term : ""}`,
+    getSessions: builder.query<SessionsResponse, GetSessionsParams | undefined>({
+      query: (params) => {
+        const queryParams = new URLSearchParams();
+        if (params?.search_term) queryParams.append('search_term', params.search_term);
+        if (params?.page) queryParams.append('page', params.page.toString());
+        if (params?.per_page) queryParams.append('per_page', params.per_page.toString());
+        return `/session${queryParams.toString() ? '?' + queryParams.toString() : ''}`;
+      },
       providesTags: ["Sessions"],
     }),
     getSession: builder.query<SessionResponse, number>({
@@ -50,6 +61,7 @@ const sessionsApi = appApi.injectEndpoints({
 
 export const {
   useGetSessionsQuery,
+  useLazyGetSessionsQuery,
   useAddSessionMutation,
   useUpdateSessionMutation,
   useDeleteSessionMutation,

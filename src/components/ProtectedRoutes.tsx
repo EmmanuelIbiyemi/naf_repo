@@ -42,9 +42,11 @@ const allowedRoutes = {
     "/grading/results",
     "/settings",
     "/settings/profile",
+    "/settings/contact",
     "/settings/posttype/:resource_type",
     "/settings/posttype/:resource_type/:post_id",
     "/settings/posttype/:resource_type/add",
+    "/activity-logs",
   ],
   instructor: [
     "/instructor",
@@ -77,12 +79,14 @@ const allowedRoutes = {
     "/instructor/classes",
     "/instructor/announcements/:id",
     "/instructor/scores",
+    "/instructor/my-activity",
   ],
   participant: [
     "/student/dashboard",
     "/student/overview",
     "/student/courses",
     "/student/courses/exam-card",
+    "/student/courses/course-card",
     "/student/courses/course-form",
     "/student/courses/add-course",
     "/student/courses/details",
@@ -95,12 +99,13 @@ const allowedRoutes = {
     "/student/live-class",
     "/student/settings",
     "/student/announcements/:id",
+    "/student/my-activity",
   ],
 };
 
 const pathMatches = (pathPattern: string, currentPath: string): boolean => {
-  // Convert pathPattern with ":params" into a regex
-  const regexPattern = new RegExp(`^${pathPattern.replace(/:\w+/g, "\\w+")}$`);
+  // Convert pathPattern with ":params" into a regex that matches word chars and hyphens
+  const regexPattern = new RegExp(`^${pathPattern.replace(/:\w+/g, "[\\w\\-]+")}$`);
   return regexPattern.test(currentPath);
 };
 

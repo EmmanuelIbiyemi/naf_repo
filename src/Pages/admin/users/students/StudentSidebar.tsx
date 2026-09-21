@@ -111,7 +111,7 @@ const StudentSidebar = ({ open, studentId, toggleDrawer }: Props) => {
                 {student?.level?.name ? (
                   <span>{student?.level?.name}</span>
                 ) : (
-                  <span>No level found</span>
+                  <span style={{ color: '#388e3c', fontWeight: 500 }}>Graduated</span>
                 )}
               </Typography>
               <Typography sx={{ textAlign: "end" }}>

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useGetAnnouncementsQuery } from "../../../store/api/posts.api";
 import {
   Box,
@@ -11,16 +11,21 @@ import {
   Typography,
 } from "@mui/material";
 import { Post } from "../../../types/announcements";
+import { useAppDispatch } from "../../../store/hooks";
+import { setPageLoading } from "../../../store/app.slice";
 
 const AnnouncementsPage = () => {
   const [page, setPage] = useState(1);
-  const { data, isLoading, isError } = useGetAnnouncementsQuery(
-    "announcement",
-    {
-      skip: false,
-      refetchOnMountOrArgChange: true,
+  const { data, isLoading, isError } = useGetAnnouncementsQuery("announcement");
+  const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    if (isLoading) {
+      dispatch(setPageLoading(true));
+    } else {
+      dispatch(setPageLoading(false));
     }
-  );
+  }, [isLoading, dispatch]);
 
   const handlePageChange = (
     _event: React.ChangeEvent<unknown>,
@@ -77,10 +82,10 @@ const AnnouncementsPage = () => {
               <CardHeader title={announcement.title} />
               <CardContent>
                 <Typography variant="body1">{announcement.date}</Typography>
-                {announcement.blocks.length > 0 && (
+                {announcement?.blocks?.length > 0 && (
                   <>
                     <Divider sx={{ my: 2 }} />
-                    {announcement.blocks.map((block) => {
+                    {announcement?.blocks?.map((block) => {
                     if (block.type === 'text') {
                       return (
                       <Typography

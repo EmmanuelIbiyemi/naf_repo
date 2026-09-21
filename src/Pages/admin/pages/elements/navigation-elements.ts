@@ -1,4 +1,4 @@
-import { AddLink, Image, EmojiPeople } from "@mui/icons-material";
+import { AddLink, Image, EmojiPeople, ArrowDropDownCircle } from "@mui/icons-material";
 
 export const BLOCK_TYPES = {
   LINK: "link page",
@@ -6,6 +6,7 @@ export const BLOCK_TYPES = {
   SOCIAL: "link social",
   LINKURL: "link url",
   BUTTONLINK: "button link",
+  DROPDOWN: "dropdown",
 } as const;
 
 export const navElements = [
@@ -14,4 +15,5 @@ export const navElements = [
   { id: 26, name: "Social", type: BLOCK_TYPES.SOCIAL, icon: EmojiPeople },
   { id: 27, name: "Link Url", type: BLOCK_TYPES.LINKURL, icon: AddLink },
   { id: 28, name: "Button Link", type: BLOCK_TYPES.BUTTONLINK, icon: AddLink },
+  { id: 29, name: "Dropdown", type: BLOCK_TYPES.DROPDOWN, icon: ArrowDropDownCircle },
 ] as const;

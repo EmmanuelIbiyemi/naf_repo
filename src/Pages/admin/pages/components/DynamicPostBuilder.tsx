@@ -1,9 +1,22 @@
 import {
   Box,
+  Button,
+  IconButton,
   SxProps,
+  Theme,
+  Typography,
 } from "@mui/material";
-import { BlockType } from "../../../../types/blocks";
+import {
+  DragIndicator,
+  ExpandLess,
+  ExpandMore,
+} from "@mui/icons-material";
+import { BlockSettings, BlockType } from "../../../../types/blocks";
 import { PostType } from "../../../../types/posts";
+import { useEffect, useMemo, useState } from "react";
+import { useDeletePostBlockMutation } from "../../../../store/api/posts.api";
+import DeleteIcon from "../../../../assets/deleteIcon";
+import { ActionButtons } from "./ActionButtons";
 import HeadingBlock from "./postblocks/Heading";
 import MediaBlock from "./postblocks/Media";
 import BannerBlock from "./postblocks/Banner";
@@ -16,17 +29,80 @@ import ContactsBlock from "./postblocks/Contacts";
 import PostCarouselBlock from "./postblocks/PostCarousel";
 import PostCardsBlock from "./postblocks/PostCards";
 import MarginBlock from "./postblocks/Margin";
+import DropdownBlock from "./postblocks/Dropdown";
+import RichTextBlock from "./postblocks/RichText";
+import GalleryBlock from "./postblocks/Gallery";
+import FeatureGridBlock from "./postblocks/FeatureGrid";
+import AccordionBlock from "./postblocks/Accordion";
+import MapBlock from "./postblocks/MapBlock";
+import ResultSearchBlock from "./postblocks/ResultSearch";
+import HeroSpotlightBlock from "./postblocks/HeroSpotlight";
+import SectionHeaderBlock from "./postblocks/SectionHeader";
+import CtaStripBlock from "./postblocks/CtaStrip";
+import CalloutPanelBlock from "./postblocks/CalloutPanel";
+import MediaCarouselBlock from "./postblocks/MediaCarousel";
+import GridBlock from "./postblocks/GridBlock";
+import {
+  DndContext,
+  DragEndEvent,
+  KeyboardSensor,
+  PointerSensor,
+  closestCenter,
+  useSensor,
+  useSensors,
+} from "@dnd-kit/core";
+import {
+  SortableContext,
+  arrayMove,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 
+type GridDragPayload = {
+  gridId: string;
+  columnIndex: number;
+  blockIndex: number;
+};
 
 type Props = {
   page: PostType;
   setPage: React.Dispatch<React.SetStateAction<PostType>>;
+  selectedBlockId?: string | null;
+  onSelectBlock?: (block: BlockType) => void;
+  onReorder?: (blocks: BlockType[]) => void;
 };
 
-const PageBuilder = ({ page, setPage }: Props) => {
+const PageBuilder = ({
+  page,
+  setPage,
+  selectedBlockId,
+  onSelectBlock,
+  onReorder,
+}: Props) => {
+  const [draggedBlockId, setDraggedBlockId] = useState<string | null>(null);
+  const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set());
+  const [deleteBlock] = useDeletePostBlockMutation();
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+  );
   
-  const displayEl = (element: BlockType, index: number) => {
+  const displayEl = (
+    element: BlockType,
+    index: number,
+    dragHandleProps?: React.HTMLAttributes<HTMLDivElement>
+  ) => {
     let el;
+    const blockDragId = element.randomId ?? (element.id ? String(element.id) : null);
+    const handleBlockDragStart = (event: React.DragEvent<HTMLDivElement>) => {
+      if (!blockDragId) return;
+      event.dataTransfer.setData("application/x-naf-block-id", blockDragId);
+      event.dataTransfer.setData("text/plain", blockDragId);
+      event.dataTransfer.effectAllowed = "move";
+    };
 
     switch (element.type) {
       case "heading":
@@ -39,8 +115,10 @@ const PageBuilder = ({ page, setPage }: Props) => {
         break
       case "image":
       case "video":
-      case "map":
         el =<MediaBlock page={page} setPage={setPage} element={element} index={index}/>
+        break
+      case "map":
+        el =<MapBlock page={page} setPage={setPage} element={element} index={index}/>
         break
       case "banner":
         el =<BannerBlock page={page} setPage={setPage} element={element} index={index}/>
@@ -55,6 +133,9 @@ const PageBuilder = ({ page, setPage }: Props) => {
       case "link social":
         el =<LinkSocialBlock page={page} setPage={setPage} element={element} index={index}/>
         break
+      case "dropdown":
+        el =<DropdownBlock page={page} setPage={setPage} element={element} index={index}/>
+        break
       case "contacts":
         el =<ContactsBlock page={page} setPage={setPage} element={element} index={index}/>
         break
@@ -68,26 +149,696 @@ const PageBuilder = ({ page, setPage }: Props) => {
       case "post cards":
         el =<PostCardsBlock page={page} setPage={setPage} element={element} index={index}/>
         break
+      case "rich text":
+        el =<RichTextBlock page={page} setPage={setPage} element={element} index={index}/>
+        break
+      case "gallery":
+        el =<GalleryBlock page={page} setPage={setPage} element={element} index={index}/>
+        break
+      case "feature grid":
+        el =<FeatureGridBlock page={page} setPage={setPage} element={element} index={index}/>
+        break
+      case "accordion":
+        el =<AccordionBlock page={page} setPage={setPage} element={element} index={index}/>
+        break
       case "margin":
         el =<MarginBlock page={page} setPage={setPage} element={element} index={index}/>
+        break
+      case "result search":
+        el =<ResultSearchBlock page={page} setPage={setPage} element={element} index={index}/>
+        break
+      case "hero spotlight":
+        el =<HeroSpotlightBlock page={page} setPage={setPage} element={element} index={index}/>
+        break
+      case "section header":
+        el =<SectionHeaderBlock page={page} setPage={setPage} element={element} index={index}/>
+        break
+      case "cta strip":
+        el =<CtaStripBlock page={page} setPage={setPage} element={element} index={index}/>
+        break
+      case "callout panel":
+        el =<CalloutPanelBlock page={page} setPage={setPage} element={element} index={index}/>
+        break
+      case "media carousel":
+        el =<MediaCarouselBlock page={page} setPage={setPage} element={element} index={index}/>
+        break
+      case "grid":
+        el =<GridBlock page={page} setPage={setPage} element={element} index={index} onSelectBlock={onSelectBlock}/>
+        break
+      case "row":
+        el = (
+          <Box sx={{ p: 2, border: '1px dashed #ccc', borderRadius: '4px', textAlign: 'center', bgcolor: 'rgba(0,0,0,0.02)' }}>
+            <Typography variant="caption" color="text.secondary">Empty Row Block</Typography>
+          </Box>
+        )
         break
     }
 
     return (
-      <Box key={`element-${element.id + index}`} className="element">
+      <Box
+        key={`element-${element.randomId || element.id || index}`}
+        className="element"
+        sx={element.randomId === selectedBlockId ? selectedBlockStyles : undefined}
+        onClick={() => onSelectBlock?.(element)}
+        draggable={Boolean(blockDragId) && element.type !== "grid"}
+        onDragStart={handleBlockDragStart}
+      >
+        <Box
+          sx={dragHandleStyles}
+          {...dragHandleProps}
+          draggable={Boolean(blockDragId) && element.type !== "grid"}
+          onDragStart={handleBlockDragStart}
+        >
+          <DragIndicator fontSize="small" />
+        </Box>
         {el}
       </Box>
     );
   };
-  return <Box sx={formBuilderStyles}>
-            {page.blocks?.map((el, index) => displayEl(el, index))}
+  const getColumnWidthPercent = (value?: string) => {
+    switch (value) {
+      case "1/3":
+        return 33.33;
+      case "2/3":
+        return 66.66;
+      case "1/4":
+        return 25;
+      case "3/4":
+        return 75;
+      case "1/2":
+      default:
+        return 50;
+    }
+  };
+
+  const getColumnWidthFraction = (value?: BlockSettings["columnWidth"]) => {
+    switch (value) {
+      case "1/3":
+        return 1 / 3;
+      case "2/3":
+        return 2 / 3;
+      case "1/4":
+        return 1 / 4;
+      case "3/4":
+        return 3 / 4;
+      case "1/2":
+      default:
+        return 1 / 2;
+    }
+  };
+
+  const getRowWidthUsed = (blocks: BlockType[], rowId: string, excludeId?: string | null) =>
+    blocks.reduce((total, block) => {
+      if (block.settings?.layout !== "row" || block.settings?.rowId !== rowId) return total;
+      if (excludeId && block.randomId === excludeId) return total;
+      return total + getColumnWidthFraction(block.settings?.columnWidth);
+    }, 0);
+
+  const canAddRowBlock = (
+    blocks: BlockType[],
+    rowId: string,
+    columnWidth: BlockSettings["columnWidth"]
+  ) => {
+    const used = getRowWidthUsed(blocks, rowId);
+    return used + getColumnWidthFraction(columnWidth) <= 1;
+  };
+
+  const createRowBlock = (rowId: string): BlockType => ({
+    id: 0,
+    randomId: Math.random().toString(36).substring(2, 15),
+    content: "",
+    type: "text",
+    caption: "",
+    link: "",
+    media: [],
+    position: page.blocks.length + 1,
+    settings: {
+      layout: "row",
+      rowId,
+      columnWidth: "1/2",
+    },
+    title: "",
+  });
+
+  const handleAddBlockToRow = (rowId: string, insertIndex: number) => {
+    setPage((prev) => {
+      if (!prev) return prev;
+      if (!canAddRowBlock(prev.blocks, rowId, "1/2")) return prev;
+      const nextBlocks = [...prev.blocks];
+      nextBlocks.splice(insertIndex, 0, createRowBlock(rowId));
+      return {
+        ...prev,
+        blocks: nextBlocks,
+      };
+    });
+  };
+
+  const handleRowDragStart = (blockId?: string | null) => {
+    if (!blockId) return;
+    setDraggedBlockId(blockId);
+  };
+
+  const handleRowDrop = (targetRowId: string, targetBlockId?: string) => {
+    if (!draggedBlockId) return;
+    if (targetBlockId && targetBlockId === draggedBlockId) return;
+    setPage((prev) => {
+      if (!prev) return prev;
+      const blocks = [...prev.blocks];
+      const sourceIndex = blocks.findIndex((block) => block.randomId === draggedBlockId);
+      if (sourceIndex === -1) return prev;
+      const sourceBlock = blocks[sourceIndex];
+      const sourceRowId = sourceBlock.settings?.rowId;
+      const sourceIsInTargetRow =
+        sourceBlock.settings?.layout === "row" && sourceRowId === targetRowId;
+      if (!sourceIsInTargetRow) {
+        const used = getRowWidthUsed(blocks, targetRowId);
+        const incoming = getColumnWidthFraction(sourceBlock.settings?.columnWidth);
+        if (used + incoming > 1) {
+          return prev;
+        }
+      }
+
+      const updatedBlock: BlockType = {
+        ...sourceBlock,
+        settings: {
+          ...(sourceBlock.settings || {}),
+          layout: "row",
+          rowId: targetRowId,
+        },
+      };
+
+      blocks.splice(sourceIndex, 1);
+
+      let insertIndex = blocks.length;
+      if (targetBlockId) {
+        const targetIndex = blocks.findIndex((block) => block.randomId === targetBlockId);
+        if (targetIndex >= 0) {
+          insertIndex = targetIndex;
+        }
+      } else {
+        let lastIndex = -1;
+        blocks.forEach((block, index) => {
+          if (block.settings?.layout === "row" && block.settings?.rowId === targetRowId) {
+            lastIndex = index;
+          }
+        });
+        insertIndex = lastIndex >= 0 ? lastIndex + 1 : blocks.length;
+      }
+
+      blocks.splice(insertIndex, 0, updatedBlock);
+
+      return { ...prev, blocks };
+    });
+    setDraggedBlockId(null);
+  };
+
+  const handleDeleteRowBlock = async (block: BlockType) => {
+    const matchesBlock = (candidate: BlockType) =>
+      block.id ? candidate.id === block.id : candidate.randomId === block.randomId;
+
+    setPage((prev) => ({
+      ...prev,
+      blocks: prev.blocks
+        .filter((candidate) => !matchesBlock(candidate))
+        .map((candidate, index) => ({
+          ...candidate,
+          position: index + 1,
+        })),
+    }));
+
+    try {
+      if (block.id) {
+        await deleteBlock(block.id).unwrap();
+      }
+    } catch (error) {
+      console.error(error);
+      setPage((prev) => {
+        if (prev.blocks.some(matchesBlock)) return prev;
+
+        const nextBlocks = [...prev.blocks];
+        const insertIndex = Math.max(
+          0,
+          Math.min(nextBlocks.length, (block.position || 1) - 1)
+        );
+
+        nextBlocks.splice(insertIndex, 0, block);
+
+        return {
+          ...prev,
+          blocks: nextBlocks.map((candidate, index) => ({
+            ...candidate,
+            position: index + 1,
+          })),
+        };
+      });
+    }
+  };
+
+  const blockGroups = useMemo(() => {
+    const groups: {
+      id: string;
+      type: "row" | "block";
+      blocks: BlockType[];
+      startIndex: number;
+      endIndex: number;
+      rowId?: string;
+    }[] = [];
+
+    for (let i = 0; i < page.blocks.length; i += 1) {
+      const block = page.blocks[i];
+      const layout = block?.settings?.layout;
+      const rowId = block?.settings?.rowId;
+
+      if (layout === "row" && rowId) {
+        const rowBlocks = [block];
+        let j = i + 1;
+        while (
+          j < page.blocks.length &&
+          page.blocks[j]?.settings?.layout === "row" &&
+          page.blocks[j]?.settings?.rowId === rowId
+        ) {
+          rowBlocks.push(page.blocks[j]);
+          j += 1;
+        }
+
+        groups.push({
+          id: `row-${rowId}`,
+          type: "row",
+          blocks: rowBlocks,
+          startIndex: i,
+          endIndex: j - 1,
+          rowId,
+        });
+
+        i = j - 1;
+        continue;
+      }
+
+      const blockId = block.randomId || (block.id ? `id-${block.id}` : `index-${i}`);
+      groups.push({
+        id: `block-${blockId}`,
+        type: "block",
+        blocks: [block],
+        startIndex: i,
+        endIndex: i,
+      });
+    }
+
+    return groups;
+  }, [page.blocks]);
+
+  useEffect(() => {
+    setExpandedGroups((prev) => {
+      const next = new Set<string>();
+      const groupIds = new Set(blockGroups.map((group) => group.id));
+      for (const id of prev) {
+        if (groupIds.has(id)) next.add(id);
+      }
+      return next;
+    });
+  }, [blockGroups]);
+
+  const toggleGroup = (id: string, forceExpanded?: boolean) => {
+    setExpandedGroups((prev) => {
+      const next = new Set(prev);
+      const shouldExpand = forceExpanded ?? !next.has(id);
+      if (shouldExpand) {
+        next.add(id);
+      } else {
+        next.delete(id);
+      }
+      return next;
+    });
+  };
+
+  const formatBlockLabel = (value?: string) => {
+    if (!value) return "Block";
+    return value
+      .split(" ")
+      .map((part) => (part ? part[0].toUpperCase() + part.slice(1) : part))
+      .join(" ");
+  };
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over) return;
+
+    if (typeof over.id === "string" && over.id.startsWith("grid-column:")) {
+      const [, gridId, columnIndexStr] = over.id.split(":");
+      const columnIndex = Number(columnIndexStr);
+      const group = blockGroups.find((item) => item.id === active.id);
+      if (!group || group.type !== "block") return;
+      const draggedBlock = group.blocks[0];
+      if (draggedBlock.type === "grid") return;
+
+      setPage((prev) => {
+        if (!prev) return prev;
+        const gridIndex = prev.blocks.findIndex((block) => {
+          const id = block.randomId ?? (block.id ? String(block.id) : null);
+          return id === gridId;
+        });
+        if (gridIndex === -1) return prev;
+
+        const draggedIndex = prev.blocks.findIndex((block) => {
+          const id = block.randomId ?? (block.id ? String(block.id) : null);
+          const draggedId = draggedBlock.randomId ?? (draggedBlock.id ? String(draggedBlock.id) : null);
+          return id === draggedId;
+        });
+        if (draggedIndex === -1) return prev;
+
+        const currentGrid = prev.blocks[gridIndex];
+        const updatedColumns = [...(currentGrid.columns || [])];
+        if (!updatedColumns[columnIndex]) {
+          updatedColumns[columnIndex] = { blocks: [] };
+        }
+
+        const nextSettings = { ...(draggedBlock.settings || {}) };
+        if (nextSettings.layout === "row") {
+          delete nextSettings.layout;
+          delete nextSettings.rowId;
+          delete nextSettings.columnWidth;
+        }
+        nextSettings.columnIndex = columnIndex;
+
+        updatedColumns[columnIndex] = {
+          blocks: [...updatedColumns[columnIndex].blocks, { ...draggedBlock, settings: nextSettings }],
+        };
+
+        const updatedGrid: BlockType = { ...currentGrid, columns: updatedColumns };
+        const remainingBlocks = prev.blocks.filter((_, idx) => idx !== draggedIndex);
+        const replacedBlocks = remainingBlocks.map((block) =>
+          block.randomId === updatedGrid.randomId ? updatedGrid : block
+        );
+        const normalizedBlocks = replacedBlocks.map((block, index) => ({
+          ...block,
+          position: index + 1,
+        }));
+
+        return { ...prev, blocks: normalizedBlocks };
+      });
+
+      return;
+    }
+
+    if (active.id === over.id) return;
+
+    const oldIndex = blockGroups.findIndex((group) => group.id === active.id);
+    const newIndex = blockGroups.findIndex((group) => group.id === over.id);
+
+    if (oldIndex < 0 || newIndex < 0) return;
+
+    const reorderedGroups = arrayMove(blockGroups, oldIndex, newIndex);
+    const reorderedBlocks = reorderedGroups.flatMap((group) => group.blocks);
+    const normalizedBlocks = reorderedBlocks.map((block, index) => ({
+      ...block,
+      position: index + 1,
+    }));
+
+    setPage((prev) => ({ ...prev, blocks: normalizedBlocks }));
+    onReorder?.(normalizedBlocks);
+  };
+
+  const renderedBlocks = blockGroups.map((group) => (
+    <SortableItem key={group.id} id={group.id}>
+      {({ attributes, listeners }) => {
+        const isExpanded = expandedGroups.has(group.id);
+        if (group.type === "row" && group.rowId) {
+          const rowId = group.rowId;
+          const canAdd = canAddRowBlock(group.blocks, rowId, "1/2");
+          return (
+            <Box sx={rowWrapperStyles}>
+              <Box sx={rowHeaderStyles}>
+                <Box sx={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                  <Box sx={dragHandleStyles} {...attributes} {...listeners}>
+                    <DragIndicator fontSize="small" />
+                  </Box>
+                  <Typography variant="caption" sx={{ color: "text.secondary" }}>
+                    Row: {rowId}
+                  </Typography>
+                  <Typography variant="caption" sx={{ color: "text.secondary" }}>
+                    • {group.blocks.length} block{group.blocks.length === 1 ? "" : "s"}
+                  </Typography>
+                </Box>
+                <Box sx={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                  <IconButton
+                    size="small"
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      toggleGroup(group.id);
+                    }}
+                    aria-label={isExpanded ? "Collapse row" : "Expand row"}
+                  >
+                    {isExpanded ? <ExpandLess fontSize="small" /> : <ExpandMore fontSize="small" />}
+                  </IconButton>
+                  <Button
+                    size="small"
+                    variant="outlined"
+                    disabled={!canAdd}
+                    title={canAdd ? "Add block" : "Row is full"}
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      handleAddBlockToRow(rowId, group.endIndex + 1);
+                    }}
+                  >
+                    Add Block
+                  </Button>
+                </Box>
+              </Box>
+              {isExpanded ? (
+                <Box
+                  sx={{
+                    display: "grid",
+                    gap: "1rem",
+                    gridAutoFlow: { xs: "row", md: "column" },
+                    gridAutoColumns: { md: "minmax(220px, 1fr)" },
+                    overflowX: { md: "auto" },
+                    paddingBottom: { md: "0.5rem" },
+                    alignItems: "stretch",
+                  }}
+                  onDragOver={(event) => event.preventDefault()}
+                  onDrop={() => handleRowDrop(rowId)}
+                >
+                  {group.blocks.map((rowBlock, rowIndex) => {
+                    const percent = getColumnWidthPercent(rowBlock.settings?.columnWidth);
+                    return (
+                      <Box
+                        key={`row-item-${rowBlock.randomId || rowBlock.id || rowIndex}`}
+                        sx={{
+                          minWidth: { md: `${percent}%` },
+                          maxWidth: { xs: "100%", md: `${percent}%` },
+                        }}
+                      >
+                        <Box
+                          sx={{
+                            ...rowCardStyles,
+                            ...(rowBlock.randomId === selectedBlockId ? rowCardSelectedStyles : {}),
+                          } as SxProps}
+                          draggable
+                          onDragStart={() => handleRowDragStart(rowBlock.randomId)}
+                          onDragEnd={() => setDraggedBlockId(null)}
+                          onDragOver={(event) => event.preventDefault()}
+                          onDrop={() => handleRowDrop(rowId, rowBlock.randomId || undefined)}
+                          onClick={() => onSelectBlock?.(rowBlock)}
+                        >
+                          <Box sx={{ display: "flex", alignItems: "flex-start", gap: "0.5rem" }}>
+                            <Typography
+                              variant="subtitle2"
+                              sx={{ textTransform: "capitalize", flex: 1, minWidth: 0 }}
+                            >
+                              {rowBlock.type === "row" ? "Empty Column" : rowBlock.type}
+                            </Typography>
+                            <IconButton
+                              size="small"
+                              className="delete_btn"
+                              sx={{ alignSelf: "flex-start" }}
+                              onClick={(event) => {
+                                event.stopPropagation();
+                                handleDeleteRowBlock(rowBlock);
+                              }}
+                            >
+                              <DeleteIcon />
+                            </IconButton>
+                          </Box>
+                          <Typography variant="caption" color="text.secondary">
+                            Width: {rowBlock.settings?.columnWidth || "1/2"}
+                          </Typography>
+                        </Box>
+                      </Box>
+                    );
+                  })}
+                </Box>
+              ) : null}
+            </Box>
+          );
+        }
+
+        const block = group.blocks[0];
+        if (!isExpanded) {
+          const isSelected = block.randomId === selectedBlockId;
+          return (
+            <Box
+              sx={{
+                border: "1px solid rgba(0,0,0,0.08)",
+                borderRadius: "12px",
+                padding: "0.75rem 1rem",
+                display: "flex",
+                alignItems: "center",
+                gap: "0.75rem",
+                backgroundColor: isSelected ? "rgba(43, 135, 251, 0.04)" : "#fff",
+                boxShadow: "0 1px 2px rgba(15, 23, 42, 0.08)",
+                cursor: "pointer",
+                marginBottom: "1rem",
+                borderColor: isSelected ? "rgba(43, 135, 251, 1)" : "rgba(0,0,0,0.08)",
+              }}
+              onClick={() => {
+                toggleGroup(group.id, true);
+                onSelectBlock?.(block);
+              }}
+            >
+              <Box sx={dragHandleStyles} {...attributes} {...listeners}>
+                <DragIndicator fontSize="small" />
+              </Box>
+              <Box sx={collapsedBlockContentStyles}>
+                <Typography variant="subtitle2">{formatBlockLabel(block.type)}</Typography>
+                <Typography variant="caption" color="text.secondary">
+                  Click to expand
+                </Typography>
+              </Box>
+              <Box
+                sx={{ display: "flex", alignItems: "center", gap: "0.35rem" }}
+                onClick={(event) => event.stopPropagation()}
+              >
+                <IconButton
+                  size="small"
+                  onClick={() => toggleGroup(group.id, true)}
+                  aria-label="Expand block"
+                >
+                  <ExpandMore fontSize="small" />
+                </IconButton>
+                <ActionButtons block={block} setPage={setPage} />
+              </Box>
+            </Box>
+          );
+        }
+
+        return (
+          <Box sx={expandedBlockWrapperStyles}>
+            <Box sx={collapseButtonWrapperStyles}>
+              <IconButton
+                size="small"
+                onClick={(event) => {
+                  event.stopPropagation();
+                  toggleGroup(group.id, false);
+                }}
+                aria-label="Collapse block"
+              >
+                <ExpandLess fontSize="small" />
+              </IconButton>
+            </Box>
+            {displayEl(block, group.startIndex, { ...attributes, ...listeners })}
+          </Box>
+        );
+      }}
+    </SortableItem>
+  ));
+
+  return (
+    <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+      <SortableContext items={blockGroups.map((group) => group.id)} strategy={verticalListSortingStrategy}>
+        <Box
+          sx={formBuilderStyles}
+          onDragOver={(event) => {
+            event.preventDefault();
+            event.dataTransfer.dropEffect = "move";
+          }}
+          onDrop={(event) => {
+            const raw = event.dataTransfer.getData("application/x-naf-grid-block");
+            if (!raw) return;
+            event.preventDefault();
+            const payload = JSON.parse(raw) as GridDragPayload;
+            setPage((prev) => {
+              if (!prev) return prev;
+              const gridIndex = prev.blocks.findIndex((block) => {
+                const id = block.randomId ?? (block.id ? String(block.id) : null);
+                return id === payload.gridId;
+              });
+              if (gridIndex === -1) return prev;
+
+              const currentGrid = prev.blocks[gridIndex];
+              const updatedColumns = [...(currentGrid.columns || [])];
+              const sourceColumn = updatedColumns[payload.columnIndex];
+              if (!sourceColumn) return prev;
+              const movingBlock = sourceColumn.blocks[payload.blockIndex];
+              if (!movingBlock) return prev;
+
+              updatedColumns[payload.columnIndex] = {
+                blocks: sourceColumn.blocks.filter((_, idx) => idx !== payload.blockIndex),
+              };
+
+              const nextSettings = { ...(movingBlock.settings || {}) };
+              if (nextSettings.columnIndex !== undefined) {
+                delete nextSettings.columnIndex;
+              }
+
+              const independentBlock: BlockType = {
+                ...movingBlock,
+                settings: nextSettings,
+              };
+
+              const updatedGrid: BlockType = { ...currentGrid, columns: updatedColumns };
+
+              const remainingBlocks = prev.blocks.map((block) =>
+                block.randomId === updatedGrid.randomId ? updatedGrid : block
+              );
+              const insertIndex = Math.min(gridIndex + 1, remainingBlocks.length);
+              const nextBlocks = [...remainingBlocks];
+              nextBlocks.splice(insertIndex, 0, independentBlock);
+              const normalizedBlocks = nextBlocks.map((block, index) => ({
+                ...block,
+                position: index + 1,
+              }));
+
+              return { ...prev, blocks: normalizedBlocks };
+            });
+          }}
+        >
+          {renderedBlocks}
         </Box>
+      </SortableContext>
+    </DndContext>
+  );
 }
 
   
 export default PageBuilder;
 
-const formBuilderStyles: SxProps = {
+type SortableItemProps = {
+  id: string;
+  children: (props: {
+    attributes: Record<string, unknown>;
+    listeners: Record<string, unknown>;
+    isDragging: boolean;
+  }) => React.ReactNode;
+};
+
+const SortableItem = ({ id, children }: SortableItemProps) => {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id,
+  });
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.7 : 1,
+  };
+
+  return (
+    <Box ref={setNodeRef} style={style}>
+      {children({ attributes: (attributes as unknown) as Record<string, unknown>, listeners: listeners || {}, isDragging })}
+    </Box>
+  );
+};
+
+const formBuilderStyles: SxProps<Theme> = {
   padding: "1.5rem 1rem",
 
   ".element": {
@@ -116,4 +867,70 @@ const formBuilderStyles: SxProps = {
   ".MuiIconButton-root.delete_btn": {
     bgcolor: "rgba(229, 72, 77, 1)",
   },
+};
+
+const collapsedBlockContentStyles: SxProps<Theme> = {
+  display: "grid",
+  gap: "0.15rem",
+  flex: 1,
+};
+
+const expandedBlockWrapperStyles: SxProps<Theme> = {
+  position: "relative",
+};
+
+const collapseButtonWrapperStyles: SxProps<Theme> = {
+  position: "absolute",
+  right: "0.75rem",
+  top: "0.75rem",
+  zIndex: 2,
+  backgroundColor: "#fff",
+  borderRadius: "999px",
+  boxShadow: "0 1px 2px rgba(15, 23, 42, 0.12)",
+};
+
+const rowWrapperStyles: SxProps<Theme> = {
+  border: "1px dashed rgba(43, 135, 251, 0.6)",
+  borderRadius: "var(--border-radius)",
+  display: "grid",
+  gap: "0.75rem",
+  marginBottom: "1rem",
+  padding: "0.75rem",
+};
+
+const rowHeaderStyles: SxProps<Theme> = {
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "center",
+  gap: "0.5rem",
+};
+
+const rowCardStyles: SxProps<Theme> = {
+  border: "1px solid rgba(0,0,0,0.08)",
+  borderRadius: "12px",
+  display: "grid",
+  gap: "0.5rem",
+  padding: "0.75rem",
+  backgroundColor: "#fff",
+  boxShadow: "0 1px 2px rgba(15, 23, 42, 0.08)",
+  cursor: "grab",
+};
+
+const selectedBlockStyles: SxProps<Theme> = {
+  borderColor: "rgba(43, 135, 251, 1)",
+  backgroundColor: "rgba(43, 135, 251, 0.04)",
+};
+
+const rowCardSelectedStyles: SxProps<Theme> = {
+  borderColor: "rgba(43, 135, 251, 1)",
+  boxShadow: "0 0 0 1px rgba(43, 135, 251, 0.35)",
+};
+
+const dragHandleStyles: SxProps<Theme> = {
+  alignItems: "center",
+  color: "rgba(148, 163, 184, 1)",
+  cursor: "grab",
+  display: "flex",
+  paddingRight: "0.25rem",
+  "&:active": { cursor: "grabbing" },
 };

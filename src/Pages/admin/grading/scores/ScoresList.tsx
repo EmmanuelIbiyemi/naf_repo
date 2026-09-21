@@ -15,7 +15,6 @@ import {
   TableHead,
 } from "@mui/material";
 import { Delete, Edit } from "@mui/icons-material";
-import { Link } from "react-router-dom";
 import DeleteConfirmationModal from "../../../../components/DeleteConfirmationModal";
 import { useEffect, useState } from "react";
 import {
@@ -52,7 +51,10 @@ const ScoresList = () => {
     department_id: 0,
     program_id: 0,
   });
-  const { data: scrs } = useGetScoresQuery(filters.program_id);
+  const { data: scrs, isFetching: loadingScores } = useGetScoresQuery(
+    filters.program_id,
+    { skip: !filters.program_id }
+  );
   const [scores, setScores] = useState(scrs?.data);
   const keyword = useAppSelector(selectKeyword);
 
@@ -126,6 +128,7 @@ const ScoresList = () => {
             submit: handleEditScore as ScoreFormAction,
             cancel: () => handleCloseModal("edit"),
           }}
+          defaults={filters}
           score={selectedScore}
         />
       </FormModal>
@@ -228,7 +231,7 @@ const ScoresList = () => {
         </TableHead>
 
         <TableBody>
-          {!scores?.length ? (
+          {!loadingScores && scores && scores.length === 0 ? (
             <TableRow
               sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
             >
@@ -254,7 +257,7 @@ const ScoresList = () => {
                 sx={{ alignItems: "center", display: "flex", gap: "1rem" }}
               >
                 <Checkbox />
-                <Link to={`/scores/${score.id}`}>{score.name}</Link>
+                {score.name}
               </TableCell>
               <TableCell>{score.min_score}</TableCell>
               <TableCell>{score.max_score}</TableCell>

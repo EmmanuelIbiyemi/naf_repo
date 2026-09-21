@@ -19,14 +19,22 @@ import {
   DialogContent,
   DialogActions,
   Paper,
+  Chip,
+  LinearProgress,
 } from "@mui/material";
-import { AccessTime, Assignment, Close } from "@mui/icons-material";
+import { 
+  AccessTime, 
+  Assignment, 
+  Close, 
+  NavigateNext, 
+  NavigateBefore,
+  CheckCircle,
+} from "@mui/icons-material";
 import {
   useSubmitQuizMutation,
   useSubmitSingleQuizMutation,
   useUnlockQuizMutation,
 } from "../../../store/api/quizzes.api";
-import QuestionSummaryGrid from "./CBTSummary";
 import {
   Option,
   Question,
@@ -207,6 +215,7 @@ const CBTTest = () => {
   const [showSubmitDialog, setShowSubmitDialog] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [timeLeft, setTimeLeft] = useState(0);
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [submitAllQuiz] = useSubmitQuizMutation();
   const [submitSingleQuiz] = useSubmitSingleQuizMutation();
   const [unlockQuiz, { data: quizData, isLoading, error }] =
@@ -262,10 +271,19 @@ const CBTTest = () => {
       }
     };
 
-  const handleQuestionClick = (questionId: number) => {
-    const questionElement = document.getElementById(`question-${questionId}`);
-    if (questionElement) {
-      questionElement.scrollIntoView({ behavior: "smooth", block: "center" });
+  const handleQuestionClick = (questionIndex: number) => {
+    setCurrentQuestionIndex(questionIndex);
+  };
+
+  const handleNextQuestion = () => {
+    if (currentQuestionIndex < questions.length - 1) {
+      setCurrentQuestionIndex(currentQuestionIndex + 1);
+    }
+  };
+
+  const handlePreviousQuestion = () => {
+    if (currentQuestionIndex > 0) {
+      setCurrentQuestionIndex(currentQuestionIndex - 1);
     }
   };
 
@@ -339,9 +357,12 @@ const CBTTest = () => {
 
   const quiz = quizData?.data.quiz;
   const questions = quiz?.assessments[0].questions as Question[];
+  const currentQuestion = questions?.[currentQuestionIndex];
+  const answeredCount = Object.keys(answers).length;
+  const progress = questions ? (answeredCount / questions.length) * 100 : 0;
 
   return (
-    <Box sx={{ p: 2, maxWidth: 1800, mx: "auto" }}>
+    <Box sx={{ p: 2, maxWidth: 1200, mx: "auto" }}>
       <QuizInfoModal
         quiz={quiz}
         open={showInfoModal}
@@ -349,15 +370,17 @@ const CBTTest = () => {
         onStart={handleStartQuiz}
       />
 
-      {quizStarted && (
+      {quizStarted && currentQuestion && (
         <>
+          {/* Header with Timer */}
           <Paper
-            elevation={1}
+            elevation={2}
             sx={{
               position: "sticky",
-              width: "100%",
-              mb: 2,
-              p: 3,
+              top: 0,
+              zIndex: 10,
+              mb: 3,
+              p: 2,
               borderRadius: 2,
               bgcolor: "background.paper",
             }}
@@ -365,112 +388,182 @@ const CBTTest = () => {
             <Box
               sx={{
                 display: "flex",
-                flexDirection: "column",
-                justifyContent: "center",
+                justifyContent: "space-between",
+                alignItems: "center",
+                mb: 1,
               }}
             >
-              <Box
-                sx={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                }}
-              >
-                <Typography variant="h5" component="h1">
-                  {quiz?.name}
+              <Typography variant="h6" component="h1" sx={{ fontWeight: 600 }}>
+                {quiz?.name}
+              </Typography>
+              <Timer
+                duration={quiz?.time_allowed || 60}
+                onTimeUp={handleTimeUp}
+                onTick={handleTimeTick}
+              />
+            </Box>
+            
+            {/* Progress Bar */}
+            <Box sx={{ mt: 2 }}>
+              <Box sx={{ display: "flex", justifyContent: "space-between", mb: 1 }}>
+                <Typography variant="body2" color="text.secondary">
+                  Progress: {answeredCount} of {questions?.length} answered
                 </Typography>
-                <Timer
-                  duration={quiz?.time_allowed || 60}
-                  onTimeUp={handleTimeUp}
-                  onTick={handleTimeTick}
-                />
+                <Typography variant="body2" color="text.secondary">
+                  {Math.round(progress)}%
+                </Typography>
               </Box>
-              <QuestionSummaryGrid
-                questions={questions}
-                answers={answers}
-                onQuestionClick={handleQuestionClick}
+              <LinearProgress 
+                variant="determinate" 
+                value={progress} 
+                sx={{ height: 8, borderRadius: 1 }}
               />
             </Box>
           </Paper>
 
-          <Box
+          {/* Question Navigation Grid */}
+          <Paper
+            elevation={1}
             sx={{
-              display: "flex",
-              flexWrap: "wrap",
-              width: "100%",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: 3,
+              p: 2,
+              mb: 3,
+              borderRadius: 2,
             }}
           >
-            {questions?.map((question, index: number) => (
-              <Card
-                key={question.id}
-                sx={{
-                  p: 3,
-                  minWidth: 360,
-                  maxWidth: 360,
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: 1,
-                  boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.1)",
-                }}
-              >
-                <Typography variant="subtitle1" sx={{ mb: 0 }}>
-                  Question {index + 1}
-                </Typography>
-                <Typography variant="body1" sx={{ mb: 0 }}>
-                  {question.body}
-                </Typography>
-                <RadioGroup
-                  value={answers[question.id]?.toString() || ""}
-                  onChange={handleAnswerChange(question.id)}
-                >
-                  {question.options.map((option: Option) => (
-                    <FormControlLabel
-                      key={option.id}
-                      value={option.id.toString()}
-                      control={<Radio />}
-                      label={option.body}
-                      sx={{
-                        mb: 0,
-                        "& .MuiTypography-root": {
-                          fontSize: "0.9rem",
-                        },
-                      }}
-                    />
-                  ))}
-                </RadioGroup>
-              </Card>
-            ))}
-          </Box>
+            <Typography variant="subtitle2" sx={{ mb: 1.5, fontWeight: 600 }}>
+              Question Navigator
+            </Typography>
+            <Box
+              sx={{
+                display: "flex",
+                flexWrap: "wrap",
+                gap: 1,
+              }}
+            >
+              {questions?.map((question, index) => (
+                <Chip
+                  key={question.id}
+                  label={index + 1}
+                  onClick={() => handleQuestionClick(index)}
+                  color={currentQuestionIndex === index ? "primary" : "default"}
+                  variant={currentQuestionIndex === index ? "filled" : "outlined"}
+                  icon={answers[question.id] ? <CheckCircle /> : undefined}
+                  sx={{
+                    fontWeight: currentQuestionIndex === index ? 600 : 400,
+                    bgcolor: answers[question.id] && currentQuestionIndex !== index ? "success.light" : undefined,
+                    color: answers[question.id] && currentQuestionIndex !== index ? "success.dark" : undefined,
+                    borderColor: answers[question.id] && currentQuestionIndex !== index ? "success.main" : undefined,
+                  }}
+                />
+              ))}
+            </Box>
+          </Paper>
 
+          {/* Current Question Card */}
+          <Card
+            elevation={3}
+            sx={{
+              p: 4,
+              borderRadius: 2,
+              minHeight: 400,
+              display: "flex",
+              flexDirection: "column",
+            }}
+          >
+            <Box sx={{ mb: 3 }}>
+              <Typography 
+                variant="overline" 
+                color="text.secondary"
+                sx={{ fontWeight: 600 }}
+              >
+                Question {currentQuestionIndex + 1} of {questions?.length}
+              </Typography>
+              <Typography 
+                variant="h5" 
+                sx={{ mt: 1, mb: 3, fontWeight: 500, lineHeight: 1.5 }}
+              >
+                {currentQuestion.body}
+              </Typography>
+            </Box>
+
+            <RadioGroup
+              value={answers[currentQuestion.id]?.toString() || ""}
+              onChange={handleAnswerChange(currentQuestion.id)}
+              sx={{ flexGrow: 1 }}
+            >
+              {currentQuestion.options.map((option: Option, index: number) => (
+                <FormControlLabel
+                  key={option.id}
+                  value={option.id.toString()}
+                  control={<Radio />}
+                  label={
+                    <Box sx={{ py: 1 }}>
+                      <Typography variant="body1">
+                        <strong>{String.fromCharCode(65 + index)}.</strong> {option.body}
+                      </Typography>
+                    </Box>
+                  }
+                  sx={{
+                    mb: 1,
+                    p: 2,
+                    borderRadius: 1,
+                    border: "1px solid",
+                    borderColor: answers[currentQuestion.id] === option.id ? "primary.main" : "divider",
+                    bgcolor: answers[currentQuestion.id] === option.id ? "primary.lighter" : "transparent",
+                    "&:hover": {
+                      bgcolor: "action.hover",
+                    },
+                  }}
+                />
+              ))}
+            </RadioGroup>
+          </Card>
+
+          {/* Navigation Buttons */}
           <Box
             sx={{
               display: "flex",
               justifyContent: "space-between",
               alignItems: "center",
-              mt: 4,
-              position: "sticky",
-              bottom: 16,
-              bgcolor: "background.paper",
-              p: 2,
-              borderRadius: 1,
-              boxShadow: "0px -2px 4px rgba(0, 0, 0, 0.1)",
+              mt: 3,
+              gap: 2,
             }}
           >
-            <Typography>
-              Questions answered: {Object.keys(answers).length} of{" "}
-              {questions.length}
-            </Typography>
             <Button
-              variant="contained"
-              color="primary"
-              onClick={() => setShowSubmitDialog(true)}
-              disabled={submitting}
+              variant="outlined"
+              size="large"
+              startIcon={<NavigateBefore />}
+              onClick={handlePreviousQuestion}
+              disabled={currentQuestionIndex === 0}
+              sx={{ minWidth: 120 }}
             >
-              Submit Quiz
+              Previous
             </Button>
+
+            <Box sx={{ display: "flex", gap: 2 }}>
+              {currentQuestionIndex === questions.length - 1 ? (
+                <Button
+                  variant="contained"
+                  size="large"
+                  color="success"
+                  onClick={() => setShowSubmitDialog(true)}
+                  disabled={submitting}
+                  sx={{ minWidth: 150, fontWeight: 600 }}
+                >
+                  Submit Quiz
+                </Button>
+              ) : (
+                <Button
+                  variant="contained"
+                  size="large"
+                  endIcon={<NavigateNext />}
+                  onClick={handleNextQuestion}
+                  sx={{ minWidth: 120 }}
+                >
+                  Next
+                </Button>
+              )}
+            </Box>
           </Box>
         </>
       )}

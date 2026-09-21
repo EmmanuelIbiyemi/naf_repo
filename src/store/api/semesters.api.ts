@@ -6,10 +6,24 @@ import {
 } from "../../types/semesters";
 import { appApi } from "./app.api";
 
+interface GetSemestersParams {
+  session_id?: number;
+  search_term?: string;
+  page?: number;
+  per_page?: number;
+}
+
 const semestersApi = appApi.injectEndpoints({
   endpoints: (builder) => ({
-    getSemesters: builder.query<SemestersResponse, null>({
-      query: () => "/semester",
+    getSemesters: builder.query<SemestersResponse, GetSemestersParams | undefined>({
+      query: (params) => {
+        const queryParams = new URLSearchParams();
+        if (params?.session_id) queryParams.append('session_id', params.session_id.toString());
+        if (params?.search_term) queryParams.append('search_term', params.search_term);
+        if (params?.page) queryParams.append('page', params.page.toString());
+        if (params?.per_page) queryParams.append('per_page', params.per_page.toString());
+        return `/semester${queryParams.toString() ? '?' + queryParams.toString() : ''}`;
+      },
       providesTags: ["Semesters", "Sessions"],
     }),
     getSemester: builder.query<SemesterResponse, number>({
@@ -49,6 +63,7 @@ const semestersApi = appApi.injectEndpoints({
 
 export const {
   useGetSemestersQuery,
+  useLazyGetSemestersQuery,
   useAddSemesterMutation,
   useUpdateSemesterMutation,
   useDeleteSemesterMutation,

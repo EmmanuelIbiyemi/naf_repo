@@ -24,6 +24,7 @@ const AdminForm = ({ actions, admin }: Props) => {
     photo: admin?.photo || "",
     created_at: admin?.created_at || "",
     updated_at: admin?.updated_at || "",
+    user_id: admin?.user_id || 0,
   };
 
   const validationSchema = Yup.object({

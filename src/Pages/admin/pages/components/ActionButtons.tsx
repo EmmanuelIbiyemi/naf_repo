@@ -1,12 +1,9 @@
 import { Box, IconButton } from "@mui/material";
 import { useDeletePostBlockMutation } from "../../../../store/api/posts.api";
-import { useAppDispatch } from "../../../../store/hooks";
 import { BlockType } from "../../../../types/blocks";
 import { PostType } from "../../../../types/posts";
 import DeleteIcon from "../../../../assets/deleteIcon";
-import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
-import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
-import { setBuilderLoading } from "../../../../store/app.slice";
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 
 type ActionProp = {
   block: BlockType;
@@ -14,50 +11,90 @@ type ActionProp = {
 };
 
 export const ActionButtons = ({ block, setPage }: ActionProp) => {
-  const dispatch = useAppDispatch();
   const [deleteBlock] = useDeletePostBlockMutation();
 
   const handleDelete = async (block_id: number) => {
-    dispatch(setBuilderLoading(true));
+    setPage((prev) => ({
+      ...prev,
+      blocks: prev.blocks
+        .filter((item) => item.id !== block_id)
+        .map((item, index) => ({
+          ...item,
+          position: index + 1,
+        })),
+    }));
+
     try {
       await deleteBlock(block_id).unwrap();
-      setPage((prev) => ({
-        ...prev,
-        blocks: prev.blocks.filter((block) => block.id !== block_id),
-      }));
     } catch (error) {
-      console.log(error);
+      console.error(error);
+      setPage((prev) => {
+        if (prev.blocks.some((item) => item.id === block_id)) return prev;
+
+        const nextBlocks = [...prev.blocks];
+        const insertIndex = Math.max(
+          0,
+          Math.min(nextBlocks.length, (block.position || 1) - 1)
+        );
+
+        nextBlocks.splice(insertIndex, 0, block);
+
+        return {
+          ...prev,
+          blocks: nextBlocks.map((item, index) => ({
+            ...item,
+            position: index + 1,
+          })),
+        };
+      });
     }
-    dispatch(setBuilderLoading(false));
   };
 
-  const moveBlock = (direction: 'up' | 'down') => {
+  const handleDuplicate = () => {
     setPage((prev) => {
       const blocks = [...prev.blocks];
-      const index = blocks.indexOf(block);
+      const index = blocks.findIndex((item) => {
+        if (block.randomId && item.randomId) {
+          return item.randomId === block.randomId;
+        }
+        if (block.id && item.id) {
+          return item.id === block.id;
+        }
+        return false;
+      });
 
-      if (direction === 'up' && index > 0) {
-        [blocks[index - 1], blocks[index]] = [blocks[index], blocks[index - 1]];
-      } else if (direction === 'down' && index < blocks.length - 1) {
-        [blocks[index + 1], blocks[index]] = [blocks[index], blocks[index + 1]];
-      }
+      if (index < 0) return prev;
+
+      // Create a duplicate of the block
+      const duplicatedBlock: BlockType = {
+        ...block,
+        id: 0, // Will be assigned by the backend when saved
+        randomId: `temp_${Date.now()}_${Math.random()}`, // Generate unique temporary ID
+        position: index + 2, // Position after the current block
+      };
+
+      // Insert the duplicated block after the current block
+      blocks.splice(index + 1, 0, duplicatedBlock);
+
+      // Update positions for all blocks
+      const updatedBlocks = blocks.map((item, positionIndex) => ({
+        ...item,
+        position: positionIndex + 1,
+      }));
 
       return {
         ...prev,
-        blocks,
+        blocks: updatedBlocks,
       };
     });
   };
 
   return (
-    <Box sx={{ display: "flex", gap: ".3rem" }}>
-      <IconButton onClick={() => moveBlock('up')} className="move_up_btn">
-        <ArrowUpwardIcon />
+    <Box sx={{ display: "flex", gap: ".3rem", alignItems: "center" }}>
+      <IconButton onClick={handleDuplicate} className="duplicate_btn" title="Duplicate block">
+        <ContentCopyIcon />
       </IconButton>
-      <IconButton onClick={() => moveBlock('down')} className="move_down_btn">
-        <ArrowDownwardIcon />
-      </IconButton>
-      <IconButton onClick={() => handleDelete(block.id)} className="delete_btn">
+      <IconButton onClick={() => handleDelete(block.id)} className="delete_btn" title="Delete block">
         <DeleteIcon />
       </IconButton>
     </Box>

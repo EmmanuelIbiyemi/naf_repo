@@ -1,15 +1,17 @@
 import {
-    Box,
-    FormControl,
-    MenuItem,
-    SelectChangeEvent,
-    TextField,
-    Typography,
-  } from "@mui/material";
-  import { BlockType } from "../../../../../types/blocks";
-  import { useEffect } from "react";
-  import { PostType } from "../../../../../types/posts";
-  import { ActionButtons } from ".././ActionButtons";
+  Box,
+  Checkbox,
+  FormControl,
+  FormControlLabel,
+  MenuItem,
+  SelectChangeEvent,
+  TextField,
+  Typography,
+} from "@mui/material";
+import { BlockType } from "../../../../../types/blocks";
+import { useEffect } from "react";
+import { PostType } from "../../../../../types/posts";
+import { ActionButtons } from ".././ActionButtons";
 import { useGetPostCategoriesQuery } from "../../../../../store/api/posts.api";
   
   const capitalizeText = (text: string) => {
@@ -32,8 +34,6 @@ import { useGetPostCategoriesQuery } from "../../../../../store/api/posts.api";
       per_page: 1000
     })
 
-    console.log('CATs: ', categories);
-
     const categoryElements =
     categories?.categories.map((category) => (
       <MenuItem key={`page-${category.id}`} value={category.name}>
@@ -45,9 +45,9 @@ import { useGetPostCategoriesQuery } from "../../../../../store/api/posts.api";
         handlePositionChange(index+1, element.randomId)
     }, [index])
   
-    const updateBlock = (newBlock: BlockType) => {
-      setPage((prev) => {
-        if (!prev) return prev;
+  const updateBlock = (newBlock: BlockType) => {
+    setPage((prev) => {
+      if (!prev) return prev;
   
         const updatedBlocks = prev.blocks.map((block) =>
           block.randomId === newBlock.randomId ? newBlock : block
@@ -56,9 +56,23 @@ import { useGetPostCategoriesQuery } from "../../../../../store/api/posts.api";
         return {
           ...prev,
           blocks: updatedBlocks,
-        };
-      });
-    };
+      };
+    });
+  };
+
+  const updateSettings = (patch: Partial<BlockType["settings"]>) => {
+    const foundBlock = page.blocks.find((block) => block.randomId === element.randomId);
+    if (foundBlock) {
+      const newBlock: BlockType = {
+        ...foundBlock,
+        settings: {
+          ...(foundBlock.settings || {}),
+          ...patch,
+        },
+      };
+      updateBlock(newBlock);
+    }
+  };
   
     const handleContentChange = (
       e: SelectChangeEvent<string>,
@@ -69,6 +83,21 @@ import { useGetPostCategoriesQuery } from "../../../../../store/api/posts.api";
         const newBlock: BlockType = {
           ...foundBlock,
           content: e.target.value
+        };
+        updateBlock(newBlock);
+      }
+    };
+
+    const handleTextChange = (
+      field: keyof BlockType,
+      value: string,
+      randomId: string | null | undefined
+    ) => {
+      const foundBlock = page.blocks.find((block) => block.randomId === randomId);
+      if (foundBlock) {
+        const newBlock: BlockType = {
+          ...foundBlock,
+          [field]: value,
         };
         updateBlock(newBlock);
       }
@@ -118,6 +147,64 @@ import { useGetPostCategoriesQuery } from "../../../../../store/api/posts.api";
                 >
                 {categoryElements}
                 </TextField>
+                <TextField
+                  label="Section title"
+                  value={element.title || ""}
+                  onChange={(e) => handleTextChange("title", e.target.value, element.randomId)}
+                />
+                <TextField
+                  label="Section description"
+                  value={element.description || ""}
+                  onChange={(e) => handleTextChange("description", e.target.value, element.randomId)}
+                  multiline
+                  minRows={3}
+                />
+                <TextField
+                  label="View all label"
+                  value={element.caption || ""}
+                  onChange={(e) => handleTextChange("caption", e.target.value, element.randomId)}
+                  placeholder="View all"
+                />
+                <TextField
+                  label="Posts to show"
+                  type="number"
+                  inputProps={{ min: 1 }}
+                  value={element.settings?.postsToShow ?? ""}
+                  onChange={(event) => {
+                    const value = event.target.value;
+                    const parsed = value === "" ? undefined : Number(value);
+                    updateSettings({
+                      postsToShow: Number.isFinite(parsed) ? parsed : undefined,
+                    });
+                  }}
+                  helperText="Leave empty to show all posts"
+                />
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={Boolean(element.settings?.showExcerpts)}
+                      onChange={(event) =>
+                        updateSettings({
+                          showExcerpts: event.target.checked,
+                        })
+                      }
+                    />
+                  }
+                  label="Show excerpts"
+                />
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={element.settings?.showPagination ?? true}
+                      onChange={(event) =>
+                        updateSettings({
+                          showPagination: event.target.checked,
+                        })
+                      }
+                    />
+                  }
+                  label="Show pagination"
+                />
               </FormControl>
             </Box>
           );

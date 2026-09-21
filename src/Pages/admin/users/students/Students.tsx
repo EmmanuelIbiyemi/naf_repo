@@ -4,20 +4,26 @@ import FormModal from "../../../../components/FormModal";
 import { useEffect, useRef, useState } from "react";
 import StudentForm from "./StudentsForm";
 import StudentList from "./StudentsList";
-import { StudentType, StudentFormAction } from "../../../../types/students";
+import { StudentType, StudentFormAction, StudentsUploadType } from "../../../../types/students";
 import { useAppDispatch } from "../../../../store/hooks";
 import { setPageName } from "../../../../store/app.slice";
 import SuccessModal from "../../../../components/SuccessModal";
-import { useAddStudentMutation } from "../../../../store/api/students.api";
+import { useAddStudentMutation, useUploadStudentsMutation } from "../../../../store/api/students.api";
+import StudentsUploadForm from "./StudentsUploadForm";
+import StudentPhotoUploadForm from "./StudentPhotoUploadForm";
 
 const StudentsPage = () => {
   const [openModal, setOpenModal] = useState({
     add: false,
+    upload: false,
+    photoUpload: false,
     success: false,
   });
   const [studentName, setStudentName] = useState("");
+  const [successSubtitle, setSuccessSubtitle] = useState("");
   const containerRef = useRef<HTMLDivElement>(null);
   const [addStudent] = useAddStudentMutation();
+  const [uploadStudents] = useUploadStudentsMutation();
 
   // set page name
   const dispatch = useAppDispatch();
@@ -37,12 +43,26 @@ const StudentsPage = () => {
     try {
       await addStudent(student).unwrap();
       handleCloseModal("add");
+      setSuccessSubtitle(
+        `You have successfully added a new student "${student.first_name} ${student.last_name}".`
+      );
       handleOpenModal("success");
       setStudentName(student.first_name + " " + student.last_name);
     } catch (error) {
       console.log(error);
     }
   };
+
+  const handleUploadStudents = async (data: StudentsUploadType) => {
+      try {
+        await uploadStudents(data).unwrap();
+        handleCloseModal("upload");
+        setSuccessSubtitle("Students uploaded successfully.");
+        handleOpenModal("success");
+      } catch (error) {
+        console.log(error);
+      }
+    };
 
   return (
     <Box ref={containerRef} className="content-container">
@@ -55,13 +75,30 @@ const StudentsPage = () => {
         />
       </FormModal>
 
+      <FormModal open={openModal.upload} close={() => handleCloseModal("upload")}>
+          <StudentsUploadForm
+            actions={{
+              submit: handleUploadStudents,
+              cancel: () => handleCloseModal("upload"),
+            }}
+          />
+        </FormModal>
+
+      <FormModal
+        open={openModal.photoUpload}
+        close={() => handleCloseModal("photoUpload")}
+      >
+        <StudentPhotoUploadForm close={() => handleCloseModal("photoUpload")} />
+      </FormModal>
+
+
       <SuccessModal
         close={() => {
           handleCloseModal("success");
         }}
         infoText=""
         open={openModal.success}
-        subTitle={`You have successfully added a new student "${studentName}".`}
+        subTitle={successSubtitle || `You have successfully added a new student "${studentName}".`}
         title="Updates Successful"
       />
 
@@ -69,6 +106,15 @@ const StudentsPage = () => {
         button={{
           action: () => setOpenModal((prev) => ({ ...prev, add: true })),
           text: "Add Students",
+        }}
+        secondaryButton={{
+          action: () => setOpenModal((prev) => ({ ...prev, upload: true })),
+          text: "Upload Students",
+        }}
+        tertiaryButton={{
+          action: () =>
+            setOpenModal((prev) => ({ ...prev, photoUpload: true })),
+          text: "Upload Photos",
         }}
       />
       <Box

@@ -10,7 +10,7 @@ import {
   import { BlockType } from "../../../../../types/blocks";
   import { ChangeEvent, useEffect } from "react";
   import { PostType } from "../../../../../types/posts";
-  import { ActionButtons } from ".././ActionButtons";
+import { ActionButtons } from ".././ActionButtons";
 import { useGetPostByCategoryQuery } from "../../../../../store/api/posts.api";
   
   const capitalizeText = (text: string) => {
@@ -93,15 +93,25 @@ import { useGetPostByCategoryQuery } from "../../../../../store/api/posts.api";
             position: position
           };
           updateBlock(newBlock);
-        }
-      };
+      }
+    };
+
+    const selectedPageValue = (() => {
+      if (!element.link) return "";
+      const matchingPage = pages?.post?.find(
+        (post) => post.slug === element.link || post.title === element.link
+      );
+      return matchingPage?.slug || element.link;
+    })();
 
     const pagesElements =
-    pages?.post.map((page) => (
-      <MenuItem key={`page-${page.id}`} value={page.title}>
-        {capitalizeText(page.title)}
-      </MenuItem>
-    )) || [];
+    pages?.post
+      ?.filter((post) => Boolean(post.slug))
+      .map((page) => (
+        <MenuItem key={`page-${page.id}`} value={page.slug || ""}>
+          {capitalizeText(page.title)}
+        </MenuItem>
+      )) || [];
   pagesElements.push(
     <MenuItem value={"e-learning"}>Portal</MenuItem>,
     <MenuItem value={"apply"}>Apply</MenuItem>
@@ -132,7 +142,7 @@ import { useGetPostByCategoryQuery } from "../../../../../store/api/posts.api";
         <FormControl fullWidth>
           <label style={{ marginBottom: ".4rem" }}>Page</label>
           <Select
-            value={element.link}
+            value={selectedPageValue}
             onChange={(e) => handlePageChange(e, element.randomId)}
           >
             {pagesElements}

@@ -7,12 +7,12 @@ interface Participants {
 export type ParticipantData = {
   id: number;
   address: string;
-  courses: CourseBaseType[];
+  courses?: CourseBaseType[];
   created_at: string;
   email: string;
   first_name: string;
   last_name: string;
-  level: {
+  level?: {
     name: string;
     program: {
       name: string;

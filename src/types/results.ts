@@ -1,3 +1,5 @@
+import { PaginationResponse } from "./pagination";
+
 export interface StudentResultResponse {
   data: {
     created_at: string;
@@ -49,8 +51,12 @@ export interface StudentResultResponse {
     };
     semester: string;
     session: string;
+    is_visible: boolean;
+    visible_after: string | null;
     summary: {
       cumulative_grade_point_average: number;
+      cumulative_total_credit_units?: number;
+      cumulative_total_grade_points?: number;
       grade_point_average: number;
       total_credit_units: number;
       total_grade_points: number;
@@ -75,6 +81,24 @@ export interface ResultCreateType {
   }[];
 }
 
+export type LegacyResultUploadPayload = {
+  department_id: number;
+  level_id: number;
+  session: string;
+  semester: string;
+  file_url: string;
+};
+
+export type LegacyResultUploadResponse = {
+  data: {
+    uploaded: number;
+    failed: number;
+    failures: Array<{ row: number; matric_number?: string; reason: string }>;
+  };
+  message: string;
+  status: string;
+};
+
 export interface ResultResponse {
   data: {
     id: number;
@@ -87,11 +111,15 @@ export interface ResultResponse {
       id: number;
       name: string;
     };
+    is_visible: boolean;
+    visible_after: string | null;
     level: {
       id: number;
       name: string;
     };
     summary: {
+      cumulative_total_credit_units?: number;
+      cumulative_total_grade_points?: number;
       total_credit_units: number;
       total_grade_points: number;
       grade_point_average: number;
@@ -102,13 +130,42 @@ export interface ResultResponse {
   status: string;
 }
 
-export interface ResultTaskResponse {
-  task_id: string;
-  status: "pending" | "in_progress" | "completed" | "failed";
+export type ResultScope = {
+  department_id: number;
+  level_id: number;
+  semester: string;
+  session: string;
+  department_name?: string;
+  level_name?: string;
+  count?: number;
+};
+
+export type ResultScopesResponse = {
+  data: ResultScope[];
   message: string;
-  created_at: string;
-  updated_at?: string;
-}
+  status: string;
+};
+
+export type ResultTaskStartResponse = {
+  data: { task_id: string };
+  message: string;
+  status: string;
+};
+
+export type ResultTaskStatus = {
+  task_id: string;
+  state: string;
+  ready: boolean;
+  successful: boolean;
+  result?: unknown;
+  error?: string | null;
+};
+
+export type ResultTaskStatusResponse = {
+  data: ResultTaskStatus;
+  message: string;
+  status: string;
+};
 
 export interface TranscriptResponse {
   data: {
@@ -124,6 +181,8 @@ export interface TranscriptResponse {
       score_remark: string;
     }[];
     cumulative_grade_point_average: number;
+    cumulative_total_credit_units?: number;
+    cumulative_total_grade_points?: number;
     total_credit_units: number;
     total_grade_points: number;
   };
@@ -153,6 +212,8 @@ export type ResultsGetInput = {
   level_id: number;
   session?: string;
   semester?: string;
+  page?: number;
+  per_page?: number;
 };
 // export type ResultCreateType = Result & {};
 
@@ -226,7 +287,11 @@ export type ResultType2 = {
     };
     semester: string;
     session: string;
+    is_visible: boolean;
+    visible_after: string | null;
     summary: {
+      cumulative_total_credit_units?: number;
+      cumulative_total_grade_points?: number;
       cumulative_grade_point_average: number;
       grade_point_average: number;
       total_credit_units: number;
@@ -234,6 +299,35 @@ export type ResultType2 = {
     };
     updated_at: string;
   }>;
+  pagination?: PaginationResponse;
+  message: string;
+  status: string;
+};
+
+export type ResultVisibilityPayload = {
+  department_id: number;
+  level_id: number;
+  session: string;
+  semester: string;
+  is_visible: boolean;
+  visible_after?: string | null;
+};
+
+export type ResultVisibilityResponse = {
+  data: { updated: number };
+  message: string;
+  status: string;
+};
+
+export type ResultDeletePayload = {
+  department_id: number;
+  level_id: number;
+  session: string;
+  semester: string;
+};
+
+export type ResultDeleteResponse = {
+  data: { deleted: number };
   message: string;
   status: string;
 };

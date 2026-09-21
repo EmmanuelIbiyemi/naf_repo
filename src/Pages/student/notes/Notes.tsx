@@ -6,17 +6,32 @@ import {
   Alert,
   Button,
   Skeleton,
+  Card,
+  CardContent,
+  CardActionArea,
+  Chip,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  IconButton,
 } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import ReactMarkdown from 'react-markdown';
+import DescriptionIcon from '@mui/icons-material/Description';
+import CloseIcon from '@mui/icons-material/Close';
+import GoogleDocsEditor from '../../../components/layout/GoogleDocsEditor';
 import { useGetParticipantCourseNotesQuery } from '../../../store/api/notes.api';
 import { note } from '../../../types/notes';
+import { formatDateLong } from '../../../utils/dateUtils';
+import { useState } from 'react';
 
 
 const CourseNotes = () => {
   const navigate = useNavigate();
   const { courseId } = useParams<{ courseId: string }>();
   const parsedCourseId = courseId ? parseInt(courseId) : null;
+  const [selectedNote, setSelectedNote] = useState<note | null>(null);
+  const [openPreviewModal, setOpenPreviewModal] = useState(false);
 
   const { 
     data: response, 
@@ -28,68 +43,157 @@ const CourseNotes = () => {
 
   const handleGoBack = () => {
     navigate('/student/overview'); // Adjust this route as needed
-  }; 
+  };
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    });
+  const handleNoteClick = (note: note) => {
+    setSelectedNote(note);
+    setOpenPreviewModal(true);
+  };
+
+  const handleClosePreview = () => {
+    setOpenPreviewModal(false);
+    setSelectedNote(null);
+  };
+
+  const extractTextFromContent = (content: string): string => {
+    if (!content) return 'No content available';
+    
+    try {
+      // Try to parse as JSON (Lexical editor format)
+      const parsed = JSON.parse(content);
+      if (parsed.root && parsed.root.children) {
+        // Extract text from Lexical format
+        const extractText = (node: any): string => {
+          if (node.text) return node.text;
+          if (node.children) {
+            return node.children.map(extractText).join(' ');
+          }
+          return '';
+        };
+        const text = parsed.root.children.map(extractText).join(' ').trim();
+        return text || 'No content available';
+      }
+    } catch {
+      // If not JSON, treat as HTML/plain text
+      const strippedHtml = content.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+      return strippedHtml || 'No content available';
+    }
+    
+    return 'No content available';
   };
 
   if (!parsedCourseId) {
     return (
-      <Box sx={{ maxWidth: 800, mx: 'auto', p: 3 }}>
-        <Alert severity="error">
-          Invalid Course ID
-        </Alert>
+      <Box className="content-container">
+        <Box
+          sx={{
+            bgcolor: "#fff",
+            borderRadius: "var(--border-radius)",
+            marginInline: "var(--padding)",
+            padding: "var(--padding)",
+          }}
+        >
+          <Alert severity="error">
+            Invalid Course ID
+          </Alert>
+        </Box>
       </Box>
     );
   }
 
   if (isLoading) {
     return (
-      <Box sx={{ maxWidth: 800, mx: 'auto', p: 3 }}>
-        <Button 
-          startIcon={<ArrowBackIcon />}
-          onClick={handleGoBack}
-          sx={{ mb: 3 }}
+      <Box className="content-container">
+        <Box
+          sx={{
+            bgcolor: "#fff",
+            borderRadius: "var(--border-radius)",
+            marginInline: "var(--padding)",
+            padding: "var(--padding)",
+          }}
         >
-          Back to Courses
-        </Button>
-        {[1, 2, 3].map((n) => (
-          <Paper key={n} sx={{ mb: 4, p: 3 }}>
-            <Skeleton variant="text" width="60%" height={32} sx={{ mb: 2 }} />
-            <Skeleton variant="text" width="90%" />
-            <Skeleton variant="text" width="85%" />
-            <Skeleton variant="text" width="70%" />
-          </Paper>
-        ))}
+          <Button 
+            startIcon={<ArrowBackIcon />}
+            onClick={handleGoBack}
+            sx={{ mb: 3 }}
+          >
+            Back to Courses
+          </Button>
+          {[1, 2, 3].map((n) => (
+            <Paper key={n} sx={{ mb: 4, p: 3 }}>
+              <Skeleton variant="text" width="60%" height={32} sx={{ mb: 2 }} />
+              <Skeleton variant="text" width="90%" />
+              <Skeleton variant="text" width="85%" />
+              <Skeleton variant="text" width="70%" />
+            </Paper>
+          ))}
+        </Box>
       </Box>
     );
   }
 
   if (isError) {
     return (
-      <Box sx={{ maxWidth: 800, mx: 'auto', p: 3 }}>
-        <Button 
-          startIcon={<ArrowBackIcon />}
-          onClick={handleGoBack}
-          sx={{ mb: 3 }}
+      <Box className="content-container">
+        <Box
+          sx={{
+            bgcolor: "#fff",
+            borderRadius: "var(--border-radius)",
+            marginInline: "var(--padding)",
+            padding: "var(--padding)",
+          }}
         >
-          Back to Courses
-        </Button>
-        <Alert severity="error">
-          Error loading notes. Please try again later.
-        </Alert>
+          <Button 
+            startIcon={<ArrowBackIcon />}
+            onClick={handleGoBack}
+            sx={{ mb: 3 }}
+          >
+            Back to Courses
+          </Button>
+          <Alert severity="error">
+            Error loading notes. Please try again later.
+          </Alert>
+        </Box>
       </Box>
     );
   }
 
   if (!response?.data || response?.data?.length === 0) {
     return (
-      <Box sx={{ maxWidth: 800, mx: 'auto', p: 3 }}>
+      <Box className="content-container">
+        <Box
+          sx={{
+            bgcolor: "#fff",
+            borderRadius: "var(--border-radius)",
+            marginInline: "var(--padding)",
+            padding: "var(--padding)",
+          }}
+        >
+          <Button 
+            startIcon={<ArrowBackIcon />}
+            onClick={handleGoBack}
+            sx={{ mb: 3 }}
+          >
+            Back to Courses
+          </Button>
+          <Alert severity="info">
+            No notes available for this course yet.
+          </Alert>
+        </Box>
+      </Box>
+    );
+  }
+
+  return (
+    <Box className="content-container">
+      <Box
+        sx={{
+          bgcolor: "#fff",
+          borderRadius: "var(--border-radius)",
+          marginInline: "var(--padding)",
+          padding: "var(--padding)",
+        }}
+      >
         <Button 
           startIcon={<ArrowBackIcon />}
           onClick={handleGoBack}
@@ -97,88 +201,129 @@ const CourseNotes = () => {
         >
           Back to Courses
         </Button>
-        <Alert severity="info">
-          No notes available for this course yet.
-        </Alert>
-      </Box>
-    );
-  }
+        
+        <Typography variant="h5" sx={{ mb: 3, fontWeight: 600 }}>
+          Course Notes
+        </Typography>
 
-  return (
-    <Box sx={{ maxWidth: 800, mx: 'auto', p: 3 }}>
-      <Button 
-        startIcon={<ArrowBackIcon />}
-        onClick={handleGoBack}
-        sx={{ mb: 3 }}
-      >
-        Back to Courses
-      </Button>
-      
-      {response?.data?.map((note: note) => (
-        <Paper 
-          key={note.id} 
-          sx={{ 
-            mb: 4, 
-            p: 3,
-            transition: 'transform 0.2s ease-in-out',
-            '&:hover': {
-              transform: 'translateY(-2px)',
-              boxShadow: (theme) => theme.shadows[4]
-            }
-          }}
+        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'repeat(2, 1fr)', lg: 'repeat(3, 1fr)' }, gap: 2 }}>
+          {response?.data?.map((note: note) => (
+            <Card 
+              key={note.id} 
+              sx={{ 
+                transition: 'all 0.3s ease-in-out',
+                '&:hover': {
+                  transform: 'translateY(-4px)',
+                  boxShadow: (theme) => theme.shadows[8]
+                }
+              }}
+            >
+              <CardActionArea onClick={() => handleNoteClick(note)}>
+                <CardContent>
+                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                    <DescriptionIcon sx={{ mr: 1, color: 'primary.main' }} />
+                    <Typography variant="h6" sx={{ fontWeight: 500, flexGrow: 1 }}>
+                      {note.title}
+                    </Typography>
+                  </Box>
+
+                  <Typography 
+                    variant="body2" 
+                    color="text.secondary" 
+                    sx={{ 
+                      mb: 2,
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      display: '-webkit-box',
+                      WebkitLineClamp: 3,
+                      WebkitBoxOrient: 'vertical',
+                    }}
+                  >
+                    {extractTextFromContent(note.content).substring(0, 150) + (extractTextFromContent(note.content).length > 150 ? '...' : '')}
+                  </Typography>
+
+                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+                    <Typography variant="caption" color="text.secondary">
+                      Created: {formatDateLong(note?.created_at)}
+                    </Typography>
+                    {note?.updated_at && (
+                      <Typography variant="caption" color="text.secondary">
+                        Updated: {formatDateLong(note?.updated_at)}
+                      </Typography>
+                    )}
+                  </Box>
+
+                  <Chip 
+                    label="Click to view" 
+                    size="small" 
+                    color="primary" 
+                    variant="outlined"
+                    sx={{ mt: 2 }}
+                  />
+                </CardContent>
+              </CardActionArea>
+            </Card>
+          ))}
+        </Box>
+
+        {/* Preview Modal */}
+        <Dialog
+          open={openPreviewModal}
+          onClose={handleClosePreview}
+          maxWidth="md"
+          fullWidth
         >
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
-            <Typography variant="h6" sx={{ fontWeight: 500 }}>
-              {note.title}
+          <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <Typography variant="h6" sx={{ fontWeight: 600 }}>
+              {selectedNote?.title}
             </Typography>
-          </Box>
+            <IconButton onClick={handleClosePreview} size="small">
+              <CloseIcon />
+            </IconButton>
+          </DialogTitle>
+          <DialogContent dividers>
+            {selectedNote && (
+              <>
+                <Box sx={{ 
+                  border: '1px solid #e0e0e0',
+                  borderRadius: '4px',
+                  backgroundColor: '#fff',
+                  overflow: 'hidden',
+                  mb: 2,
+                  '& .editor-container': {
+                    minHeight: '300px',
+                  },
+                  '& .editor-input': {
+                    cursor: 'default',
+                  }
+                }}>
+                  <GoogleDocsEditor
+                    initialContent={selectedNote?.content}
+                    readOnly={true}
+                    placeholder=""
+                  />
+                </Box>
 
-          <Box sx={{ 
-            '& > .markdown-content': {
-              '& strong': {
-                fontWeight: 'bold'
-              },
-              '& em': {
-                fontStyle: 'italic'
-              },
-              '& h1, & h2, & h3, & h4, & h5, & h6': {
-                margin: '1em 0 0.5em',
-                fontWeight: 'bold',
-                lineHeight: 1.2
-              },
-              '& p': {
-                margin: '0.5em 0'
-              },
-              '& ul, & ol': {
-                marginLeft: '1.5em',
-                marginBottom: '1em'
-              },
-              '& code': {
-                backgroundColor: (theme) => theme.palette.grey[100],
-                padding: '0.2em 0.4em',
-                borderRadius: '3px',
-                fontSize: '0.9em'
-              }
-            }
-          }}>
-            <ReactMarkdown className="markdown-content">
-              {String(note?.content)}
-            </ReactMarkdown>
-          </Box>
-
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 2 }}>
-            <Typography variant="caption" color="text.secondary">
-              Created: {formatDate(note?.created_at)}
-            </Typography>
-            {note?.updated_at && (
-              <Typography variant="caption" color="text.secondary">
-                Last updated: {formatDate(note?.updated_at)}
-              </Typography>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', pt: 2, borderTop: '1px solid #e0e0e0' }}>
+                  <Typography variant="caption" color="text.secondary">
+                    Created: {formatDateLong(selectedNote?.created_at)}
+                  </Typography>
+                  {selectedNote?.updated_at && (
+                    <Typography variant="caption" color="text.secondary">
+                      Last updated: {formatDateLong(selectedNote?.updated_at)}
+                    </Typography>
+                  )}
+                </Box>
+              </>
             )}
-          </Box>
-        </Paper>
-      ))}
-
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleClosePreview} variant="contained">
+              Close
+            </Button>
+          </DialogActions>
+        </Dialog>
+      </Box>
     </Box>
   );
 };

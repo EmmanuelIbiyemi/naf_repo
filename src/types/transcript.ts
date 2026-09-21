@@ -73,6 +73,8 @@ interface Participant {
 
 interface ResultSummary {
   cumulative_grade_point_average: number;
+  cumulative_total_credit_units?: number;
+  cumulative_total_grade_points?: number;
   grade_point_average: number;
   total_credit_units: number;
   total_grade_points: number;

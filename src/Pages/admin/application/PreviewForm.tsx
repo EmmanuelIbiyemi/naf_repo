@@ -1,14 +1,23 @@
 import { Box, Button, SxProps, Typography } from "@mui/material";
 import { useEffect, useRef, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import SuccessModal from "../../../components/SuccessModal";
 import FormBuilder from "./components/FormBuilder";
 import { useAppDispatch } from "../../../store/hooks";
-import { useGetFormQuery } from "../../../store/api/form.api";
 import { setPageName } from "../../../store/app.slice";
 import "./components/elements.scss";
 
-const PreviewFormPage = () => {
+interface FormData {
+  name: string;
+  sections: any[]; // Replace 'any' with a more specific type if possible
+  fee: number;
+}
+
+interface PreviewFormProps {
+  formData: FormData;
+}
+
+const PreviewFormPage = ({ formData }: PreviewFormProps) => {
   // set page name
   const dispatch = useAppDispatch();
   useEffect(() => {
@@ -16,13 +25,11 @@ const PreviewFormPage = () => {
   }, [dispatch]);
 
   const navigate = useNavigate();
-  const { form_id } = useParams();
   const [openModal, setOpenModal] = useState(false);
   const elRef = useRef<HTMLDivElement>(null);
-  const { data: form } = useGetFormQuery(+(form_id || 0));
 
   const handleSubmit = async () => {
-    console.log(form?.data);
+    // TODO: Implement form submission
     navigate("/applications");
   };
 
@@ -40,11 +47,11 @@ const PreviewFormPage = () => {
       <Box sx={dropContainerStyles}>
         <Box sx={{ padding: "1.5rem" }}>
           <Typography variant="h5" sx={{ fontWeight: 300 }}>
-            <span>{form?.data?.name.split("::")[0] || ""}</span>
+            <span>{formData?.name}</span>
           </Typography>
         </Box>
         <Box sx={dropAreaStyles}>
-          {form?.data ? (
+          {formData ? (
             <FormBuilder allowDelete={false} isPreview={true} />
           ) : null}
         </Box>
@@ -57,7 +64,7 @@ const PreviewFormPage = () => {
           }}
         >
           <Button variant="contained">
-            <span>{form?.data?.name.split("::")[1] || ""}</span>
+            <span>Submit</span>
           </Button>
         </Box>
       </Box>

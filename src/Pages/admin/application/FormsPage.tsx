@@ -14,6 +14,7 @@ import AddForm from "./components/AddForm";
 
 type Form = {
   name: string;
+  instructions: string;
   faculty_id: number;
   department_id: number;
   program_id: number;
@@ -39,7 +40,8 @@ const ApplicationPage = () => {
     try {
       const response = await addForm({
         fee: form.fee,
-        name: `${form.name}::Submit`,
+        name: form.name,
+        instructions: form.instructions,
         program_id: form.program_id,
         level_id: form.level_id,
         sections: [],
@@ -51,7 +53,7 @@ const ApplicationPage = () => {
 
       navigate(`/form/${response.data.id}`);
     } catch (error) {
-      console.log(error);
+      // Form creation failed - error handled silently
     }
   };
 

@@ -1,19 +1,9 @@
-import {
-  Box,
-  FormControl,
-  LinearProgress,
-  InputLabel,
-  Select,
-  MenuItem,
-  Backdrop,
-  CircularProgress,
-} from "@mui/material";
-import { useEffect, useRef, useState } from "react";
+import { Box } from "@mui/material";
+import { useEffect, useState } from "react";
 import InstructorPageHeader from "../../../../components/layout/InstructorPageHeader";
 import { useAppDispatch } from "../../../../store/hooks";
-import { setPageName } from "../../../../store/app.slice";
-import { useNavigate } from "react-router-dom";
-import { useGetInstructorCoursesQuery } from "../../../../store/api/courses.api";
+import { setPageName, setPageLoading } from "../../../../store/app.slice";
+import { useNavigate, useLocation } from "react-router-dom";
 import {
   useDeleteNoteMutation,
   useGetCourseNotesQuery,
@@ -24,36 +14,38 @@ import EmptyState from "../../../../components/EmptyState";
 import NotesUploadModal from "./NotesUploadModal";
 import CustomSuccessModal from "../../../../components/CustomSuccessModal";
 import DeleteConfirmationModal from "../../../../components/DeleteConfirmationModal";
-import CustomPreviewModal from "../../../../components/CustomPreviewModal";
 import { note } from "../../../../types/notes";
+import InstructorCourseSelector from "../../../../components/layout/InstructorCourseSelector";
 
 const Notes = () => {
-  const containerRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
+  const location = useLocation();
+
+  // Get persisted course ID from localStorage or location state
+  const getInitialCourseId = () => {
+    const locationState = location.state as { selectedCourseId?: string } | null;
+    if (locationState?.selectedCourseId) {
+      return locationState.selectedCourseId;
+    }
+    return localStorage.getItem('lastSelectedCourseId') || '';
+  };
 
   // State for modals and interactions
   const [openModal, setOpenModal] = useState(false);
   const [openFileSuccessModal, setOpenFileSuccessModal] = useState(false);
-  const [selectedCourseId, setSelectedCourseId] = useState("");
+  const [selectedCourseId, setSelectedCourseId] = useState(getInitialCourseId);
   const [currentPage, setCurrentPage] = useState(1);
 
-  // State for notes actions and preview
+  // State for notes actions
   const [openActionsModal, setOpenActionsModal] = useState({
     edit: false,
     success: false,
     delete: false,
   });
   const [selectedNotes, setSelectedNotes] = useState<note | undefined>();
-  const [openPreviewModals, setOpenPreviewModals] = useState<{
-    [key: number]: boolean;
-  }>({});
 
-  // Fetch instructor courses
-  const { data: instructorCourses, isLoading: isLoadingCourses } =
-    useGetInstructorCoursesQuery({ page: 1, per_page: 1000 });
-
-  const [deleteNote, { isLoading: isDeleting }] = useDeleteNoteMutation();
+  const [deleteNote] = useDeleteNoteMutation();
 
   // Fetch notes for selected course
   const { data: note, isLoading: isGettingNotes } = useGetCourseNotesQuery(
@@ -75,10 +67,17 @@ const Notes = () => {
     dispatch(setPageName("Notes"));
   }, [dispatch]);
 
+  useEffect(() => {
+    if (isGettingNotes) {
+      dispatch(setPageLoading(true));
+    } else {
+      dispatch(setPageLoading(false));
+    }
+  }, [isGettingNotes, dispatch]);
+
   // Event handlers
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const handleCourseChange = (event: any) => {
-    setSelectedCourseId(event.target.value as string);
+  const handleCourseChange = (courseId: string) => {
+    setSelectedCourseId(courseId);
     setCurrentPage(1); // Reset to first page when changing course
   };
 
@@ -90,17 +89,16 @@ const Notes = () => {
     try {
       const formData = new FormData();
       formData.append("file", file);
-      console.log(file);
       setOpenFileSuccessModal(true);
     } catch (error) {
-      console.log(error);
+      // Error handled silently - consider adding toast notification
     }
     setOpenModal(false);
   };
 
   const handleProcessFileUrl = (fileUrl: string) => {
-    console.log(fileUrl);
-    // Restored original implementation
+    // TODO: Implement file URL processing
+    void fileUrl;
   };
 
   const handleChangePage = (
@@ -110,15 +108,7 @@ const Notes = () => {
     setCurrentPage(newPage);
   };
 
-  // Preview and actions modal handlers
-  const handleOpenPreviewModal = (noteId: number) => {
-    setOpenPreviewModals((prev) => ({ ...prev, [noteId]: true }));
-  };
-
-  const handleClosePreviewModal = (noteId: number) => {
-    setOpenPreviewModals((prev) => ({ ...prev, [noteId]: false }));
-  };
-
+  // Actions modal handlers
   const handleOpenActionsModal = (course: note, type: string) => {
     setSelectedNotes(course);
     setOpenActionsModal((prev) => ({ ...prev, [type]: true }));
@@ -129,21 +119,18 @@ const Notes = () => {
     setOpenActionsModal((prev) => ({ ...prev, [type]: false }));
   };
 
-  const handleEditActionsModal = (note: note) => {
-    handleOpenPreviewModal(note.id);
-  };
-
-  const handleDelete = (noteId: number) => {
+  const handleDelete = async (noteId: number) => {
     try {
-      deleteNote(noteId).unwrap();
-      setOpenActionsModal((prev) => ({ ...prev, delete: true }));
+      await deleteNote(noteId).unwrap();
+      setOpenActionsModal((prev) => ({ ...prev, delete: false, success: true }));
     } catch (error) {
       console.error(error);
+      setOpenActionsModal((prev) => ({ ...prev, delete: false }));
     }
   };
 
   return (
-    <Box ref={containerRef} className="content-container">
+    <Box className="content-container">
       <InstructorPageHeader
         heading="Notes"
         subHeading="List of notes for your courses"
@@ -154,84 +141,38 @@ const Notes = () => {
         }}
       />
 
-      {isLoadingCourses && <LinearProgress />}
-      <Box
-        sx={{
-          bgcolor: "#fff",
-          borderRadius: "var(--border-radius)",
-          marginInline: "var(--padding)",
-          padding: "var(--padding)",
-          margin: "1em",
-        }}
+      <InstructorCourseSelector
+        selectedCourseId={selectedCourseId}
+        onCourseChange={handleCourseChange}
+        emptyStateTitle="Please select a course"
+        emptyStateSubtitle="Choose a course from the dropdown to view its notes"
       >
-        <Box sx={{ marginBottom: 3 }}>
-          <FormControl fullWidth>
-            <InputLabel id="course-select-label">Select Course</InputLabel>
-            <Select
-              labelId="course-select-label"
-              id="course-select"
-              value={selectedCourseId}
-              label="Select Course"
-              onChange={handleCourseChange}
-            >
-              {instructorCourses?.data.map((course) => (
-                <MenuItem key={course.id} value={course.id}>
-                  {course.name} ({course.code})
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
+        <Box>
+          <CoursesItemList
+            lists={note?.data || []}
+            handleOpenActionsModal={handleOpenActionsModal}
+            deleteIcon={true}
+            edit={true}
+            courseId={parseInt(selectedCourseId)}
+          />
         </Box>
 
-        {isGettingNotes && <LinearProgress />}
-
-        {selectedCourseId ? (
-          <>
-            <Box>
-              <CoursesItemList
-                lists={note?.data || []}
-                handleOpenActionsModal={handleOpenActionsModal}
-                handleEditActionsModal={handleEditActionsModal}
-                deleteIcon={true}
-                edit={true}
-                view={true}
-                courseId={parseInt(selectedCourseId)}
-              />
-              {note?.data.map((singleNote) => (
-                <CustomPreviewModal
-                  key={singleNote.id}
-                  openModal={openPreviewModals[singleNote.id] || false}
-                  handleCloseModal={() =>
-                    handleClosePreviewModal(singleNote.id)
-                  }
-                  note={singleNote}
-                />
-              ))}
-            </Box>
-
-            {note?.data.length ? (
-              <CustomPagination
-                startIndex={startIndex + 1}
-                endIndex={endIndex}
-                totalNumber={totalItems}
-                count={Math.ceil(totalItems / itemsPerPage)}
-                page={currentPage}
-                handleChangePage={handleChangePage}
-              />
-            ) : (
-              <EmptyState
-                title="No notes found"
-                subTitle="This course does not have any notes yet"
-              />
-            )}
-          </>
+        {note?.data.length ? (
+          <CustomPagination
+            startIndex={startIndex + 1}
+            endIndex={endIndex}
+            totalNumber={totalItems}
+            count={Math.ceil(totalItems / itemsPerPage)}
+            page={currentPage}
+            handleChangePage={handleChangePage}
+          />
         ) : (
           <EmptyState
-            title="Please select a course"
-            subTitle="Choose a course from the dropdown to view its notes"
+            title="No notes found"
+            subTitle="This course does not have any notes yet"
           />
         )}
-      </Box>
+      </InstructorCourseSelector>
 
       <NotesUploadModal
         open={openModal}
@@ -260,9 +201,6 @@ const Notes = () => {
         subTitle={`Are you sure you want to delete the note "${selectedNotes?.title}" ?`}
         title="Delete Note?"
       />
-      <Backdrop open={isDeleting}>
-        <CircularProgress />
-      </Backdrop>
     </Box>
   );
 };

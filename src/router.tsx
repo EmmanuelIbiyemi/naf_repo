@@ -44,9 +44,6 @@ const GradesPage = lazy(() => import("./Pages/admin/grading/grades/Grades"));
 const ScoresPage = lazy(() => import("./Pages/admin/grading/scores/Scores"));
 const FormsPage = lazy(() => import("./Pages/admin/application/FormsPage"));
 const AddFormPage = lazy(() => import("./Pages/admin/application/AddFormPage"));
-const PreviewFormPage = lazy(
-  () => import("./Pages/admin/application/PreviewForm")
-);
 const ApplicantsPage = lazy(
   () => import("./Pages/admin/applicants/ApplicantsPage")
 );
@@ -61,6 +58,7 @@ const PostTypeItemsAddPage = lazy(
 );
 const CBTsPage = lazy(() => import("./Pages/admin/cbt/CBT"));
 const ProfileSettings = lazy(() => import("./Pages/admin/settings/Profile"));
+const ContactSettings = lazy(() => import("./Pages/admin/settings/ContactSettings"));
 const Eligibles = lazy(
   () => import("./Pages/admin/grading/eligibles/Eligibles")
 );
@@ -72,6 +70,9 @@ const SemestersPage = lazy(
 );
 const QuestionsPage = lazy(
   () => import("./Pages/admin/cbt/questions/Questions")
+);
+const ActivityLogsPage = lazy(
+  () => import("./Pages/admin/activitylogs/ActivityLogs")
 );
 
 // Instructor
@@ -140,6 +141,9 @@ const SettingsPage = lazy(() => import("./Pages/instructor/settings/Settings"));
 const InstructorAnnouncementPage = lazy(
   () => import("./Pages/instructor/announcements/Announcements")
 );
+const InstructorMyActivityPage = lazy(
+  () => import("./Pages/instructor/activity/MyActivity")
+);
 
 const StudentDashboard = lazy(
   () => import("./Pages/student/dashboard/Dashboard")
@@ -149,6 +153,9 @@ const StudentCourses = lazy(
 );
 const StudentExamCard = lazy(
   () => import("./Pages/student/studentCourses/examCard/ExamCard")
+);
+const StudentCourseCard = lazy(
+  () => import("./Pages/student/studentCourses/courseCard/CourseCard")
 );
 const StudentCourseForm = lazy(
   () => import("./Pages/student/studentCourses/courseForm/CourseForm")
@@ -166,6 +173,9 @@ const StudentClass = lazy(() => import("./Pages/student/classes/LiveClasses"));
 const StudentSettings = lazy(() => import("./Pages/student/settings/Settings"));
 const StudentAnnouncement = lazy(
   () => import("./Pages/student/announcements/SingleAnnouncement")
+);
+const StudentMyActivityPage = lazy(
+  () => import("./Pages/student/activity/MyActivity")
 );
 
 export const router = createBrowserRouter([
@@ -187,7 +197,6 @@ export const router = createBrowserRouter([
       { path: "/", element: <Dashboard /> },
       { path: "/applications", element: <FormsPage /> },
       { path: "/form/:form_id", element: <AddFormPage /> },
-      { path: "/form/:form_id/preview", element: <PreviewFormPage /> },
       { path: "/applicants", element: <ApplicantsPage /> },
       { path: "/applicants/:program_id", element: <ApplicantsPage /> },
       { path: "/eligibles", element: <Eligibles /> },
@@ -196,6 +205,7 @@ export const router = createBrowserRouter([
       { path: "/cbt/:quiz_id/:assessment_id", element: <QuestionsPage /> },
       { path: "/sessions", element: <SessionsPage /> },
       { path: "/sessions/:session_id", element: <SemestersPage /> },
+      { path: "/activity-logs", element: <ActivityLogsPage /> },
       {
         path: "/academics",
         element: <AdminAcademicsPage />,
@@ -245,6 +255,7 @@ export const router = createBrowserRouter([
         children: [
           { path: "", element: <MediaLibrary /> },
           { path: "profile", element: <ProfileSettings /> },
+          { path: "contact", element: <ContactSettings /> },
           { path: "posttype/:resource_type", element: <PostTypeItemsPage /> },
           {
             path: "posttype/:resource_type/:post_id",
@@ -322,6 +333,10 @@ export const router = createBrowserRouter([
         path: "/instructor/announcements/:id",
         element: <InstructorAnnouncementPage />,
       },
+      {
+        path: "/instructor/my-activity",
+        element: <InstructorMyActivityPage />,
+      },
     ],
   },
 
@@ -334,6 +349,7 @@ export const router = createBrowserRouter([
       { path: "overview", element: <StudentOverview /> },
       { path: "courses", element: <StudentCourses /> },
       { path: "courses/exam-card", element: <StudentExamCard /> },
+      { path: "courses/course-card", element: <StudentCourseCard /> },
       { path: "courses/course-form", element: <StudentCourseForm /> },
       { path: "courses/add-course", element: <StudentEnroll /> },
       { path: "courses/:courseId/notes", element: <StudentNote /> },
@@ -343,6 +359,7 @@ export const router = createBrowserRouter([
       { path: "results", element: <StudentResults /> },
       { path: "live-class", element: <StudentClass /> },
       { path: "settings", element: <StudentSettings /> },
+      { path: "my-activity", element: <StudentMyActivityPage /> },
     ],
   },
 ]);

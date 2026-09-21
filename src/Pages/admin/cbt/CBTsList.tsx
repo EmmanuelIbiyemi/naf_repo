@@ -19,7 +19,7 @@ import {
   useGetQuizzesQuery,
 } from "../../../store/api/quizzes.api";
 import SuccessModal from "../../../components/SuccessModal";
-import dayjs from "dayjs";
+import { formatDateTimeNumeric } from "../../../utils/dateUtils";
 import { Delete } from "@mui/icons-material";
 import { Link } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../../../store/hooks";
@@ -84,10 +84,11 @@ const QuizList = () => {
   const handleDeleteQuiz = async (id: number) => {
     try {
       await deleteQuiz(id).unwrap();
+      handleCloseModal("delete");
+      setOpenModal((prev) => ({ ...prev, success: true }));
     } catch (error) {
-      console.log(error);
+      handleCloseModal("delete");
     }
-    handleCloseModal("delete");
   };
 
   const handleSelectAll = (event: ChangeEvent<HTMLInputElement>) => {
@@ -258,10 +259,10 @@ const QuizList = () => {
                     {quiz.code}
                   </TableCell>
                   <TableCell component="th" scope="row">
-                    {dayjs(quiz.start_date).format("DD-MM-YYYY HH:mm")}
+                    {formatDateTimeNumeric(quiz.start_date)}
                   </TableCell>
                   <TableCell component="th" scope="row">
-                    {dayjs(quiz.expiry_date).format("DD-MM-YYYY HH:mm")}
+                    {formatDateTimeNumeric(quiz.expiry_date)}
                   </TableCell>
 
                   <TableCell>

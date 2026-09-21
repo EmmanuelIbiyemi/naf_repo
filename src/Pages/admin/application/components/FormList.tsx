@@ -18,7 +18,7 @@ import {
   useDeleteFormMutation,
   useGetFormsQuery,
 } from "../../../../store/api/form.api";
-import dayjs from "dayjs";
+import { formatDateNumeric } from "../../../../utils/dateUtils";
 import { selectKeyword, setPageLoading } from "../../../../store/app.slice";
 import EmptyState from "../../../../components/EmptyState";
 import CustomPagination from "../../../../components/CustomPagination";
@@ -72,7 +72,7 @@ const FormList = () => {
     try {
       await deleteForm(id).unwrap();
     } catch (error) {
-      console.log(error);
+      // Delete failed - error handled silently
     }
   };
 
@@ -96,7 +96,7 @@ const FormList = () => {
         await deleteForm(id).unwrap();
         setDeleteIds([]);
       } catch (error) {
-        console.log(error);
+        // Delete failed - continue with remaining items
       }
   };
 
@@ -111,7 +111,6 @@ const FormList = () => {
         actions={{
           proceed: () => {
             if (selectedForm?.id) handleDelete(selectedForm?.id);
-            console.log("proceed");
           },
         }}
         close={() => handleCloseModal("delete")}
@@ -196,7 +195,7 @@ const FormList = () => {
                       </Link>
                       <Typography>
                         Last Edited on{" "}
-                        {dayjs(form.updated_at).format("DD-MM-YYYY")}
+                        {formatDateNumeric(form.updated_at)}
                       </Typography>
                     </Box>
                   </TableCell>

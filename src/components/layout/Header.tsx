@@ -10,16 +10,23 @@ import {
 } from "@mui/material";
 import { selectPageName } from "../../store/app.slice";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
-import { logout, selectCurrentUser } from "../../store/auth.slice";
+import {
+  logout,
+  selectCurrentRefreshToken,
+  selectCurrentUser,
+} from "../../store/auth.slice";
 import { useNavigate } from "react-router-dom";
 import { MouseEvent, useState } from "react";
 import NotificationMenu from "../AnnouncementDropdown"; // Adjust the import path as needed
+import { useLogoutMutation } from "../../store/api/auth.api";
 
 const Header = () => {
   const pageName = useAppSelector(selectPageName);
   const user = useAppSelector(selectCurrentUser);
+  const refreshToken = useAppSelector(selectCurrentRefreshToken);
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
+  const [logoutUserApi] = useLogoutMutation();
 
   const [mainPage, subPage] = pageName.split("/");
   const [profileAnchorEl, setProfileAnchorEl] = useState<null | HTMLElement>(
@@ -47,10 +54,20 @@ const Header = () => {
     setNotificationAnchorEl(null);
   };
 
-  const logoutUser = () => {
+  const logoutUser = async () => {
     handleProfileClose();
-    dispatch(logout());
-    navigate("/login");
+    try {
+      await logoutUserApi({
+        refresh_token:
+          refreshToken || localStorage.getItem("refresh_token") || undefined,
+      }).unwrap();
+    } catch (error) {
+      // Silently continue; local cleanup below handles UI state
+      console.error("Failed to notify server about logout", error);
+    } finally {
+      dispatch(logout());
+      navigate("/login");
+    }
   };
 
   return (

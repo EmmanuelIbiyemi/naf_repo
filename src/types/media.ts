@@ -25,6 +25,7 @@ export type MediaType = MediaBaseType & {
   id: number;
   created_at: string;
   updated_at: string;
+  caption?: string;
 };
 
 export type MediaResponse = {

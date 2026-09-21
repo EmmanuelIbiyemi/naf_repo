@@ -7,7 +7,9 @@ import {
   Assignment,
   BusinessCenter,
   Groups,
+  History,
   Inventory,
+  MenuBook,
 } from "@mui/icons-material";
 import { Link } from "react-router-dom";
 import { selectCurrentUser } from "../../../store/auth.slice";
@@ -30,8 +32,6 @@ const Dashboard = () => {
       />
       <Box
         sx={{
-          // bgcolor: "#fff",
-          // bgcolor: "#fff",
           borderRadius: "var(--border-radius)",
           marginInline: "var(--padding)",
           padding: "var(--padding)",
@@ -40,31 +40,22 @@ const Dashboard = () => {
         <Box
           sx={{
             display: "grid",
-            gap: "1.4rem",
-            gridTemplateColumns: "1fr 1fr",
+            gap: "1rem",
+            gridTemplateColumns: "repeat(3, 1fr)",
             marginTop: "1rem",
-            alignItems: "stretch",
           }}
         >
           {cards.map((card) => (
-            <Link to={`${card.link}`} key={`dashboard-card-${card.id}`}>
+            <Link
+              to={`${card.link}`}
+              key={`dashboard-card-${card.id}`}
+              style={{ textDecoration: "none" }}
+            >
               <Box sx={cardStyles}>
                 <Box className="icon">{card.icon}</Box>
-                <Box>
-                  <Typography sx={{ fontSize: "1.4rem" }}>
-                    {card.title}
-                  </Typography>
-                  <Typography
-                    sx={{
-                      fontWeight: 300,
-                      marginTop: "1rem",
-                      maxWidth: "60ch",
-                      flexGrow: 1,
-                    }}
-                  >
-                    {card.description}
-                  </Typography>
-                </Box>
+                <Typography sx={{ fontSize: "0.95rem", fontWeight: 500, color: "text.primary" }}>
+                  {card.title}
+                </Typography>
               </Box>
             </Link>
           ))}
@@ -75,63 +66,41 @@ const Dashboard = () => {
 };
 
 const cardStyles: SxProps = {
-  alignItems: "start",
+  alignItems: "center",
   bgcolor: "#fff",
-  borderRadius: "var(--border-radius)",
+  borderRadius: "12px",
   display: "flex",
-  gap: "1rem",
-  padding: "1rem",
-  height: "100%",
-
+  flexDirection: "column",
+  gap: "0.75rem",
+  padding: "1.5rem 1rem",
+  textAlign: "center",
+  transition: "all 0.2s ease-in-out",
+  boxShadow: "0 1px 3px rgba(0,0,0,0.08)",
+  "&:hover": {
+    boxShadow: "0 4px 12px rgba(0,0,0,0.12)",
+    transform: "translateY(-2px)",
+  },
   ".icon": {
     bgcolor: "rgba(239, 243, 250, 1)",
-    borderRadius: "var(--border-radius)",
+    borderRadius: "12px",
     color: "primary.main",
-    padding: ".35rem .5rem",
+    padding: "0.75rem",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    "& svg": {
+      fontSize: "1.5rem",
+    },
   },
 };
 
 const cards = [
-  {
-    id: 1,
-    link: "courses",
-    icon: <Inventory />,
-    title: "View Course List",
-    description:
-      " Browse and manage all available courses. Access detailed course information and edit course content as needed.",
-  },
-  {
-    id: 2,
-    link: "cbt",
-    icon: <Assignment />,
-    title: "Manage CBT",
-    description:
-      "Create and oversee computer-based tests for the courses assigned to you",
-  },
-  {
-    id: 3,
-    link: "classes",
-    icon: <BusinessCenter />,
-    title: "Schedule Live Classes",
-    description:
-      "Plan and schedule live interactive classes for your students. Set dates, times, and topics to enhance their learning experience.",
-  },
-  {
-    id: 4,
-    link: "scores",
-    icon: <Inventory />,
-    title: "Record Scores",
-    description:
-      "Update and manage student performance scores efficiently. Keep track of assessments and grading records for all classes.",
-  },
-  {
-    id: 5,
-    link: "notes",
-    icon: <Groups />,
-    title: "Notes and Resources",
-    description:
-      "Provide downloadable notes and resources to support your courses, giving students easy access to essential learning materials.",
-  },
+  { id: 1, link: "courses", icon: <Inventory />, title: "View Courses" },
+  { id: 2, link: "cbt", icon: <Assignment />, title: "Manage CBT" },
+  { id: 3, link: "classes", icon: <BusinessCenter />, title: "Live Classes" },
+  { id: 4, link: "scores", icon: <Groups />, title: "Record Scores" },
+  { id: 5, link: "notes", icon: <MenuBook />, title: "Notes & Resources" },
+  { id: 6, link: "my-activity", icon: <History />, title: "My Activity" },
 ];
 
 export default Dashboard;

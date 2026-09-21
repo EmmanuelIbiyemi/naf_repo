@@ -49,13 +49,16 @@ UpdateRecordModalProps) => {
       obtainable_score: yup.number().required(),
     }),
     onSubmit: async (values) => {
-      await updateRecord({
-        id: parseInt(values.id),
-        name: values.name,
-        obtainable_score: parseInt(values.obtainable_score),
-      }).unwrap();
-      handleOpenSuccessModal();
-      // console.log(values);
+      try {
+        await updateRecord({
+          id: parseInt(values.id),
+          name: values.name,
+          obtainable_score: parseInt(values.obtainable_score),
+        }).unwrap();
+        handleOpenSuccessModal();
+      } catch (error) {
+        // Record update failed - error handled silently
+      }
     },
   });
 

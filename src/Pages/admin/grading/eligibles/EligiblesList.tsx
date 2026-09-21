@@ -13,7 +13,7 @@ import {
   useGetEligiblesQuery,
 } from "../../../../store/api/eligibles.api";
 import { EligibleType } from "../../../../types/eligibles";
-import dayjs from "dayjs";
+import { formatDateNumeric } from "../../../../utils/dateUtils";
 import { Delete } from "@mui/icons-material";
 import { useAppDispatch, useAppSelector } from "../../../../store/hooks";
 import { selectKeyword, setPageLoading } from "../../../../store/app.slice";
@@ -147,11 +147,11 @@ const EligiblesList: React.FC = () => {
                       {eligible.reg_number}
                     </Typography>
                   </TableCell>
-                  <TableCell align="center">{eligible.session}</TableCell>
-                  <TableCell align="center">{eligible.program.name}</TableCell>
-                  <TableCell align="center">{eligible.level.name}</TableCell>
+                  <TableCell align="center">{eligible?.session}</TableCell>
+                  <TableCell align="center">{eligible?.program.name}</TableCell>
+                  <TableCell align="center">{eligible?.level?.name}</TableCell>
                   <TableCell align="center">
-                    {dayjs(eligible.created_at).format("DD-MM-YYYY")}
+                    {formatDateNumeric(eligible?.created_at)}
                   </TableCell>
                   <TableCell align="center">
                     <Button

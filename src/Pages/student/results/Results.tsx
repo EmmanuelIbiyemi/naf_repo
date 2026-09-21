@@ -14,22 +14,23 @@ import {
   SelectChangeEvent,
   Grid2,
   Button,
-  CircularProgress,
   Alert,
   Avatar,
 } from "@mui/material";
 import { useAppDispatch, useAppSelector } from "../../../store/hooks";
-import { selectKeyword, setPageName } from "../../../store/app.slice";
+import { selectKeyword, setPageName, setPageLoading } from "../../../store/app.slice";
 import { useStudentResultQuery } from "../../../store/api/result.api";
 import { useGetSessionsQuery } from "../../../store/api/sessions.api";
 import { selectCurrentUser } from "../../../store/auth.slice";
 import { SessionType } from "../../../types/sessions";
+import SessionDropdown from "../../../components/SessionDropdown";
 import { jsPDF } from "jspdf";
 import html2canvas from "html2canvas";
 
 export default function Results() {
   const dispatch = useAppDispatch();
   const keyword = useAppSelector(selectKeyword);
+  const [selectedSessionObj, setSelectedSessionObj] = useState<SessionType | null>(null);
   const [selectedSession, setSelectedSession] = useState("");
   const [selectedSemester, setSelectedSemester] = useState("");
   const [availableSemesters, setAvailableSemesters] = useState<
@@ -53,6 +54,7 @@ export default function Results() {
   useEffect(() => {
     if (sessionsData?.data && sessionsData.data.length > 0) {
       const currentSession = sessionsData.data[0] as SessionType;
+      setSelectedSessionObj(currentSession);
       setSelectedSession(currentSession.name);
 
       if (currentSession.semesters?.length > 0) {
@@ -64,7 +66,7 @@ export default function Results() {
 
   // Update available semesters when session changes
   const updateAvailableSemesters = (sessionName: string) => {
-    const session = sessionsData?.data.find((s) => s.name === sessionName);
+    const session = sessionsData?.data.find((s) => s.name?.toLowerCase() === sessionName?.toLowerCase());
     if (session?.semesters) {
       setAvailableSemesters(session.semesters);
       setSelectedSemester(session.semesters[0].name);
@@ -87,15 +89,25 @@ export default function Results() {
     }
   );
 
+  const resultFetchError = resultError as any;
+  const isVisibilityBlocked = resultFetchError?.status === 403;
+  const visibleAfterCopy = resultFetchError?.data?.visible_after;
+  const errorMessage =
+    resultFetchError?.data?.message ||
+    resultFetchError?.error ||
+    "Failed to load results. Please try again later.";
+
   useEffect(() => {
     dispatch(setPageName("Results"));
   }, [dispatch]);
 
-  const handleSessionChange = (event: SelectChangeEvent) => {
-    const newSession = event.target.value as string;
-    setSelectedSession(newSession);
-    updateAvailableSemesters(newSession);
-  };
+  useEffect(() => {
+    if (isLoadingSessions || isLoadingResults) {
+      dispatch(setPageLoading(true));
+    } else {
+      dispatch(setPageLoading(false));
+    }
+  }, [isLoadingSessions, isLoadingResults, dispatch]);
 
   const handleSemesterChange = (event: SelectChangeEvent) => {
     setSelectedSemester(event.target.value as string);
@@ -135,21 +147,6 @@ export default function Results() {
     }
   };
 
-  if (isLoadingSessions) {
-    return (
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          height: "100vh",
-        }}
-      >
-        <CircularProgress />
-      </Box>
-    );
-  }
-
   if (sessionsError) {
     return (
       <Alert severity="error">
@@ -158,27 +155,44 @@ export default function Results() {
     );
   }
 
+  const summary = resultData?.data?.summary;
+  const totalCreditUnits = summary?.total_credit_units ?? "N/A";
+  const cumulativeCreditUnits =
+    summary?.cumulative_total_credit_units ??
+    summary?.total_credit_units ??
+    "N/A";
+  const totalGradePoints = summary?.total_grade_points ?? "N/A";
+  const cumulativeGradePoints =
+    summary?.cumulative_total_grade_points ??
+    summary?.total_grade_points ??
+    "N/A";
+  const gpa = summary?.grade_point_average ?? "N/A";
+  const cgpa = summary?.cumulative_grade_point_average ?? "N/A";
+
   return (
     <Box sx={{ padding: "2rem" }}>
       <Box sx={filterContainerStyle}>
-        <Box sx={filterItemStyle}>
-          <Select
-            value={selectedSession}
-            onChange={handleSessionChange}
-            sx={{ minWidth: "200px" }}
-          >
-            {sessionsData?.data.map((session) => (
-              <MenuItem key={session.id} value={session.name}>
-                {session.name}
-              </MenuItem>
-            ))}
-          </Select>
+        <Box sx={{ ...filterItemStyle, minWidth: "200px" }}>
+          <SessionDropdown
+            value={selectedSessionObj}
+            onChange={(session) => {
+              setSelectedSessionObj(session);
+              if (session) {
+                setSelectedSession(session.name);
+                updateAvailableSemesters(session.name);
+              }
+            }}
+            label=""
+            placeholder="Select session"
+          />
         </Box>
-        <Box sx={filterItemStyle}>
+        <Box sx={{ ...filterItemStyle, minWidth: "200px" }}>
           <Select
             value={selectedSemester}
             onChange={handleSemesterChange}
-            sx={{ minWidth: "200px" }}
+            fullWidth
+            size="small"
+            displayEmpty
           >
             {availableSemesters.map((semester) => (
               <MenuItem key={semester.id} value={semester.name}>
@@ -189,20 +203,20 @@ export default function Results() {
         </Box>
       </Box>
 
-      {isLoadingResults ? (
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            height: "50vh",
-          }}
-        >
-          <CircularProgress />
-        </Box>
-      ) : resultError ? (
-        <Alert severity="error">
-          Failed to load results. Please try again later.
+      {resultError ? (
+        <Alert severity={isVisibilityBlocked ? "info" : "error"}>
+          {isVisibilityBlocked ? (
+            <>
+              {errorMessage}
+              {visibleAfterCopy
+                ? ` (Available after ${new Date(
+                    visibleAfterCopy
+                  ).toLocaleString()})`
+                : ""}
+            </>
+          ) : (
+            errorMessage
+          )}
         </Alert>
       ) : !resultData?.data ? (
         <Alert severity="info">
@@ -352,32 +366,31 @@ export default function Results() {
               <Box sx={gpaSectionStyle}>
                 <Typography variant="body1" color="textSecondary">
                   Total Credit Units (TCU):{" "}
-                  {resultData?.data?.summary?.total_credit_units || "N/A"}
+                  {totalCreditUnits}
                 </Typography>
                 <Typography variant="body1" color="textSecondary">
                   Cumulative TCU:{" "}
-                  {resultData?.data?.summary?.total_credit_units || "N/A"}
+                  {cumulativeCreditUnits}
                 </Typography>
               </Box>
               <Box sx={gpaSectionStyle}>
                 <Typography variant="body1" color="textSecondary">
                   Total Credit Points (TCP):{" "}
-                  {resultData?.data?.summary?.total_grade_points || "N/A"}
+                  {totalGradePoints}
                 </Typography>
                 <Typography variant="body1" color="textSecondary">
                   Cumulative TCP:{" "}
-                  {resultData?.data?.summary?.total_grade_points || "N/A"}
+                  {cumulativeGradePoints}
                 </Typography>
               </Box>
               <Box sx={gpaSectionStyle}>
                 <Typography variant="body1" color="textSecondary">
                   Grade Point Average (GPA):{" "}
-                  {resultData?.data?.summary?.grade_point_average || "N/A"}
+                  {gpa}
                 </Typography>
                 <Typography variant="body1" color="textSecondary">
                   CGPA:{" "}
-                  {resultData?.data?.summary?.cumulative_grade_point_average ||
-                    "N/A"}
+                  {cgpa}
                 </Typography>
               </Box>
             </Box>

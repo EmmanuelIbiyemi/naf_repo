@@ -19,6 +19,7 @@ import { useGetLevelsMMutation } from "../../../../store/api/levels.api";
 
 type Form = {
   name: string;
+  instructions: string;
   faculty_id: number;
   department_id: number;
   program_id: number;
@@ -44,6 +45,7 @@ const AddForm = ({ actions }: Props) => {
 
   const initialValues = {
     name: "",
+    instructions: "",
     faculty_id: 0,
     department_id: 0,
     program_id: 0,

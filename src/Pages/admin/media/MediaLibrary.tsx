@@ -89,10 +89,11 @@ const MediaLibrary = () => {
     dispatch(setPageLoading(true));
     try {
       await deleteMedia(id).unwrap();
+      handleCloseModal("delete");
+      handleOpenModal("success");
     } catch (error) {
-      console.log(error);
+      handleCloseModal("delete");
     }
-    handleOpenModal("success");
     dispatch(setPageLoading(false));
   };
 
@@ -115,7 +116,7 @@ const MediaLibrary = () => {
         await deleteMedia(id).unwrap();
         setDeleteIds([]);
       } catch (error) {
-        console.log(error);
+        // Delete failed - continue with remaining items
       }
   };
 
@@ -125,20 +126,23 @@ const MediaLibrary = () => {
   };
 
   useEffect(() => {
-    if (startUpload && files.length) {
-      files.forEach(async (file, i) => {
-        try {
-          const form = new FormData();
-          form.append("file", file);
-          const response = await addMedia(form).unwrap();
-          console.log(response);
-        } catch (error) {
-          console.log(error);
+    const uploadFiles = async () => {
+      if (startUpload && files.length) {
+        for (let i = 0; i < files.length; i++) {
+          const file = files[i];
+          try {
+            const form = new FormData();
+            form.append("file", file);
+            await addMedia(form).unwrap();
+          } catch (error) {
+            // Upload failed - continue with remaining files
+          }
         }
-        setFiles((prev) => prev.filter((_, j) => i != j));
-      });
-    }
-  }, [startUpload]);
+        setFiles([]);
+      }
+    };
+    uploadFiles();
+  }, [startUpload, files, addMedia]);
 
   useEffect(() => {
     if (!files.length) setStartUpload(false);
@@ -177,7 +181,6 @@ const MediaLibrary = () => {
         actions={{
           proceed: () => {
             if (selectedMedia) handleDeleteMedia(selectedMedia.id);
-            console.log("proceed");
           },
         }}
         close={() => handleCloseModal("delete")}

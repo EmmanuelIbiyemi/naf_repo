@@ -7,6 +7,7 @@ import SettingsIcon from "../../assets/settingsIcon";
 import { ElementType } from "react";
 import ClipBoardIcon from "../../assets/clipboardIcon";
 import { ChevronRight } from "@mui/icons-material";
+import { useAppConfig } from "../../hooks/useAppConfig";
 
 type NavLink = {
   content: string;
@@ -35,6 +36,7 @@ const navLinks: NavLink[] = [
 
 const SideBar = () => {
   const location = useLocation();
+  const { config } = useAppConfig();
 
   const isCurrentPage = (navLink: NavLink) => {
     if (navLink.content.toLowerCase() !== "") {
@@ -59,7 +61,7 @@ const SideBar = () => {
   return (
     <Box className="sidebar" sx={sideBarStyles}>
       <img
-        src={import.meta.env.VITE_LOGO}
+        src={config.logo}
         alt=""
         width={80}
         style={{ display: "block", marginInline: "auto" }}

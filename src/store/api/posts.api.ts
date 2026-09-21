@@ -1,7 +1,7 @@
 import { AnnouncementResponse } from "../../Pages/student/announcements/SingleAnnouncement";
 import { PostsResponseAnnouncement } from "../../types/announcements";
 import { Pagination } from "../../types/pagination";
-import { CategoriesResponse, PostCreateType, PostResponse, PostsResponse } from "../../types/posts";
+import { CategoriesResponse, PostCreateType, PostResponse, PostsResponse, TagsResponse } from "../../types/posts";
 import { appApi } from "./app.api";
 
 const postsApi = appApi.injectEndpoints({
@@ -35,6 +35,10 @@ const postsApi = appApi.injectEndpoints({
         `/post/categories?page=${page}&per_page=${per_page}${
           search_term ? "&search_term=" + search_term : ""
         }`,
+      providesTags: ["Posts"],
+    }),
+    getPostTags: builder.query<TagsResponse, void>({
+      query: () => `/post/tags`,
       providesTags: ["Posts"],
     }),
     getPostByCategory: builder.query<
@@ -89,6 +93,33 @@ const postsApi = appApi.injectEndpoints({
       }),
       invalidatesTags: ["Posts"],
     }),
+    reorderPost: builder.mutation<PostResponse, { id: number; date: string }>({
+      query: ({ id, date }) => ({
+        url: `/post/${id}`,
+        method: "PUT",
+        body: { date },
+      }),
+      invalidatesTags: ["Posts"],
+    }),
+    exportPostContent: builder.mutation<Blob, number>({
+      query: (post_id) => ({
+        url: `/post/${post_id}/export`,
+        method: "GET",
+        responseHandler: (response) => response.blob(),
+      }),
+    }),
+    importPostContent: builder.mutation<{ message: string; blocks_imported: number }, { post_id: number; file: File }>({
+      query: ({ post_id, file }) => {
+        const formData = new FormData();
+        formData.append('file', file);
+        return {
+          url: `/post/${post_id}/import`,
+          method: "POST",
+          body: formData,
+        };
+      },
+      invalidatesTags: ["Posts"],
+    }),
   }),
   overrideExisting: false,
 });
@@ -98,13 +129,17 @@ export const {
   useAddPostMutation,
   useUpdatePostMutation,
   useDeletePostMutation,
+  useReorderPostMutation,
   useDeletePostBlockMutation,
   useGetPostQuery,
   useGetPostMMutation,
   useGetPostCategoriesQuery,
+  useGetPostTagsQuery,
   useGetPostCategoriesByTagQuery,
   useGetPostBySlugQuery,
   useGetPostByCategoryQuery,
   useGetSingleAnnouncementQuery,
   useGetAnnouncementsQuery,
+  useExportPostContentMutation,
+  useImportPostContentMutation,
 } = postsApi;

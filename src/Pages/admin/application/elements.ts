@@ -1,91 +1,49 @@
-import headingIcon from "../../../assets/heading.svg";
-import textIcon from "../../../assets/paragraph.svg";
-import textfieldIcon from "../../../assets/textfield.svg";
-import datePickerIcon from "../../../assets/datepicker.svg";
-import userIcon from "../../../assets/user.svg";
-import imageIcon from "../../../assets/image.svg";
-import singleChoiceIcon from "../../../assets/singlechoice.svg";
+import {
+  TextFields,
+  VerifiedUser,
+  SupervisedUserCircle,
+} from "@mui/icons-material";
 
 export const formElements = [
   {
     id: 1,
-    image: headingIcon,
-    type: "heading",
-    name: "Heading",
-    key: "heading",
-    options: null,
+    icon: VerifiedUser,
+    type: "text",
+    name: "Reg. Number",
+    key: "reg_number",
+    placeholder: "Enter your registration number",
   },
   {
     id: 2,
-    image: textIcon,
-    type: "paragraph",
-    name: "Paragraph",
-    key: "paragraph",
-    options: null,
+    icon: SupervisedUserCircle,
+    type: "text",
+    name: "First Name",
+    key: "first_name",
+    placeholder: "Enter your first name",
   },
 
   {
     id: 3,
-    image: userIcon,
-    type: "full-name",
-    name: "Full Name",
-    key: "full_name",
-    options: null,
+    icon: SupervisedUserCircle,
+    type: "text",
+    name: "Last Name",
+    key: "last_name",
+    placeholder: "Enter your last name",
   },
   {
     id: 4,
-    image: textfieldIcon,
-    type: "text-field",
+    icon: TextFields,
+    type: "text",
     name: "Email",
     key: "email",
-    options: null,
+    placeholder: "Enter your email",
   },
   {
     id: 5,
-    image: textfieldIcon,
-    type: "text-field",
-    name: "Phone Number",
-    key: "phone_number",
-    options: null,
+    icon: TextFields,
+    type: "",
+    name: "Custom Field",
+    key: "",
+    placeholder: "",
   },
-  {
-    id: 6,
-    image: textfieldIcon,
-    type: "text-field",
-    name: "Home Address",
-    key: "home_address",
-    options: null,
-  },
-  {
-    id: 7,
-    image: singleChoiceIcon,
-    type: "single-choice",
-    name: "Gender",
-    key: "gender",
-    options: ["Male", "Female"],
-  },
-  {
-    id: 7,
-    image: singleChoiceIcon,
-    type: "single-choice",
-    name: "Marital Status",
-    key: "marital_status",
-    options: ["Single", "Married", "Other"],
-  },
-  {
-    id: 8,
-    image: datePickerIcon,
-    type: "date-picker",
-    name: "DOB",
-    key: "dob",
-    options: null,
-  },
-  {
-    id: 9,
-    image: imageIcon,
-    type: "images",
-    name: "Headshot",
-    key: "headshot",
-    options: null,
-  },
-];
+  ];

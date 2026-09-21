@@ -213,7 +213,7 @@ const SingleAnnouncementPage = () => {
             },
           }}
         >
-          {announcement.blocks.map((block) => (
+          {announcement?.blocks?.map((block) => (
             <Box key={block.id}>
               {block.type === 'heading' && (
                 <Typography variant="h5" sx={{ fontWeight: 'bold', mb: 2 }}>

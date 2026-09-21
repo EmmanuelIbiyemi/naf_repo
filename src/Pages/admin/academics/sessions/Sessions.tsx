@@ -27,8 +27,10 @@ const SessionsPage = () => {
     successPromote: false,
     warningPromote: false,
     courseReg: false,
+    successCourseReg: false, // added for course reg success
   });
   const [sessionName, setSessionName] = useState("");
+  const [sessionAction, setSessionAction] = useState(""); // "added" or "updated"
   const [selectedSession, setSelectedSession] = useState<SessionType>();
   const containerRef = useRef<HTMLDivElement>(null);
   const [addSession] = useAddSessionMutation();
@@ -53,6 +55,8 @@ const SessionsPage = () => {
   const handleAddSession = async (session: SessionCreateType) => {
     try {
       await addSession(session).unwrap();
+      const action = selectedSession ? "updated" : "added";
+      setSessionAction(action);
       handleCloseModal("add");
       handleOpenModal("success");
       setSessionName(session.name);
@@ -74,7 +78,7 @@ const SessionsPage = () => {
     try {
       await manageCourseReg(dates).unwrap();
       handleCloseModal("courseReg");
-      handleOpenModal("success");
+      handleOpenModal("successCourseReg"); // open course reg success modal
     } catch (error) {
       console.log(error);
     }
@@ -109,10 +113,11 @@ const SessionsPage = () => {
         close={() => {
           handleCloseModal("success");
           setSelectedSession(undefined);
+          setSessionAction("");
         }}
         infoText=""
         open={openModal.success}
-        subTitle={`You have successfully added a new session "${sessionName}".`}
+        subTitle={`You have successfully ${sessionAction} session "${sessionName}".`}
         title="Updates Successful"
       />
 
@@ -123,6 +128,17 @@ const SessionsPage = () => {
         infoText=""
         open={openModal.successPromote}
         subTitle={`You have successfully promoted all students.`}
+        title="Updates Successful"
+      />
+
+      {/* New Success Modal for Course Registration */}
+      <SuccessModal
+        close={() => {
+          handleCloseModal("successCourseReg");
+        }}
+        infoText=""
+        open={openModal.successCourseReg}
+        subTitle={`You have successfully updated course registration dates.`}
         title="Updates Successful"
       />
 
@@ -153,7 +169,8 @@ const SessionsPage = () => {
           text: "Promote all Students",
         }}
         tertiaryButton={{
-          action: () => setOpenModal((prev) => ({ ...prev, courseReg: true })),
+          action: () =>
+            setOpenModal((prev) => ({ ...prev, courseReg: true })),
           text: "Manage Course Reg",
         }}
       />

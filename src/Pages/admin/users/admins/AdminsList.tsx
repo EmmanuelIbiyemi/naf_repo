@@ -5,7 +5,7 @@ import TableContainer from "@mui/material/TableContainer";
 import TableRow from "@mui/material/TableRow";
 import { AdminFormAction, Admin } from "../../../../types/admins";
 import { Box, Button, Checkbox, IconButton, Typography } from "@mui/material";
-import { Delete, Edit } from "@mui/icons-material";
+import { Delete, Edit, LockReset } from "@mui/icons-material"; // <-- added LockReset
 import DeleteConfirmationModal from "../../../../components/DeleteConfirmationModal";
 import { ChangeEvent, useEffect, useState } from "react";
 import {
@@ -13,6 +13,7 @@ import {
   useGetAdminsQuery,
   useUpdateAdminMutation,
 } from "../../../../store/api/admins.api";
+import { useResetUserPasswordMutation } from "../../../../store/api/auth.api"; // <-- imported reset mutation
 import FormModal from "../../../../components/FormModal";
 import AdminForm from "./AdminsForm";
 import SuccessModal from "../../../../components/SuccessModal";
@@ -30,6 +31,7 @@ const AdminsList = () => {
     delete: false,
     sidebar: false,
     bulkDelete: false,
+    resetPassword: false, // <-- added flag for reset password
   });
   const [selectedAdmin, setSelectedAdmin] = useState<Admin>();
   const [pagination, setPagination] = useState<Pagination>({
@@ -46,6 +48,7 @@ const AdminsList = () => {
   const [admins, setAdmins] = useState<Admin[] | undefined>(adminsData?.data);
   const [deleteAdmin, deleteState] = useDeleteAdminMutation();
   const [updateAdmin, updateState] = useUpdateAdminMutation();
+  const [resetUserPassword, resetUserPasswordState] = useResetUserPasswordMutation(); // <-- added reset mutation
   const [deleteIds, setDeleteIds] = useState<number[]>([]);
 
   useEffect(() => {
@@ -63,11 +66,12 @@ const AdminsList = () => {
     if (
       (isFetching && !isError) ||
       deleteState.isLoading ||
-      updateState.isLoading
+      updateState.isLoading ||
+      resetUserPasswordState.isLoading // <-- include reset state
     )
       dispatch(setPageLoading(true));
     else dispatch(setPageLoading(false));
-  }, [isFetching, isError, adminsData, deleteState, updateState]);
+  }, [isFetching, isError, adminsData, deleteState, updateState, resetUserPasswordState]);
 
   const handleOpenModal = (admin: Admin, type: string) => {
     setSelectedAdmin(admin);
@@ -119,6 +123,18 @@ const AdminsList = () => {
     }
     handleCloseModal("edit");
     handleOpenModal(admin, "success");
+  };
+
+  // New reset password handler
+  const handleResetPassword = async (admin: Admin) => {
+    try {
+      const result = await resetUserPassword(admin.user_id as number).unwrap();
+      console.log(result.message);
+      setSelectedAdmin(admin);
+      setOpenModal((prev) => ({ ...prev, resetPassword: true }));
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (
@@ -173,8 +189,17 @@ const AdminsList = () => {
         }}
         infoText=""
         open={openModal.success}
-        subTitle={`You have successfully added a new Admin ${selectedAdmin?.first_name}”</strong>.`}
+        subTitle={`You have successfully added a new Admin ${selectedAdmin?.first_name}.`}
         title="Updates Successful"
+      />
+
+      {/* Reset Password Success */}
+      <SuccessModal
+        close={() => handleCloseModal("resetPassword")}
+        infoText=""
+        open={openModal.resetPassword}
+        subTitle={`You have successfully reset the password for ${selectedAdmin?.first_name}.`}
+        title="Password Reset Successful"
       />
 
       {isError ? (
@@ -194,7 +219,7 @@ const AdminsList = () => {
       <Box sx={{ paddingLeft: "1rem", display: "flex", gap: "1rem" }}>
         <Checkbox
           onChange={handleSelectAll}
-          checked={admins?.length == deleteIds.length}
+          checked={admins?.length === deleteIds.length}
         />
         {deleteIds.length ? (
           <Button
@@ -248,6 +273,12 @@ const AdminsList = () => {
                       onClick={() => handleOpenModal(admin, "delete")}
                     >
                       <Delete />
+                    </IconButton>
+                    <IconButton 
+                      onClick={() => admin.user_id && handleResetPassword(admin)}
+                      disabled={!admin.user_id}
+                    >
+                      <LockReset />
                     </IconButton>
                   </TableCell>
                 </TableRow>

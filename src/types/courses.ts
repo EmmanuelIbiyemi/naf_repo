@@ -23,6 +23,12 @@ export type CourseRegType = {
   end_date: string;
 };
 
+export type CourseRegResponse = {
+  data: CourseRegType;
+  message?: string;
+  status?: string;
+};
+
 export type CourseCreateType = CourseBaseType & {
   instructor_ids: number[];
 };

@@ -15,6 +15,7 @@ export type PostBaseType = {
   featured_image?: string;
   slug?: string;
   title: string;
+  view_as_page?: boolean;
 };
 
 export type PostCreateType = PostBaseType & {
@@ -42,4 +43,7 @@ export type CategoryType = {
 export type CategoryResponse = { category: CategoryType };
 export type CategoriesResponse = {
   categories: CategoryType[];
+};
+export type TagsResponse = {
+  tags: CategoryType[];
 };

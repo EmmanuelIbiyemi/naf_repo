@@ -10,6 +10,7 @@ export type Admin = {
   phone: string;
   photo: string;
   updated_at?: string;
+  user_id: number;
 };
 
 export type AdminCreateType = Admin & {};

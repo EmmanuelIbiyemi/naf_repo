@@ -48,6 +48,7 @@ const StudentForm = ({ actions, studentId }: Props) => {
     courses: student?.courses || [],
     address: student?.address || "",
     photo: student?.photo || "",
+    matric_number: student?.matric_number || "",
     faculty_id: student?.level?.program?.department?.faculty_id || 0,
     department_id: student?.level?.program?.department_id || 0,
     program_id: student?.level?.program_id || 0,
@@ -87,7 +88,7 @@ const StudentForm = ({ actions, studentId }: Props) => {
   const handleSubmit = async (values: StudentCreateType) => {
     const formattedValues = {
       ...values,
-      courses: values.courses
+      courses: (values.courses || [])
         .map((course) => typeof course === 'object' ? course.id : course)
         .filter((id): id is number => id !== undefined),
     };
@@ -125,7 +126,7 @@ const StudentForm = ({ actions, studentId }: Props) => {
         }).unwrap();
       }
     } catch (error) {
-      console.log(error);
+      // Error handled - cascade selects may fail silently
     }
   };
 
@@ -185,6 +186,11 @@ const StudentForm = ({ actions, studentId }: Props) => {
             <label htmlFor="phone">Phone</label>
             <Field id="phone" name="phone" />
             {errors.phone && touched.phone && <div>{errors.phone}</div>}
+          </Box>
+          <Box>
+            <label htmlFor="matric_number">Reg Number</label>
+            <Field id="matric_number" name="matric_number" />
+            {errors.matric_number && touched.matric_number && <div>{errors.matric_number}</div>}
           </Box>
           <Box>
             <label htmlFor="faculty">Faculty</label>

@@ -103,7 +103,7 @@ const participantsApi = appApi.injectEndpoints({
       { data: ParticipantData[] },
       { course_id: number | null }
     >({
-      query: ({ course_id }) => `/participant/course/${course_id}`,
+      query: ({ course_id }) => `/participant/course/${course_id}?per_page=1000`,
       providesTags: ["Participants"],
     }),
 

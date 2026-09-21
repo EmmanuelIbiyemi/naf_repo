@@ -5,13 +5,13 @@ import {
   Button,
   IconButton,
   InputAdornment,
-  CircularProgress,
   Alert,
+  CircularProgress,
 } from "@mui/material";
 import { Visibility, VisibilityOff, Upload } from "@mui/icons-material";
 import { useState, useEffect } from "react";
 import { useAppDispatch, useAppSelector } from "../../../store/hooks";
-import { setPageName } from "../../../store/app.slice";
+import { setPageName, setPageLoading } from "../../../store/app.slice";
 import {} from "../../../store/api/participants.api";
 import { useAddMediaMutation } from "../../../store/api/media.api";
 import EmptyState from "../../../components/EmptyState";
@@ -30,6 +30,14 @@ const AccountSettings = () => {
   const [updateInstructor, { isLoading: isUpdating }] =
     useUpdateInstructorMutation();
   const [addMedia, { isLoading: isUploadingMedia }] = useAddMediaMutation();
+
+  useEffect(() => {
+    if (isLoading) {
+      dispatch(setPageLoading(true));
+    } else {
+      dispatch(setPageLoading(false));
+    }
+  }, [isLoading, dispatch]);
 
   const [formData, setFormData] = useState({
     first_name: "",
@@ -216,22 +224,6 @@ const AccountSettings = () => {
       }
     }
   };
-
-  if (isLoading) {
-    return (
-      <Box
-        sx={{
-          padding: "2rem",
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          minHeight: "50vh",
-        }}
-      >
-        <CircularProgress />
-      </Box>
-    );
-  }
 
   if (!userData) {
     return (

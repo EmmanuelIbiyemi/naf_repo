@@ -2,8 +2,11 @@ import { Pagination } from "../../types/pagination";
 import {
   SingleStudentResponse,
   StudentCreateType,
+  StudentPhotoUploadResponse,
   StudentsResponse,
+  StudentsUploadType,
   StudentType,
+  StudentUploadResponse,
 } from "../../types/students";
 import { appApi } from "./app.api";
 
@@ -31,6 +34,25 @@ const studentsApi = appApi.injectEndpoints({
       }),
       invalidatesTags: ["Students"],
     }),
+    uploadStudents: builder.mutation<StudentUploadResponse, StudentsUploadType>({
+          query: (data) => ({
+            url: `/participant/upload`,
+            method: "POST",
+            body: data,
+          }),
+          invalidatesTags: ["Students"],
+        }),
+    bulkUploadStudentPhotos: builder.mutation<
+      StudentPhotoUploadResponse,
+      FormData
+    >({
+      query: (data) => ({
+        url: `/media/student-photos`,
+        method: "POST",
+        body: data,
+      }),
+      invalidatesTags: ["Students"],
+    }),
     promoteAll: builder.mutation<StudentsResponse, null>({
       query: () => ({
         url: `/participant/promote`,
@@ -53,6 +75,23 @@ const studentsApi = appApi.injectEndpoints({
       }),
       invalidatesTags: ["Students"],
     }),
+    bulkDeleteStudents: builder.mutation<
+      {
+        message: string;
+        status: string;
+        deleted_ids: number[];
+        not_found_ids: number[];
+        invalid_ids: (number | string)[];
+      },
+      { participant_ids: number[] }
+    >({
+      query: ({ participant_ids }) => ({
+        url: `/participant/bulk`,
+        method: "DELETE",
+        body: { participant_ids },
+      }),
+      invalidatesTags: ["Students"],
+    }),
   }),
   overrideExisting: false,
 });
@@ -60,8 +99,11 @@ const studentsApi = appApi.injectEndpoints({
 export const {
   useGetStudentsQuery,
   useAddStudentMutation,
+  useUploadStudentsMutation,
+  useBulkUploadStudentPhotosMutation,
   useUpdateStudentMutation,
   useDeleteStudentMutation,
+  useBulkDeleteStudentsMutation,
   useGetStudentQuery,
   usePromoteAllMutation,
 } = studentsApi;

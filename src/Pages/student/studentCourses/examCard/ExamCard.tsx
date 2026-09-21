@@ -53,8 +53,8 @@ const ExamCard = () => {
   const participant = response?.data;
 
   // Sample exam data - you would typically get this from another endpoint
-  const examRows = participant?.courses.filter(
-    (course) => course.semester === currentSemester?.data.name
+  const examRows = participant?.courses?.filter(
+    (course) => course.semester?.toLowerCase() === currentSemester?.data.name?.toLowerCase()
   );
 
   return (
@@ -153,7 +153,7 @@ const ExamCard = () => {
               <strong>SEMESTER:</strong> {currentSemester?.data.name || "N/A"}
             </Typography>
             <Typography variant="body2">
-              <strong>LEVEL:</strong> {participant?.level.name || "100"}
+              <strong>LEVEL:</strong> {participant?.level?.name || "100"}
             </Typography>
             <Typography variant="body2">
               <strong>SESSION:</strong> {currentSession?.data.name || "N/A"}

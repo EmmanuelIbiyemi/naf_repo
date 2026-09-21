@@ -71,7 +71,7 @@ import {
   ArrowBack,
   AccessTime,
 } from "@mui/icons-material";
-import { format } from "date-fns";
+import { formatDateLong, formatTime } from "../../../utils/dateUtils";
 
 const SingleAnnouncementPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -173,14 +173,14 @@ const SingleAnnouncementPage = () => {
             <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
               <CalendarToday fontSize="small" color="action" />
               <Typography variant="body2" color="text.secondary">
-                {format(new Date(announcement.date), "MMMM dd, yyyy")}
+                {formatDateLong(announcement.date)}
               </Typography>
             </Box>
 
             <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
               <AccessTime fontSize="small" color="action" />
               <Typography variant="body2" color="text.secondary">
-                {format(new Date(announcement.date), "hh:mm a")}
+                {formatTime(announcement.date)}
               </Typography>
             </Box>
           </Box>
@@ -213,7 +213,7 @@ const SingleAnnouncementPage = () => {
             },
           }}
         >
-          {announcement.blocks.map((block) => (
+          {announcement?.blocks?.map((block) => (
             <Box key={block.id}>
               {block.type === 'heading' && (
                 <Typography variant="h5" sx={{ fontWeight: 'bold', mb: 2 }}>
@@ -314,7 +314,7 @@ const SingleAnnouncementPage = () => {
           >
             <Typography variant="caption" color="text.secondary">
               Last updated:{" "}
-              {format(new Date(announcement.updated_at), "MMMM dd, yyyy")}
+              {formatDateLong(announcement.updated_at)}
             </Typography>
 
             {announcement.categories && announcement.categories.length > 0 && (

@@ -15,12 +15,19 @@ import {
   SxProps,
   TableHead,
   Typography,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
 } from "@mui/material";
+import { LoadingButton } from "@mui/lab";
 import { ChangeEvent, useEffect, useState } from "react";
 import DeleteConfirmationModal from "../../../../components/DeleteConfirmationModal";
-import { Check, Delete } from "@mui/icons-material";
+import { Check, Delete, FileDownload } from "@mui/icons-material";
 import {
   useDeleteApplicantMutation,
+  useDownloadApplicantsCSVMutation,
   useGetApplicantsQuery,
   useUpdateApplicantStatusMutation,
 } from "../../../../store/api/applicants.api";
@@ -42,6 +49,7 @@ const ApplicantList = () => {
     bulkDelete: false,
   });
   const [selectedApplicant, setSelectedApplicant] = useState<ApplicantType2>();
+  const [menuApplicant, setMenuApplicant] = useState<ApplicantType2 | undefined>();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
   const keyword = useAppSelector(selectKeyword);
@@ -63,7 +71,35 @@ const ApplicantList = () => {
   const [deleteApplicant, deleteState] = useDeleteApplicantMutation();
   const [updateApplicantStatus, updateState] =
     useUpdateApplicantStatusMutation();
+  const [downloadApplicantsCSV, { isLoading: isDownloading }] = useDownloadApplicantsCSVMutation();
   const [deleteIds, setDeleteIds] = useState<number[]>([]);
+
+  const [statusConfirmation, setStatusConfirmation] = useState({
+    open: false,
+    id: 0,
+    status: "",
+  });
+
+  const [deleteConfirmation, setDeleteConfirmation] = useState({
+    open: false,
+    id: 0,
+  });
+
+  const handleOpenStatusConfirmation = (id: number, status: string) => {
+    setStatusConfirmation({ open: true, id, status });
+  };
+
+  const handleCloseStatusConfirmation = () => {
+    setStatusConfirmation({ open: false, id: 0, status: "" });
+  };
+
+  const handleOpenDeleteConfirmation = (id: number) => {
+    setDeleteConfirmation({ open: true, id });
+  };
+
+  const handleCloseDeleteConfirmation = () => {
+    setDeleteConfirmation({ open: false, id: 0 });
+  };
 
   useEffect(() => {
     if (apcts?.data) setApplicants(apcts?.data);
@@ -102,11 +138,6 @@ const ApplicantList = () => {
       color: "rgba(229, 72, 77, 1)",
     },
   ];
-
-  const handleOpenModal = (applicant: ApplicantType2, type: string) => {
-    setSelectedApplicant(applicant);
-    setOpenModal((prev) => ({ ...prev, [type]: true }));
-  };
 
   const handleCloseModal = (type: string) => {
     setOpenModal((prev) => ({ ...prev, [type]: false }));
@@ -151,7 +182,7 @@ const ApplicantList = () => {
     applicant: ApplicantType2
   ) => {
     setAnchorEl(event.currentTarget);
-    setSelectedApplicant(applicant);
+    setMenuApplicant(applicant);
   };
 
   const handleCloseMenu = () => {
@@ -160,10 +191,37 @@ const ApplicantList = () => {
 
   const handleChangeStatus = async (id: number, status: string) => {
     handleCloseMenu();
+    handleCloseStatusConfirmation();
     try {
       await updateApplicantStatus({ applicant_id: id, status }).unwrap();
     } catch (error) {
       console.log(error);
+    }
+  };
+
+  // Function to handle downloading applicants as CSV
+  const handleDownloadCSV = async () => {
+    try {
+      const params = program_id 
+        ? { program_id: +program_id, search_term: keyword }
+        : { search_term: keyword };
+      
+      const response = await downloadApplicantsCSV(params).unwrap();
+      
+      // Create a blob from the response
+      const blob = new Blob([response], { type: 'text/csv' });
+      
+      // Create a download link and trigger the download
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'applicants.csv';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.log('Error downloading CSV:', error);
     }
   };
 
@@ -174,26 +232,66 @@ const ApplicantList = () => {
         toggleDrawer={() => setSelectedApplicant(undefined)}
       />
 
-      <DeleteConfirmationModal
-        actions={{
-          proceed: () => {
-            if (selectedApplicant) handleDeleteApplicant(selectedApplicant.id);
-            console.log("proceed");
-          },
-        }}
-        close={() => handleCloseModal("delete")}
-        infoText=""
-        open={openModal.delete}
-        subTitle={`Are you sure you want to delete Applicant`}
-        title="Delete Applicant?"
-      />
+      {/* Confirmation before changing status */}
+      <Dialog
+        open={statusConfirmation.open}
+        onClose={handleCloseStatusConfirmation}
+        aria-describedby="alert-dialog-slide-description"
+      >
+        <DialogTitle>{"Change Applicant Status?"}</DialogTitle>
+        <DialogContent>
+          <DialogContentText id="alert-dialog-slide-description">
+            Are you sure you want to change the applicant's status to{" "}
+            <b>{statusConfirmation.status}</b>?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseStatusConfirmation}>Cancel</Button>
+          <Button
+            onClick={() =>
+              handleChangeStatus(
+                statusConfirmation.id,
+                statusConfirmation.status
+              )
+            }
+          >
+            Confirm
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Confirmation before deleting applicant */}
+      <Dialog
+        open={deleteConfirmation.open}
+        onClose={handleCloseDeleteConfirmation}
+        aria-describedby="alert-dialog-slide-description"
+      >
+        <DialogTitle>{"Delete Applicant?"}</DialogTitle>
+        <DialogContent>
+          <DialogContentText id="alert-dialog-slide-description">
+            Are you sure you want to delete this applicant? This action cannot
+            be undone.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseDeleteConfirmation}>Cancel</Button>
+          <Button
+            onClick={() => {
+              handleDeleteApplicant(deleteConfirmation.id);
+              handleCloseDeleteConfirmation();
+            }}
+          >
+            Confirm
+          </Button>
+        </DialogActions>
+      </Dialog>
 
       <DeleteConfirmationModal
         actions={{
           proceed: () => handleBulkDelete(),
         }}
         close={() => handleCloseModal("bulkDelete")}
-        infoText="You can’t undo this action."
+        infoText="You can't undo this action."
         open={openModal.bulkDelete}
         subTitle={`Are you sure you want to delete ${deleteIds.length} Applicants ?`}
         title="Delete Applicants?"
@@ -209,17 +307,18 @@ const ApplicantList = () => {
           Change Status
         </Typography>
         {menuList.map((li) => (
-          <MenuItem key={li.label} onClick={handleCloseMenu}>
+          <MenuItem
+            key={li.label}
+            onClick={() =>
+              handleOpenStatusConfirmation(menuApplicant?.id ?? 1, li.label)
+            }
+          >
             <Chip
               sx={{ bgcolor: li.bgcolor, color: li.color }}
               label={li.label}
               clickable
-              onClick={() =>
-                handleChangeStatus(selectedApplicant?.id || 1, li.label)
-              }
             />
-            {selectedApplicant?.status?.toLowerCase() ==
-            li.label.toLowerCase() ? (
+            {menuApplicant?.status?.toLowerCase() === li.label.toLowerCase() ? (
               <Check />
             ) : null}
           </MenuItem>
@@ -236,19 +335,32 @@ const ApplicantList = () => {
         <EmptyState title="No Applicants found" subTitle="" />
       ) : (
         <>
+          {/* Export CSV Button */}
+          <Box sx={{ display: "flex", justifyContent: "flex-end", mb: 2 }}>
+            <LoadingButton
+              variant="contained"
+              color="primary"
+              startIcon={<FileDownload />}
+              onClick={handleDownloadCSV}
+              loading={isDownloading}
+              disabled={isDownloading}
+            >
+              Export
+            </LoadingButton>
+          </Box>
+          
           <Table
             sx={{
               minWidth: 650,
               ".MuiTableCell-root": {
-                a: {
-                  maxWidth: 200,
-                  padding: "",
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
-                  whiteSpace: "nowrap",
-                },
+                padding: "",
+                maxWidth: 200,
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
               },
             }}
+            aria-label="applicants table"
           >
             <TableHead>
               <TableRow>
@@ -292,8 +404,8 @@ const ApplicantList = () => {
                   </Box>
                   <Typography sx={{ marginLeft: "1rem" }}>Name</Typography>
                 </TableCell>
+                <TableCell>Reg. Number</TableCell>
                 <TableCell>Email Address</TableCell>
-                <TableCell>Phone Number</TableCell>
                 <TableCell>Status</TableCell>
                 <TableCell align="center">Actions</TableCell>
               </TableRow>
@@ -316,6 +428,8 @@ const ApplicantList = () => {
                 <TableRow
                   key={applicant.id}
                   sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+                  onClick={() => setSelectedApplicant(applicant)}
+                  style={{cursor: "pointer"}}
                 >
                   <TableCell
                     component="th"
@@ -330,24 +444,20 @@ const ApplicantList = () => {
                     />
                     <Typography
                       style={{
-                        textTransform: "capitalize",
-                        fontWeight: 500,
-                        cursor: "pointer",
-                        textWrap: "nowrap",
-                      }}
-                      onClick={() => setSelectedApplicant(applicant)}
-                    >
-                      {applicant.data?.full_name ||
-                        applicant.data?.first_name +
-                          " " +
-                          applicant.data?.last_name}
+                      textTransform: "capitalize",
+                      fontWeight: 500,
+                      textWrap: "nowrap",
+                      }}>
+                      {applicant.data?.first_name && applicant.data?.last_name
+                      ? applicant.data.first_name + " " + applicant.data.last_name
+                      : "--"}
                     </Typography>
                   </TableCell>
                   <TableCell component="th" scope="row">
-                    {applicant.data.email}
+                    {applicant.data.reg_number}
                   </TableCell>
                   <TableCell component="th" scope="row">
-                    {applicant.data.phone}
+                    {applicant.data.email}
                   </TableCell>
                   <TableCell component="th" scope="row">
                     <Chip
@@ -370,7 +480,7 @@ const ApplicantList = () => {
                   </TableCell>
                   <TableCell align="center">
                     <IconButton
-                      onClick={() => handleOpenModal(applicant, "delete")}
+                      onClick={() => handleOpenDeleteConfirmation(applicant.id as number)}
                     >
                       <Delete />
                     </IconButton>

@@ -36,22 +36,24 @@ const PageHeader = ({ button, secondaryButton, tertiaryButton }: Props) => {
 
   useEffect(() => {
     dispatch(setKeyword("")); // clear search field on page change
-  }, [location]);
+  }, [location, dispatch]);
 
   return (
     <Box
       sx={{
-        alignItems: "center",
+        alignItems: { xs: "stretch", lg: "center" },
         display: "flex",
+        flexDirection: { xs: "column", lg: "row" },
+        gap: "1rem",
         justifyContent: "space-between",
         padding: "var(--padding)",
       }}
     >
-      <Box sx={{ display: "flex", gap: "1rem" }}>
+      <Box sx={headerPrimaryStyles}>
         <Button
           onClick={() => navigate(-1)}
           variant="outlined"
-          sx={{ paddingLeft: ".5rem" }}
+          sx={{ paddingLeft: ".5rem", flexShrink: 0, whiteSpace: "nowrap" }}
         >
           <ArrowBack sx={{ marginRight: ".4rem" }} /> Back
         </Button>
@@ -61,7 +63,7 @@ const PageHeader = ({ button, secondaryButton, tertiaryButton }: Props) => {
           onSubmit={handleSubmit}
         >
           <Form>
-            <Box sx={formGroupStyles}>
+            <Box sx={searchFormStyles}>
               <Box sx={searchFieldStyles}>
                 <Search />
                 <Field name="keyword" placeholder="Search..." />
@@ -71,16 +73,13 @@ const PageHeader = ({ button, secondaryButton, tertiaryButton }: Props) => {
         </Formik>
       </Box>
       {button ? (
-        <Box sx={formGroupStyles}>
+        <Box sx={actionGroupStyles}>
           {tertiaryButton ? (
             <Button
               onClick={tertiaryButton.action}
               variant="contained"
-              sx={{
-                bgcolor: "#fff",
-                color: "primary.main",
-                textTransform: "capitalize",
-              }}
+              sx={secondaryButtonStyles}
+              disabled={tertiaryButton.disabled}
             >
               {tertiaryButton.text}
             </Button>
@@ -89,11 +88,8 @@ const PageHeader = ({ button, secondaryButton, tertiaryButton }: Props) => {
             <Button
               onClick={secondaryButton.action}
               variant="contained"
-              sx={{
-                bgcolor: "#fff",
-                color: "primary.main",
-                textTransform: "capitalize",
-              }}
+              sx={secondaryButtonStyles}
+              disabled={secondaryButton.disabled}
             >
               {secondaryButton.text}
             </Button>
@@ -101,7 +97,7 @@ const PageHeader = ({ button, secondaryButton, tertiaryButton }: Props) => {
           <Button
             onClick={button.action}
             variant="contained"
-            sx={{ textTransform: "capitalize" }}
+            sx={primaryButtonStyles}
             disabled={button.disabled}
           >
             {button.text}
@@ -118,13 +114,11 @@ const fieldStyles: SxProps = {
   bgcolor: "#fff",
   border: "1px solid rgba(204, 204, 204, 0.6)",
   display: "inline-flex",
-
   "input, select": {
     border: "none",
     borderRadius: "var(--border-radius)",
     padding: ".8rem",
   },
-
   "select, svg": {
     color: "rgba(138, 138, 138, 1)",
   },
@@ -133,11 +127,13 @@ const fieldStyles: SxProps = {
 const searchFieldStyles: SxProps = {
   ...fieldStyles,
   alignItems: "center",
+  display: "flex",
+  minWidth: 0,
   paddingInline: ".8rem",
-
   input: {
+    minWidth: 0,
     outline: "none",
-    width: "400px",
+    width: "100%",
   },
 };
 
@@ -145,4 +141,46 @@ const formGroupStyles: SxProps = {
   alignItems: "center",
   display: "flex",
   gap: "1rem",
+};
+
+const headerPrimaryStyles: SxProps = {
+  alignItems: "center",
+  display: "flex",
+  flex: 1,
+  flexWrap: { xs: "wrap", lg: "nowrap" },
+  gap: "1rem",
+  minWidth: 0,
+};
+
+const searchFormStyles: SxProps = {
+  ...formGroupStyles,
+  flex: 1,
+  minWidth: { xs: "100%", md: 0 },
+};
+
+const actionGroupStyles: SxProps = {
+  alignItems: "center",
+  display: "flex",
+  flexShrink: 0,
+  flexWrap: "wrap",
+  gap: "0.75rem",
+  justifyContent: { xs: "flex-start", lg: "flex-end" },
+};
+
+const secondaryButtonStyles: SxProps = {
+  bgcolor: "#fff",
+  color: "primary.main",
+  minHeight: 48,
+  minWidth: 150,
+  px: 2.5,
+  textTransform: "capitalize",
+  whiteSpace: "nowrap",
+};
+
+const primaryButtonStyles: SxProps = {
+  minHeight: 48,
+  minWidth: 150,
+  px: 2.5,
+  textTransform: "capitalize",
+  whiteSpace: "nowrap",
 };
